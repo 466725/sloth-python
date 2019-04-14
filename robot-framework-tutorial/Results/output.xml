@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generated="20170814 20:54:23.576" generator="Robot 3.0.2 (Python 2.7.10 on darwin)">
+<suite source="/Users/weipengzheng/Documents/workspace/Automation-Robot-Python/robot-framework-tutorial/Tests/amazon.robot" id="s1" name="Amazon">
+<test id="s1-t1" name="Guest must sign in to check out">
+<kw name="Open Browser" library="Selenium2Library">
+<doc>Opens a new browser instance to given URL.</doc>
+<arguments>
+<arg>http://www.amazon.com</arg>
+<arg>${Broswer}</arg>
+</arguments>
+<msg timestamp="20170814 20:54:23.865" level="FAIL">Variable '${Broswer}' not found.</msg>
+<status status="FAIL" endtime="20170814 20:54:23.865" starttime="20170814 20:54:23.864"></status>
+</kw>
+<doc>Present some information about this test case</doc>
+<tags>
+<tag>Smoke</tag>
+</tags>
+<status status="FAIL" endtime="20170814 20:54:23.865" critical="yes" starttime="20170814 20:54:23.863">Variable '${Broswer}' not found.</status>
+</test>
+<doc>Present some infomation about this test suite</doc>
+<status status="FAIL" endtime="20170814 20:54:23.866" starttime="20170814 20:54:23.578"></status>
+</suite>
+<statistics>
+<total>
+<stat fail="1" pass="0">Critical Tests</stat>
+<stat fail="1" pass="0">All Tests</stat>
+</total>
+<tag>
+<stat fail="1" pass="0">Smoke</stat>
+</tag>
+<suite>
+<stat fail="1" id="s1" name="Amazon" pass="0">Amazon</stat>
+</suite>
+</statistics>
+<errors>
+<msg timestamp="20170814 20:54:23.578" level="ERROR">Error in file '/Users/weipengzheng/Documents/workspace/Automation-Robot-Python/robot-framework-tutorial/Tests/amazon.robot': Setting variable '${Broswer} = chrome' failed: Invalid variable name '${Broswer} = chrome'.</msg>
+</errors>
+</robot>
