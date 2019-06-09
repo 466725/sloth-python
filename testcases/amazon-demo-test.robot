@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation  Present some infomation about this test suite
+Documentation  Just a Robot Framework Demo test
 Library  Selenium2Library
 
 
@@ -16,6 +16,15 @@ Guest must sign in to check out
     Input Text  id=twotabsearchtextbox   Ferrari 458
     Click Button    xpath=//*[@id="nav-search"]/form/div[2]/div/input
     Wait Until Page Contains  results for "Ferrari 458"
+    Close Browser
+
+Open and then close Chrome browser
+    Open Browser    http://www.amazon.com     Chrome
+    Close Browser
+    Log To Console    Completed Successfully
+
+Open and then close Firefox browser
+    Open Browser    http://www.amazon.com    Firefox
     Close Browser
 
 
