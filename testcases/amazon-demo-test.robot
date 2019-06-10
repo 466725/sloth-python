@@ -1,5 +1,9 @@
 *** Settings ***
 Documentation     Just a Robot Framework Demo test
+Suite Setup       Log To Console    Test Suite Started
+Suite Teardown    Log To Console    Test Suite Completed
+Test Setup        Log To Console    Test Case Started
+Test Teardown     Log To Console    Test Case Completed
 Library           SeleniumLibrary
 
 *** Variables ***

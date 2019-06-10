@@ -1,7 +1,9 @@
 .pydevproject
+.DS_Store
 .project
 *.pyc
-.DS_Store
+*.png
+*.log
 log.html
 output.xml
 report.html
