@@ -1,5 +1,4 @@
-1, Integrate https://stackoverflow.com/questions/12974488/selenium-webdriver-move-mouse-to-point to framework
-2, Use //div[contains(@class, 'tt-suggestion')] to handle dynamic drop-down options
+1, 哈哈
 
 Note: 
 1, Task better to be independent from each other
