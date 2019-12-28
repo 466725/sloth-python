@@ -1,25 +1,13 @@
-# }:'(
-#123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100
-#Tianle91$
-#   $  $
-#    --
-num = int(input('Input a number:'))
-for i in range(1,num + 1):
-    print(i)
-#
 
+for i in range(100):
+    print('Input some letters a word or a number: ')
+#    print('Input a number : ')
+    word = (input())[::-1]
+#    str(word)[::-1]
+    print(word)
+#    print('rebmun a tupnI')
+    print(' :rebmun\  a ro drow a srettel emos tupnI')
 
-
-
-
-
-#                                                                                  __
-#                                                                                 (%%)
-#                                                                                  --
-
-
-
-
-
-
-#
+    print(' ')
+    print(' ')
+    print(' ')
