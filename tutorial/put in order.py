@@ -1,6 +1,6 @@
 #
 numAndWord = (input('input some letters and numbers:'))
-a = 
+a =
 print()
 
 
