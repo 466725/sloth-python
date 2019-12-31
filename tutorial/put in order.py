@@ -1,13 +1,12 @@
 #
+#print sorted(x)
+#print(numAndWord)
+#
 numAndWord = (input('input some letters and numbers:'))
-a =
-print()
-
-
-
-
-
-
+x = [numAndWord]
+#x.sorted()
+sorted({numAndWord})
+print('Sorted list:[',numAndWord, ']')
 
 
 
