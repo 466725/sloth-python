@@ -1,4 +1,3 @@
-
 numAndWord = (input('Input a lot of numbers and some long sentences:'))
 #print(numAndWord[0])
 #print(numAndWord[1])
@@ -70,6 +69,8 @@ for i in range(1):
     print(numAndWord.count('9'), '9s')
     print(numAndWord.count('0'), '0s')
 print('There are' , numAndWord.__len__() , 'letters/numbers in total.')
+
+print(i + 'a')
 # numAndWord  = (input())
 # print sorted(x)
 # print sorted(x)
