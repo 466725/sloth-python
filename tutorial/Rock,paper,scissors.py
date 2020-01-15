@@ -1,16 +1,16 @@
 #Things you may need.
 Q1 = str(input('Do you wish to play agianst a mcu or another player'))
 if Q1 == 'mcu':
-	user = str(input('choose beetween rock paper and scissers:'))
+	user = str(input('choose between rock paper and scissors:'))
 	import random
-	Thislist = ['scissers','rock','paper']
+	Thislist = ['scissors','rock','paper']
 	a = random.randint(0,3)
 	mcu = Thislist[a]
 	if mcu == user:
 		print(user , '!!!')
 		print(mcu , '!!!')
 		print('You tied!!!')
-	elif mcu == 'scissers' and user == 'rock':
+	elif mcu == 'scissors' and user == 'rock':
 		print(user , '!!!')
 		print(mcu , '!!!')
 		print('You won!!!')
@@ -18,15 +18,15 @@ if Q1 == 'mcu':
 		print(user , '!!!')
 		print(mcu , '!!!')
 		print('You won!!!')
-	elif mcu == 'paper' and user == 'scissers':
+	elif mcu == 'paper' and user == 'scissors':
 		print(user , '!!!')
 		print(mcu , '!!!')
 		print('You won!!!')
-	elif mcu == 'rock' and user == 'scissers':
+	elif mcu == 'rock' and user == 'scissors':
 		print(user , '!!!')
 		print(mcu , '!!!')
 		print('You lost!!!')
-	elif mcu == 'scissers' and user == 'paper':
+	elif mcu == 'scissors' and user == 'paper':
 		print(user , '!!!')
 		print(mcu , '!!!')
 		print('You lost!!!')
@@ -42,13 +42,25 @@ if Q1 == 'mcu':
 	#You should know how to use loops
 	#You should know how to use return
 elif Q1 == 'another player':
-	user1 = str(input('choose beetween rock paper and scissers:'))
-	user2 = str(input('choose beetween rock paper and scissers( you too ):'))
+	user1 = str(input('choose between rock paper and scissors:'))
+	print('YOU LOST!!!!!!!!!!!!!!!')
+	print('')
+	print('')
+	print('')
+	print('')
+	print('Dont look')
+	print('==========================================================================================================================================================================')
+	print('Dont look')
+	print('')
+	print('')
+	print('')
+	print('')
+	user2 = str(input('choose between rock paper and scissors( you too ):'))
 	if user1 == user2:
 		print(user1 , '!!!')
 		print(user2 , '!!!')
 		print('You two tied!!!')
-	elif user1 == 'scissers' and user2 == 'rock':
+	elif user1 == 'scissors' and user2 == 'rock':
 		print(user1 , '!!!')
 		print(user2 , '!!!')
 		print('User2 won!!!')
@@ -56,15 +68,15 @@ elif Q1 == 'another player':
 		print(user1 , '!!!')
 		print(user2 , '!!!')
 		print('User2 won!!!')
-	elif user1 == 'paper' and user2 == 'scissers':
+	elif user1 == 'paper' and user2 == 'scissors':
 		print(user1 , '!!!')
 		print(user2 , '!!!')
 		print('User2 won!!!')
-	elif user1 == 'rock' and user2 == 'scissers':
+	elif user1 == 'rock' and user2 == 'scissors':
 		print(user1 , '!!!')
 		print(user2 , '!!!')
 		print('User1 won!!!')
-	elif user1 == 'scissers' and user2 == 'paper':
+	elif user1 == 'scissors' and user2 == 'paper':
 		print(user1 , '!!!')
 		print(user2 , '!!!')
 		print('User1 won!!!')
