@@ -1,73 +1,52 @@
-Automation with Python
-	Have fun with automation and Python here!
-
-Getting Started
-	λ python --version
-	λ pip --version
-	λ robot --version
-
-Built With
-	Dropwizard - The web framework used
-	Maven - Dependency Management
-	ROME - Used to generate RSS Feeds
-	
-Running the code and tests
-	Explain how to run the automated tests for this system
-
-
-<h1 align="center"><img src="https://jmeter.apache.org/images/logo.svg" alt="Apache JMeter logo" /></h1>
-<h4 align="center">Open Source application designed to load test applications and measure performance. By The Apache Software Foundation</h4>
+<h2 align="center">Sloth Python</h2>
 <br>
 
 ## What is it?
 
-Apache JMeter may be used to test performance both on static and dynamic resources, Web dynamic applications.
-It can be used to simulate a heavy load on a server, group of servers, network or object to test its strength or to analyze overall performance under different load types.
+Sloth is lazy, he has to automate as much as he can to be lazy. Here he is trying to get automation done with Python!
 
-
-Apache JMeter features include:
+Sloth Python features include:
 
 Ability to load and performance test many different applications/server/protocol types: 
- -  Web - HTTP, HTTPS (Java, NodeJS, PHP, ASP.NET,...)
+ -  Web - HTTP, HTTPS 
  -  SOAP / REST Webservices
  -  FTP
  -  Database via JDBC
  -  LDAP
  -  Message-oriented Middleware (MOM) via JMS
 
-
 ## The Latest Version
 
-Details of the latest version can be found on the JMeter Apache 
-Project web site (https://jmeter.apache.org/).
+Details of the latest version, actually all versions, can only be found on github for now.
 
 ## Requirements
 
-The following requirements exist for running Apache JMeter:
+The following requirements exist for running sloth-python:
 
-*  Java Interpreter:
+*  Python Interpreter:
 
-    A fully compliant Java 8 Runtime Environment is required 
+    A fully compliant Python Environment is required 
 
-*  Optional jars:
+*  Pycharm:
 
-    Some jars are not included with JMeter.
+    A Python IDE is helpful, expecially the main stream one. 
+    
+* Robot
 
-    * JDBC - available from the database supplier
-    * JMS - available from the JMS provider
-
-*  Java Compiler (OPTIONAL):
-
-    A Java compiler is not needed since the distribution 
+    One of the most handy automation framework
 
 ## Installation Instructions
 
  * Release builds
 
 
-## Running JMeter
+## Running Sloth Python
 
-1. Change to the `bin` directory
-2. Run the `jmeter` (Un\*x) or `jmeter.bat` (Windows) file.
+1. Change to the `~` directory
+2. Run the `~`
 
 ### Windows
+1. λ python --version 
+2. λ pip --version 
+3. λ robot --version
+    
