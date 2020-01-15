@@ -1,4 +1,4 @@
-<h2 align="center">Sloth Python</h2>
+<h1 align="center">Sloth Python</h1>
 <br>
 
 ## What is it?
