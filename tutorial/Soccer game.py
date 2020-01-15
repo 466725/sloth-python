@@ -6,9 +6,9 @@ score1 = int(input('What is the first teams score? :'))
 score2 = int(input('What is the second teams score? :'))
 #Print the winning teams name.
 if score1 > score2:
-  print(teamA , 'won.')
+  print(teamA , 'beat' , teamB)
 elif score2 > score1:
-  print(teamB , 'won.')
+  print(teamB , 'beat' , teamA)
 
 
 
