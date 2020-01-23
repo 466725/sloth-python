@@ -1,5 +1,5 @@
 #Things you may need.
-Q1 = str(input('Do you wish to play agianst a mcu or another player'))
+Q1 = str(input('Do you wish to play against a mcu, another player or the hacker'))
 if Q1 == 'mcu':
 	user = str(input('choose between rock paper and scissors:'))
 	import random
@@ -49,7 +49,7 @@ elif Q1 == 'another player':
 	print('')
 	print('')
 	print('Dont look')
-	print('==========================================================================================================================================================================')
+	print('=============================================================================================================================================================================================================================================')
 	print('Dont look')
 	print('')
 	print('')
@@ -84,3 +84,16 @@ elif Q1 == 'another player':
 		print(user1 , '!!!')
 		print(user2 , '!!!')
 		print('User1 won!!!')
+elif Q1 == 'The hacker':
+	for i in range(100):
+		H = 0
+		user = str(input('choose between rock paper and scissors:'))
+		if user == 'scissors':
+			H = 'rock'
+		elif user == 'rock':
+			H = 'paper'
+		elif user == 'paper':
+			H = 'scissors'
+		print(user + '!!!')
+		print(H + '!!!')
+		print('You lost!!!')
