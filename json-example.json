@@ -1,0 +1,1011 @@
+{
+    "Records": [
+        {
+            "_t": "The Amazing Spider-Man 2",
+            "_u": "http://cineplex1storeUAT.com/174168",
+            "allMeta": {
+                "id": 174168,
+                "title": "The Amazing Spider-Man 2",
+                "TheatreUrlName": null,
+                "languageField": "lang_en",
+                "ReleaseDate": "2014/05/02",
+                "ReleaseYear": "2010's",
+                "PrimaryGenre": null,
+                "Genres": [
+                    "Action",
+                    "Drama",
+                    "Miscellaneous"
+                ],
+                "Synopsis": "It's great to be Spider-Man. For Peter Parker, there's no feeling quite like swinging between skyscrapers, embracing being the hero, and spending time with Gwen. But being Spider-Man comes at a price:...",
+                "Directors": [
+                    {
+                        "PersonName": "Marc Webb",
+                        "PersonId": "3792761",
+                        "PersonUrl": "marc-webb",
+                        "PersonRole": "Director"
+                    }
+                ],
+                "Actors": [
+                    {
+                        "PersonName": "Andrew Garfield",
+                        "PersonId": "3324853",
+                        "PersonUrl": "andrew-garfield",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Emma Stone",
+                        "PersonId": "3716915",
+                        "PersonUrl": "emma-stone",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Jamie Foxx",
+                        "PersonId": "4454436",
+                        "PersonUrl": "jamie-foxx",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Dane DeHaan",
+                        "PersonId": "3134880",
+                        "PersonUrl": "dane-dehaan",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Paul Giamatti",
+                        "PersonId": "3183473",
+                        "PersonUrl": "paul-giamatti",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Felicity Jones",
+                        "PersonId": "4249294",
+                        "PersonUrl": "felicity-jones",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Colm Feore",
+                        "PersonId": "4001875",
+                        "PersonUrl": "colm-feore",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Sally Field",
+                        "PersonId": "3616705",
+                        "PersonUrl": "sally-field",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "B.J. Novak",
+                        "PersonId": "4181889",
+                        "PersonUrl": "b.j.-novak",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Marton Csokas",
+                        "PersonId": "4483317",
+                        "PersonUrl": "marton-csokas",
+                        "PersonRole": "Actor"
+                    }
+                ],
+                "Studio": "",
+                "MpaaRating": "PG 13",
+                "Runtime": 142,
+                "ThumbnailUrl": "http://storemedia.cineplex.com/store/promo/posters/Amazing_Spiderman_2_EST_1400x2100_USv2.jpg",
+                "ProductUrlName": "the-amazing-spiderman-2174168",
+                "BoxOffice": 202778224.0,
+                "Options": []
+            }
+        },
+        {
+            "_t": "Big Ass Spider!",
+            "_u": "http://cineplex1storeUAT.com/620192",
+            "allMeta": {
+                "id": 620192,
+                "title": "Big Ass Spider!",
+                "TheatreUrlName": null,
+                "languageField": "lang_en",
+                "ReleaseDate": "2013/10/18",
+                "ReleaseYear": "2010's",
+                "PrimaryGenre": null,
+                "Genres": [
+                    "Comedy",
+                    "Sci-Fi"
+                ],
+                "Synopsis": "The unlikely heroic duo of a blue-collar exterminator and Latino security guard must save the day when a giant spider escapes from a military lab and goes on a rampage through Los Angeles.",
+                "Directors": [
+                    {
+                        "PersonName": "Mike Mendez",
+                        "PersonId": "3925422",
+                        "PersonUrl": "mike-mendez",
+                        "PersonRole": "Director"
+                    }
+                ],
+                "Actors": [
+                    {
+                        "PersonName": "Greg Grunberg",
+                        "PersonId": "4057564",
+                        "PersonUrl": "greg-grunberg",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Lombardo Boyar",
+                        "PersonId": "3062571",
+                        "PersonUrl": "lombardo-boyar",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Clare Kramer",
+                        "PersonId": "4187890",
+                        "PersonUrl": "clare-kramer",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Ray Wise",
+                        "PersonId": "3398809",
+                        "PersonUrl": "ray-wise",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Lin Shaye",
+                        "PersonId": "4187805",
+                        "PersonUrl": "lin-shaye",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Patrick Bauchau",
+                        "PersonId": "3244325",
+                        "PersonUrl": "patrick-bauchau",
+                        "PersonRole": "Actor"
+                    }
+                ],
+                "Studio": "",
+                "MpaaRating": "PG 13",
+                "Runtime": 85,
+                "ThumbnailUrl": "http://cineplex.cdn2.dmlib.com/u/Assets/a1/1D/FC/a1-214885/s1-3721271/p_800x1200_Big_Ass_Spider_En_102814_v2.jpg",
+                "ProductUrlName": "big-ass-spider",
+                "BoxOffice": 0.0,
+                "Options": []
+            }
+        },
+        {
+            "_t": "Spiders 3-D",
+            "_u": "http://cineplex1storeUAT.com/174151",
+            "allMeta": {
+                "id": 174151,
+                "title": "Spiders 3-D",
+                "TheatreUrlName": null,
+                "languageField": "lang_en",
+                "ReleaseDate": "2013/02/08",
+                "ReleaseYear": "2010's",
+                "PrimaryGenre": null,
+                "Genres": [
+                    "Horror",
+                    "Sci-Fi"
+                ],
+                "Synopsis": "Mutant spiders fall to earth from a disabled Soviet space station. With New York City threatened to be overrun, it's up to transit supervisor Jason Cole and health inspector Rachel Cole to save their ...",
+                "Directors": [
+                    {
+                        "PersonName": "Tibor Takacs",
+                        "PersonId": "4331112",
+                        "PersonUrl": "tibor-takacs",
+                        "PersonRole": "Director"
+                    }
+                ],
+                "Actors": [
+                    {
+                        "PersonName": "Patrick Muldoon",
+                        "PersonId": "3952958",
+                        "PersonUrl": "patrick-muldoon",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Christa Campbell",
+                        "PersonId": "4379431",
+                        "PersonUrl": "christa-campbell",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "William Hope",
+                        "PersonId": "3161839",
+                        "PersonUrl": "william-hope",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Sydney Sweeney",
+                        "PersonId": "3733185",
+                        "PersonUrl": "sydney-sweeney",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Shelly Varod",
+                        "PersonId": "3942951",
+                        "PersonUrl": "shelly-varod",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Jon Mack",
+                        "PersonId": "3082894",
+                        "PersonUrl": "jon-mack",
+                        "PersonRole": "Actor"
+                    }
+                ],
+                "Studio": "eOne",
+                "MpaaRating": "PG 13",
+                "Runtime": 89,
+                "ThumbnailUrl": "http://cineplex.cdn2.dmlib.com/u/Assets/a1/69/7B/a1-160109/s1-3148595/P_800x1200_spiders.jpg",
+                "ProductUrlName": "spiders-3d",
+                "BoxOffice": 0.0,
+                "Options": []
+            }
+        },
+        {
+            "_t": "The Amazing Spider-Man",
+            "_u": "http://cineplex1storeUAT.com/173964",
+            "allMeta": {
+                "id": 173964,
+                "title": "The Amazing Spider-Man",
+                "TheatreUrlName": null,
+                "languageField": "lang_en",
+                "ReleaseDate": "2012/07/03",
+                "ReleaseYear": "2010's",
+                "PrimaryGenre": null,
+                "Genres": [
+                    "Action",
+                    "Drama",
+                    "Sci-Fi"
+                ],
+                "Synopsis": "Peter Parker is an outcast high schooler who was abandoned by his parents as a boy, leaving him to be raised by his Uncle Ben and Aunt May.  Like most teenagers, Peter is trying to figure out who he i...",
+                "Directors": [
+                    {
+                        "PersonName": "Marc Webb",
+                        "PersonId": "3792761",
+                        "PersonUrl": "marc-webb",
+                        "PersonRole": "Director"
+                    }
+                ],
+                "Actors": [
+                    {
+                        "PersonName": "Andrew Garfield",
+                        "PersonId": "3324853",
+                        "PersonUrl": "andrew-garfield",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Emma Stone",
+                        "PersonId": "3716915",
+                        "PersonUrl": "emma-stone",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Rhys Ifans",
+                        "PersonId": "3250166",
+                        "PersonUrl": "rhys-ifans",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Denis Leary",
+                        "PersonId": "4448297",
+                        "PersonUrl": "denis-leary",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Martin Sheen",
+                        "PersonId": "4364184",
+                        "PersonUrl": "martin-sheen",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Sally Field",
+                        "PersonId": "3616705",
+                        "PersonUrl": "sally-field",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Irrfan Khan",
+                        "PersonId": "4297760",
+                        "PersonUrl": "irrfan-khan",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Campbell Scott",
+                        "PersonId": "3886314",
+                        "PersonUrl": "campbell-scott",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Embeth Davidtz",
+                        "PersonId": "3801833",
+                        "PersonUrl": "embeth-davidtz",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Chris Zylka",
+                        "PersonId": "3494104",
+                        "PersonUrl": "chris-zylka",
+                        "PersonRole": "Actor"
+                    }
+                ],
+                "Studio": "Sony",
+                "MpaaRating": "PG 13",
+                "Runtime": 136,
+                "ThumbnailUrl": "http://storemedia.cineplex.com/store/promo/posters/Amazing_Spiderman_EST_1400x2100_USv2.jpg",
+                "ProductUrlName": "the-amazing-spiderman",
+                "BoxOffice": 262030663.0,
+                "Options": []
+            }
+        },
+        {
+            "_t": "The Spiderwick Chronicles",
+            "_u": "http://cineplex1storeUAT.com/174687",
+            "allMeta": {
+                "id": 174687,
+                "title": "The Spiderwick Chronicles",
+                "TheatreUrlName": null,
+                "languageField": "lang_en",
+                "ReleaseDate": "2008/02/14",
+                "ReleaseYear": "2000's",
+                "PrimaryGenre": null,
+                "Genres": [
+                    "Drama",
+                    "Action",
+                    "Sci-Fi"
+                ],
+                "Synopsis": "Peculiar things start to happen the moment the Grace family (Jared, his twin brother Simon, sister Mallory and their mom) leave New York and move into the secluded old house owned by their great, grea...",
+                "Directors": [
+                    {
+                        "PersonName": "Mark Waters",
+                        "PersonId": "3490541",
+                        "PersonUrl": "mark-waters",
+                        "PersonRole": "Director"
+                    }
+                ],
+                "Actors": [
+                    {
+                        "PersonName": "Freddie Highmore",
+                        "PersonId": "3310303",
+                        "PersonUrl": "freddie-highmore",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Mary-Louise Parker",
+                        "PersonId": "3114360",
+                        "PersonUrl": "mary-louise-parker",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Nick Nolte",
+                        "PersonId": "3419563",
+                        "PersonUrl": "nick-nolte",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Sarah Bolger",
+                        "PersonId": "3014234",
+                        "PersonUrl": "sarah-bolger",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Andrew McCarthy",
+                        "PersonId": "3246230",
+                        "PersonUrl": "andrew-mccarthy",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Joan Plowright",
+                        "PersonId": "4299197",
+                        "PersonUrl": "joan-plowright",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "David Strathairn",
+                        "PersonId": "4461991",
+                        "PersonUrl": "david-strathairn",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Jordy Benattar",
+                        "PersonId": "3642625",
+                        "PersonUrl": "jordy-benattar",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Tod Fennell",
+                        "PersonId": "3131229",
+                        "PersonUrl": "tod-fennell",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Mariah Inger",
+                        "PersonId": "3341333",
+                        "PersonUrl": "mariah-inger",
+                        "PersonRole": "Actor"
+                    }
+                ],
+                "Studio": "Paramount",
+                "MpaaRating": "PG",
+                "Runtime": 97,
+                "ThumbnailUrl": "http://cineplex.cdn2.dmlib.com/u/Assets/a1/75/6C/a1-140440/s1-2898768/P_800x1200_spiderwickchrncls_US.jpg",
+                "ProductUrlName": "the-spiderwick-chronicles",
+                "BoxOffice": 71148699.0,
+                "Options": []
+            }
+        },
+        {
+            "_t": "Spider-Man 3",
+            "_u": "http://cineplex1storeUAT.com/173916",
+            "allMeta": {
+                "id": 173916,
+                "title": "Spider-Man 3",
+                "TheatreUrlName": null,
+                "languageField": "lang_en",
+                "ReleaseDate": "2007/05/04",
+                "ReleaseYear": "2000's",
+                "PrimaryGenre": null,
+                "Genres": [
+                    "Action",
+                    "Drama",
+                    "Sci-Fi",
+                    "Miscellaneous"
+                ],
+                "Synopsis": "Peter Parker has finally managed to strike a balance between his devotion to M.J. and his duties as a superhero. But there is a storm brewing on the horizon. When his suit suddenly changes, turning je...",
+                "Directors": [
+                    {
+                        "PersonName": "Sam Raimi",
+                        "PersonId": "3909498",
+                        "PersonUrl": "sam-raimi",
+                        "PersonRole": "Director"
+                    }
+                ],
+                "Actors": [
+                    {
+                        "PersonName": "Tobey Maguire",
+                        "PersonId": "3528093",
+                        "PersonUrl": "tobey-maguire",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Kirsten Dunst",
+                        "PersonId": "3847185",
+                        "PersonUrl": "kirsten-dunst",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Thomas Haden Church",
+                        "PersonId": "3027360",
+                        "PersonUrl": "thomas-haden-church",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Topher Grace",
+                        "PersonId": "4369822",
+                        "PersonUrl": "topher-grace",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "James Franco",
+                        "PersonId": "3401855",
+                        "PersonUrl": "james-franco",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Dylan Baker",
+                        "PersonId": "3440450",
+                        "PersonUrl": "dylan-baker",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Elizabeth Banks",
+                        "PersonId": "3285007",
+                        "PersonUrl": "elizabeth-banks",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Bryce Dallas Howard",
+                        "PersonId": "4408787",
+                        "PersonUrl": "bryce-dallas-howard",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Theresa Russell",
+                        "PersonId": "4061530",
+                        "PersonUrl": "theresa-russell",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "James Cromwell",
+                        "PersonId": "3464236",
+                        "PersonUrl": "james-cromwell",
+                        "PersonRole": "Actor"
+                    }
+                ],
+                "Studio": "Sony",
+                "MpaaRating": "PG 13",
+                "Runtime": 139,
+                "ThumbnailUrl": "http://storemedia.cineplex.com/store/promo/posters/Spiderman3_2007_EST_1400x2100_USv2.jpg",
+                "ProductUrlName": "spiderman-3",
+                "BoxOffice": 336530303.0,
+                "Options": []
+            }
+        },
+        {
+            "_t": "Spider-Man 2",
+            "_u": "http://cineplex1storeUAT.com/174094",
+            "allMeta": {
+                "id": 174094,
+                "title": "Spider-Man 2",
+                "TheatreUrlName": null,
+                "languageField": "lang_en",
+                "ReleaseDate": "2004/06/30",
+                "ReleaseYear": "2000's",
+                "PrimaryGenre": null,
+                "Genres": [
+                    "Action",
+                    "Drama",
+                    "Sci-Fi",
+                    "Miscellaneous"
+                ],
+                "Synopsis": "Two years have passed since the mild-mannered Peter Parker walked away from his longtime love Mary Jane Watson and decided to take the road to responsibility as Spider-Man. Peter must face new challen...",
+                "Directors": [
+                    {
+                        "PersonName": "Sam Raimi",
+                        "PersonId": "3909498",
+                        "PersonUrl": "sam-raimi",
+                        "PersonRole": "Director"
+                    }
+                ],
+                "Actors": [
+                    {
+                        "PersonName": "Tobey Maguire",
+                        "PersonId": "3528093",
+                        "PersonUrl": "tobey-maguire",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Kirsten Dunst",
+                        "PersonId": "3847185",
+                        "PersonUrl": "kirsten-dunst",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "James Franco",
+                        "PersonId": "3401855",
+                        "PersonUrl": "james-franco",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Alfred Molina",
+                        "PersonId": "3448511",
+                        "PersonUrl": "alfred-molina",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Rosemary Harris",
+                        "PersonId": "4472762",
+                        "PersonUrl": "rosemary-harris",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "J.K. Simmons",
+                        "PersonId": "4051979",
+                        "PersonUrl": "j.k.-simmons",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Donna Murphy",
+                        "PersonId": "3319120",
+                        "PersonUrl": "donna-murphy",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Daniel Gillies",
+                        "PersonId": "3362015",
+                        "PersonUrl": "daniel-gillies",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Dylan Baker",
+                        "PersonId": "3440450",
+                        "PersonUrl": "dylan-baker",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Bill Nunn",
+                        "PersonId": "4006678",
+                        "PersonUrl": "bill-nunn",
+                        "PersonRole": "Actor"
+                    }
+                ],
+                "Studio": "Sony",
+                "MpaaRating": "PG 13",
+                "Runtime": 127,
+                "ThumbnailUrl": "http://storemedia.cineplex.com/store/promo/posters/Spiderman2_2004_EST_1400x2100_USv2.jpg",
+                "ProductUrlName": "spiderman-2",
+                "BoxOffice": 373377893.0,
+                "Options": []
+            }
+        },
+        {
+            "_t": "Spider-Man",
+            "_u": "http://cineplex1storeUAT.com/173951",
+            "allMeta": {
+                "id": 173951,
+                "title": "Spider-Man",
+                "TheatreUrlName": null,
+                "languageField": "lang_en",
+                "ReleaseDate": "2002/05/03",
+                "ReleaseYear": "2000's",
+                "PrimaryGenre": null,
+                "Genres": [
+                    "Action",
+                    "Drama",
+                    "Sci-Fi"
+                ],
+                "Synopsis": "Orphaned at an early age, Peter Parker lives in Queens, New York with his beloved Aunt May and Uncle Ben.  Peter leads the life of a normal student, working as a photographer at the school paper, pini...",
+                "Directors": [
+                    {
+                        "PersonName": "Sam Raimi",
+                        "PersonId": "3909498",
+                        "PersonUrl": "sam-raimi",
+                        "PersonRole": "Director"
+                    }
+                ],
+                "Actors": [
+                    {
+                        "PersonName": "Tobey Maguire",
+                        "PersonId": "3528093",
+                        "PersonUrl": "tobey-maguire",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Randy Savage",
+                        "PersonId": "3072920",
+                        "PersonUrl": "randy-savage",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Willem Dafoe",
+                        "PersonId": "3407868",
+                        "PersonUrl": "willem-dafoe",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "James Franco",
+                        "PersonId": "3401855",
+                        "PersonUrl": "james-franco",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Kirsten Dunst",
+                        "PersonId": "3847185",
+                        "PersonUrl": "kirsten-dunst",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Ted Raimi",
+                        "PersonId": "3149617",
+                        "PersonUrl": "ted-raimi",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Cliff Robertson",
+                        "PersonId": "3542022",
+                        "PersonUrl": "cliff-robertson",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "J.K. Simmons",
+                        "PersonId": "4051979",
+                        "PersonUrl": "j.k.-simmons",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Rosemary Harris",
+                        "PersonId": "4472762",
+                        "PersonUrl": "rosemary-harris",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Joe Manganiello",
+                        "PersonId": "3901524",
+                        "PersonUrl": "joe-manganiello",
+                        "PersonRole": "Actor"
+                    }
+                ],
+                "Studio": "Sony",
+                "MpaaRating": "PG 13",
+                "Runtime": 121,
+                "ThumbnailUrl": "http://storemedia.cineplex.com/store/promo/posters/Spiderman_2002_EST_1400x2100_USv3.jpg",
+                "ProductUrlName": "spiderman",
+                "BoxOffice": 403706375.0,
+                "Options": []
+            }
+        },
+        {
+            "_t": "Along Came A Spider",
+            "_u": "http://cineplex1storeUAT.com/149947",
+            "allMeta": {
+                "id": 149947,
+                "title": "Along Came A Spider",
+                "TheatreUrlName": null,
+                "languageField": "lang_en",
+                "ReleaseDate": "2001/04/06",
+                "ReleaseYear": "2000's",
+                "PrimaryGenre": null,
+                "Genres": [
+                    "Drama",
+                    "Miscellaneous"
+                ],
+                "Synopsis": "Washington, D.C. homicide detective Alex Cross is through playing mind games with criminals--that is until a methodical predator, Gary Soneji kidnaps the young daughter of a United States senator from...",
+                "Directors": [
+                    {
+                        "PersonName": "Lee Tamahori",
+                        "PersonId": "3637862",
+                        "PersonUrl": "lee-tamahori",
+                        "PersonRole": "Director"
+                    }
+                ],
+                "Actors": [
+                    {
+                        "PersonName": "Morgan Freeman",
+                        "PersonId": "4316518",
+                        "PersonUrl": "morgan-freeman",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Monica Potter",
+                        "PersonId": "3826990",
+                        "PersonUrl": "monica-potter",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Michael Wincott",
+                        "PersonId": "3095261",
+                        "PersonUrl": "michael-wincott",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Dylan Baker",
+                        "PersonId": "3440450",
+                        "PersonUrl": "dylan-baker",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Mika Boorem",
+                        "PersonId": "4483099",
+                        "PersonUrl": "mika-boorem",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Anton Yelchin",
+                        "PersonId": "3075035",
+                        "PersonUrl": "anton-yelchin",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Kim Hawthorne",
+                        "PersonId": "3923352",
+                        "PersonUrl": "kim-hawthorne",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Jay O Sanders",
+                        "PersonId": "3541225",
+                        "PersonUrl": "jay-o-sanders",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Billy Burke",
+                        "PersonId": "3508567",
+                        "PersonUrl": "billy-burke",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Michael Moriarty",
+                        "PersonId": "3410755",
+                        "PersonUrl": "michael-moriarty",
+                        "PersonRole": "Actor"
+                    }
+                ],
+                "Studio": "Paramount",
+                "MpaaRating": "R",
+                "Runtime": 104,
+                "ThumbnailUrl": "http://cineplex.cdn2.dmlib.com/u/Assets/a1/15/66/a1-159344/s1-3139966/p_800x1200_alongcameaspider_031714.jpg",
+                "ProductUrlName": "along-came-a-spider",
+                "BoxOffice": 74058698.0,
+                "Options": []
+            }
+        },
+        {
+            "_t": "Spider Baby",
+            "_u": "http://cineplex1storeUAT.com/425752",
+            "allMeta": {
+                "id": 425752,
+                "title": "Spider Baby",
+                "TheatreUrlName": null,
+                "languageField": "lang_en",
+                "ReleaseDate": "1994/04/01",
+                "ReleaseYear": "1990's",
+                "PrimaryGenre": null,
+                "Genres": [
+                    "Comedy",
+                    "Horror"
+                ],
+                "Synopsis": "A rare disease causes the members of the dwindling Merryre clan to regress psychologically as they age. When long-lost relatives begin to invade their inner sanctum, the remaining Merryre's begin to t...",
+                "Directors": [
+                    {
+                        "PersonName": "Jack Hill",
+                        "PersonId": "3646908",
+                        "PersonUrl": "jack-hill",
+                        "PersonRole": "Director"
+                    }
+                ],
+                "Actors": [
+                    {
+                        "PersonName": "Lon Chaney Jr.",
+                        "PersonId": "3131444",
+                        "PersonUrl": "lon-chaney-jr.",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Carol Ohmart",
+                        "PersonId": "4290941",
+                        "PersonUrl": "carol-ohmart",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Quinn K Redeker",
+                        "PersonId": "4002329",
+                        "PersonUrl": "quinn-k-redeker",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Mantan Moreland",
+                        "PersonId": "3879580",
+                        "PersonUrl": "mantan-moreland",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Sid Haig",
+                        "PersonId": "4107136",
+                        "PersonUrl": "sid-haig",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Jill Banner",
+                        "PersonId": "3052228",
+                        "PersonUrl": "jill-banner",
+                        "PersonRole": "Actor"
+                    },
+                    {
+                        "PersonName": "Beverly Washburn",
+                        "PersonId": "3720961",
+                        "PersonUrl": "beverly-washburn",
+                        "PersonRole": "Actor"
+                    }
+                ],
+                "Studio": "",
+                "MpaaRating": "N/A",
+                "Runtime": 0,
+                "ThumbnailUrl": "",
+                "ProductUrlName": "spider-baby",
+                "BoxOffice": 0.0,
+                "Options": []
+            }
+        }
+    ],
+    "availableNavigation": [
+        {
+            "name": "Genres",
+            "displayName": "Genres",
+            "refinements": [
+                {
+                    "type": "Value",
+                    "count": 13,
+                    "value": "Action"
+                },
+                {
+                    "type": "Value",
+                    "count": 2,
+                    "value": "Comedy"
+                },
+                {
+                    "type": "Value",
+                    "count": 14,
+                    "value": "Drama"
+                },
+                {
+                    "type": "Value",
+                    "count": 2,
+                    "value": "Horror"
+                },
+                {
+                    "type": "Value",
+                    "count": 7,
+                    "value": "Miscellaneous"
+                },
+                {
+                    "type": "Value",
+                    "count": 12,
+                    "value": "Sci-Fi"
+                }
+            ],
+            "metadata": [],
+            "range": false,
+            "or": false
+        },
+        {
+            "name": "ReleaseYear",
+            "displayName": "Release Year",
+            "refinements": [
+                {
+                    "type": "Value",
+                    "count": 1,
+                    "value": "Other"
+                },
+                {
+                    "type": "Value",
+                    "count": 6,
+                    "value": "2010's"
+                },
+                {
+                    "type": "Value",
+                    "count": 9,
+                    "value": "2000's"
+                },
+                {
+                    "type": "Value",
+                    "count": 1,
+                    "value": "1990's"
+                }
+            ],
+            "metadata": [],
+            "range": false,
+            "or": true
+        },
+        {
+            "name": "Language",
+            "displayName": "Language",
+            "refinements": [
+                {
+                    "type": "Value",
+                    "count": 10,
+                    "value": "English"
+                },
+                {
+                    "type": "Value",
+                    "count": 7,
+                    "value": "French"
+                }
+            ],
+            "metadata": [],
+            "range": false,
+            "or": true
+        }
+    ],
+    "didYouMean": [
+        "snyder",
+        "sander",
+        "spader"
+    ],
+    "originalQuery": "spider",
+    "query": "spider",
+    "pageInfo": {
+        "recordStart": 1,
+        "recordEnd": 10
+    },
+    "rewrites": [],
+    "selectedNavigation": [],
+    "siteParams": [],
+    "template": {
+        "name": "default",
+        "ruleName": null,
+        "zones": {}
+    },
+    "totalRecordCount": 17,
+    "pages": [
+        1,
+        2
+    ],
+    "relatedQueries": [],
+    "redirect": null
+}
