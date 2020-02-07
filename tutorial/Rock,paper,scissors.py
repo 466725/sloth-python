@@ -34,6 +34,8 @@ if Q1 == 'mcu':
 		print(user , '!!!')
 		print(mcu , '!!!')
 		print('You lost!!!')
+	else:
+		print('You lost!!!!!')
 	#You should know how to use import
 	#You should know how to use input
 	#You should know how to use booleans
@@ -84,6 +86,8 @@ elif Q1 == 'another player':
 		print(user1 , '!!!')
 		print(user2 , '!!!')
 		print('User1 won!!!')
+	else:
+		print('You lost!!!!!')
 elif Q1 == 'The hacker':
 	for i in range(100):
 		H = 0
@@ -97,3 +101,5 @@ elif Q1 == 'The hacker':
 		print(user + '!!!')
 		print(H + '!!!')
 		print('You lost!!!')
+	else:
+		print('You lost!!!!!')
