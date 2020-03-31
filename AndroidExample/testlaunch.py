@@ -8,28 +8,31 @@ class LaunchCineplexTests(unittest.TestCase):
     def setUp(self):
         "Setup for the test"
         desired_caps = {}
-        desired_caps['platformName'] = 'android'
-        desired_caps['deviceName'] = 'Nexus_5X'
-        desired_caps['app'] = os.path.abspath(os.path.join(os.path.dirname(__file__),'apps/com.fivemobile.cineplex.uat-anycpu.apk'))
-        desired_caps['appPackage'] = 'com.fivemobile.cineplex'
-        desired_caps['appActivity'] = '.MainActivity'
-        desired_caps['appWaitPackage'] = 'com.fivemobile.cineplex'
-        desired_caps['appWaitActivity'] = '.MainActivity'
+        desired_caps['platformName'] = 'Android'
+        desired_caps['deviceName'] = 'emulator'
         desired_caps['automationName'] = 'UiAutomator2'
+        desired_caps['app'] = os.path.abspath(os.path.join(os.path.dirname(__file__),'apps/com.fivemobile.cineplex.uat-anycpu.apk'))
+        desired_caps['appPackage'] = 'com.fivemobile.cineplex.uat'
+        desired_caps['appActivity'] = 'com.fivemobile.cineplex.MainActivity'
         desired_caps['noReset'] = 'true'
-        desired_caps['autoAcceptAlerts'] = 'true'
         desired_caps['gpsEnabled'] = 'true'
+        desired_caps['newCommandTimeout'] = 120
         self.driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
 
     def tearDown(self):
-        "Tear down"
-        self.driver.quit()
+        "Tear down test and uninstall the application from the device"
+        self.driver.remove_app('com.fivemobile.cineplex.uat')
 
-    def test_launch(self):
-        "Test that the app launched"
-        self.driver.find_element_by_id('btnAccounts').click()
-        self.driver.find_element_by_id('btnLogin').click()
-        sleep(50)
+    def test_launch_and_login_then_logout(self):
+        "Test that the app launched and user can log in and then logout"
+        self.driver.find_element_by_xpath("(//android.view.ViewGroup[@content-desc='NO THANKS'])[2]").click()
+        self.driver.find_element_by_xpath("//android.view.ViewGroup[@content-desc='Account']").click()
+        self.driver.find_element_by_xpath("//android.view.ViewGroup[@content-desc='LOGIN']").click()
+        self.driver.find_element_by_xpath("(//android.widget.EditText)[1]").send_keys("cpxapitester@gmail.com")
+        self.driver.find_element_by_xpath("(//android.widget.EditText)[2]").send_keys("Cineplex123")
+        self.driver.find_element_by_xpath("//android.view.ViewGroup[@content-desc='LOGIN']").click()
+        "User is logged in"
+        sleep(30)
 
 #---START OF SCRIPT
 if __name__ == '__main__':
