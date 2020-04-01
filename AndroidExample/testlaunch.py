@@ -3,6 +3,9 @@ import unittest
 from appium import webdriver
 from time import sleep
 
+from Resources.Locators import Locators
+from Resources.TestData import TestData
+
 class LaunchCineplexTests(unittest.TestCase):
     "Class to run tests against Cineplex app"
     def setUp(self):
@@ -25,11 +28,11 @@ class LaunchCineplexTests(unittest.TestCase):
 
     def test_launch_and_login_then_logout(self):
         "Test that the app launched and user can log in and then logout"
-        self.driver.find_element_by_xpath("(//android.view.ViewGroup[@content-desc='NO THANKS'])[2]").click()
+        self.driver.find_element_by_xpath("(//android.view.ViewGroup[@content-desc='NO THANKS'])").click()
         self.driver.find_element_by_xpath("//android.view.ViewGroup[@content-desc='Account']").click()
         self.driver.find_element_by_xpath("//android.view.ViewGroup[@content-desc='LOGIN']").click()
-        self.driver.find_element_by_xpath("(//android.widget.EditText)[1]").send_keys("cpxapitester@gmail.com")
-        self.driver.find_element_by_xpath("(//android.widget.EditText)[2]").send_keys("Cineplex123")
+        self.driver.find_element_by_xpath("(//android.widget.EditText)[1]").send_keys(TestData.USERNAME)
+        self.driver.find_element_by_xpath("(//android.widget.EditText)[2]").send_keys(TestData.PASSWORD)
         self.driver.find_element_by_xpath("//android.view.ViewGroup[@content-desc='LOGIN']").click()
         "User is logged in"
         sleep(30)
