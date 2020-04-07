@@ -2,19 +2,24 @@ package sampleandroidproject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
-
+import io.appium.java_client.ios.IOSDriver;
 
 public class SampleAndroid {
-	
-	private AppiumDriver driver;
+    protected AppiumDriver driver = null;
+    AndroidDriver androidDriver = (AndroidDriver) driver;
+    IOSDriver iosDriver = (IOSDriver) driver;
 
+    
+    
+    
 	@BeforeSuite
 	public void setupAppium() throws MalformedURLException {
 		DesiredCapabilities caps = new DesiredCapabilities();
@@ -23,12 +28,14 @@ public class SampleAndroid {
 		caps.setCapability("platformName", "Android");
 		caps.setCapability("platformVersion", "10");
 		URL US_endpoint = new URL("http://us1.appium.testobject.com/wd/hub");
-		driver = new AndroidDriver(US_endpoint, caps);
+		//driver = new AppiumDriver(US_endpoint, caps);
+	    // or assign correct (iOS/Android) driver with driver start
+	    driver = new AndroidDriver(US_endpoint, caps);
 	}
 
 	@AfterSuite
 	public void uninstallApp() throws InterruptedException {
-		//driver.executeScript("sauce:job-result=passed");
+		// driver.executeScript("sauce:job-result=passed");
 		driver.quit();
 	}
 
