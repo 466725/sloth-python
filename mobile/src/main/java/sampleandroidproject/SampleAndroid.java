@@ -2,50 +2,44 @@ package sampleandroidproject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import io.appium.java_client.MobileElement;
-import io.appium.java_client.TouchAction;
+
+import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.remote.MobileCapabilityType;
+
 
 public class SampleAndroid {
-	public static URL url;
-	public static DesiredCapabilities caps;
-	public static AndroidDriver<MobileElement> driver;
+	
+	private AppiumDriver driver;
 
 	@BeforeSuite
 	public void setupAppium() throws MalformedURLException {
 
-		final String URL_STRING = "http://localhost:4723/wd/hub";
-		url = new URL(URL_STRING);
-
-		caps = new DesiredCapabilities();
-		caps.setCapability("deviceName", "Nexus_5X");
-		caps.setCapability("udid", "emulator-5554");
-		caps.setCapability("app", "C:\\Users\\gleung\\Downloads\\com.fivemobile.cineplex.uat-anycpu.apk");
-		caps.setCapability("noReset", false);
-		caps.setCapability("skipUnlock", true);
-		caps.setCapability("automationName", "UiAutomator2");
-		caps.setCapability("appPackage", "com.fivemobile.cineplex");
-		caps.setCapability("appActivity", "com.fivemobile.cineplex.MainActivity");
-
-		driver = new AndroidDriver<MobileElement>(url, caps);
-		driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
-		driver.resetApp();
+		DesiredCapabilities caps = new DesiredCapabilities();
+		caps.setCapability("testobject_api_key", "73641AF4E4F34C13A31972953A7E27F0");
+		caps.setCapability("testobject_app_id", "1");
+		caps.setCapability("platformName", "Android");
+		caps.setCapability("platformVersion", "10");
+		URL US_endpoint = new URL("http://us1.appium.testobject.com/wd/hub");
+		driver = new AndroidDriver(US_endpoint, caps);
 	}
 
 	@AfterSuite
 	public void uninstallApp() throws InterruptedException {
-		driver.removeApp("com.fivemobile.cineplex");
+		driver.executeScript("sauce:job-result=passed");
+		driver.quit();
 	}
 
 	@Test(enabled = true)
 	public void myFirstTest() throws InterruptedException {
-		driver.resetApp();
+		driver.findElementByXPath("(//android.view.ViewGroup[@content-desc='NO THANKS'])[2]").click();
+		driver.findElementByXPath("//android.view.ViewGroup[@content-desc='Account']").click();
+		driver.findElementByXPath("//android.view.ViewGroup[@content-desc='LOGIN']").click();
+		driver.findElementByXPath("(//android.widget.EditText)[1]").sendKeys("cpxapitester@gmail.com");
+		driver.findElementByXPath("(//android.widget.EditText)[2]").sendKeys("Cineplex123");
+		driver.findElementByXPath("//android.view.ViewGroup[@content-desc='LOGIN']").click();
 	}
 }
