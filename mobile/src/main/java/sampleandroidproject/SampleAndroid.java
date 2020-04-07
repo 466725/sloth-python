@@ -17,7 +17,6 @@ public class SampleAndroid {
 
 	@BeforeSuite
 	public void setupAppium() throws MalformedURLException {
-
 		DesiredCapabilities caps = new DesiredCapabilities();
 		caps.setCapability("testobject_api_key", "73641AF4E4F34C13A31972953A7E27F0");
 		caps.setCapability("testobject_app_id", "1");
@@ -29,7 +28,7 @@ public class SampleAndroid {
 
 	@AfterSuite
 	public void uninstallApp() throws InterruptedException {
-		driver.executeScript("sauce:job-result=passed");
+		//driver.executeScript("sauce:job-result=passed");
 		driver.quit();
 	}
 
