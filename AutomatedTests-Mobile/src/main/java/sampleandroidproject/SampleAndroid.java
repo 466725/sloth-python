@@ -23,7 +23,7 @@ public class SampleAndroid {
 	@BeforeSuite
 	public void setupAppium() throws MalformedURLException {
 		DesiredCapabilities caps = new DesiredCapabilities();
-		caps.setCapability("testobject_api_key", "73641AF4E4F34C13A31972953A7E27F0");
+		caps.setCapability("testobject_api_key", "7B0F153A1C564E13934E7C5908228326");
 		caps.setCapability("testobject_app_id", "1");
 		caps.setCapability("platformName", "Android");
 		caps.setCapability("platformVersion", "10");
