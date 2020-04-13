@@ -28,13 +28,13 @@ public class SauceLabsDemo {
 		iosCaps.setCapability("platformVersion", "11.0");
 		URL US_endpoint = new URL("http://us1.appium.testobject.com/wd/hub");
 		androidDriver = new AndroidDriver<WebElement>(US_endpoint, androidCaps);
-		iosDriver = new IOSDriver<WebElement>(US_endpoint, iosCaps);
+//		iosDriver = new IOSDriver<WebElement>(US_endpoint, iosCaps);
 	}
 
 	@AfterSuite
 	public void afterSuite() throws InterruptedException {
 		androidDriver.quit();
-		iosDriver.quit();
+//		iosDriver.quit();
 	}
 
 	@Test(enabled = true)
@@ -47,7 +47,7 @@ public class SauceLabsDemo {
 		androidDriver.findElementByXPath("//android.view.ViewGroup[@content-desc='LOGIN']").click();
 	}
 	
-	@Test(enabled = true)
+//	@Test(enabled = true)
 	public void iosLogin() throws InterruptedException {
 		iosDriver.findElementByXPath("(//android.view.ViewGroup[@content-desc='NO THANKS'])[2]").click();
 		iosDriver.findElementByXPath("//android.view.ViewGroup[@content-desc='Account']").click();

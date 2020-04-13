@@ -17,6 +17,7 @@
 /[Rr]elease/
 /[Rr]eleases/
 /test-output/
+/AutomatedTests-Mobile/test-output/
 /target/
 /x64/
 /x86/
