@@ -1,12 +1,7 @@
 import unittest
+import pytest
 from appium import webdriver
 from time import sleep
-
-
-def test_launch_and_login():
-    print('Sleep here a while for now! ')
-    sleep(2)
-
 
 class AndroidApplicationTests(unittest.TestCase):
     "Class to run tests against Cineplex app"
@@ -17,14 +12,17 @@ class AndroidApplicationTests(unittest.TestCase):
             , 'platformName': 'Android'
             , 'platformVersion': '9'
             , 'automationName': 'UiAutomator2'
-            , 'name': 'Mobile Ticketing App Demo Test by Weipeng'}
+            , 'name': 'Automation with Sauce labs demo of Android'}
         self.driver = webdriver.Remote('http://us1.appium.testobject.com/wd/hub', desired_caps)
         print(self.driver.desired_capabilities)
+
+    def test_launch_and_login(self):
+        print('Sleep here a while for now! ')
+        sleep(2)
 
     def tearDown(self):
         self.driver.execute_script('sauce:job-result=passed')
         self.driver.quit()
-
 
 # ---START OF SCRIPT
 if __name__ == '__main__':

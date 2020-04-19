@@ -1,8 +1,9 @@
 import unittest
+import pytest
 from appium import webdriver
 from time import sleep
 
-class LaunchCineplexTests(unittest.TestCase):
+class AndroidApplicationTests(unittest.TestCase):
     "Class to run tests against Cineplex app"
 
     def setUp(self):
@@ -13,7 +14,7 @@ class LaunchCineplexTests(unittest.TestCase):
         desired_caps['platformVersion'] = '9'
         desired_caps['automationName'] = 'UiAutomator2'
         # desired_caps['buildName'] = 'test12345'
-        desired_caps['name'] = 'Mobile Ticketing App Demo Test by Weipeng'
+        desired_caps['name'] = 'Automation with Sauce labs demo of Android'
         testobject_endpoint = 'http://us1.appium.testobject.com/wd/hub'
         self.driver = webdriver.Remote(testobject_endpoint, desired_caps)
         print(self.driver.desired_capabilities) # for DEBUG
