@@ -3,6 +3,7 @@ from appium import webdriver
 from time import sleep
 
 
+# Polish this one again, according to the Android one
 class AndroidApplicationTests(unittest.TestCase):
 
     def setUp(self):

@@ -22,10 +22,10 @@ class AndroidApplicationTests(unittest.TestCase):
                         # , 'noReset': 'false'
                         # , 'cacheId': '1719330c118'
                         # , 'testobject_session_creation_timeout': '900000'
-                        # , 'testobject_app_id': '1'
-                        # , 'testobject_suite_name': 'Demo suite of Weipeng'
-                        # , 'testobject_test_name': 'Demo test of Weipeng'
-            , 'name': 'Automation with Sauce labs demo of Android'}
+             , 'testobject_app_id': '1'
+             , 'testobject_suite_name': 'Demo suite'
+                        # , 'testobject_test_name': 'Demo test'
+            , 'name': 'Sauce labs demo with Android'}
         self.driver = webdriver.Remote('http://us1.appium.testobject.com/wd/hub', desired_caps)
         sleep(15)
         print(self.driver.desired_capabilities)
