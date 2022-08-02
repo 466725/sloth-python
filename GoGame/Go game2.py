@@ -13,425 +13,88 @@ def cleanup():
 
 def main():
     canplay = True
-    line1 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
+    line1 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line2 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line3 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line4 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line5 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line6 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line7 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line8 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line9 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line10 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line11 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line12 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line13 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line14 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line15 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line16 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line17 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line18 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line19 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+
+    line_1_data = list(line1.values())
+    line_2_data = list(line2.values())
+    line_3_data = list(line3.values())
+    line_4_data = list(line4.values())
+    line_5_data = list(line5.values())
+    line_6_data = list(line6.values())
+    line_7_data = list(line7.values())
+    line_8_data = list(line8.values())
+    line_9_data = list(line9.values())
+    line_10_data = list(line10.values())
+    line_11_data = list(line11.values())
+    line_12_data = list(line12.values())
+    line_13_data = list(line13.values())
+    line_14_data = list(line14.values())
+    line_15_data = list(line15.values())
+    line_16_data = list(line16.values())
+    line_17_data = list(line17.values())
+    line_18_data = list(line18.values())
+    line_19_data = list(line19.values())
+    board_data = [line_1_data, line_2_data, line_3_data, line_4_data, line_5_data, line_6_data, line_7_data,
+                  line_8_data, line_9_data, line_10_data, line_11_data, line_12_data, line_13_data, line_14_data,
+                  line_15_data, line_16_data, line_17_data, line_18_data, line_19_data, ]
 
 
-    }
-    line2 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line3 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line4 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line5 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line6 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line7 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line8 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line9 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line10 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line11 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line12 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line13 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line14 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line15 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line16 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line17 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line18 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
-    line19 = {
-        1: "blank",
-        2: "blank",
-        3: "blank",
-        4: "blank",
-        5: "blank",
-        6: "blank",
-        7: "blank",
-        8: "blank",
-        9: "blank",
-        10: "blank",
-        11: "blank",
-        12: "blank",
-        13: "blank",
-        14: "blank",
-        15: "blank",
-        16: "blank",
-        17: "blank",
-        18: "blank",
-        19: "blank",
-
-    }
     global whos_turn
     whos_turn = "It's the black players turn"
     colour_turn = 1
@@ -471,7 +134,18 @@ def main():
     #pygame.display.set_icon(icon)
     is_running = True
     def draw_stones():
-        print (stone)
+        for lineNum in range (19):
+            for columnNum in range (19):
+                line = board_data[lineNum]
+                xpos = left_x + (line_length / 19 * ((columnNum + 1) + 0.05 * (columnNum + 1)) - line_length / 19)
+                ypos = top_y + (line_length / 19 * ((lineNum + 1) + 0.05 * (lineNum + 1)) - line_length / 19)
+                if line[columnNum] == "black":
+
+                    pygame.draw.circle(screen, black, (xpos, ypos), stone_size)
+                elif line[columnNum] == "white":
+                    pygame.draw.circle(screen, white, (xpos, ypos), stone_size)
+
+
 
     def draw_board ():
         global top_y
@@ -552,16 +226,40 @@ def main():
 
             xpos = xpos + small_side / 21
             ypos = ypos + small_side / 21
+            draw_stones()
+
 
     draw_board()
 
 
     while is_running:
-
+        #draw_stones()
+        line_1_data = list(line1.values())
+        line_2_data = list(line2.values())
+        line_3_data = list(line3.values())
+        line_4_data = list(line4.values())
+        line_5_data = list(line5.values())
+        line_6_data = list(line6.values())
+        line_7_data = list(line7.values())
+        line_8_data = list(line8.values())
+        line_9_data = list(line9.values())
+        line_10_data = list(line10.values())
+        line_11_data = list(line11.values())
+        line_12_data = list(line12.values())
+        line_13_data = list(line13.values())
+        line_14_data = list(line14.values())
+        line_15_data = list(line15.values())
+        line_16_data = list(line16.values())
+        line_17_data = list(line17.values())
+        line_18_data = list(line18.values())
+        line_19_data = list(line19.values())
+        board_data = [line_1_data, line_2_data, line_3_data, line_4_data, line_5_data, line_6_data, line_7_data,
+                      line_8_data, line_9_data, line_10_data, line_11_data, line_12_data, line_13_data, line_14_data,
+                      line_15_data, line_16_data, line_17_data, line_18_data, line_19_data, ]
         
         #pygame.draw.circle(screen, black, (300, top_y), 20,0)
 
-        #print(line1)
+        #print(line_1_data)
         mouse_pos = pygame.mouse.get_pos()
         mouse_x = mouse_pos[0]
         mouse_y = mouse_pos[1]
@@ -611,8 +309,8 @@ def main():
                     else:
                         colour = "white"
                         whos_turn = "It's the black players turn"
-                    #screen.fill(brown)
-                    #draw_board()
+                    screen.fill(brown)
+                    draw_board()
 
 
                     line_num = 19 - ((((mouse_y - (top_y + line_length))) / (line_length / 18)) * -1)
