@@ -134,6 +134,7 @@ def main():
     #pygame.display.set_icon(icon)
     is_running = True
     def draw_stones():
+        stone_size = small_side / 47 + 1
         for lineNum in range (19):
             for columnNum in range (19):
                 line = board_data[lineNum]
@@ -148,9 +149,12 @@ def main():
 
 
     def draw_board ():
+        global small_side
         global top_y
         global left_x
         global line_length
+
+        stone_size = small_side / 47 + 1
 
         if height > width:
             small_side = width
