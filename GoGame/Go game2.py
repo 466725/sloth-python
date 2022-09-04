@@ -41,46 +41,40 @@ def main():
     line9 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
              18: "blank", 19: "blank"}
-    line10 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line11 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line12 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line13 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line14 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line15 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line16 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line17 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line18 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line19 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
+    line10 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line11 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line12 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line13 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line14 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line15 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line16 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line17 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line18 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+    line19 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
+             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
+             18: "blank", 19: "blank"}
+
+
+
+
 
     line_1_data = list(line1.values())
     line_2_data = list(line2.values())
@@ -101,9 +95,10 @@ def main():
     line_17_data = list(line17.values())
     line_18_data = list(line18.values())
     line_19_data = list(line19.values())
-    board_data = [line_1_data, line_2_data, line_3_data, line_4_data, line_5_data, line_6_data, line_7_data,
-                  line_8_data, line_9_data, line_10_data, line_11_data, line_12_data, line_13_data, line_14_data,
-                  line_15_data, line_16_data, line_17_data, line_18_data, line_19_data, ]
+
+
+    board_data = [line_1_data, line_2_data, line_3_data, line_4_data, line_5_data, line_6_data, line_7_data, line_8_data, line_9_data,
+                  line_10_data, line_11_data, line_12_data, line_13_data, line_14_data, line_15_data, line_16_data,line_17_data, line_18_data, line_19_data]
 
     global whos_turn
     whos_turn = "It's the black players turn"
@@ -147,15 +142,15 @@ def main():
     def draw_stones():
         stone_size = small_side / 47 + 1
         for lineNum in range(19):
-            for columnNum in range(19):
+            for columnNum in range(19 ):
                 line = board_data[lineNum]
                 xpos = left_x + (line_length / 19 * ((columnNum + 1) + 0.05 * (columnNum + 1)) - line_length / 19)
                 ypos = top_y + (line_length / 19 * ((lineNum + 1) + 0.05 * (lineNum + 1)) - line_length / 19)
-                if line[columnNum] == "black":
-
+                if line[columnNum] == 'black':
                     pygame.draw.circle(screen, black, (xpos, ypos), stone_size)
-                elif line[columnNum] == "white":
+                elif line[columnNum] == 'white':
                     pygame.draw.circle(screen, white, (xpos, ypos), stone_size)
+
 
     def draw_board():
         global small_side
@@ -249,6 +244,7 @@ def main():
     draw_board()
 
     while is_running:
+        print(board_data)
         # draw_stones()
         line_1_data = list(line1.values())
         line_2_data = list(line2.values())
@@ -269,6 +265,9 @@ def main():
         line_17_data = list(line17.values())
         line_18_data = list(line18.values())
         line_19_data = list(line19.values())
+
+
+
         board_data = [line_1_data, line_2_data, line_3_data, line_4_data, line_5_data, line_6_data, line_7_data,
                       line_8_data, line_9_data, line_10_data, line_11_data, line_12_data, line_13_data, line_14_data,
                       line_15_data, line_16_data, line_17_data, line_18_data, line_19_data, ]
@@ -318,10 +317,8 @@ def main():
                 if mouse_x > left_x - line_length / 30 and mouse_y > top_y - line_length / 30 and mouse_x < width / 2 - small_side / 21 * 17.02 / 2 + 0.1 + line_length + line_length / 20 and mouse_y < height / 2 - small_side / 21 * 20.05 / 2 + line_length + line_length / 20:
                     if colour_turn % 2 == 0:
                         colour = "black"
-                        whos_turn = "It's the white players turn"
                     else:
                         colour = "white"
-                        whos_turn = "It's the black players turn"
                     screen.fill(brown)
                     draw_board()
 
@@ -333,7 +330,7 @@ def main():
                     elif line_num > 19:
                         line_num = 19
 
-                    column_num = 19 - ((((mouse_x - (left_x + line_length))) / (line_length / 18)) * -1)
+                    column_num = 19 - ((((mouse_x - (left_x + line_length))) / (line_length / 18)) * -1) 
                     if column_num - int(column_num) > 0.5:
                         column_num = column_num + 1
                     if column_num < 1:
@@ -385,13 +382,18 @@ def main():
                     # canplay = False
                     # screen.blit(wrong_place, (210, 630))
                     # colour_turn = colour_turn - 1
-                    mouse_x = left_x + (
-                                line_length / 19 * (int(column_num) + 0.05 * int(column_num))) - line_length / 19
+                    mouse_x = left_x + (line_length / 19 * (int(column_num) + 0.05 * int(column_num))) - line_length / 19
                     mouse_y = top_y + (line_length / 19 * (int(line_num) + 0.05 * int(line_num))) - line_length / 19
 
                     if line_dict[int(column_num)] != "blank":
                         canplay = False
                     else:
+                        if colour_turn % 2 == 0:
+                            whos_turn = "It's the white players turn"
+                        else:
+                            whos_turn = "It's the black players turn"
+                        screen.fill(brown)
+                        draw_board()
 
                         line_dict[int(column_num)] = colour
 
