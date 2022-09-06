@@ -138,7 +138,6 @@ def main():
         for j in range(len(board_data1[i])):
             board_data.append(board_data1[i][j])
 
-    global whos_turn
     global column_num
     global line_num
     line_num = -10
@@ -221,10 +220,6 @@ def main():
         left_x = width / 2 - small_side / 21 * 17 / 2
 
         line_length = small_side / 1.165 + 1
-
-        font = pygame.font.Font('freesansbold.ttf', int(height / 33))
-        turn = font.render(whos_turn, False, black)
-        screen.blit(turn, (left_x, top_y + line_length * 1.07))
 
         font = pygame.font.Font('freesansbold.ttf', int(small_side / 33))
         letter_pos = width / 2 - small_side / 21 * 17.02 / 2 + 0.1
@@ -581,12 +576,24 @@ def main():
 
                     if line_dict[int(column_num)] != "blank":
                         canplay = False
+                    elif board_data3[place - 21] == 'white' and board_data3[place - 1] == 'white' and\
+                            board_data3[place + 21] == 'white' and board_data3[place + 1] == 'white' and\
+                            colour == 'black':
+                        canplay = False
+                    elif (board_data3[place - 21] == 'black' or board_data3[place - 21] == 'x') and\
+                        (board_data3[place - 1] == 'black' or board_data3[place - 1] == 'x') and\
+                        (board_data3[place + 21] == 'black' or board_data3[place + 21] == 'x') and\
+                        (board_data3[place + 1] == 'black' or board_data3[place + 1] == 'x') and\
+                        colour == 'white':
+                        canplay = False
+                    elif (board_data3[place - 21] == 'white' or board_data3[place - 21] == 'x') and\
+                        (board_data3[place - 1] == 'white' or board_data3[place - 1] == 'x') and\
+                        (board_data3[place + 21] == 'white' or board_data3[place + 21] == 'x') and\
+                        (board_data3[place + 1] == 'white' or board_data3[place + 1] == 'x') and\
+                        colour == 'black':
+                        canplay = False
                     else:
                         canplay = True
-                        if colour_turn % 2 == 0:
-                            whos_turn = "It's the white players turn"
-                        else:
-                            whos_turn = "It's the black players turn"
                         screen.fill(brown)
                         draw_board()
 
@@ -633,15 +640,15 @@ def main():
 
                     if canplay == True:
                         pygame.mixer.music.load('move.wav')
-                        pygame.mixer.music.play()
+                        pygame.mixer.music.play(1)
                         draw_board()
                         pygame.draw.circle(screen, colour, (xpos2, ypos2), stone_size, 0)
                         pygame.draw.circle(screen, red, (xpos2, ypos2), small_side / 100 + 1, 0)
                     else:
                         colour_turn = colour_turn - 1
 
-        # if size != screen.get_size():
-        # screen = pygame.display.set_mode(size, pygame.RESIZABLE)
+        #if size != screen.get_size():
+        #    screen = pygame.display.set_mode(size, pygame.RESIZABLE)
 
         pygame.display.flip()
 
