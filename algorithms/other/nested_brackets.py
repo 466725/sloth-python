@@ -16,7 +16,6 @@ returns true if S is nested and false otherwise.
 
 
 def is_balanced(S):
-
     stack = []
     open_brackets = set({"(", "[", "{"})
     closed_brackets = set({")", "]", "}"})
@@ -29,7 +28,7 @@ def is_balanced(S):
 
         elif S[i] in closed_brackets:
             if len(stack) == 0 or (
-                len(stack) > 0 and open_to_closed[stack.pop()] != S[i]
+                    len(stack) > 0 and open_to_closed[stack.pop()] != S[i]
             ):
                 return False
 
@@ -37,7 +36,6 @@ def is_balanced(S):
 
 
 def main():
-
     S = input("Enter sequence of brackets: ")
 
     if is_balanced(S):

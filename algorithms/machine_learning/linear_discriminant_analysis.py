@@ -153,7 +153,7 @@ def calculate_variance(items: list, means: list, total_count: int) -> float:
 
 # Making predictions
 def predict_y_values(
-    x_items: list, means: list, variance: float, probabilities: list
+        x_items: list, means: list, variance: float, probabilities: list
 ) -> list:
     """ This function predicts new indexes(groups for our data)
     :param x_items: a list containing all items(gaussian distribution of all classes)
@@ -307,7 +307,7 @@ def main():
             while True:
                 try:
                     user_count = int(
-                        input(f"Enter The number of instances for class_{i+1}: ")
+                        input(f"Enter The number of instances for class_{i + 1}: ")
                     )
                     if user_count > 0:
                         counts.append(user_count)
@@ -328,7 +328,7 @@ def main():
             while True:
                 try:
                     user_mean = float(
-                        input(f"Enter the value of mean for class_{a+1}: ")
+                        input(f"Enter the value of mean for class_{a + 1}: ")
                     )
                     if isinstance(user_mean, float):
                         user_means.append(user_mean)

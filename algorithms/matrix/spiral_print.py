@@ -29,7 +29,6 @@ def checkMatrix(a):
 
 
 def spiralPrint(a):
-
     if checkMatrix(a) and len(a) > 0:
 
         matRow = len(a)
@@ -53,7 +52,7 @@ def spiralPrint(a):
         # vertical printing up
         for i in range(matRow - 2, 0, -1):
             print(a[i][0]),
-        remainMat = [row[1 : matCol - 1] for row in a[1 : matRow - 1]]
+        remainMat = [row[1: matCol - 1] for row in a[1: matRow - 1]]
         if len(remainMat) > 0:
             spiralPrint(remainMat)
         else:

@@ -12,7 +12,7 @@ class Calculator(object):
         elif button == 'C':
             self._expression = ''
         elif button == '/':
-            self._expression += '//'    # Integer division also in Python 3
+            self._expression += '//'  # Integer division also in Python 3
         else:
             self._expression += button
         return self._expression
@@ -24,6 +24,7 @@ class Calculator(object):
             raise CalculationError('Invalid expression.')
         except ZeroDivisionError:
             raise CalculationError('Division by zero.')
+
 
 class CalculationError(Exception):
     pass

@@ -1,5 +1,6 @@
 from random import randint
 from tempfile import TemporaryFile
+
 import numpy as np
 
 
@@ -18,7 +19,6 @@ def _inPlaceQuickSort(A, start, end):
 
 
 def _inPlacePartition(A, start, end):
-
     count = 0
     pivot = randint(start, end)
     temp = A[end]
@@ -43,13 +43,11 @@ def _inPlacePartition(A, start, end):
 outfile = TemporaryFile()
 p = 100  # 1000 elements are to be sorted
 
-
 mu, sigma = 0, 1  # mean and standard deviation
 X = np.random.normal(mu, sigma, p)
 np.save(outfile, X)
 print("The array is")
 print(X)
-
 
 outfile.seek(0)  # using the same array
 M = np.load(outfile)

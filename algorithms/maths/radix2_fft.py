@@ -133,16 +133,16 @@ class FFT:
                     # Even positions
                     new_inverseC[i].append(
                         (
-                            inverseC[i][j]
-                            + inverseC[i][j + self.C_max_length // next_ncol]
+                                inverseC[i][j]
+                                + inverseC[i][j + self.C_max_length // next_ncol]
                         )
                         / 2
                     )
                     # Odd positions
                     new_inverseC[i + next_ncol // 2].append(
                         (
-                            inverseC[i][j]
-                            - inverseC[i][j + self.C_max_length // next_ncol]
+                                inverseC[i][j]
+                                - inverseC[i][j + self.C_max_length // next_ncol]
                         )
                         / (2 * current_root)
                     )

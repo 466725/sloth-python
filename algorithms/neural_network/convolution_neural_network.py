@@ -14,13 +14,14 @@
     - - - - - -- - - - - - - - - - - - - - - - - - - - - - -
 """
 import pickle
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class CNN:
     def __init__(
-        self, conv1_get, size_p1, bp_num1, bp_num2, bp_num3, rate_w=0.2, rate_t=0.2
+            self, conv1_get, size_p1, bp_num1, bp_num2, bp_num3, rate_w=0.2, rate_t=0.2
     ):
         """
         :param conv1_get: [a,c,d]，size, number, step of convolution kernel
@@ -113,7 +114,7 @@ class CNN:
         for i_focus in range(0, size_data - size_conv + 1, conv_step):
             for j_focus in range(0, size_data - size_conv + 1, conv_step):
                 focus = data[
-                    i_focus : i_focus + size_conv, j_focus : j_focus + size_conv
+                    i_focus: i_focus + size_conv, j_focus: j_focus + size_conv
                 ]
                 data_focus.append(focus)
         # calculate the feature map of every single kernel, and saved as list of matrix
@@ -123,8 +124,8 @@ class CNN:
             featuremap = []
             for i_focus in range(len(data_focus)):
                 net_focus = (
-                    np.sum(np.multiply(data_focus[i_focus], w_convs[i_map]))
-                    - thre_convs[i_map]
+                        np.sum(np.multiply(data_focus[i_focus], w_convs[i_map]))
+                        - thre_convs[i_map]
                 )
                 featuremap.append(self.sig(net_focus))
             featuremap = np.asmatrix(featuremap).reshape(
@@ -150,8 +151,8 @@ class CNN:
             for i_focus in range(0, size_map, size_pooling):
                 for j_focus in range(0, size_map, size_pooling):
                     focus = map[
-                        i_focus : i_focus + size_pooling,
-                        j_focus : j_focus + size_pooling,
+                        i_focus: i_focus + size_pooling,
+                        j_focus: j_focus + size_pooling,
                     ]
                     if type == "average_pool":
                         # average pooling
@@ -182,7 +183,7 @@ class CNN:
         return data_expanded
 
     def _calculate_gradient_from_pool(
-        self, out_map, pd_pool, num_map, size_map, size_pooling
+            self, out_map, pd_pool, num_map, size_map, size_pooling
     ):
         """
         calculate the gradient from the data slice of pool layer
@@ -196,7 +197,7 @@ class CNN:
             pd_conv1 = np.ones((size_map, size_map))
             for i in range(0, size_map, size_pooling):
                 for j in range(0, size_map, size_pooling):
-                    pd_conv1[i : i + size_pooling, j : j + size_pooling] = pd_pool[
+                    pd_conv1[i: i + size_pooling, j: j + size_pooling] = pd_pool[
                         i_pool
                     ]
                     i_pool = i_pool + 1
@@ -207,7 +208,7 @@ class CNN:
         return pd_all
 
     def train(
-        self, patterns, datas_train, datas_teach, n_repeat, error_accuracy, draw_e=bool
+            self, patterns, datas_train, datas_teach, n_repeat, error_accuracy, draw_e=bool
     ):
         # model traning
         print("----------------------Start Training-------------------------")
@@ -275,8 +276,8 @@ class CNN:
                     )
 
                     self.thre_conv1[k_conv] = (
-                        self.thre_conv1[k_conv]
-                        - np.sum(pd_conv1_all[k_conv]) * self.rate_thre
+                            self.thre_conv1[k_conv]
+                            - np.sum(pd_conv1_all[k_conv]) * self.rate_thre
                     )
                 # all connected layer
                 self.wkj = self.wkj + pd_k_all.T * bp_out2 * self.rate_weight

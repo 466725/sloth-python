@@ -24,7 +24,7 @@ def longest_subsequence(array: List[int]) -> List[int]:  # This function is recu
     """
     array_length = len(array)
     if (
-        array_length <= 1
+            array_length <= 1
     ):  # If the array contains only one element, we return it (it's the stop condition of recursion)
         return array
         # Else

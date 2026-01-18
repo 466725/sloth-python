@@ -19,7 +19,7 @@ def insertion_sort(lst):
     for index in range(1, length):
         value = lst[index]
         pos = binary_search(lst, value, 0, index - 1)
-        lst = lst[:pos] + [value] + lst[pos:index] + lst[index + 1 :]
+        lst = lst[:pos] + [value] + lst[pos:index] + lst[index + 1:]
 
     return lst
 
@@ -73,7 +73,6 @@ def tim_sort(lst):
 
 
 def main():
-
     lst = [5, 9, 10, 3, -4, 5, 178, 92, 46, -18, 0, 7]
     sorted_lst = tim_sort(lst)
     print(sorted_lst)

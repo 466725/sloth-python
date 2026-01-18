@@ -10,7 +10,7 @@ for num in range(1, 6):
         print(str(num) + ": Fizz.")
     elif num % 5 == 0:
         print(str(num) + ": Buzz. ")
-             
+
 # Fibonacci Sequence
 a, b, = 0, 1
 for i in range(1, 10):
@@ -25,12 +25,15 @@ for i in range(1, 10):
     a = b
     b = c
 
+
 # Fibonacci Generator
 def fib(num):
     a, b = 0, 1
-    for i in range (1, num + 1):
+    for i in range(1, num + 1):
         yield "{}: {}".format(i, a)
         a, b = b, a + b
+
+
 for item in fib(10):
     print(item)
 
@@ -73,19 +76,22 @@ s = 0
 for x in range(10):
     s += x
 print(s)
-    
+
 # the right way
 s = sum(range(10))
 print(s)
 
+
 def f(x, l=[]):
     for i in range(x):
         l.append(i * i)
-    print(l) 
+    print(l)
+
 
 f(2)
 f(3, [3, 2, 1])
 f(3)
+
 
 # Do you know what is the difference between lists and tuples? Can you give me an example for their usage?
 # First list are mutable tuples not, tuples are used when the order of the elements in the sequence matters
@@ -100,9 +106,10 @@ f(3)
 
 def f(*args, **kwargs): print(args, kwargs)
 
+
 l = [1, 2, 3]
 t = (4, 5, 6)
-d = {'a':7, 'b':8, 'c':9}
+d = {'a': 7, 'b': 8, 'c': 9}
 
 f()
 f(1, 2, 3)  # (1, 2, 3) {}
@@ -119,20 +126,23 @@ def f1(lIn):
     l2 = [i for i in l1 if i < 0.5]
     return [i * i for i in l2]
 
+
 def f2(lIn):
     l1 = [i for i in lIn if i < 0.5]
     l2 = sorted(l1)
     return [i * i for i in l2]
+
 
 def f3(lIn):
     l1 = [i * i for i in lIn]
     l2 = sorted(l1)
     return [i for i in l1 if i < (0.5 * 0.5)]
 
+
 import cProfile
 import random
+
 lIn = [random.random() for i in range(100000)]
 cProfile.run('f1(lIn)')
 cProfile.run('f2(lIn)')
 cProfile.run('f3(lIn)')
-

@@ -73,7 +73,6 @@ class AssignmentUsingBitmask:
 
 
 if __name__ == "__main__":
-
     total_tasks = 5  # total no of tasks (the value of N)
 
     # the list of tasks that can be done by M persons.

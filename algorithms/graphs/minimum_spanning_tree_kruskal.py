@@ -11,10 +11,12 @@ if __name__ == "__main__":
 
     parent = list(range(num_nodes))
 
+
     def find_parent(i):
         if i != parent[i]:
             parent[i] = find_parent(parent[i])
         return parent[i]
+
 
     minimum_spanning_tree_cost = 0
     minimum_spanning_tree = []

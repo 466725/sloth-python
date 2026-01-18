@@ -13,7 +13,7 @@ def im2col(image, block_size):
     row = 0
     for i in range(0, dst_height):
         for j in range(0, dst_width):
-            window = ravel(image[i : i + block_size[0], j : j + block_size[1]])
+            window = ravel(image[i: i + block_size[0], j: j + block_size[1]])
             image_array[row, :] = window
             row += 1
 

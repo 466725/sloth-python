@@ -33,7 +33,6 @@ xn = b
 
 
 def simpson_integration(function, a: float, b: float, precision: int = 4) -> float:
-
     """
     Args:
         function : the function which's integration is desired
@@ -100,7 +99,7 @@ def simpson_integration(function, a: float, b: float, precision: int = 4) -> flo
         b, int
     ), f"b should be float or integer your input : {b}"
     assert (
-        isinstance(precision, int) and precision > 0
+            isinstance(precision, int) and precision > 0
     ), f"precision should be positive integer your input : {precision}"
 
     # just applying the formula of simpson for approximate integraion written in

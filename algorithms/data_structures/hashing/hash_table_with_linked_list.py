@@ -1,5 +1,6 @@
-from hash_table import HashTable
 from collections import deque
+
+from hash_table import HashTable
 
 
 class HashTableWithLinkedList(HashTable):
@@ -13,14 +14,14 @@ class HashTableWithLinkedList(HashTable):
 
     def balanced_factor(self):
         return (
-            sum([self.charge_factor - len(slot) for slot in self.values])
-            / self.size_table
-            * self.charge_factor
+                sum([self.charge_factor - len(slot) for slot in self.values])
+                / self.size_table
+                * self.charge_factor
         )
 
     def _colision_resolution(self, key, data=None):
         if not (
-            len(self.values[key]) == self.charge_factor and self.values.count(None) == 0
+                len(self.values[key]) == self.charge_factor and self.values.count(None) == 0
         ):
             return key
         return super()._colision_resolution(key, data)

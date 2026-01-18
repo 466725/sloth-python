@@ -6,8 +6,8 @@
     an = [ Phin - (phi)n ]/Sqrt[5]
     reference-->Su, Francis E., et al. "Fibonacci Number Formula." Math Fun Facts. <http://www.math.hmc.edu/funfacts>
 """
-import math
 import functools
+import math
 import time
 from decimal import getcontext, Decimal
 
@@ -23,7 +23,7 @@ def timer_decorator(func):
         if int(end - start) > 0:
             print(f"Run time for {func.__name__}: {(end - start):0.2f}s")
         else:
-            print(f"Run time for {func.__name__}: {(end - start)*1000:0.2f}ms")
+            print(f"Run time for {func.__name__}: {(end - start) * 1000:0.2f}ms")
         return func(*args, **kwargs)
 
     return timer_wrapper
@@ -112,7 +112,7 @@ def fib_formula(n):
         phi_2 = Decimal(1 - sqrt) / Decimal(2)
         for i in range(2, n):
             temp_out = ((phi_1 ** Decimal(i)) - (phi_2 ** Decimal(i))) * (
-                Decimal(sqrt) ** Decimal(-1)
+                    Decimal(sqrt) ** Decimal(-1)
             )
             seq_out.append(int(temp_out))
         return seq_out

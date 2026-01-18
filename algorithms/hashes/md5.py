@@ -21,7 +21,7 @@ def rearrange(bitString32):
         raise ValueError("Need length 32")
     newString = ""
     for i in [3, 2, 1, 0]:
-        newString += bitString32[8 * i : 8 * i + 8]
+        newString += bitString32[8 * i: 8 * i + 8]
     return newString
 
 
@@ -38,7 +38,7 @@ def reformatHex(i):
     hexrep = format(i, "08x")
     thing = ""
     for i in [3, 2, 1, 0]:
-        thing += hexrep[2 * i : 2 * i + 2]
+        thing += hexrep[2 * i: 2 * i + 2]
     return thing
 
 
@@ -73,10 +73,10 @@ def getBlock(bitString):
 
     currPos = 0
     while currPos < len(bitString):
-        currPart = bitString[currPos : currPos + 512]
+        currPart = bitString[currPos: currPos + 512]
         mySplits = []
         for i in range(16):
-            mySplits.append(int(rearrange(currPart[32 * i : 32 * i + 32]), 2))
+            mySplits.append(int(rearrange(currPart[32 * i: 32 * i + 32]), 2))
         yield mySplits
         currPos += 512
 
@@ -228,8 +228,8 @@ def md5me(testString):
 def test():
     assert md5me("") == "d41d8cd98f00b204e9800998ecf8427e"
     assert (
-        md5me("The quick brown fox jumps over the lazy dog")
-        == "9e107d9d372bb6826bd81d3542a419d6"
+            md5me("The quick brown fox jumps over the lazy dog")
+            == "9e107d9d372bb6826bd81d3542a419d6"
     )
     print("Success.")
 

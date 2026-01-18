@@ -30,7 +30,7 @@ if __name__ == "__main__":
         print("Done sending")
         conn.close()
         if (
-            ONE_CONNECTION_ONLY
+                ONE_CONNECTION_ONLY
         ):  # This is to make sure that the program doesn't hang while testing
             break
 

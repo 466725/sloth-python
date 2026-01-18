@@ -23,8 +23,8 @@ python tabu_search.py -f your_file_name.txt -number_of_iterations_of_tabu_search
 e.g. python tabu_search.py -f tabudata2.txt -i 4 -s 3
 """
 
-import copy
 import argparse
+import copy
 import sys
 
 
@@ -116,9 +116,9 @@ def generate_first_solution(path, dict_of_neighbours):
         position += 1
 
     distance_of_first_solution = (
-        distance_of_first_solution
-        + int(dict_of_neighbours[first_solution[-2]][position][1])
-        - 10000
+            distance_of_first_solution
+            + int(dict_of_neighbours[first_solution[-2]][position][1])
+            - 10000
     )
     return first_solution, distance_of_first_solution
 
@@ -175,7 +175,7 @@ def find_neighborhood(solution, dict_of_neighbours):
 
 
 def tabu_search(
-    first_solution, distance_of_first_solution, dict_of_neighbours, iters, size
+        first_solution, distance_of_first_solution, dict_of_neighbours, iters, size
 ):
     """
     Pure implementation of Tabu search algorithm for a Travelling Salesman Problem in Python.

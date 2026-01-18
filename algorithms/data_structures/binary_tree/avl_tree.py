@@ -29,7 +29,7 @@ class my_queue:
     def print(self):
         print(self.data)
         print("**************")
-        print(self.data[self.head : self.tail])
+        print(self.data[self.head: self.tail])
 
 
 class my_node:
@@ -144,10 +144,10 @@ def insert_node(node, data):
     if data < node.getdata():
         node.setleft(insert_node(node.getleft(), data))
         if (
-            getheight(node.getleft()) - getheight(node.getright()) == 2
+                getheight(node.getleft()) - getheight(node.getright()) == 2
         ):  # an unbalance detected
             if (
-                data < node.getleft().getdata()
+                    data < node.getleft().getdata()
             ):  # new node is the left child of the left child
                 node = leftrotation(node)
             else:

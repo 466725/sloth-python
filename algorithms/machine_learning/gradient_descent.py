@@ -108,13 +108,13 @@ def run_gradient_descent():
         for i in range(0, len(parameter_vector)):
             cost_derivative = get_cost_derivative(i - 1)
             temp_parameter_vector[i] = (
-                parameter_vector[i] - LEARNING_RATE * cost_derivative
+                    parameter_vector[i] - LEARNING_RATE * cost_derivative
             )
         if numpy.allclose(
-            parameter_vector,
-            temp_parameter_vector,
-            atol=absolute_error_limit,
-            rtol=relative_error_limit,
+                parameter_vector,
+                temp_parameter_vector,
+                atol=absolute_error_limit,
+                rtol=relative_error_limit,
         ):
             break
         parameter_vector = temp_parameter_vector

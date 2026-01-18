@@ -10,7 +10,6 @@ return 0 if input array is empty
 
 
 def fibonacci_search(arr, val):
-
     """
     >>> fibonacci_search([1,6,7,0,0,0], 6)
     1

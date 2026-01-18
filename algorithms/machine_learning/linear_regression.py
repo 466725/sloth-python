@@ -7,8 +7,8 @@ We try to set these Feature weights, over many iterations, so that they best
 fits our dataset. In this particular code, i had used a CSGO dataset (ADR vs
 Rating). We try to best fit a line through dataset and estimate the parameters.
 """
-import requests
 import numpy as np
+import requests
 
 
 def collect_dataset():

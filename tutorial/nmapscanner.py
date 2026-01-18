@@ -1,5 +1,6 @@
-import nmap  # Requires NMap to be install locally
 import sys
+
+import nmap  # Requires NMap to be install locally
 
 target = str(sys.argv[1])
 ports = [21, 22, 80, 129, 443, 8080]

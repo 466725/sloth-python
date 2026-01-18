@@ -1,10 +1,10 @@
-from matplotlib import pyplot as plt
-import numpy as np
 import cv2
+import numpy as np
+from matplotlib import pyplot as plt
 
 
 def get_rotation(
-    img: np.array, pt1: np.float32, pt2: np.float32, rows: int, cols: int
+        img: np.array, pt1: np.float32, pt2: np.float32, rows: int, cols: int
 ) -> np.array:
     """
     Get image rotation

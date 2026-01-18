@@ -47,8 +47,8 @@ class Automaton:
                 q.append(child)
                 state = self.adlist[r]["fail_state"]
                 while (
-                    self.find_next_state(state, self.adlist[child]["value"]) == None
-                    and state != 0
+                        self.find_next_state(state, self.adlist[child]["value"]) == None
+                        and state != 0
                 ):
                     state = self.adlist[state]["fail_state"]
                 self.adlist[child]["fail_state"] = self.find_next_state(
@@ -57,8 +57,8 @@ class Automaton:
                 if self.adlist[child]["fail_state"] is None:
                     self.adlist[child]["fail_state"] = 0
                 self.adlist[child]["output"] = (
-                    self.adlist[child]["output"]
-                    + self.adlist[self.adlist[child]["fail_state"]]["output"]
+                        self.adlist[child]["output"]
+                        + self.adlist[self.adlist[child]["fail_state"]]["output"]
                 )
 
     def search_in(self, string):
@@ -71,8 +71,8 @@ class Automaton:
         current_state = 0
         for i in range(len(string)):
             while (
-                self.find_next_state(current_state, string[i]) is None
-                and current_state != 0
+                    self.find_next_state(current_state, string[i]) is None
+                    and current_state != 0
             ):
                 current_state = self.adlist[current_state]["fail_state"]
             current_state = self.find_next_state(current_state, string[i])

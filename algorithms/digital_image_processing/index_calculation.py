@@ -6,6 +6,7 @@
 # Imports
 import numpy as np
 
+
 # Class implemented to calculus the index
 class IndexCalculation:
     """
@@ -118,7 +119,7 @@ class IndexCalculation:
         return True
 
     def calculation(
-        self, index="", red=None, green=None, blue=None, redEdge=None, nir=None
+            self, index="", red=None, green=None, blue=None, redEdge=None, nir=None
     ):
         """
             performs the calculation of the index with the values instantiated in the class
@@ -190,7 +191,7 @@ class IndexCalculation:
             :return: index
         """
         return ((self.nir - self.redEdge) / (self.nir + self.redEdge)) / (
-            (self.nir - self.red) / (self.nir + self.red)
+                (self.nir - self.red) / (self.nir + self.red)
         )
 
     def CVI(self):
@@ -208,7 +209,7 @@ class IndexCalculation:
             :return: index
         """
         return (2 * self.green - self.red - self.blue) / (
-            2 * self.green + self.red + self.blue
+                2 * self.green + self.red + self.blue
         )
 
     def NDVI(self):
@@ -252,7 +253,7 @@ class IndexCalculation:
             :return: index
         """
         return (self.nir - (self.green + self.blue)) / (
-            self.nir + (self.green + self.blue)
+                self.nir + (self.green + self.blue)
         )
 
     def GRNDVI(self):
@@ -262,7 +263,7 @@ class IndexCalculation:
             :return: index
         """
         return (self.nir - (self.green + self.red)) / (
-            self.nir + (self.green + self.red)
+                self.nir + (self.green + self.red)
         )
 
     def RBNDVI(self):
@@ -280,7 +281,7 @@ class IndexCalculation:
             :return: index
         """
         return (self.nir - (self.green + self.red + self.blue)) / (
-            self.nir + (self.green + self.red + self.blue)
+                self.nir + (self.green + self.red + self.blue)
         )
 
     def ATSAVI(self, X=0.08, a=1.22, b=0.03):
@@ -290,8 +291,8 @@ class IndexCalculation:
             :return: index
         """
         return a * (
-            (self.nir - a * self.red - b)
-            / (a * self.nir + self.red - a * b + X * (1 + a ** 2))
+                (self.nir - a * self.red - b)
+                / (a * self.nir + self.red - a * b + X * (1 + a ** 2))
         )
 
     def BWDRVI(self):
@@ -350,7 +351,7 @@ class IndexCalculation:
             :return: index
         """
         return 2.5 * (
-            (self.nir - self.red) / (self.nir + 6 * self.red - 7.5 * self.blue + 1)
+                (self.nir - self.red) / (self.nir + 6 * self.red - 7.5 * self.blue + 1)
         )
 
     def GEMI(self):
@@ -360,7 +361,7 @@ class IndexCalculation:
             :return: index
         """
         n = (2 * (self.nir ** 2 - self.red ** 2) + 1.5 * self.nir + 0.5 * self.red) / (
-            self.nir + self.red + 0.5
+                self.nir + self.red + 0.5
         )
         return n * (1 - 0.25 * n) - (self.red - 0.125) / (1 - self.red)
 
@@ -441,8 +442,8 @@ class IndexCalculation:
             :return: index
         """
         return (
-            (2 * self.nir + 1)
-            - ((2 * self.nir + 1) ** 2 - 8 * (self.nir - self.red)) ** (1 / 2)
+                (2 * self.nir + 1)
+                - ((2 * self.nir + 1) ** 2 - 8 * (self.nir - self.red)) ** (1 / 2)
         ) / 2
 
     def NormG(self):

@@ -32,10 +32,10 @@ def alternative_password_generator(ctbi, i):
     remainder = i % 3
     # chars = ctbi + random_letters(ascii_letters, i / 3 + remainder) + random_number(digits, i / 3) + random_characters(punctuation, i / 3)
     chars = (
-        ctbi
-        + random(ascii_letters, quotient + remainder)
-        + random(digits, quotient)
-        + random(punctuation, quotient)
+            ctbi
+            + random(ascii_letters, quotient + remainder)
+            + random(digits, quotient)
+            + random(punctuation, quotient)
     )
     chars = list(chars)
     shuffle(chars)

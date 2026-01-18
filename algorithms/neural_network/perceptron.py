@@ -68,10 +68,10 @@ class Perceptron:
                 if y != self.target[i]:
                     for j in range(self.col_sample + 1):
                         self.weight[j] = (
-                            self.weight[j]
-                            + self.learning_rate
-                            * (self.target[i] - y)
-                            * self.sample[i][j]
+                                self.weight[j]
+                                + self.learning_rate
+                                * (self.target[i] - y)
+                                * self.sample[i][j]
                         )
                     has_misclassified = True
             # print('Epoch: \n',epoch_count)
@@ -196,7 +196,6 @@ exit = [
     -1,
     1,
 ]
-
 
 if __name__ == "__main__":
     import doctest

@@ -11,12 +11,12 @@
 """ Implementing logistic regression for classification problem
      Helpful resources : 1.Coursera ML course    2.https://medium.com/@martinpella/logistic-regression-from-scratch-in-python-124c5636b8ac"""
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from sklearn import datasets
+
 
 # get_ipython().run_line_magic('matplotlib', 'inline')
-
-from sklearn import datasets
 
 
 # In[67]:
@@ -65,10 +65,12 @@ if __name__ == "__main__":
     theta = logistic_reg(alpha, X, y, max_iterations=70000)
     print("theta: ", theta)  # printing the theta i.e our weights vector
 
+
     def predict_prob(X):
         return sigmoid_function(
             np.dot(X, theta)
         )  # predicting the value of probability from the logistic regression algorithm
+
 
     plt.figure(figsize=(10, 6))
     plt.scatter(X[y == 0][:, 0], X[y == 0][:, 1], color="b", label="0")

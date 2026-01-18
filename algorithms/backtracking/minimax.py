@@ -10,7 +10,6 @@ import math
 
 
 def minimax(Depth, nodeIndex, isMax, scores, height):
-
     if Depth == height:
         return scores[nodeIndex]
 
@@ -26,7 +25,6 @@ def minimax(Depth, nodeIndex, isMax, scores, height):
 
 
 if __name__ == "__main__":
-
     scores = [90, 23, 6, 33, 21, 65, 123, 34423]
     height = math.log(len(scores), 2)
 

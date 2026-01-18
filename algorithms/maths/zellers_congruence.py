@@ -1,9 +1,8 @@
-import datetime
 import argparse
+import datetime
 
 
 def zeller(date_input: str) -> str:
-
     """
     Zellers Congruence Algorithm
     Find the day of the week for nearly any Gregorian or Julian calendar date

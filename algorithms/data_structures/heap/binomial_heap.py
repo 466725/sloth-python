@@ -167,10 +167,10 @@ class BinomialHeap:
         i = combined_roots_list[0][0]
         while i.parent:
             if (
-                (i.left_tree_size == i.parent.left_tree_size) and (not i.parent.parent)
+                    (i.left_tree_size == i.parent.left_tree_size) and (not i.parent.parent)
             ) or (
-                i.left_tree_size == i.parent.left_tree_size
-                and i.left_tree_size != i.parent.parent.left_tree_size
+                    i.left_tree_size == i.parent.left_tree_size
+                    and i.left_tree_size != i.parent.parent.left_tree_size
             ):
 
                 # Neighbouring Nodes
@@ -227,9 +227,9 @@ class BinomialHeap:
 
             # Consecutively merge roots with same left_tree_size
             while (
-                self.bottom_root.parent
-                and self.bottom_root.left_tree_size
-                == self.bottom_root.parent.left_tree_size
+                    self.bottom_root.parent
+                    and self.bottom_root.left_tree_size
+                    == self.bottom_root.parent.left_tree_size
             ):
 
                 # Next node

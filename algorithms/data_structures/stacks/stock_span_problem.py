@@ -9,7 +9,6 @@ on the current day is less than or equal to its price on the given day.
 
 
 def calculateSpan(price, S):
-
     n = len(price)
     # Create a stack and push index of fist element to it
     st = []

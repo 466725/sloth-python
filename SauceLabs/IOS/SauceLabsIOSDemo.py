@@ -1,6 +1,7 @@
 import unittest
-from appium import webdriver
 from time import sleep
+
+from appium import webdriver
 
 
 # Polish this one again, according to the Android one

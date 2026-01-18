@@ -120,15 +120,15 @@ class BinarySearchTree:
             else:
                 tmpNode = self.get_max(
                     node.left
-                )  #  Gets the max value of the left branch
+                )  # Gets the max value of the left branch
                 self.remove(tmpNode.value)
                 node.value = (
                     tmpNode.value
-                )  #  Assigns the value to the node to delete and keesp tree structure
+                )  # Assigns the value to the node to delete and keesp tree structure
 
     def preorder_traverse(self, node):
         if node is not None:
-            yield node  #  Preorder Traversal
+            yield node  # Preorder Traversal
             yield from self.preorder_traverse(node.left)
             yield from self.preorder_traverse(node.right)
 

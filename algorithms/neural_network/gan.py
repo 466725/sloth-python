@@ -2,6 +2,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.utils import shuffle
+
 import input_data
 
 random_numer = 42
@@ -75,85 +76,85 @@ if __name__ == "__main__":
     print("--------- Declare Hyper Parameters ----------")
     # 2. Declare Weights
     D_W1 = (
-        np.random.normal(size=(784, hidden_input), scale=(1.0 / np.sqrt(784 / 2.0)))
-        * 0.002
+            np.random.normal(size=(784, hidden_input), scale=(1.0 / np.sqrt(784 / 2.0)))
+            * 0.002
     )
     # D_b1 = np.random.normal(size=(128),scale=(1. / np.sqrt(128 / 2.)))       *0.002
     D_b1 = np.zeros(hidden_input)
 
     D_W2 = (
-        np.random.normal(
-            size=(hidden_input, 1), scale=(1.0 / np.sqrt(hidden_input / 2.0))
-        )
-        * 0.002
+            np.random.normal(
+                size=(hidden_input, 1), scale=(1.0 / np.sqrt(hidden_input / 2.0))
+            )
+            * 0.002
     )
     # D_b2 = np.random.normal(size=(1),scale=(1. / np.sqrt(1 / 2.)))           *0.002
     D_b2 = np.zeros(1)
 
     G_W1 = (
-        np.random.normal(
-            size=(G_input, hidden_input), scale=(1.0 / np.sqrt(G_input / 2.0))
-        )
-        * 0.002
+            np.random.normal(
+                size=(G_input, hidden_input), scale=(1.0 / np.sqrt(G_input / 2.0))
+            )
+            * 0.002
     )
     # G_b1 = np.random.normal(size=(128),scale=(1. / np.sqrt(128 / 2.)))      *0.002
     G_b1 = np.zeros(hidden_input)
 
     G_W2 = (
-        np.random.normal(
-            size=(hidden_input, hidden_input2),
-            scale=(1.0 / np.sqrt(hidden_input / 2.0)),
-        )
-        * 0.002
+            np.random.normal(
+                size=(hidden_input, hidden_input2),
+                scale=(1.0 / np.sqrt(hidden_input / 2.0)),
+            )
+            * 0.002
     )
     # G_b1 = np.random.normal(size=(128),scale=(1. / np.sqrt(128 / 2.)))      *0.002
     G_b2 = np.zeros(hidden_input2)
 
     G_W3 = (
-        np.random.normal(
-            size=(hidden_input2, hidden_input3),
-            scale=(1.0 / np.sqrt(hidden_input2 / 2.0)),
-        )
-        * 0.002
+            np.random.normal(
+                size=(hidden_input2, hidden_input3),
+                scale=(1.0 / np.sqrt(hidden_input2 / 2.0)),
+            )
+            * 0.002
     )
     # G_b1 = np.random.normal(size=(128),scale=(1. / np.sqrt(128 / 2.)))      *0.002
     G_b3 = np.zeros(hidden_input3)
 
     G_W4 = (
-        np.random.normal(
-            size=(hidden_input3, hidden_input4),
-            scale=(1.0 / np.sqrt(hidden_input3 / 2.0)),
-        )
-        * 0.002
+            np.random.normal(
+                size=(hidden_input3, hidden_input4),
+                scale=(1.0 / np.sqrt(hidden_input3 / 2.0)),
+            )
+            * 0.002
     )
     # G_b1 = np.random.normal(size=(128),scale=(1. / np.sqrt(128 / 2.)))      *0.002
     G_b4 = np.zeros(hidden_input4)
 
     G_W5 = (
-        np.random.normal(
-            size=(hidden_input4, hidden_input5),
-            scale=(1.0 / np.sqrt(hidden_input4 / 2.0)),
-        )
-        * 0.002
+            np.random.normal(
+                size=(hidden_input4, hidden_input5),
+                scale=(1.0 / np.sqrt(hidden_input4 / 2.0)),
+            )
+            * 0.002
     )
     # G_b1 = np.random.normal(size=(128),scale=(1. / np.sqrt(128 / 2.)))      *0.002
     G_b5 = np.zeros(hidden_input5)
 
     G_W6 = (
-        np.random.normal(
-            size=(hidden_input5, hidden_input6),
-            scale=(1.0 / np.sqrt(hidden_input5 / 2.0)),
-        )
-        * 0.002
+            np.random.normal(
+                size=(hidden_input5, hidden_input6),
+                scale=(1.0 / np.sqrt(hidden_input5 / 2.0)),
+            )
+            * 0.002
     )
     # G_b1 = np.random.normal(size=(128),scale=(1. / np.sqrt(128 / 2.)))      *0.002
     G_b6 = np.zeros(hidden_input6)
 
     G_W7 = (
-        np.random.normal(
-            size=(hidden_input6, 784), scale=(1.0 / np.sqrt(hidden_input6 / 2.0))
-        )
-        * 0.002
+            np.random.normal(
+                size=(hidden_input6, 784), scale=(1.0 / np.sqrt(hidden_input6 / 2.0))
+            )
+            * 0.002
     )
     # G_b2 = np.random.normal(size=(784),scale=(1. / np.sqrt(784 / 2.)))      *0.002
     G_b7 = np.zeros(784)
@@ -269,17 +270,17 @@ if __name__ == "__main__":
         v4 = beta_2 * v4 + (1 - beta_2) * grad_b2 ** 2
 
         D_W1 = D_W1 - (learing_rate / (np.sqrt(v1 / (1 - beta_2)) + eps)) * (
-            m1 / (1 - beta_1)
+                m1 / (1 - beta_1)
         )
         D_b1 = D_b1 - (learing_rate / (np.sqrt(v2 / (1 - beta_2)) + eps)) * (
-            m2 / (1 - beta_1)
+                m2 / (1 - beta_1)
         )
 
         D_W2 = D_W2 - (learing_rate / (np.sqrt(v3 / (1 - beta_2)) + eps)) * (
-            m3 / (1 - beta_1)
+                m3 / (1 - beta_1)
         )
         D_b2 = D_b2 - (learing_rate / (np.sqrt(v4 / (1 - beta_2)) + eps)) * (
-            m4 / (1 - beta_1)
+                m4 / (1 - beta_1)
         )
 
         # Func: Forward Feed for G
@@ -398,52 +399,52 @@ if __name__ == "__main__":
         v18 = beta_2 * v18 + (1 - beta_2) * grad_G_b7 ** 2
 
         G_W1 = G_W1 - (learing_rate / (np.sqrt(v5 / (1 - beta_2)) + eps)) * (
-            m5 / (1 - beta_1)
+                m5 / (1 - beta_1)
         )
         G_b1 = G_b1 - (learing_rate / (np.sqrt(v6 / (1 - beta_2)) + eps)) * (
-            m6 / (1 - beta_1)
+                m6 / (1 - beta_1)
         )
 
         G_W2 = G_W2 - (learing_rate / (np.sqrt(v7 / (1 - beta_2)) + eps)) * (
-            m7 / (1 - beta_1)
+                m7 / (1 - beta_1)
         )
         G_b2 = G_b2 - (learing_rate / (np.sqrt(v8 / (1 - beta_2)) + eps)) * (
-            m8 / (1 - beta_1)
+                m8 / (1 - beta_1)
         )
 
         G_W3 = G_W3 - (learing_rate / (np.sqrt(v9 / (1 - beta_2)) + eps)) * (
-            m9 / (1 - beta_1)
+                m9 / (1 - beta_1)
         )
         G_b3 = G_b3 - (learing_rate / (np.sqrt(v10 / (1 - beta_2)) + eps)) * (
-            m10 / (1 - beta_1)
+                m10 / (1 - beta_1)
         )
 
         G_W4 = G_W4 - (learing_rate / (np.sqrt(v11 / (1 - beta_2)) + eps)) * (
-            m11 / (1 - beta_1)
+                m11 / (1 - beta_1)
         )
         G_b4 = G_b4 - (learing_rate / (np.sqrt(v12 / (1 - beta_2)) + eps)) * (
-            m12 / (1 - beta_1)
+                m12 / (1 - beta_1)
         )
 
         G_W5 = G_W5 - (learing_rate / (np.sqrt(v13 / (1 - beta_2)) + eps)) * (
-            m13 / (1 - beta_1)
+                m13 / (1 - beta_1)
         )
         G_b5 = G_b5 - (learing_rate / (np.sqrt(v14 / (1 - beta_2)) + eps)) * (
-            m14 / (1 - beta_1)
+                m14 / (1 - beta_1)
         )
 
         G_W6 = G_W6 - (learing_rate / (np.sqrt(v15 / (1 - beta_2)) + eps)) * (
-            m15 / (1 - beta_1)
+                m15 / (1 - beta_1)
         )
         G_b6 = G_b6 - (learing_rate / (np.sqrt(v16 / (1 - beta_2)) + eps)) * (
-            m16 / (1 - beta_1)
+                m16 / (1 - beta_1)
         )
 
         G_W7 = G_W7 - (learing_rate / (np.sqrt(v17 / (1 - beta_2)) + eps)) * (
-            m17 / (1 - beta_1)
+                m17 / (1 - beta_1)
         )
         G_b7 = G_b7 - (learing_rate / (np.sqrt(v18 / (1 - beta_2)) + eps)) * (
-            m18 / (1 - beta_1)
+                m18 / (1 - beta_1)
         )
 
         # --- Print Error ----
@@ -456,7 +457,6 @@ if __name__ == "__main__":
 
         # ---- Print to Out put ----
         if iter % 10 == 0:
-
             print(
                 "Current Iter: ",
                 iter,

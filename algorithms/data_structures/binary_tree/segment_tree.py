@@ -5,7 +5,7 @@ class SegmentTree:
     def __init__(self, A):
         self.N = len(A)
         self.st = [0] * (
-            4 * self.N
+                4 * self.N
         )  # approximate the overall size of segment tree with array N
         self.build(1, 0, self.N - 1)
 
@@ -28,7 +28,7 @@ class SegmentTree:
         return self.update_recursive(1, 0, self.N - 1, a - 1, b - 1, val)
 
     def update_recursive(
-        self, idx, l, r, a, b, val
+            self, idx, l, r, a, b, val
     ):  # update(1, 1, N, a, b, v) for update val v to [a,b]
         if r < a or l > b:
             return True
@@ -45,7 +45,7 @@ class SegmentTree:
         return self.query_recursive(1, 0, self.N - 1, a - 1, b - 1)
 
     def query_recursive(
-        self, idx, l, r, a, b
+            self, idx, l, r, a, b
     ):  # query(1, 1, N, a, b) for query max of [a,b]
         if r < a or l > b:
             return -math.inf

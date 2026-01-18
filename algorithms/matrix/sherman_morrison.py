@@ -260,9 +260,11 @@ if __name__ == "__main__":
         # Sherman Morrison
         print("(a + uv^T)^(-1) is {}".format(ainv.ShermanMorrison(u, v)))
 
+
     def test2():
         import doctest
 
         doctest.testmod()
+
 
     test2()

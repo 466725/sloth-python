@@ -72,7 +72,6 @@ def dfs(G, s):
                 Q - Traversal Stack
 --------------------------------------------------------------------------------
 """
-from collections import deque
 
 
 def bfs(G, s):

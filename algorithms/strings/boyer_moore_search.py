@@ -66,7 +66,7 @@ class BoyerMooreSearch:
             else:
                 match_index = self.match_in_pattern(self.text[mismatch_index])
                 i = (
-                    mismatch_index - match_index
+                        mismatch_index - match_index
                 )  # shifting index lgtm [py/multiple-definition]
         return positions
 

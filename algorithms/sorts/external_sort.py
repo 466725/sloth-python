@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
+import argparse
 #
 # Sort large text files in a minimum amount of memory
 #
 import os
-import argparse
 
 
 class FileSplitter:

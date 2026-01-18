@@ -1,11 +1,10 @@
-from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 
 # Load iris file
 iris = load_iris()
 iris.keys()
-
 
 print(f"Target names: \n {iris.target_names} ")
 print(f"\n Features: \n {iris.feature_names}")

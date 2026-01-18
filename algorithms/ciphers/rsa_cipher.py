@@ -1,4 +1,6 @@
-import sys, rsa_key_generator as rkg, os
+import os
+import rsa_key_generator as rkg
+import sys
 
 DEFAULT_BLOCK_SIZE = 128
 BYTE_SIZE = 256
@@ -87,7 +89,7 @@ def readKeyFile(keyFilename):
 
 
 def encryptAndWriteToFile(
-    messageFilename, keyFilename, message, blockSize=DEFAULT_BLOCK_SIZE
+        messageFilename, keyFilename, message, blockSize=DEFAULT_BLOCK_SIZE
 ):
     keySize, n, e = readKeyFile(keyFilename)
     if keySize < blockSize * 8:

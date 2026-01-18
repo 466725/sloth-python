@@ -6,10 +6,10 @@ from typing import Callable, Union
 
 
 def trapezoidal_area(
-    fnc: Callable[[Union[int, float]], Union[int, float]],
-    x_start: Union[int, float],
-    x_end: Union[int, float],
-    steps: int = 100,
+        fnc: Callable[[Union[int, float]], Union[int, float]],
+        x_start: Union[int, float],
+        x_end: Union[int, float],
+        steps: int = 100,
 ) -> float:
     """
     Treats curve as a collection of linear lines and sums the area of the
@@ -50,6 +50,7 @@ if __name__ == "__main__":
 
     def f(x):
         return x ** 3 + x ** 2
+
 
     print("f(x) = x^3 + x^2")
     print("The area between the curve, x = -5, x = 5 and the x axis is:")

@@ -9,7 +9,6 @@ doctest provider: Bruno Simas Hadlich (https://github.com/brunohadlich)
 Also thanks Dmitry (https://github.com/LizardWizzard) for finding the problem
 """
 
-
 import math
 
 

@@ -27,8 +27,10 @@ Game-Of-Life Rules:
  Any dead cell with exactly three live neighbours be-
  comes a live cell, as if by reproduction.
  """
+import random
+import sys
+
 import numpy as np
-import random, sys
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap
 
@@ -65,7 +67,7 @@ def run(canvas):
         for c, pt in enumerate(row):
             # print(r-1,r+2,c-1,c+2)
             next_gen_canvas[r][c] = __judge_point(
-                pt, canvas[r - 1 : r + 2, c - 1 : c + 2]
+                pt, canvas[r - 1: r + 2, c - 1: c + 2]
             )
 
     canvas = next_gen_canvas

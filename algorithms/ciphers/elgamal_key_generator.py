@@ -1,7 +1,9 @@
 import os
 import random
 import sys
-import rabin_miller as rabinMiller, cryptomath_module as cryptoMath
+
+import cryptomath_module as cryptoMath
+import rabin_miller as rabinMiller
 
 min_primitive_root = 3
 
@@ -42,7 +44,7 @@ def generateKey(keySize):
 
 def makeKeyFiles(name, keySize):
     if os.path.exists("%s_pubkey.txt" % name) or os.path.exists(
-        "%s_privkey.txt" % name
+            "%s_privkey.txt" % name
     ):
         print("\nWARNING:")
         print(

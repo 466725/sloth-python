@@ -18,8 +18,8 @@ Date: 2017.11.23
 
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def sigmoid(x):
@@ -32,7 +32,7 @@ class DenseLayer:
     """
 
     def __init__(
-        self, units, activation=None, learning_rate=None, is_input_layer=False
+            self, units, activation=None, learning_rate=None, is_input_layer=False
     ):
         """
         common connected layer of bp network

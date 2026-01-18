@@ -1,5 +1,5 @@
-import string
 import itertools
+import string
 
 
 def chunker(seq, size):
@@ -38,7 +38,6 @@ def prepare_input(dirty):
 
 
 def generate_table(key):
-
     # I and J are used interchangeably to allow
     # us to use a 5x5 table (25 letters)
     alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"

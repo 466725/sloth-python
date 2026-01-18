@@ -1,7 +1,9 @@
-from sklearn.datasets import load_iris
-from sklearn import svm
-from sklearn.model_selection import train_test_split
 import doctest
+
+from sklearn import svm
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+
 
 # different functions implementing different types of SVM's
 def NuSVC(train_x, train_y):

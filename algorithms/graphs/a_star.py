@@ -25,14 +25,12 @@ for i in range(len(grid)):
         if grid[i][j] == 1:
             heuristic[i][j] = 99  # added extra penalty in the heuristic map
 
-
 # the actions we can take
 delta = [[-1, 0], [0, -1], [1, 0], [0, 1]]  # go up  # go left  # go down  # go right
 
 
 # function to search the path
 def search(grid, init, goal, cost, heuristic):
-
     closed = [
         [0 for col in range(len(grid[0]))] for row in range(len(grid))
     ]  # the reference grid

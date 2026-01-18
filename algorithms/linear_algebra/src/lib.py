@@ -19,7 +19,6 @@ Overview:
 - function randomMatrix(W,H,a,b)
 """
 
-
 import math
 import random
 
@@ -185,9 +184,9 @@ def axpy(scalar, x, y):
     """
     # precondition
     assert (
-        isinstance(x, Vector)
-        and (isinstance(y, Vector))
-        and (isinstance(scalar, int) or isinstance(scalar, float))
+            isinstance(x, Vector)
+            and (isinstance(y, Vector))
+            and (isinstance(scalar, int) or isinstance(scalar, float))
     )
     return x * scalar + y
 
@@ -286,18 +285,18 @@ class Matrix:
                 for x in range(0, self.__width):
                     for y in range(0, self.__height):
                         total += (
-                            self.__matrix[x][y]
-                            * (-1) ** (x + y)
-                            * Matrix(
-                                self.__matrix[0:x] + self.__matrix[x + 1 :],
-                                self.__width - 1,
-                                self.__height - 1,
-                            ).determinate()
+                                self.__matrix[x][y]
+                                * (-1) ** (x + y)
+                                * Matrix(
+                            self.__matrix[0:x] + self.__matrix[x + 1:],
+                            self.__width - 1,
+                            self.__height - 1,
+                        ).determinate()
                         )
             else:
                 return (
-                    self.__matrix[0][0] * self.__matrix[1][1]
-                    - self.__matrix[0][1] * self.__matrix[1][0]
+                        self.__matrix[0][0] * self.__matrix[1][1]
+                        - self.__matrix[0][1] * self.__matrix[1][0]
                 )
             return total
         else:

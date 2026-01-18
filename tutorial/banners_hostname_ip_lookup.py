@@ -1,7 +1,8 @@
-import sys
-import requests
-import socket
 import json
+import socket
+import sys
+
+import requests
 
 if len(sys.argv) < 2:
     print("Usage: " + sys.argv[0] + "<url>")

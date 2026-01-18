@@ -1,11 +1,11 @@
 """Binary Exponentiation."""
 
+
 # Author : Junth Basnet
 # Time Complexity : O(logn)
 
 
 def binary_exponentiation(a, n):
-
     if n == 0:
         return 1
 

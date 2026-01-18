@@ -2,6 +2,7 @@
 # https://www.tutorialspoint.com/computer_graphics/computer_graphics_curves.htm
 
 from typing import List, Tuple
+
 from scipy.special import comb
 
 

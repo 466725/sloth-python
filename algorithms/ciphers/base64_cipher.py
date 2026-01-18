@@ -30,7 +30,7 @@ def encode_base64(text):
         r += base64_chars[n1] + base64_chars[n2] + base64_chars[n3] + base64_chars[n4]
         i += 3
 
-    return r[0 : len(r) - len(p)] + p
+    return r[0: len(r) - len(p)] + p
 
 
 def decode_base64(text):
@@ -66,17 +66,17 @@ def decode_base64(text):
     i = 0
     while i < len(s):
         n = (
-            (base64_chars.index(s[i]) << 18)
-            + (base64_chars.index(s[i + 1]) << 12)
-            + (base64_chars.index(s[i + 2]) << 6)
-            + base64_chars.index(s[i + 3])
+                (base64_chars.index(s[i]) << 18)
+                + (base64_chars.index(s[i + 1]) << 12)
+                + (base64_chars.index(s[i + 2]) << 6)
+                + base64_chars.index(s[i + 3])
         )
 
         r += bytes([(n >> 16) & 255]) + bytes([(n >> 8) & 255]) + bytes([n & 255])
 
         i += 4
 
-    return str(r[0 : len(r) - len(p)], "utf-8")
+    return str(r[0: len(r) - len(p)], "utf-8")
 
 
 def main():

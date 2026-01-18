@@ -31,7 +31,6 @@ Reference:
     http://web.cs.iastate.edu/~honavar/smo-svm.pdf
 """
 
-
 import os
 import sys
 import urllib.request
@@ -47,14 +46,14 @@ CANCER_DATASET_URL = "http://archive.ics.uci.edu/ml/machine-learning-databases/b
 
 class SmoSVM:
     def __init__(
-        self,
-        train,
-        kernel_func,
-        alpha_list=None,
-        cost=0.4,
-        b=0.0,
-        tolerance=0.001,
-        auto_norm=True,
+            self,
+            train,
+            kernel_func,
+            alpha_list=None,
+            cost=0.4,
+            b=0.0,
+            tolerance=0.001,
+            auto_norm=True,
     ):
         self._init = True
         self._auto_norm = auto_norm
@@ -118,7 +117,7 @@ class SmoSVM:
             if 0.0 < a2_new < self._c:
                 b = b2_new
             if not (np.float64(0) < a2_new < self._c) and not (
-                np.float64(0) < a1_new < self._c
+                    np.float64(0) < a1_new < self._c
             ):
                 b = (b1_new + b2_new) / 2.0
             b_old = self._b
@@ -130,9 +129,9 @@ class SmoSVM:
                 if s == i1 or s == i2:
                     continue
                 self._error[s] += (
-                    y1 * (a1_new - a1) * K(i1, s)
-                    + y2 * (a2_new - a2) * K(i2, s)
-                    + (self._b - b_old)
+                        y1 * (a1_new - a1) * K(i1, s)
+                        + y2 * (a2_new - a2) * K(i2, s)
+                        + (self._b - b_old)
                 )
 
             # if i1 or i2 is non-bound,update there error value to zero
@@ -210,13 +209,13 @@ class SmoSVM:
     def _predict(self, sample):
         k = self._k
         predicted_value = (
-            np.sum(
-                [
-                    self.alphas[i1] * self.tags[i1] * k(i1, sample)
-                    for i1 in self._all_samples
-                ]
-            )
-            + self._b
+                np.sum(
+                    [
+                        self.alphas[i1] * self.tags[i1] * k(i1, sample)
+                        for i1 in self._all_samples
+                    ]
+                )
+                + self._b
         )
         return predicted_value
 
@@ -337,18 +336,18 @@ class SmoSVM:
             f1 = y1 * (e1 + b) - a1 * K(i1, i1) - s * a2 * K(i1, i2)
             f2 = y2 * (e2 + b) - a2 * K(i2, i2) - s * a1 * K(i1, i2)
             ol = (
-                l1 * f1
-                + L * f2
-                + 1 / 2 * l1 ** 2 * K(i1, i1)
-                + 1 / 2 * L ** 2 * K(i2, i2)
-                + s * L * l1 * K(i1, i2)
+                    l1 * f1
+                    + L * f2
+                    + 1 / 2 * l1 ** 2 * K(i1, i1)
+                    + 1 / 2 * L ** 2 * K(i2, i2)
+                    + s * L * l1 * K(i1, i2)
             )
             oh = (
-                h1 * f1
-                + H * f2
-                + 1 / 2 * h1 ** 2 * K(i1, i1)
-                + 1 / 2 * H ** 2 * K(i2, i2)
-                + s * H * h1 * K(i1, i2)
+                    h1 * f1
+                    + H * f2
+                    + 1 / 2 * h1 ** 2 * K(i1, i1)
+                    + 1 / 2 * H ** 2 * K(i2, i2)
+                    + s * H * h1 * K(i1, i2)
             )
             """
             # way 2
@@ -569,7 +568,7 @@ def test_rbf_kernel(ax, cost):
 
 
 def plot_partition_boundary(
-    model, train_data, ax, resolution=100, colors=("b", "k", "r")
+        model, train_data, ax, resolution=100, colors=("b", "k", "r")
 ):
     """
     We can not get the optimum w of our kernel svm model which is different from linear svm.

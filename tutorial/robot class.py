@@ -1,5 +1,5 @@
-#how can you make something that can make multiple similar things (objects)?
-#how do you print their values?
+# how can you make something that can make multiple similar things (objects)?
+# how do you print their values?
 print('Enter the name of the first robot: Enter the age for the first robot:')
 print('Enter the name of the second robot: Enter the age for the second robot:')
 name1 = (input())

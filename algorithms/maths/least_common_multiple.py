@@ -19,7 +19,6 @@ def find_lcm(first_num: int, second_num: int) -> int:
 
 
 class TestLeastCommonMultiple(unittest.TestCase):
-
     test_inputs = [
         (10, 20),
         (13, 15),

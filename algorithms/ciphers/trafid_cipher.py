@@ -88,10 +88,10 @@ def encryptMessage(message, alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ.", period=5):
     encrypted, encrypted_numeric = "", ""
 
     for i in range(0, len(message) + 1, period):
-        encrypted_numeric += __encryptPart(message[i : i + period], character2Number)
+        encrypted_numeric += __encryptPart(message[i: i + period], character2Number)
 
     for i in range(0, len(encrypted_numeric), 3):
-        encrypted += number2Character[encrypted_numeric[i : i + 3]]
+        encrypted += number2Character[encrypted_numeric[i: i + 3]]
 
     return encrypted
 
@@ -102,7 +102,7 @@ def decryptMessage(message, alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ.", period=5):
     decrypted = ""
 
     for i in range(0, len(message) + 1, period):
-        a, b, c = __decryptPart(message[i : i + period], character2Number)
+        a, b, c = __decryptPart(message[i: i + period], character2Number)
 
         for j in range(0, len(a)):
             decrypted_numeric.append(a[j] + b[j] + c[j])

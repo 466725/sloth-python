@@ -6,6 +6,8 @@ positions of plaintext are shifted a certain number(determined by the key) that
 follows a regular system that results in the permuted text, known as the encrypted
 text. The type of transposition cipher demonstrated under is the ROUTE cipher.
 '''
+
+
 def main():
     message = input("Enter message: ")
     key = int(input("Enter key [2-%s]: " % (len(message) - 1)))
@@ -51,9 +53,9 @@ def decryptMessage(key, message):
         col += 1
 
         if (
-            (col == numCols)
-            or (col == numCols - 1)
-            and (row >= numRows - numShadedBoxes)
+                (col == numCols)
+                or (col == numCols - 1)
+                and (row >= numRows - numShadedBoxes)
         ):
             col = 0
             row += 1

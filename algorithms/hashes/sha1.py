@@ -24,8 +24,8 @@ Reference: https://deadhacker.com/2006/02/21/sha-1-illustrated/
 """
 
 import argparse
-import struct
 import hashlib  # hashlib is only used inside the Test class
+import struct
 import unittest
 
 
@@ -68,7 +68,7 @@ class SHA1Hash:
         Returns a list of bytestrings each of length 64
         """
         return [
-            self.padded_data[i : i + 64] for i in range(0, len(self.padded_data), 64)
+            self.padded_data[i: i + 64] for i in range(0, len(self.padded_data), 64)
         ]
 
     # @staticmethod

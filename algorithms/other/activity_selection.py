@@ -3,6 +3,8 @@ are already sorted according to their finish time"""
 
 """Prints a maximum set of activities that can be done by a 
 single person, one at a time"""
+
+
 # n --> Total number of activities
 # start[]--> An array that contains start time of all activities
 # finish[] --> An array that contains finish time of all activities

@@ -1,5 +1,9 @@
-import random, sys, os
-import rabin_miller as rabinMiller, cryptomath_module as cryptoMath
+import os
+import random
+import sys
+
+import cryptomath_module as cryptoMath
+import rabin_miller as rabinMiller
 
 
 def main():
@@ -31,7 +35,7 @@ def generateKey(keySize):
 
 def makeKeyFiles(name, keySize):
     if os.path.exists("%s_pubkey.txt" % (name)) or os.path.exists(
-        "%s_privkey.txt" % (name)
+            "%s_privkey.txt" % (name)
     ):
         print("\nWARNING:")
         print(

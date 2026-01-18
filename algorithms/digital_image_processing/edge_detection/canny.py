@@ -8,11 +8,11 @@ PI = 180
 
 def gen_gaussian_kernel(k_size, sigma):
     center = k_size // 2
-    x, y = np.mgrid[0 - center : k_size - center, 0 - center : k_size - center]
+    x, y = np.mgrid[0 - center: k_size - center, 0 - center: k_size - center]
     g = (
-        1
-        / (2 * np.pi * sigma)
-        * np.exp(-(np.square(x) + np.square(y)) / (2 * np.square(sigma)))
+            1
+            / (2 * np.pi * sigma)
+            * np.exp(-(np.square(x) + np.square(y)) / (2 * np.square(sigma)))
     )
     return g
 
@@ -37,9 +37,9 @@ def canny(image, threshold_low=15, threshold_high=30, weak=128, strong=255):
             direction = gradient_direction[row, col]
 
             if (
-                0 <= direction < 22.5
-                or 15 * PI / 8 <= direction <= 2 * PI
-                or 7 * PI / 8 <= direction <= 9 * PI / 8
+                    0 <= direction < 22.5
+                    or 15 * PI / 8 <= direction <= 2 * PI
+                    or 7 * PI / 8 <= direction <= 9 * PI / 8
             ):
                 W = sobel_grad[row, col - 1]
                 E = sobel_grad[row, col + 1]
@@ -47,7 +47,7 @@ def canny(image, threshold_low=15, threshold_high=30, weak=128, strong=255):
                     dst[row, col] = sobel_grad[row, col]
 
             elif (PI / 8 <= direction < 3 * PI / 8) or (
-                9 * PI / 8 <= direction < 11 * PI / 8
+                    9 * PI / 8 <= direction < 11 * PI / 8
             ):
                 SW = sobel_grad[row + 1, col - 1]
                 NE = sobel_grad[row - 1, col + 1]
@@ -55,7 +55,7 @@ def canny(image, threshold_low=15, threshold_high=30, weak=128, strong=255):
                     dst[row, col] = sobel_grad[row, col]
 
             elif (3 * PI / 8 <= direction < 5 * PI / 8) or (
-                11 * PI / 8 <= direction < 13 * PI / 8
+                    11 * PI / 8 <= direction < 13 * PI / 8
             ):
                 N = sobel_grad[row - 1, col]
                 S = sobel_grad[row + 1, col]
@@ -63,7 +63,7 @@ def canny(image, threshold_low=15, threshold_high=30, weak=128, strong=255):
                     dst[row, col] = sobel_grad[row, col]
 
             elif (5 * PI / 8 <= direction < 7 * PI / 8) or (
-                13 * PI / 8 <= direction < 15 * PI / 8
+                    13 * PI / 8 <= direction < 15 * PI / 8
             ):
                 NW = sobel_grad[row - 1, col - 1]
                 SE = sobel_grad[row + 1, col + 1]
@@ -92,14 +92,14 @@ def canny(image, threshold_low=15, threshold_high=30, weak=128, strong=255):
         for col in range(1, image_col):
             if dst[row, col] == weak:
                 if 255 in (
-                    dst[row, col + 1],
-                    dst[row, col - 1],
-                    dst[row - 1, col],
-                    dst[row + 1, col],
-                    dst[row - 1, col - 1],
-                    dst[row + 1, col - 1],
-                    dst[row - 1, col + 1],
-                    dst[row + 1, col + 1],
+                        dst[row, col + 1],
+                        dst[row, col - 1],
+                        dst[row - 1, col],
+                        dst[row + 1, col],
+                        dst[row - 1, col - 1],
+                        dst[row + 1, col - 1],
+                        dst[row - 1, col + 1],
+                        dst[row + 1, col + 1],
                 ):
                     dst[row, col] = strong
                 else:

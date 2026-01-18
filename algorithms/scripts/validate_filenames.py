@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 import os
+
 from build_directory_md import good_filepaths
 
 filepaths = list(good_filepaths())
 assert filepaths, "good_filepaths() failed!"
-
 
 upper_files = [file for file in filepaths if file != file.lower()]
 if upper_files:

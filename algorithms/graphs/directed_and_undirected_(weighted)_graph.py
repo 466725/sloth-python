@@ -1,7 +1,8 @@
-from collections import deque
-import random as rand
 import math as math
+import random as rand
 import time
+from collections import deque
+
 
 # the dfault weight is 1 if not assigned but all the implementation is weighted
 
@@ -163,10 +164,10 @@ class DirectedGraph:
                 ss = s
                 for __ in self.graph[s]:
                     if (
-                        visited.count(__[1]) > 0
-                        and __[1] != parent
-                        and indirect_parents.count(__[1]) > 0
-                        and not on_the_way_back
+                            visited.count(__[1]) > 0
+                            and __[1] != parent
+                            and indirect_parents.count(__[1]) > 0
+                            and not on_the_way_back
                     ):
                         l = len(stack) - 1
                         while True and l >= 0:
@@ -216,10 +217,10 @@ class DirectedGraph:
                 ss = s
                 for __ in self.graph[s]:
                     if (
-                        visited.count(__[1]) > 0
-                        and __[1] != parent
-                        and indirect_parents.count(__[1]) > 0
-                        and not on_the_way_back
+                            visited.count(__[1]) > 0
+                            and __[1] != parent
+                            and indirect_parents.count(__[1]) > 0
+                            and not on_the_way_back
                     ):
                         l = len(stack) - 1
                         while True and l >= 0:
@@ -392,10 +393,10 @@ class Graph:
                 ss = s
                 for __ in self.graph[s]:
                     if (
-                        visited.count(__[1]) > 0
-                        and __[1] != parent
-                        and indirect_parents.count(__[1]) > 0
-                        and not on_the_way_back
+                            visited.count(__[1]) > 0
+                            and __[1] != parent
+                            and indirect_parents.count(__[1]) > 0
+                            and not on_the_way_back
                     ):
                         l = len(stack) - 1
                         while True and l >= 0:
@@ -445,10 +446,10 @@ class Graph:
                 ss = s
                 for __ in self.graph[s]:
                     if (
-                        visited.count(__[1]) > 0
-                        and __[1] != parent
-                        and indirect_parents.count(__[1]) > 0
-                        and not on_the_way_back
+                            visited.count(__[1]) > 0
+                            and __[1] != parent
+                            and indirect_parents.count(__[1]) > 0
+                            and not on_the_way_back
                     ):
                         l = len(stack) - 1
                         while True and l >= 0:

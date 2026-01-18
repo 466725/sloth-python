@@ -1,5 +1,6 @@
-import tensorflow as tf
 from random import shuffle
+
+import tensorflow as tf
 from numpy import array
 
 
@@ -105,7 +106,7 @@ def TFKMeansCluster(vectors, noofclusters):
                 vect = vectors[vector_n]
                 # Compute Euclidean distance between this vector and each
                 # centroid. Remember that this list cannot be named
-                #'centroid_distances', since that is the input to the
+                # 'centroid_distances', since that is the input to the
                 # cluster assignment node.
                 distances = [
                     sess.run(euclid_dist, feed_dict={v1: vect, v2: sess.run(centroid)})

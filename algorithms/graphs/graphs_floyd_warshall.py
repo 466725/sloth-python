@@ -45,9 +45,9 @@ def floyd_warshall(graph, v):
             # looping through columns of graph array
             for j in range(v):
                 if (
-                    dist[i][k] != float("inf")
-                    and dist[k][j] != float("inf")
-                    and dist[i][k] + dist[k][j] < dist[i][j]
+                        dist[i][k] != float("inf")
+                        and dist[k][j] != float("inf")
+                        and dist[i][k] + dist[k][j] < dist[i][j]
                 ):
                     dist[i][j] = dist[i][k] + dist[k][j]
 

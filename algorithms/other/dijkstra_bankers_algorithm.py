@@ -39,10 +39,10 @@ test_maximum_claim_table = [
 
 class BankersAlgorithm:
     def __init__(
-        self,
-        claim_vector: List[int],
-        allocated_resources_table: List[List[int]],
-        maximum_claim_table: List[List[int]],
+            self,
+            claim_vector: List[int],
+            allocated_resources_table: List[List[int]],
+            maximum_claim_table: List[List[int]],
     ) -> None:
         """
         :param claim_vector: A nxn/nxm list depicting the amount of each resources

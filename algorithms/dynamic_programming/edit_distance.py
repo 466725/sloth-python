@@ -76,7 +76,7 @@ def min_distance_bottom_up(word1: str, word2: str) -> int:
             elif j == 0:  # second string is empty
                 dp[i][j] = i
             elif (
-                word1[i - 1] == word2[j - 1]
+                    word1[i - 1] == word2[j - 1]
             ):  # last character of both substing is equal
                 dp[i][j] = dp[i - 1][j - 1]
             else:

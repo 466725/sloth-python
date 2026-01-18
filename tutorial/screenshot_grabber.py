@@ -1,6 +1,6 @@
-import wx
-import os
 import ftplib
+
+import wx
 
 w = wx.App()
 screen = wx.ScreenDC()

@@ -63,7 +63,6 @@ def encrypt(message):
 
 
 def decrypt(message):
-
     message += " "
 
     decipher = ""

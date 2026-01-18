@@ -17,7 +17,6 @@
 This module and all its submodules are deprecated.
 """
 
-
 import collections
 import gzip
 import os
@@ -25,7 +24,6 @@ import os
 import numpy
 from six.moves import urllib
 from six.moves import xrange  # pylint: disable=redefined-builtin
-
 from tensorflow.python.framework import dtypes
 from tensorflow.python.framework import random_seed
 from tensorflow.python.platform import gfile
@@ -124,14 +122,14 @@ class _DataSet:
         " from tensorflow/models.",
     )
     def __init__(
-        self,
-        images,
-        labels,
-        fake_data=False,
-        one_hot=False,
-        dtype=dtypes.float32,
-        reshape=True,
-        seed=None,
+            self,
+            images,
+            labels,
+            fake_data=False,
+            one_hot=False,
+            dtype=dtypes.float32,
+            reshape=True,
+            seed=None,
     ):
         """Construct a _DataSet.
 
@@ -161,7 +159,7 @@ class _DataSet:
             self.one_hot = one_hot
         else:
             assert (
-                images.shape[0] == labels.shape[0]
+                    images.shape[0] == labels.shape[0]
             ), f"images.shape: {images.shape} labels.shape: {labels.shape}"
             self._num_examples = images.shape[0]
 
@@ -222,8 +220,8 @@ class _DataSet:
             self._epochs_completed += 1
             # Get the rest examples in this epoch
             rest_num_examples = self._num_examples - start
-            images_rest_part = self._images[start : self._num_examples]
-            labels_rest_part = self._labels[start : self._num_examples]
+            images_rest_part = self._images[start: self._num_examples]
+            labels_rest_part = self._labels[start: self._num_examples]
             # Shuffle the data
             if shuffle:
                 perm = numpy.arange(self._num_examples)
@@ -273,17 +271,16 @@ def _maybe_download(filename, work_directory, source_url):
     None, "Please use alternatives such as:" " tensorflow_datasets.load('mnist')"
 )
 def read_data_sets(
-    train_dir,
-    fake_data=False,
-    one_hot=False,
-    dtype=dtypes.float32,
-    reshape=True,
-    validation_size=5000,
-    seed=None,
-    source_url=DEFAULT_SOURCE_URL,
+        train_dir,
+        fake_data=False,
+        one_hot=False,
+        dtype=dtypes.float32,
+        reshape=True,
+        validation_size=5000,
+        seed=None,
+        source_url=DEFAULT_SOURCE_URL,
 ):
     if fake_data:
-
         def fake():
             return _DataSet(
                 [], [], fake_data=True, one_hot=one_hot, dtype=dtype, seed=seed

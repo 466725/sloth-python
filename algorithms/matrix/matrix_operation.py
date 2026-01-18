@@ -77,8 +77,8 @@ def transpose(matrix, return_map=True):
 
 
 def minor(matrix, row, column):
-    minor = matrix[:row] + matrix[row + 1 :]
-    minor = [row[:column] + row[column + 1 :] for row in minor]
+    minor = matrix[:row] + matrix[row + 1:]
+    minor = [row[:column] + row[column + 1:] for row in minor]
     return minor
 
 

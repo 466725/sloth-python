@@ -137,10 +137,10 @@ class PushRelabelExecutor(MaximumFlowAlgorithmExecutor):
             for neighbourIndex in range(self.verticesCount):
                 # if it's neighbour and current vertex is higher
                 if (
-                    self.graph[vertexIndex][neighbourIndex]
-                    - self.preflow[vertexIndex][neighbourIndex]
-                    > 0
-                    and self.heights[vertexIndex] > self.heights[neighbourIndex]
+                        self.graph[vertexIndex][neighbourIndex]
+                        - self.preflow[vertexIndex][neighbourIndex]
+                        > 0
+                        and self.heights[vertexIndex] > self.heights[neighbourIndex]
                 ):
                     self.push(vertexIndex, neighbourIndex)
 
@@ -160,8 +160,8 @@ class PushRelabelExecutor(MaximumFlowAlgorithmExecutor):
         minHeight = None
         for toIndex in range(self.verticesCount):
             if (
-                self.graph[vertexIndex][toIndex] - self.preflow[vertexIndex][toIndex]
-                > 0
+                    self.graph[vertexIndex][toIndex] - self.preflow[vertexIndex][toIndex]
+                    > 0
             ):
                 if minHeight is None or self.heights[toIndex] < minHeight:
                     minHeight = self.heights[toIndex]

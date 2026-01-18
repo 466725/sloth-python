@@ -4,9 +4,10 @@ Created on 2017-04-01
 '''
 import random
 
+
 def main():
     # Initialize the program
-    print ("Guess a number between 1 and 100.")
+    print("Guess a number between 1 and 100.")
     randomNumber = random.randint(1, 100)
     found = False
     # Run through the guessing process
@@ -22,6 +23,8 @@ def main():
         elif userGuess == randomNumber:
             print("You got it!")
             found = True
+
+
 # main()
 if __name__ == "__main__":
     main()

@@ -40,8 +40,8 @@ def max_cross_array_sum(array, left, mid, right):
 
     """
 
-    max_sum_of_left = max_sum_from_start(array[left : mid + 1][::-1])
-    max_sum_of_right = max_sum_from_start(array[mid + 1 : right + 1])
+    max_sum_of_left = max_sum_from_start(array[left: mid + 1][::-1])
+    max_sum_of_right = max_sum_from_start(array[mid + 1: right + 1])
     return max_sum_of_left + max_sum_of_right
 
 

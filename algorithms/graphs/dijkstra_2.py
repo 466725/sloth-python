@@ -29,9 +29,9 @@ def Dijkstra(graph, V, src):
 
         for v in range(V):
             if (
-                (not vset[v])
-                and graph[u][v] != float("inf")
-                and mdist[u] + graph[u][v] < mdist[v]
+                    (not vset[v])
+                    and graph[u][v] != float("inf")
+                    and mdist[u] + graph[u][v] < mdist[v]
             ):
                 mdist[v] = mdist[u] + graph[u][v]
 

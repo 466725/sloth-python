@@ -155,7 +155,7 @@ class Matrix:
             return self.rows[0][0]
         if self.order == (2, 2):
             return (self.rows[0][0] * self.rows[1][1]) - (
-                self.rows[0][1] * self.rows[1][0]
+                    self.rows[0][1] * self.rows[1][0]
             )
         else:
             return sum(
@@ -226,14 +226,14 @@ class Matrix:
         if self.num_rows == 1:
             return "[[" + ". ".join(self.rows[0]) + "]]"
         return (
-            "["
-            + "\n ".join(
-                [
-                    "[" + ". ".join([str(value) for value in row]) + ".]"
-                    for row in self.rows
-                ]
-            )
-            + "]"
+                "["
+                + "\n ".join(
+            [
+                "[" + ". ".join([str(value) for value in row]) + ".]"
+                for row in self.rows
+            ]
+        )
+                + "]"
         )
 
     # MATRIX MANIPULATION

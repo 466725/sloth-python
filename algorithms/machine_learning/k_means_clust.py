@@ -46,8 +46,8 @@ Usage:
   5. Have fun..
 
 """
-from sklearn.metrics import pairwise_distances
 import numpy as np
+from sklearn.metrics import pairwise_distances
 
 TAG = "K-MEANS-CLUST/ "
 
@@ -74,7 +74,6 @@ def centroid_pairwise_dist(X, centroids):
 
 
 def assign_clusters(data, centroids):
-
     # Compute distances between each data point and the set of centroids:
     # Fill in the blank (RHS only)
     distances_from_centroids = centroid_pairwise_dist(data, centroids)
@@ -100,7 +99,6 @@ def revise_centroids(data, k, cluster_assignment):
 
 
 def compute_heterogeneity(data, k, centroids, cluster_assignment):
-
     heterogeneity = 0.0
     for i in range(k):
 
@@ -132,7 +130,7 @@ def plot_heterogeneity(heterogeneity, k):
 
 
 def kmeans(
-    data, k, initial_centroids, maxiter=500, record_heterogeneity=None, verbose=False
+        data, k, initial_centroids, maxiter=500, record_heterogeneity=None, verbose=False
 ):
     """This function runs k-means on given data and initial set of centroids.
        maxiter: maximum number of iterations to run.(default=500)
@@ -154,8 +152,8 @@ def kmeans(
 
         # Check for convergence: if none of the assignments changed, stop
         if (
-            prev_cluster_assignment is not None
-            and (prev_cluster_assignment == cluster_assignment).all()
+                prev_cluster_assignment is not None
+                and (prev_cluster_assignment == cluster_assignment).all()
         ):
             break
 

@@ -23,8 +23,8 @@ Usage:
 Credits: This code was written by editing the code from http://www.riannetrujillo.com/blog/python-fractal/
 
 """
-import turtle
 import sys
+import turtle
 
 PROGNAME = "Sierpinski Triangle"
 
@@ -36,7 +36,6 @@ def getMid(p1, p2):
 
 
 def triangle(points, depth):
-
     myPen.up()
     myPen.goto(points[0][0], points[0][1])
     myPen.down()

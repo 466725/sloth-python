@@ -2,7 +2,8 @@ andySpeed = int(input('Choose Andys speed'))
 babyBrotherSpeed = int(input('Choose babys speed'))
 if babyBrotherSpeed > andySpeed:
     print('Andy could never catch his brother')
-print('Andy sprints at a speed of ' , str(andySpeed) , ' km per minute and his baby brother craws at a speed of ' , str(babyBrotherSpeed) , ' km per minute.')
+print('Andy sprints at a speed of ', str(andySpeed), ' km per minute and his baby brother craws at a speed of ',
+      str(babyBrotherSpeed), ' km per minute.')
 print(' ')
 print('Andy is chasing his brother but his brother got a head start.')
 print(' ')

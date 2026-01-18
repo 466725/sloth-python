@@ -20,7 +20,7 @@ def MatrixChainOrder(array):
             Matrix[a][b] = sys.maxsize
             for c in range(a, b):
                 cost = (
-                    Matrix[a][c] + Matrix[c + 1][b] + array[a - 1] * array[c] * array[b]
+                        Matrix[a][c] + Matrix[c + 1][b] + array[a - 1] * array[c] * array[b]
                 )
                 if cost < Matrix[a][b]:
                     Matrix[a][b] = cost

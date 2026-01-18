@@ -74,7 +74,6 @@ def jaccard_similariy(setA, setB, alternativeUnion=False):
 
 
 if __name__ == "__main__":
-
     setA = {"a", "b", "c", "d", "e"}
     setB = {"c", "d", "e", "f", "h", "i"}
     print(jaccard_similariy(setA, setB))

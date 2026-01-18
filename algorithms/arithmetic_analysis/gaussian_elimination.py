@@ -3,7 +3,6 @@ Gaussian elimination method for solving a system of linear equations.
 Gaussian elimination - https://en.wikipedia.org/wiki/Gaussian_elimination
 """
 
-
 import numpy as np
 
 
@@ -71,7 +70,7 @@ def gaussian_elimination(coefficients: np.matrix, vector: np.array) -> np.array:
             augmented_mat[col, :] -= factor * augmented_mat[row, :]
 
     x = retroactive_resolution(
-        augmented_mat[:, 0:columns], augmented_mat[:, columns : columns + 1]
+        augmented_mat[:, 0:columns], augmented_mat[:, columns: columns + 1]
     )
 
     return x

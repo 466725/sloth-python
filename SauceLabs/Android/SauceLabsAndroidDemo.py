@@ -1,6 +1,7 @@
 import unittest
-from appium import webdriver
 from time import sleep
+
+from appium import webdriver
 
 
 class AndroidApplicationTests(unittest.TestCase):
@@ -22,8 +23,8 @@ class AndroidApplicationTests(unittest.TestCase):
                         # , 'noReset': 'false'
                         # , 'cacheId': '1719330c118'
                         # , 'testobject_session_creation_timeout': '900000'
-             , 'testobject_app_id': '1'
-             , 'testobject_suite_name': 'Demo suite'
+            , 'testobject_app_id': '1'
+            , 'testobject_suite_name': 'Demo suite'
                         # , 'testobject_test_name': 'Demo test'
             , 'name': 'Sauce labs demo with Android'}
         self.driver = webdriver.Remote('http://us1.appium.testobject.com/wd/hub', desired_caps)

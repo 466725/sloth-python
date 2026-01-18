@@ -6,10 +6,9 @@ Created on Fri Sep 28 15:22:29 2018
 import copy
 import os
 
-import numpy as np
-
 import cv2
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class contrastStretch:

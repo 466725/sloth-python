@@ -6,7 +6,7 @@ from typing import List, Tuple
 
 
 def fractional_knapsack(
-    value: List[int], weight: List[int], capacity: int
+        value: List[int], weight: List[int], capacity: int
 ) -> Tuple[int, List[int]]:
     """
     >>> value = [1, 3, 5, 7, 9]

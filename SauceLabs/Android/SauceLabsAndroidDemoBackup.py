@@ -1,7 +1,9 @@
 import unittest
+from time import sleep
+
 import pytest
 from appium import webdriver
-from time import sleep
+
 
 class AndroidApplicationTests(unittest.TestCase):
     "Class to run tests against Cineplex app"
@@ -17,7 +19,7 @@ class AndroidApplicationTests(unittest.TestCase):
         desired_caps['name'] = 'Automation with Sauce labs demo of Android'
         testobject_endpoint = 'http://us1.appium.testobject.com/wd/hub'
         self.driver = webdriver.Remote(testobject_endpoint, desired_caps)
-        print(self.driver.desired_capabilities) # for DEBUG
+        print(self.driver.desired_capabilities)  # for DEBUG
 
     def test_launch_and_login(self):
         "Test that the app launched and user can log in and then logout"
@@ -39,6 +41,7 @@ class AndroidApplicationTests(unittest.TestCase):
         self.driver.execute_script('sauce:job-result=passed')
         self.driver.quit()
 
-#---START OF SCRIPT
+
+# ---START OF SCRIPT
 if __name__ == '__main__':
     unittest.main()

@@ -1,14 +1,15 @@
 """
 Implementation of gaussian filter algorithm
 """
+from itertools import product
+
 from cv2 import imread, cvtColor, COLOR_BGR2GRAY, imshow, waitKey
 from numpy import pi, mgrid, exp, square, zeros, ravel, dot, uint8
-from itertools import product
 
 
 def gen_gaussian_kernel(k_size, sigma):
     center = k_size // 2
-    x, y = mgrid[0 - center : k_size - center, 0 - center : k_size - center]
+    x, y = mgrid[0 - center: k_size - center, 0 - center: k_size - center]
     g = 1 / (2 * pi * sigma) * exp(-(square(x) + square(y)) / (2 * square(sigma)))
     return g
 
@@ -23,7 +24,7 @@ def gaussian_filter(image, k_size, sigma):
     image_array = zeros((dst_height * dst_width, k_size * k_size))
     row = 0
     for i, j in product(range(dst_height), range(dst_width)):
-        window = ravel(image[i : i + k_size, j : j + k_size])
+        window = ravel(image[i: i + k_size, j: j + k_size])
         image_array[row, :] = window
         row += 1
 

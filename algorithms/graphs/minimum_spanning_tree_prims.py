@@ -3,7 +3,6 @@ from collections import defaultdict
 
 
 def PrimsAlgorithm(l):
-
     nodePosition = []
 
     def getPosition(vertex):

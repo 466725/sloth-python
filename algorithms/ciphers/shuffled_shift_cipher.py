@@ -90,7 +90,7 @@ class ShuffledShiftCipher:
         """
         # key_list_options contain nearly all printable except few elements from string.whitespace
         key_list_options = (
-            string.ascii_letters + string.digits + string.punctuation + " \t\n"
+                string.ascii_letters + string.digits + string.punctuation + " \t\n"
         )
 
         keys_l = []
@@ -136,7 +136,7 @@ class ShuffledShiftCipher:
             position = self.__key_list.index(i)
             decoded_message += self.__key_list[
                 (position - self.__shift_key) % -len(self.__key_list)
-            ]
+                ]
 
         return decoded_message
 
@@ -157,7 +157,7 @@ class ShuffledShiftCipher:
             position = self.__key_list.index(i)
             encoded_message += self.__key_list[
                 (position + self.__shift_key) % len(self.__key_list)
-            ]
+                ]
 
         return encoded_message
 

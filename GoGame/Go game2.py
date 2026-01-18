@@ -1,10 +1,10 @@
-import pygame
 import sys
-import time
+
+import pygame
+
 
 # soundObj = pygame.mixer.Sound('Move.WAV')
 # soundObj.play()
-from typing import List, Any, Union
 
 
 def cleanup():
@@ -183,7 +183,7 @@ def main():
     is_running = True
 
     def draw_stones():
-        #print(board_data)
+        # print(board_data)
         stone_size = small_side / 47 + 1
         for i in range(len(board_data)):
             if board_data[i] == 'black':
@@ -292,7 +292,6 @@ def main():
                 pygame.draw.circle(screen, colour, (xpos2, ypos2), stone_size, 0)
                 pygame.draw.circle(screen, red, (xpos2, ypos2), small_side / 100 + 1, 0)
 
-
     draw_board()
 
     while is_running:
@@ -318,7 +317,8 @@ def main():
         line_18_data = list(line18.values())
         line_19_data = list(line19.values())
 
-        board_data2 = ["x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x",
+        board_data2 = ["x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x",
+                       "x", "x",
                        "x", line_1_data, "x",
                        "x", line_2_data, "x",
                        "x", line_3_data, "x",
@@ -338,7 +338,8 @@ def main():
                        "x", line_17_data, "x",
                        "x", line_18_data, "x",
                        "x", line_19_data, "x",
-                       "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", ]
+                       "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x",
+                       "x", "x", ]
         board_data3.clear()
         for i in range(len(board_data2)):
             for j in range(len(board_data2[i])):
@@ -347,7 +348,7 @@ def main():
         for i in range(len(board_data3)):
 
             if board_data3[i] == 'black':
-                #print(i)
+                # print(i)
                 column = i % 21
                 line = (i - column) // 21
                 place = i - (line + 1) * 2 - 18
@@ -448,11 +449,12 @@ def main():
                                     line19[column] = 'blank'
                                 draw_board()
 
-
         # print(board_data3)
 
-        board_data1 = [line_1_data, line_2_data, line_3_data, line_4_data, line_5_data, line_6_data, line_7_data,line_8_data, line_9_data,
-                       line_10_data, line_11_data, line_12_data, line_13_data, line_14_data, line_15_data, line_16_data,line_17_data, line_18_data, line_19_data]
+        board_data1 = [line_1_data, line_2_data, line_3_data, line_4_data, line_5_data, line_6_data, line_7_data,
+                       line_8_data, line_9_data,
+                       line_10_data, line_11_data, line_12_data, line_13_data, line_14_data, line_15_data, line_16_data,
+                       line_17_data, line_18_data, line_19_data]
 
         board_data.clear()
         for i in range(len(board_data1)):
@@ -505,8 +507,8 @@ def main():
                         colour = "black"
                     else:
                         colour = "white"
-                    #draw_board()
-                    #pygame.draw.circle(screen, red, (xpos2, ypos2), small_side / 100 + 1, 0)
+                    # draw_board()
+                    # pygame.draw.circle(screen, red, (xpos2, ypos2), small_side / 100 + 1, 0)
 
                     line_num = 19 - ((((mouse_y - (top_y + line_length))) / (line_length / 18)) * -1)
                     if line_num - int(line_num) > 0.5:
@@ -524,7 +526,7 @@ def main():
                     elif column_num > 19:
                         column_num = 19
 
-                    #print(int(column_num), int(line_num))
+                    # print(int(column_num), int(line_num))
                     line_dict = 1
                     if int(line_num) == 1:
                         line_dict = line1
@@ -572,25 +574,25 @@ def main():
                     ypos2 = top_y + (line_length / 19 * (int(line_num) + 0.05 * int(line_num))) - line_length / 19
 
                     place = (int(line_num) + 1) * 21 - (21 - int(column_num))
-                    #print(place)
+                    # print(place)
 
                     if line_dict[int(column_num)] != "blank":
                         canplay = False
-                    elif board_data3[place - 21] == 'white' and board_data3[place - 1] == 'white' and\
-                            board_data3[place + 21] == 'white' and board_data3[place + 1] == 'white' and\
+                    elif board_data3[place - 21] == 'white' and board_data3[place - 1] == 'white' and \
+                            board_data3[place + 21] == 'white' and board_data3[place + 1] == 'white' and \
                             colour == 'black':
                         canplay = False
-                    elif (board_data3[place - 21] == 'black' or board_data3[place - 21] == 'x') and\
-                        (board_data3[place - 1] == 'black' or board_data3[place - 1] == 'x') and\
-                        (board_data3[place + 21] == 'black' or board_data3[place + 21] == 'x') and\
-                        (board_data3[place + 1] == 'black' or board_data3[place + 1] == 'x') and\
-                        colour == 'white':
+                    elif (board_data3[place - 21] == 'black' or board_data3[place - 21] == 'x') and \
+                            (board_data3[place - 1] == 'black' or board_data3[place - 1] == 'x') and \
+                            (board_data3[place + 21] == 'black' or board_data3[place + 21] == 'x') and \
+                            (board_data3[place + 1] == 'black' or board_data3[place + 1] == 'x') and \
+                            colour == 'white':
                         canplay = False
-                    elif (board_data3[place - 21] == 'white' or board_data3[place - 21] == 'x') and\
-                        (board_data3[place - 1] == 'white' or board_data3[place - 1] == 'x') and\
-                        (board_data3[place + 21] == 'white' or board_data3[place + 21] == 'x') and\
-                        (board_data3[place + 1] == 'white' or board_data3[place + 1] == 'x') and\
-                        colour == 'black':
+                    elif (board_data3[place - 21] == 'white' or board_data3[place - 21] == 'x') and \
+                            (board_data3[place - 1] == 'white' or board_data3[place - 1] == 'x') and \
+                            (board_data3[place + 21] == 'white' or board_data3[place + 21] == 'x') and \
+                            (board_data3[place + 1] == 'white' or board_data3[place + 1] == 'x') and \
+                            colour == 'black':
                         canplay = False
                     else:
                         canplay = True
@@ -647,7 +649,7 @@ def main():
                     else:
                         colour_turn = colour_turn - 1
 
-        #if size != screen.get_size():
+        # if size != screen.get_size():
         #    screen = pygame.display.set_mode(size, pygame.RESIZABLE)
 
         pygame.display.flip()

@@ -1,6 +1,5 @@
 def lower(word: str) -> str:
-
-    """ 
+    """
     Will convert the entire string to lowecase letters 
     
     >>> lower("wow")

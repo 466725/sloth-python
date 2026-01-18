@@ -1,4 +1,5 @@
 import heapq
+
 import numpy as np
 
 
@@ -125,14 +126,14 @@ def valid(p):
 
 
 def expand_state(
-    s,
-    j,
-    visited,
-    g_function,
-    close_list_anchor,
-    close_list_inad,
-    open_list,
-    back_pointer,
+        s,
+        j,
+        visited,
+        g_function,
+        close_list_anchor,
+        close_list_inad,
+        open_list,
+        back_pointer,
 ):
     for itera in range(n_hueristic):
         open_list[itera].remove_element(s)
@@ -160,7 +161,7 @@ def expand_state(
                     if neighbours not in close_list_inad:
                         for var in range(1, n_hueristic):
                             if key(neighbours, var, goal, g_function) <= W2 * key(
-                                neighbours, 0, goal, g_function
+                                    neighbours, 0, goal, g_function
                             ):
                                 # print("why not plssssssssss")
                                 open_list[j].put(
@@ -222,7 +223,6 @@ blocks_blk = [
 ]
 blocks_no = []
 blocks_all = make_common_ground()
-
 
 blocks = blocks_blk
 # hyper parameters

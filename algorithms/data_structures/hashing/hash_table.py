@@ -20,7 +20,7 @@ class HashTable:
 
     def balanced_factor(self):
         return sum([1 for slot in self.values if slot is not None]) / (
-            self.size_table * self.charge_factor
+                self.size_table * self.charge_factor
         )
 
     def hash_function(self, key):

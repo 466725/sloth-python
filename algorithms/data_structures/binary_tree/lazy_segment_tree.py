@@ -27,7 +27,7 @@ class SegmentTree:
 
     # update with O(lg N) (Normal segment tree without lazy update will take O(Nlg N) for each update)
     def update(
-        self, idx, l, r, a, b, val
+            self, idx, l, r, a, b, val
     ):  # update(1, 1, N, a, b, v) for update val v to [a,b]
         if self.flag[idx] == True:
             self.st[idx] = self.lazy[idx]
