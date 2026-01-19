@@ -1,48 +1,52 @@
-<!--suppress HtmlDeprecatedAttribute -->
-<h1 align="center">Sloth Python</h1>
-<br>
+# Sloth Python 🦥
 
-## What is it?
-Sloth is lazy, he has to automate as much as he can to be lazy. Here he is trying to get automation done with Python!
+[![Python Version](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Sloth Python features include:
+Sloth Python is a comprehensive automation and algorithm playground. Designed for the "efficiently lazy," this repository contains a variety of tools ranging from network security scanners to machine learning implementations and automated testing suites.
 
-Ability to load and performance test many different applications/server/protocol types: 
- -  Web - HTTP, HTTPS 
- -  SOAP / REST Webservices
- -  FTP
- -  Database via JDBC
- -  LDAP
- -  Message-oriented Middleware (MOM) via JMS
+## 🚀 Key Features
 
-## The Latest Version
-Details of the latest version, actually all versions, can only be found on github for now.
+- **Network Security:** Built-in Nmap integration for port scanning and host discovery.
+- **Algorithms:** Extensive library of algorithms covering machine learning (K-Means), data structures, and more.
+- **Automation:** Support for Robot Framework and various automation protocols:
+  - **Web:** HTTP/HTTPS testing
+  - **Services:** SOAP & REST API automation
+  - **Databases:** JDBC connectivity
+- **Performance Testing:** Utilities for load testing many server/protocol types.
 
-## Requirements
-The following requirements exist for running sloth-python:
+## 🛠️ Requirements
 
-*  Python Interpreter:
-    A fully compliant Python Environment is required 
+- **Python 3.14+**
+- **Nmap** (Required for the `nmapscanner.py` utility)
+- **PyCharm** (Recommended IDE)
 
-*  Pycharm:
-    A Python IDE is helpful, expecially the main stream one. 
-    
-* Robot
-    One of the most handy automation framework
+## 📦 Installation
 
-## Installation Instructions
-*  Release builds
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/sloth-python.git
+   cd sloth-python
+   ```
 
+2. **Set up a virtual environment:**
+   ```bash
+   python -m venv .venv
+   # On Windows:
+   .venv\Scripts\activate
+   # On macOS/Linux:
+   source .venv/bin/activate
+   ```
 
-## Import third party libraries
-*  python -m pip install -r requirements.txt
+3. **Install dependencies:**
+   ```bash
+   python -m pip install -r requirements.txt
+   ```
 
-## Running Sloth Python
-1. Change to the `~` directory
-2. Run the `~`
+## 🖥️ Usage
 
-### Windows
-1. λ python --version 
-2. λ pip --version 
-3. λ robot --version
-    
+### Running the Nmap Scanner
+Navigate to the tutorial directory and provide a target IP:
+```bash
+python tutorial/nmapscanner.py 127.0.0.1
+```
