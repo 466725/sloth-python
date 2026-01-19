@@ -1,4 +1,3 @@
-# import 'random' library
 import random
 
 num = random.randint(1, 6)
@@ -17,7 +16,6 @@ def dieRoll():
 
 
 # how do you replay the game multiple times?
-#		dfghjkkkkkkkkkkkkkkk
 dieRoll()
 if guess != num:
     for i in range(2):

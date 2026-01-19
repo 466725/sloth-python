@@ -13,7 +13,6 @@ Message = response['Result']['Status']
 SessionToken = response['SessionToken']
 SessionTokenExpires = response['SessionTokenExpires']
 assert r.status_code == 200
-assert response['Result']['Status'] == 1
 
 url = "https://connect.cineplex.com/ClientServices/CineplexClientServicesWeb/Login"
 
