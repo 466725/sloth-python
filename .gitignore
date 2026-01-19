@@ -1,70 +1,80 @@
+### IDE & Editor Specific ###
 /.idea/
 /.idea_modules/
 /.metadata/
 /.settings/
 /.vs/
-/allure-results/
+.classpath
+.project
+.pydevproject
+atlassian-ide-plugin.xml
+workspace.xml
+*.iws
+*.sln.docstates
+*.suo
+*.user
+*.userosscache
+*.userprefs
+*.vspscc
+*.vssscc
+
+### Python Specific ###
+*.pyc
+.builds
+log.html
+output.xml
+report.html
+
+### Build & Distribution ###
 /[Bb]in/
 /bin/
 /bld/
 /cmake-build-*/
 /[Dd]ebug/
 /[Dd]ebugPublic/
-/libspecs/
 /[Ll]og/
 /[Oo]bj/
 /out/
 /[Rr]elease/
 /[Rr]eleases/
-/test-output/
-/AutomatedTests-Mobile/test-output/
 /target/
 /x64/
 /x86/
 
-.builds
-.classpath
-.DS_Store
-.project
-.pydevproject
+### Testing & Reports ###
+/allure-results/
+/test-output/
+/AutomatedTests-Mobile/test-output/
+/libspecs/
 
-atlassian-ide-plugin.xml
+### Mobile & Crashlytics ###
 com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
-log.html
-output.xml
-report.html
-workspace.xml
 
-*_i.h
-*.ilk
+### C/C++ & Windows Artifacts ###
 *_i.c
-*.iws
+*_i.h
+*_p.c
+*.ilk
 *.log
 *.meta
 *.obj
-*_p.c
 *.pch
 *.pdb
 *.pgc
 *.pgd
 *.pidb
-*.pyc
 *.rsp
+*.sbr
 *.scc
 *.svclog
-*.sbr
-*.sln.docstates
-*.suo
 *.tlb
-*.tli
 *.tlh
+*.tli
 *.tmp
 *.tmp_proj
-*.user
-*.userosscache
-*.userprefs
-*.vspscc
-*.vssscc
+
+### System Files ###
+.DS_Store
