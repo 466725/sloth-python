@@ -2,3 +2,8 @@ matplotlib
 numpy
 scikit-learn
 python-nmap
+scipy
+selenium
+six
+wxpython
+openai>=1.0.0
