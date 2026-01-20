@@ -10,3 +10,4 @@ openai>=1.0.0
 pyecharts
 robotframework
 robotframework-seleniumlibrary
+pygame

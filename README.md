@@ -11,6 +11,7 @@ automated testing suites.
 
 - **Network Security:** Built-in Nmap integration for port scanning and host discovery.
 - **Algorithms:** Extensive library of algorithms covering machine learning (K-Means), data structures, and more.
+- **Gaming & Simulation:** Includes interactive games like Go and Soccer game built with Pygame.
 - **Automation:** Support for Robot Framework and various automation protocols:
     - **Web:** HTTP/HTTPS testing
     - **Services:** SOAP & REST API automation
