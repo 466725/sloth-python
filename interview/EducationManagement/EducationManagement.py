@@ -1,4 +1,4 @@
-from tutorial.EducationManagement.Student import Student
+from interview.EducationManagement.Student import Student
 
 class EducationManagement:
     system_version = "1.0.0"

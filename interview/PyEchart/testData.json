@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Alan-json",
+    "age": 6,
+    "gender": "male",
+    "occupation": "student"
+  },
+  {
+    "name": "Andy-json",
+    "age": 16,
+    "gender": "male",
+    "occupation": "student"
+  },
+  {
+    "name": "Weipeng-json",
+    "age": 47,
+    "gender": "male",
+    "occupation": "teacher"
+  }
+]

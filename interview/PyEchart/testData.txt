@@ -1,0 +1,3 @@
+Alan-txt, 6, male, student
+Andy-txt, 16, male, student
+Weipeng-txt, 47, male, teacher
