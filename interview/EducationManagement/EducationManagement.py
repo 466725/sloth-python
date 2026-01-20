@@ -1,5 +1,6 @@
 from interview.EducationManagement.Student import Student
 
+
 class EducationManagement:
     system_version = "1.0.0"
     system_name = "Education Management System"
@@ -81,7 +82,8 @@ class EducationManagement:
             except ValueError:
                 print("Error: Please enter numeric values where required.")
 
-#test
+
+# test
 if __name__ == "__main__":
     em = EducationManagement()
     em.run()

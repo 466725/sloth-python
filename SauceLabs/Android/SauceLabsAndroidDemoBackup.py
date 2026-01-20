@@ -1,7 +1,6 @@
 import unittest
 from time import sleep
 
-import pytest
 from appium import webdriver
 
 

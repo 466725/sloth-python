@@ -1,13 +1,14 @@
-# Linear algebra library for Python  
+# Linear algebra library for Python
 
-This module contains classes and functions for doing linear algebra.  
+This module contains classes and functions for doing linear algebra.
 
 ---
 
-## Overview  
+## Overview
 
-### class Vector  
+### class Vector
 -
+
     - This class represents a vector of arbitrary size and related operations.  
 
     **Overview about the methods:**    
@@ -24,17 +25,18 @@ This module contains classes and functions for doing linear algebra.
     - copy() : copies this vector and returns it.  
     - changeComponent(pos,value) : changes the specified component.  
 
-- function zeroVector(dimension)  
-    - returns a zero vector of 'dimension'  
-- function unitBasisVector(dimension,pos)  
-    - returns a unit basis vector with a One at index 'pos' (indexing at 0)  
-- function axpy(scalar,vector1,vector2)  
-    - computes the axpy operation  
+- function zeroVector(dimension)
+    - returns a zero vector of 'dimension'
+- function unitBasisVector(dimension,pos)
+    - returns a unit basis vector with a One at index 'pos' (indexing at 0)
+- function axpy(scalar,vector1,vector2)
+    - computes the axpy operation
 - function randomVector(N,a,b)
     - returns a random vector of size N, with random integer components between 'a' and 'b'.
 
 ### class Matrix
 -
+
     - This class represents a matrix of arbitrary size and operations on it.
 
     **Overview about the methods:**  
@@ -50,26 +52,27 @@ This module contains classes and functions for doing linear algebra.
     - operator + : implements the matrix-addition.  
     - operator - _ implements the matrix-subtraction  
 
-- function squareZeroMatrix(N)  
-    - returns a square zero-matrix of dimension NxN  
-- function randomMatrix(W,H,a,b)  
-    - returns a random matrix WxH with integer components between 'a' and 'b'  
+- function squareZeroMatrix(N)
+    - returns a square zero-matrix of dimension NxN
+- function randomMatrix(W,H,a,b)
+    - returns a random matrix WxH with integer components between 'a' and 'b'
+
 ---
 
-## Documentation  
+## Documentation
 
 This module uses docstrings to enable the use of Python's in-built `help(...)` function.
 For instance, try `help(Vector)`, `help(unitBasisVector)`, and `help(CLASSNAME.METHODNAME)`.
 
 ---
 
-## Usage  
+## Usage
 
 Import the module `lib.py` from the **src** directory into your project.
-Alternatively, you can directly use the Python bytecode file `lib.pyc`.   
+Alternatively, you can directly use the Python bytecode file `lib.pyc`.
 
 ---
 
-## Tests  
+## Tests
 
 `src/tests.py` contains Python unit tests which can be run with `python3 -m unittest -v`.

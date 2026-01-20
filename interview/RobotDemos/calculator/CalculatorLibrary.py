@@ -1,5 +1,6 @@
 from calculator import Calculator, CalculationError
 
+
 class CalculatorLibrary(object):
     """Test library for testing *Calculator* business logic.
 

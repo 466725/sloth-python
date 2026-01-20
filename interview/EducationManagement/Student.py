@@ -1,6 +1,8 @@
 """
 Student class
 """
+
+
 class Student:
     def __init__(self, name, age, score):
         self.name = name

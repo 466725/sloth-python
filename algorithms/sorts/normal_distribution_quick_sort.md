@@ -1,9 +1,9 @@
 # Normal Distribution QuickSort
 
-
-Algorithm implementing QuickSort Algorithm where the pivot element is chosen randomly between first and last elements of the array and the array elements are taken from a Standard Normal Distribution.
-This is different from the ordinary quicksort in the sense, that it applies more to real life problems , where elements usually follow a normal distribution. Also the pivot is randomized to make it a more generic one.
-
+Algorithm implementing QuickSort Algorithm where the pivot element is chosen randomly between first and last elements of
+the array and the array elements are taken from a Standard Normal Distribution.
+This is different from the ordinary quicksort in the sense, that it applies more to real life problems , where elements
+usually follow a normal distribution. Also the pivot is randomized to make it a more generic one.
 
 ## Array Elements
 
@@ -38,7 +38,6 @@ The array elements are taken from a Standard Normal Distribution , having mean =
 
 ```
 
-
 -----
 
 
@@ -52,7 +51,7 @@ The array elements are taken from a Standard Normal Distribution , having mean =
 
 --
 
-## Plotting the function for Checking 'The Number of Comparisons' taking place between Normal Distribution QuickSort and Ordinary QuickSort 
+## Plotting the function for Checking 'The Number of Comparisons' taking place between Normal Distribution QuickSort and Ordinary QuickSort
 
 ```python
 >>>import matplotlib.pyplot as plt
@@ -67,7 +66,6 @@ The array elements are taken from a Standard Normal Distribution , having mean =
 >>> plt.show()
 
 ```
-
 
 ----
 

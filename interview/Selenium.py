@@ -18,6 +18,7 @@ driver.get("https://www.google.com/")
 
 # Keep browser open for a few seconds
 import time
+
 time.sleep(5)
 
 # Close browser
