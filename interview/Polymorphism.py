@@ -9,6 +9,8 @@ class Animal:
     def make_sound(self):
         pass
 
+    def eat(self):
+        pass
 
 class Dog(Animal):
     def make_sound(self):
@@ -27,12 +29,14 @@ class Cat(Animal):
 
 
 if __name__ == "__main__":
-    aninmal = Animal("Animal", "white")
+    animal = Animal("Animal", "white")
+    animal.make_sound()
+    animal.eat()
 
-    aninmal = Dog("Rex", "black")
-    aninmal.make_sound()
-    aninmal.eat()
+    animal = Dog("Rex", "black")
+    animal.make_sound()
+    animal.eat()
 
-    aninmal = Cat("Tom", "white")
-    aninmal.make_sound()
-    aninmal.eat()
+    animal = Cat("Tom", "white")
+    animal.make_sound()
+    animal.eat()

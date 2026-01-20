@@ -1,7 +1,8 @@
-'''
+"""
+Selenium script to open Google in a maximized Chrome window and wait for 5 seconds before closing.
 Created on 2017-04-01
 @author: weipengzheng
-'''
+"""
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options

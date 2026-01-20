@@ -10,7 +10,7 @@ class Student:
         self.score = score
 
     def __str__(self):
-        return f"Student(name='{self.name}', age={self.age}, score={self.score})"
+        return f"Student(name = '{self.name}', age = {self.age}, score = {self.score})"
 
     def update_score(self, score=None):
         if score is not None:

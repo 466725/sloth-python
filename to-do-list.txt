@@ -1,4 +1,2 @@
-1, 哈哈
-
-Note: 
-1, Task better to be independent from each other
+Note:
+1, Task better to be independent of each other
