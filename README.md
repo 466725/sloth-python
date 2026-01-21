@@ -12,10 +12,10 @@ automated testing suites.
 - **Network Security:** Built-in Nmap integration for port scanning and host discovery.
 - **Algorithms:** Extensive library of algorithms covering machine learning (K-Means), data structures, and more.
 - **Gaming & Simulation:** Includes interactive games like Go and Soccer game built with Pygame.
-- **Automation:** Support for Robot Framework and various automation protocols:
-    - **Web:** HTTP/HTTPS testing
-    - **Services:** SOAP & REST API automation
-    - **Databases:** JDBC connectivity
+- **Automation:** Support for Robot Framework and Selenium:
+    - **Web:** UI testing with Selenium and HTTP/HTTPS testing.
+    - **Services:** SOAP & REST API automation.
+    - **Databases:** JDBC connectivity.
 - **Performance Testing:** Utilities for load testing many server/protocol types.
 
 ## 🛠️ Requirements
@@ -64,12 +64,15 @@ You can execute automated tests using the `python -m robot` command. For example
 python -m robot interview\RobotDemos\calculator-demo-test\keyword_driven.robot
 ```
 
-Or run all tests in a directory:
+### Running Selenium Web Automation
 
+The project includes Selenium-based UI automation examples located in `interview/Selenium/`. These demos showcase browser interaction and integration with SauceLabs.
+
+To run the main Selenium demo:
 ```bash
-python -m robot interview\RobotDemos\
+python interview/Selenium/Selenium.py
 ```
 
+> **Note:** Ensure you have the appropriate WebDriver (e.g., ChromeDriver or GeckoDriver) installed and available in your system's PATH, or use a manager like `webdriver-manager` if configured.
+
 > **💡 Tip:** If you want to use the `robot` command directly, ensure your Python `Scripts` directory is in your system's
-`PATH`. On your system, this is likely:
-> `C:\Users\weipe\AppData\Local\Python\pythoncore-3.14-64\Scripts`
