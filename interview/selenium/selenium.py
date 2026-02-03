@@ -1,5 +1,5 @@
 """
-Selenium script to open Google in a maximized Chrome window and wait for 5 seconds before closing.
+selenium script to open Google in a maximized Chrome window and wait for 5 seconds before closing.
 Created on 2017-04-01
 @author: weipengzheng
 """
@@ -15,7 +15,7 @@ from selenium.webdriver.remote.webelement import WebElement
 options = Options()
 options.add_argument("--start-maximized")
 
-# Create WebDriver (Selenium 4.6+ auto-manages driver)
+# Create WebDriver (selenium 4.6+ auto-manages driver)
 driver = webdriver.Chrome(options=options)
 driver.set_window_position(5, 5)
 driver.set_window_size(900, 600)
@@ -33,7 +33,7 @@ time.sleep(1)
 
 # Using name='q' is more reliable for Google's search input
 inputEle = driver.find_element(By.NAME, "q")
-inputEle.send_keys("Selenium")
+inputEle.send_keys("selenium")
 inputEle.submit()
 driver.implicitly_wait(10)  # Wait up to 10 seconds for elements to appear
 time.sleep(5)

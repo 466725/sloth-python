@@ -1,6 +1,6 @@
 import json
 
-from Record import Record
+from record import Record
 
 
 # Read data from file and analize, then display in chart

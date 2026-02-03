@@ -1,4 +1,4 @@
-from interview.EducationManagement.Student import Student
+from interview.education_management.student import Student
 
 
 class EducationManagement:
@@ -14,7 +14,7 @@ class EducationManagement:
         """Helper to find a student by name."""
         return next((s for s in self.students_list if s.name == name), None)
 
-    def add_student(self, name, age, score):
+    def add_student(self, name, age, gender, score):
         if self._find_student(name):
             print("Student already exists!")
             return False
@@ -22,7 +22,7 @@ class EducationManagement:
             print("Invalid input values!")
             return False
 
-        self.students_list.append(Student(name, age, score))
+        self.students_list.append(Student(name, age, gender, score))
         print("Student added successfully!")
         return True
 
@@ -63,8 +63,9 @@ class EducationManagement:
                     case 1:
                         name = input("Enter student name: ")
                         age = int(input("Enter student age: "))
+                        gender = input("Enter student gender (male/female): ")
                         score = int(input("Enter student score: "))
-                        self.add_student(name, age, score)
+                        self.add_student(name, age, gender, score)
                     case 2:
                         name = input("Enter student name: ")
                         self.remove_student(name)
