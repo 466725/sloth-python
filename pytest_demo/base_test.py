@@ -1,3 +1,5 @@
+from random import Random
+
 import pytest
 
 import pytest_demo
@@ -14,14 +16,16 @@ def before_after(request: pytest.FixtureRequest):
 
 def test_base(before_after):
     """Base test function for pytest_demo integration."""
-
-    assert True
+    rng = Random()
+    intX = rng.randint(5, 9)
+    print(f"Random integer generated: {intX}")
+    assert intX > 7
 
 
 @pytest.mark.xfail
 def test_base_with_failure():
     """Base test function for pytest_demo integration with failure."""
-
+    print("Executing test_base_with_failure")
     assert True
 
 

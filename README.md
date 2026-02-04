@@ -46,6 +46,15 @@ automated testing suites.
    ```bash
    python -m pip install -r requirements.txt
    ```
+   
+4. **Install Pytest and its plugins:**
+   ```bash
+   python -m pip install pytest
+   python -m pip install pytest-html
+   python -m pip install pytest-rerunfailures (pytest --reruns 3 --reruns-delay 1)
+   python -m pip install pytest-result-log
+   python -m pip install allure-pytest
+   ```
 
 ## 🖥️ Usage
 
