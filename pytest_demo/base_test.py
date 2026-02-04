@@ -3,14 +3,17 @@ import pytest
 import pytest_demo
 
 
-def test_base():
+@pytest.fixture()
+def before_after(request: pytest.FixtureRequest):
+    print("\n----------------------Beginning of test--------------------------")
+    print(f"[BEFORE] {request.node.nodeid}")
+    yield
+    print(f"\n[AFTER]  {request.node.nodeid}")
+    print("----------------------Ending of test--------------------------")
+
+
+def test_base(before_after):
     """Base test function for pytest_demo integration."""
-
-    assert True
-
-
-def test_base_with_success():
-    """Base test function for pytest_demo integration with success."""
 
     assert True
 
@@ -27,9 +30,3 @@ def test_base_with_skip():
     """Base test function for pytest_demo integration with skip."""
 
     pytest_demo.skip("Skipping this test for demonstration purposes")
-
-
-def test_base_with_success_and_assert():
-    """Base test function for pytest_demo integration with success and assert."""
-
-    assert True
