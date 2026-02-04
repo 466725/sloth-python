@@ -70,7 +70,7 @@ The project includes Selenium-based UI automation examples located in `interview
 
 To run the main Selenium demo:
 ```bash
-python interview/selenium/selenium.py
+python interview/selenium_demo/selenium_demo.py
 ```
 
 > **Note:** Ensure you have the appropriate WebDriver (e.g., ChromeDriver or GeckoDriver) installed and available in your system's PATH, or use a manager like `webdriver-manager` if configured.

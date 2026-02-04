@@ -22,5 +22,5 @@ class Hero(Person):
         print("... And I'm: {}".format(self.hero_name))
 
 
-Andy = Hero('Serena', 'Andy')
-Andy.reveal_ID()
+andy = Hero('Serena', 'Andy')
+andy.reveal_ID()
