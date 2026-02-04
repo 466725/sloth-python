@@ -44,6 +44,7 @@ report.html
 ### Testing & Reports ###
 /pytest_demo/allure-results/
 /allure-results/
+/pytest_demo/temps/
 /temps/
 /test-output/
 /AutomatedTests-Mobile/test-output/

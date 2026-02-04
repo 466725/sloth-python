@@ -80,7 +80,7 @@ The project includes Selenium-based UI automation examples located in `pytest_de
 
 To run the main Selenium demo:
 ```bash
-python -m pip install -U selenium pytest-selenium
+python -m pip install -U my_elenium pytest-my_elenium
 python pytest_demo/tests/ui/amazon_homepage_test.py
 ```
 

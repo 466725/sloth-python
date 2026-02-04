@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from selenium import webdriver
 
 
 @pytest.fixture(scope="session")
@@ -48,4 +49,15 @@ def _print_before_after_each_test(request: pytest.FixtureRequest):
     yield
     sys.stdout.write(f"[AFTER]  {request.node.nodeid}\n")
     sys.stdout.write("----------------------Ending of test--------------------------\n")
+    sys.stdout.flush()
+
+
+@pytest.fixture(autouse=True)
+def my_selenium():
+    sys.stdout.write("\n----------------------Beginning of my_selenium test--------------------------\n")
+    driver = webdriver.Chrome()
+    sys.stdout.flush()
+    yield driver
+    driver.quit()
+    sys.stdout.write("----------------------Ending of my_selenium test--------------------------\n")
     sys.stdout.flush()

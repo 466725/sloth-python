@@ -1,7 +1,6 @@
 import subprocess
-import sys
 from pathlib import Path
-from shutil import which
+from shutil import which, rmtree
 
 import pytest
 
@@ -22,19 +21,21 @@ def main() -> int:
             "Allure CLI was not found on PATH, so the HTML report cannot be generated.\n"
             f"Pytest exit code: {pytest_exit_code}\n"
             f"Expected allure results directory: {results_dir}\n"
-            "If you want report generation, ensure the 'allure' command is available in your terminal."
         )
         return int(pytest_exit_code)
 
+    # Clean report output in a CLI-version-independent way
+    rmtree(report_dir, ignore_errors=True)
+
     try:
+        # Many Allure CLIs expect options first, and the results dir (pattern) last
         subprocess.run(
-            [allure_cmd, "generate", str(results_dir), "-o", str(report_dir), "--clean"],
+            [allure_cmd, "generate", "-o", str(report_dir), str(results_dir)],
             check=True,
             shell=False,
         )
         print(f"Allure report generated at: {report_dir}")
     except subprocess.CalledProcessError as e:
-        # Allure exists but failed; keep pytest's exit code as the primary signal
         print(f"Allure report generation failed (exit code {e.returncode}).")
         return int(pytest_exit_code)
 
