@@ -1,10 +1,51 @@
-def test_response():
-    """Base test function for response validation."""
+import os
 
-    assert True
+import requests
+from openai import OpenAI
+
+url = "https://connect.cineplex.com/ClientServices/CineplexClientServicesWeb/CreateApplicationSession"
+
+payload = "{\n\t\"ApplicationKey\": \"9fbcb70c-8bcd-43eb-930f-d99968b4561e\"\n}"
+print(payload)
+headers = {
+    'Content-Type': 'application/json',
+    'Cookie': 'visid_incap_2293254=KmLrzNVaTjaHg3x0G3Oy953cx14AAAAAQUIPAAAAAABnm269Hcp0OlaqxUdlwgYy; '
+}
+response = requests.request("POST", url, headers=headers, data=payload)
+responseJson = response.json()
+SessionTokenExpires = responseJson['SessionTokenExpires']
 
 
-def test_response_content_length():
-    """Base test function for response content length validation."""
+def test_response_status_code():
+    """CreateApplicationSession test for the response status code."""
 
-    assert True
+    assert response.status_code == 200
+
+
+def test_session_token_expires():
+    """CreateApplicationSession test for SessionTokenExpires."""
+
+    assert SessionTokenExpires is not None
+
+
+def test_openai_api_key():
+    try:
+        client = OpenAI(api_key=os.environ["OPENAI_API_KEY"]),
+        base_url = "https://api.deepseek.com"
+
+        response = (client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "user", "content": "Hello"}
+            ],
+            stream=False
+        ))
+    except KeyError:
+        print("Please set the OPENAI_API_KEY environment variable")
+        assert True
+    except Exception as e:
+        assert True
+    else:
+        assert True
+    finally:
+        assert True

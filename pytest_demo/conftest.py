@@ -47,7 +47,7 @@ def _print_before_after_each_test(request: pytest.FixtureRequest):
     sys.stdout.write(f"[BEFORE] {request.node.nodeid}\n")
     sys.stdout.flush()
     yield
-    sys.stdout.write(f"[AFTER]  {request.node.nodeid}\n")
+    sys.stdout.write(f"\n[AFTER]  {request.node.nodeid}\n")
     sys.stdout.write("----------------------Ending of test--------------------------\n")
     sys.stdout.flush()
 
