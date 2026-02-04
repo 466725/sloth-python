@@ -53,7 +53,7 @@ automated testing suites.
    python -m pip install pytest-html
    python -m pip install pytest-rerunfailures (pytest --reruns 3 --reruns-delay 1)
    python -m pip install pytest-result-log
-   python -m pip install allure-pytest
+   python -m pip install allure-pytest (https://allurereport.org/docs/v3/install/)
    ```
 
 ## 🖥️ Usage
