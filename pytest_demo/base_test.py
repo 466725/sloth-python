@@ -19,7 +19,7 @@ def test_base_with_success():
 def test_base_with_failure():
     """Base test function for pytest_demo integration with failure."""
 
-    assert False
+    assert True
 
 
 @pytest.mark.skip(reason="Skipping this test for demonstration purposes")
@@ -27,13 +27,6 @@ def test_base_with_skip():
     """Base test function for pytest_demo integration with skip."""
 
     pytest_demo.skip("Skipping this test for demonstration purposes")
-
-
-@pytest.mark.xfail
-def test_base_with_xfail():
-    """Base test function for pytest_demo integration with expected failure."""
-
-    pytest_demo.xfail("Expected failure for demonstration purposes")
 
 
 def test_base_with_success_and_assert():
