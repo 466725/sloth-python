@@ -3,7 +3,7 @@ numpy
 scikit-learn
 python-nmap
 scipy
-my_elenium
+my_selenium
 six
 wxpython
 openai>=1.0.0

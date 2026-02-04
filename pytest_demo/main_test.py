@@ -6,14 +6,45 @@ import pytest
 
 
 def main() -> int:
-    # Run tests first and preserve the real test exit code
-    pytest_exit_code = pytest.main()
-
     # Paths resolved relative to this file (stable regardless of CWD)
     here = Path(__file__).resolve().parent
-    results_dir = here / "temps"
+    project_root = here.parent
+
+    # Prefer repo-root pytest.ini; fall back to the local one if present
+    ini_path = project_root / "pytest.ini"
+    if not ini_path.is_file():
+        ini_path = here / "pytest.ini"
+
+    if not ini_path.is_file():
+        print(
+            "Could not find pytest.ini.\n"
+            f"Looked in:\n  - {project_root / 'pytest.ini'}\n  - {here / 'pytest.ini'}\n"
+            "Fix: place pytest.ini in one of these locations or update main_test.py to point to it."
+        )
+        return 2
+
+    # Force ALL output under PROJECT ROOT (no dependence on current working directory)
+    results_dir = project_root / "temps"
     report_dir = results_dir / "allure-report"
+    log_dir = report_dir / "log"
+    log_file = log_dir / "pytest.log"
+
+    log_dir.mkdir(parents=True, exist_ok=True)
     results_dir.mkdir(parents=True, exist_ok=True)
+
+    # Run tests once and preserve the real test exit code.
+    # Override ini addopts that use relative paths by providing absolute ones here.
+    pytest_exit_code = pytest.main(
+        [
+            "-c",
+            str(ini_path),
+            "--alluredir",
+            str(results_dir),
+            "--clean-alluredir",
+            "-o",
+            f"log_file={log_file}",
+        ]
+    )
 
     allure_cmd = which("allure")
     if not allure_cmd:
@@ -24,11 +55,22 @@ def main() -> int:
         )
         return int(pytest_exit_code)
 
-    # Clean report output in a CLI-version-independent way
-    rmtree(report_dir, ignore_errors=True)
+    # Clean report output but keep the pytest log folder/file
+    report_dir.mkdir(parents=True, exist_ok=True)
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    for child in report_dir.iterdir():
+        if child.name == "log":
+            continue
+        if child.is_dir():
+            rmtree(child, ignore_errors=True)
+        else:
+            try:
+                child.unlink(missing_ok=True)
+            except OSError:
+                pass
 
     try:
-        # Many Allure CLIs expect options first, and the results dir (pattern) last
         subprocess.run(
             [allure_cmd, "generate", "-o", str(report_dir), str(results_dir)],
             check=True,

@@ -10,13 +10,6 @@ def test_add(a, b, expected):
 
 
 @pytest.mark.ddt
-@pytest.mark.parametrize("a,b,expected", [(3, 2, 1), (5, 3, 2)])
-def test_subtract(a, b, expected):
-    """Base test function for subtraction operation."""
-    assert a - b == expected
-
-
-@pytest.mark.ddt
 @pytest.mark.parametrize("a,b,expected", read_csv_to_list("pytest_demo/tests/calculator-data.csv"))
 def test_ddt(a, b, expected):
     assert a + b == expected

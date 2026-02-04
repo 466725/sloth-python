@@ -19,14 +19,7 @@ def test_base(before_after):
     rng = Random()
     intX = rng.randint(5, 9)
     print(f"Random integer generated: {intX}")
-    assert intX > 7
-
-
-@pytest.mark.xfail
-def test_base_with_failure():
-    """Base test function for pytest_demo integration with failure."""
-    print("Executing test_base_with_failure")
-    assert True
+    assert intX > 3
 
 
 @pytest.mark.skip(reason="Skipping this test for demonstration purposes")

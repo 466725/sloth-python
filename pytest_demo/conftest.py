@@ -52,7 +52,6 @@ def _print_before_after_each_test(request: pytest.FixtureRequest):
     sys.stdout.flush()
 
 
-@pytest.fixture(autouse=True)
 def my_selenium():
     sys.stdout.write("\n----------------------Beginning of my_selenium test--------------------------\n")
     driver = webdriver.Chrome()
