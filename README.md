@@ -71,16 +71,17 @@ python tutorial/nmap_scanner.py 127.0.0.1
 You can execute automated tests using the `python -m robot` command. For example, to run the calculator demo:
 
 ```bash
-python -m robot interview\RobotDemos\calculator-demo-test\keyword_driven.robot
+python -m robot RobotDemos\calculator-demo-test\keyword_driven.robot
 ```
 
 ### Running Selenium Web Automation
 
-The project includes Selenium-based UI automation examples located in `interview/Selenium/`. These demos showcase browser interaction and integration with SauceLabs.
+The project includes Selenium-based UI automation examples located in `pytest_demo/tests/ui/`. These demos showcase browser interaction and integration with SauceLabs.
 
 To run the main Selenium demo:
 ```bash
-python interview/selenium_demo/selenium_demo.py
+python -m pip install -U selenium pytest-selenium
+python pytest_demo/tests/ui/amazon_homepage_test.py
 ```
 
 > **Note:** Ensure you have the appropriate WebDriver (e.g., ChromeDriver or GeckoDriver) installed and available in your system's PATH, or use a manager like `webdriver-manager` if configured.
