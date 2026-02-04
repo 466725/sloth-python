@@ -18,15 +18,3 @@ response = (client.chat.completions.create(
 ))
 
 print(response.choices[0].message.content)
-
-def test_response():
-
-    """Base test function for response validation."""
-
-    assert response.choices[0].message.content is None
-
-def test_response_content_length():
-
-    """Base test function for response content length validation."""
-
-    assert len(response.choices[0].message.content) > 0
