@@ -16,7 +16,7 @@ node1 node2 distance_between_node1_and_node2
 node2 node1 distance_between_node2_and_node1
 
 For pytests run following command:
-pytest
+pytest_demo
 
 For manual testing run:
 python tabu_search.py -f your_file_name.txt -number_of_iterations_of_tabu_search -s size_of_tabu_search

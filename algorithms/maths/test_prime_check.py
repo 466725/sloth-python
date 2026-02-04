@@ -1,5 +1,5 @@
 """
-Minimalist file that allows pytest to find and run the Test unittest.  For details, see:
+Minimalist file that allows pytest_demo to find and run the Test unittest.  For details, see:
 http://doc.pytest.org/en/latest/goodpractices.html#conventions-for-python-test-discovery
 """
 
