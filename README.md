@@ -16,6 +16,7 @@ automated testing suites.
     - **Web:** UI testing with Selenium and HTTP/HTTPS testing.
     - **Services:** SOAP & REST API automation.
     - **Databases:** JDBC connectivity.
+- **Testing:** `pytest` is included for unit/integration tests (demo examples coming soon).
 - **Performance Testing:** Utilities for load testing many server/protocol types.
 
 ## 🛠️ Requirements
