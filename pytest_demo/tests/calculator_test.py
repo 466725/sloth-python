@@ -1,8 +1,12 @@
+import logging
+
 import allure
 import pytest
 
 from utils.csv_reader import read_csv_to_list
 
+logger = logging.getLogger(__name__)
+logger.info("Hello from a calculator_test.py file")
 
 @allure.epic("EPIC-1")
 @allure.feature("FEATURE-1")
@@ -13,6 +17,7 @@ from utils.csv_reader import read_csv_to_list
 @pytest.mark.parametrize("a,b,expected", [(1, 2, 3), (2, 3, 5)])
 def test_add(a, b, expected):
     """Base test function for addition operation."""
+    logger.info(f"Testing addition with a={a}, b={b}")
     assert a + b == expected
 
 

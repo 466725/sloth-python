@@ -46,7 +46,7 @@ automated testing suites.
    ```bash
    python -m pip install -r requirements.txt
    ```
-   
+
 4. **Install Pytest and its plugins:**
    ```bash
    python -m pip install pytest
@@ -79,14 +79,29 @@ python -m robot RobotDemos\calculator-demo-test\keyword_driven.robot
 
 ### Running Selenium Web Automation
 
-The project includes Selenium-based UI automation examples located in `pytest_demo/tests/ui/`. These demos showcase browser interaction and integration with SauceLabs.
+The project includes Selenium-based UI automation examples located in `pytest_demo/tests/ui/`. These demos showcase
+browser interaction and integration with SauceLabs.
 
 To run all test cases and generate an Allure report:
+
 ```bash
 python -m pytest --alluredir=temps/allure-results --clean-alluredir
 allure generate temps/allure-results -o temps/allure-results
+python -m pytest -m ui --reruns 3 --reruns-delay 1 --alluredir=temps/allure-results --clean-alluredir
 ```
 
-> **Note:** Ensure you have the appropriate WebDriver (e.g., ChromeDriver or GeckoDriver) installed and available in your system's PATH, or use a manager like `webdriver-manager` if configured.
+### Writing logs with `logging` (so they appear in `pytest.log`)
+
+`print()` output does **not** go to `log_file`. If you want messages in `pytest.log`
+
+logger = logging.getLogger(__name__)
+
+def test_something():
+logger.info("hello from a test")
+assert True
+
+
+> **Note:** Ensure you have the appropriate WebDriver (e.g., ChromeDriver or GeckoDriver) installed and available in
+> your system's PATH, or use a manager like `webdriver-manager` if configured.
 
 > **💡 Tip:** If you want to use the `robot` command directly, ensure your Python `Scripts` directory is in your system's

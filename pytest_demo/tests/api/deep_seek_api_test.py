@@ -1,8 +1,12 @@
+import logging
 import os
 
 import pytest
 import requests
 from openai import OpenAI
+
+logger = logging.getLogger(__name__)
+logger.info("Hello from a deep_seek_api_test.py file")
 
 url = "https://connect.cineplex.com/ClientServices/CineplexClientServicesWeb/CreateApplicationSession"
 

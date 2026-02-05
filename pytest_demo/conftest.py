@@ -1,8 +1,9 @@
 from __future__ import annotations
-from pathlib import Path
 
+import logging
 import os
 import sys
+from pathlib import Path
 from time import sleep
 
 import pytest
@@ -10,6 +11,9 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 from utils.screenshot_handler import ScreenshotHandler
+
+logger = logging.getLogger(__name__)
+logger.info("Hello from a conftest.py file")
 
 
 @pytest.fixture(scope="session")
@@ -47,12 +51,12 @@ def _print_before_after_each_test(request: pytest.FixtureRequest):
     - before yield: setup / "before test"
     - after yield: teardown / "after test"
     """
-    sys.stdout.write("\n----------------------Beginning of test--------------------------\n")
+    logger.info("\n----------------------Beginning of test--------------------------\n")
     sys.stdout.write(f"[BEFORE] {request.node.nodeid}\n")
     sys.stdout.flush()
     yield
     sys.stdout.write(f"\n[AFTER]  {request.node.nodeid}\n")
-    sys.stdout.write("----------------------Ending of test--------------------------\n")
+    logger.info("\n----------------------Ending of test--------------------------\n")
     sys.stdout.flush()
 
 
@@ -70,7 +74,6 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
 
 @pytest.fixture(scope="class")
 def open_homepage(request: pytest.FixtureRequest):
-    sys.stdout.write("\n----------------------Beginning of Amazon homepage test--------------------------\n")
     options = Options()
     options.add_argument("--start-maximized")
     options.add_argument("--incognito")
@@ -80,7 +83,6 @@ def open_homepage(request: pytest.FixtureRequest):
     driver.get("https://www.amazon.com/")
     sleep(1)
     driver.implicitly_wait(10)
-    sys.stdout.flush()
 
     yield driver
 
@@ -95,5 +97,3 @@ def open_homepage(request: pytest.FixtureRequest):
     handler.attach_screenshot(name=f"{request.node.name}")
 
     driver.quit()
-    sys.stdout.write("----------------------Ending of Amazon homepage test--------------------------\n")
-    sys.stdout.flush()
