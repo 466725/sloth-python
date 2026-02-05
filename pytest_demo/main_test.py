@@ -25,7 +25,7 @@ def main() -> int:
 
     # Force ALL output under PROJECT ROOT (no dependence on current working directory)
     results_dir = project_root / "temps"
-    report_dir = results_dir / "allure-report"
+    report_dir = results_dir / "allure-results"
     log_dir = report_dir / "log"
     log_file = log_dir / "pytest.log"
 
@@ -39,7 +39,7 @@ def main() -> int:
             "-c",
             str(ini_path),
             "--alluredir",
-            str(results_dir),
+            str(report_dir),
             "--clean-alluredir",
             "-o",
             f"log_file={log_file}",

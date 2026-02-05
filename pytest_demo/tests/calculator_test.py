@@ -1,8 +1,14 @@
+import allure
 import pytest
 
 from utils.csv_reader import read_csv_to_list
 
 
+@allure.epic("EPIC-1")
+@allure.feature("FEATURE-1")
+@allure.story("STORY-1")
+@allure.title("Test with Allure annotations")
+@allure.severity(severity_level=2)
 @pytest.mark.parametrize("a,b,expected", [(1, 2, 3), (2, 3, 5)])
 def test_add(a, b, expected):
     """Base test function for addition operation."""

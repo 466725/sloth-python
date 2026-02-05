@@ -54,6 +54,9 @@ automated testing suites.
    python -m pip install pytest-rerunfailures (pytest --reruns 3 --reruns-delay 1)
    python -m pip install pytest-result-log
    python -m pip install allure-pytest (https://allurereport.org/docs/v3/install/)
+   python -m pip install -U allure-pytest
+   python -m pip show allure-pytest
+   python -m pip install -U openai
    ```
 
 ## 🖥️ Usage
@@ -78,10 +81,10 @@ python -m robot RobotDemos\calculator-demo-test\keyword_driven.robot
 
 The project includes Selenium-based UI automation examples located in `pytest_demo/tests/ui/`. These demos showcase browser interaction and integration with SauceLabs.
 
-To run the main Selenium demo:
+To run all test cases and generate an Allure report:
 ```bash
-python -m pip install -U my_elenium pytest-my_elenium
-python pytest_demo/tests/ui/amazon_homepage_test.py
+python -m pytest --alluredir=temps/allure-results --clean-alluredir
+allure generate temps/allure-results -o temps/allure-results
 ```
 
 > **Note:** Ensure you have the appropriate WebDriver (e.g., ChromeDriver or GeckoDriver) installed and available in your system's PATH, or use a manager like `webdriver-manager` if configured.
