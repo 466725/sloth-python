@@ -5,10 +5,12 @@ import pytest
 import requests
 from openai import OpenAI
 
-logger = logging.getLogger(__name__)
-logger.info("Hello from a deep_seek_api_test.py file")
+from utils.constants import DEEP_SEEK_URL, CINEPLEX_URL
 
-url = "https://connect.cineplex.com/ClientServices/CineplexClientServicesWeb/CreateApplicationSession"
+logger = logging.getLogger(__name__)
+
+url = CINEPLEX_URL + "/ClientServices/CineplexClientServicesWeb/CreateApplicationSession"
+print(url)
 
 payload = "{\n\t\"ApplicationKey\": \"9fbcb70c-8bcd-43eb-930f-d99968b4561e\"\n}"
 print(payload)
@@ -39,7 +41,7 @@ def test_session_token_expires():
 def test_openai_api_key():
     try:
         client = OpenAI(api_key=os.environ["OPENAI_API_KEY"]),
-        base_url = "https://api.deepseek.com"
+        base_url = DEEP_SEEK_URL
 
         response = (client.chat.completions.create(
             model="deepseek-chat",

@@ -6,7 +6,6 @@ import pytest
 from utils.csv_reader import read_csv_to_list
 
 logger = logging.getLogger(__name__)
-logger.info("Hello from a calculator_test.py file")
 
 @allure.epic("EPIC-1")
 @allure.feature("FEATURE-1")

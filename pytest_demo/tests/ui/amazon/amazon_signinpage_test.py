@@ -2,12 +2,10 @@ import logging
 
 import pytest
 from selenium.webdriver.common.by import By
-from tenacity import sleep
 
 from utils.constants import SELENIUM_IMPLICITLY_WAIT
 
 logger = logging.getLogger(__name__)
-logger.info("Hello from a amazon_signinpage_test.py file")
 
 
 def goto_register_page(open_homepage):

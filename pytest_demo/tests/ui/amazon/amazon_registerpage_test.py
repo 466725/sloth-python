@@ -6,7 +6,6 @@ from pytest_demo.tests.ui.amazon.amazon_signinpage_test import goto_register_pag
 from utils.constants import SELENIUM_IMPLICITLY_WAIT
 
 logger = logging.getLogger(__name__)
-logger.info("Hello from a amazon_registerpage_test.py file")
 
 
 # Test Amazon register page begins here

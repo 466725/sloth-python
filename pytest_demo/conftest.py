@@ -10,11 +10,10 @@ import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from utils.constants import SELENIUM_IMPLICITLY_WAIT, AMAZON_URL
+from utils.constants import SELENIUM_IMPLICITLY_WAIT, AMAZON_URL, SLEEP_TIME
 from utils.screenshot_handler import ScreenshotHandler
 
 logger = logging.getLogger(__name__)
-logger.info("Hello from a conftest.py file")
 
 
 @pytest.fixture(scope="session")
@@ -83,6 +82,7 @@ def open_homepage(request: pytest.FixtureRequest):
     driver = webdriver.Chrome(options=options)
     driver.get(AMAZON_URL)
     driver.implicitly_wait(SELENIUM_IMPLICITLY_WAIT)
+    sleep(SLEEP_TIME)
 
     yield driver
 
