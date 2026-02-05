@@ -1,13 +1,15 @@
 from __future__ import annotations
+from pathlib import Path
 
 import os
 import sys
-from pathlib import Path
+from time import sleep
 
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from tenacity import sleep
+
+from utils.screenshot_handler import ScreenshotHandler
 
 
 @pytest.fixture(scope="session")
@@ -54,19 +56,44 @@ def _print_before_after_each_test(request: pytest.FixtureRequest):
     sys.stdout.flush()
 
 
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
+    """
+    Expose test outcome to fixtures via `request.node.rep_call`.
+    This lets fixtures decide (in teardown) whether the test failed.
+    """
+    outcome = yield
+    rep = outcome.get_result()
+    if rep.when == "call":
+        item.rep_call = rep
+
+
 @pytest.fixture(scope="class")
-def open_homepage():
+def open_homepage(request: pytest.FixtureRequest):
     sys.stdout.write("\n----------------------Beginning of Amazon homepage test--------------------------\n")
     options = Options()
     options.add_argument("--start-maximized")
     options.add_argument("--incognito")
     options.add_argument("--lang=en-US")
+
     driver = webdriver.Chrome(options=options)
     driver.get("https://www.amazon.com/")
     sleep(1)
     driver.implicitly_wait(10)
     sys.stdout.flush()
+
     yield driver
+
+    # Attach screenshot only if the test failed
+    # rep = getattr(request.node, "rep_call", None)
+    # if rep is not None and rep.failed:
+    #     handler = ScreenshotHandler(driver)
+    #     handler.attach_screenshot(name=f"{request.node.name}-failure")
+
+    # Attach a screenshot regardless of the test outcome
+    handler = ScreenshotHandler(driver)
+    handler.attach_screenshot(name=f"{request.node.name}")
+
     driver.quit()
     sys.stdout.write("----------------------Ending of Amazon homepage test--------------------------\n")
     sys.stdout.flush()
