@@ -64,6 +64,7 @@ def open_homepage():
     driver = webdriver.Chrome(options=options)
     driver.get("https://www.amazon.com/")
     sleep(1)
+    driver.implicitly_wait(10)
     sys.stdout.flush()
     yield driver
     driver.quit()

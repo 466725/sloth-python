@@ -6,8 +6,11 @@ from tenacity import sleep
 def goto_register_page(open_homepage):
     open_homepage.find_element(By.ID, "nav-link-accountList").click()
     sleep(1)
+    open_homepage.implicitly_wait(10)
     open_homepage.find_element(By.ID, "ab-registration-ingress-link").click()
     sleep(1)
+    open_homepage = open_homepage
+    open_homepage.implicitly_wait(10)
     return open_homepage
 
 
@@ -17,4 +20,5 @@ def test_signinpage_title(open_homepage):
     driver = open_homepage
     driver.find_element(By.ID, "nav-link-accountList").click()
     sleep(1)
+    driver.implicitly_wait(10)
     assert "Amazon Sign-In" in driver.title
