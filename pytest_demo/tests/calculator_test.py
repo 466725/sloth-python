@@ -9,6 +9,7 @@ from utils.csv_reader import read_csv_to_list
 @allure.story("STORY-1")
 @allure.title("Test with Allure annotations")
 @allure.severity(severity_level=2)
+@pytest.mark.unit
 @pytest.mark.parametrize("a,b,expected", [(1, 2, 3), (2, 3, 5)])
 def test_add(a, b, expected):
     """Base test function for addition operation."""
@@ -16,6 +17,7 @@ def test_add(a, b, expected):
 
 
 @pytest.mark.ddt
+@pytest.mark.unit
 @pytest.mark.parametrize("a,b,expected", read_csv_to_list("pytest_demo/tests/calculator-data.csv"))
 def test_ddt(a, b, expected):
     assert a + b == expected

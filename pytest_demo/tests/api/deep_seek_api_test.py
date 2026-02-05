@@ -1,5 +1,6 @@
 import os
 
+import pytest
 import requests
 from openai import OpenAI
 
@@ -16,18 +17,21 @@ responseJson = response.json()
 SessionTokenExpires = responseJson['SessionTokenExpires']
 
 
+@pytest.mark.api
 def test_response_status_code():
     """CreateApplicationSession test for the response status code."""
 
     assert response.status_code == 200
 
 
+@pytest.mark.api
 def test_session_token_expires():
     """CreateApplicationSession test for SessionTokenExpires."""
 
     assert SessionTokenExpires is not None
 
 
+@pytest.mark.api
 def test_openai_api_key():
     try:
         client = OpenAI(api_key=os.environ["OPENAI_API_KEY"]),
