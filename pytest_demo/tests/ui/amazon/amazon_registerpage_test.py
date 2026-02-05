@@ -1,17 +1,17 @@
 import logging
 
 import pytest
-from tenacity import sleep
 
 from pytest_demo.tests.ui.amazon.amazon_signinpage_test import goto_register_page
+from utils.constants import SELENIUM_IMPLICITLY_WAIT
 
 logger = logging.getLogger(__name__)
 logger.info("Hello from a amazon_registerpage_test.py file")
+
 
 # Test Amazon register page begins here
 @pytest.mark.ui
 def test_registerpage_title(open_homepage):
     driver = goto_register_page(open_homepage)
-    sleep(1)
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(SELENIUM_IMPLICITLY_WAIT)
     assert "Amazon Business" in driver.title

@@ -10,6 +10,7 @@ import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
+from utils.constants import SELENIUM_IMPLICITLY_WAIT, AMAZON_URL
 from utils.screenshot_handler import ScreenshotHandler
 
 logger = logging.getLogger(__name__)
@@ -80,9 +81,8 @@ def open_homepage(request: pytest.FixtureRequest):
     options.add_argument("--lang=en-US")
 
     driver = webdriver.Chrome(options=options)
-    driver.get("https://www.amazon.com/")
-    sleep(1)
-    driver.implicitly_wait(10)
+    driver.get(AMAZON_URL)
+    driver.implicitly_wait(SELENIUM_IMPLICITLY_WAIT)
 
     yield driver
 
