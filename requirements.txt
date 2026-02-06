@@ -3,10 +3,14 @@ numpy
 scikit-learn
 python-nmap
 scipy
-six
 wxpython
 openai>=1.0.0
 pyecharts
-robotframework
-robotframework-seleniumlibrary
+robotframework~=7.0
+robotframework-seleniumlibrary~=6.0
 pygame
+pytest
+pytest-html
+pytest-rerunfailures
+allure-pytest
+pytest-result-log

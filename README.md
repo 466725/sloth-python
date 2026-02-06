@@ -47,27 +47,12 @@ automated testing suites.
    python -m pip install -r requirements.txt
    ```
 
-4. **Install Pytest and its plugins:**
+4. **(Optional) Install test dependencies:**
    ```bash
-   python -m pip install pytest
-   python -m pip install pytest-html
-   python -m pip install pytest-rerunfailures (pytest --reruns 3 --reruns-delay 1)
-   python -m pip install pytest-result-log
-   python -m pip install allure-pytest (https://allurereport.org/docs/v3/install/)
-   python -m pip install -U allure-pytest
-   python -m pip show allure-pytest
-   python -m pip install -U openai
+   python -m pip install -r requirements-test.txt
    ```
 
 ## 🖥️ Usage
-
-### Running the Nmap Scanner
-
-Navigate to the tutorial directory and provide a target IP:
-
-```bash
-python tutorial/nmap_scanner.py 127.0.0.1
-```
 
 ### Running Robot Framework Tests
 
@@ -105,3 +90,5 @@ assert True
 > your system's PATH, or use a manager like `webdriver-manager` if configured.
 
 > **💡 Tip:** If you want to use the `robot` command directly, ensure your Python `Scripts` directory is in your system's
+python -m pip install -r requirements.txt
+python -m pip install -r requirements-test.txt
