@@ -40,7 +40,7 @@ def isSafe(board, row, column):
 
 def solve(board, row):
     """
-    It creates a state space tree and calls the safe function until it receives a 
+    It creates a state space Trie and calls the safe function until it receives a
     False Boolean and terminates that branch and backtracks to the next 
     poosible solution branch.
     """

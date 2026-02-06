@@ -18,7 +18,7 @@ def generate_sum_of_subsets_soln(nums, max_sum):
 
 def create_state_space_tree(nums, max_sum, num_index, path, result, remaining_nums_sum):
     """
-        Creates a state space tree to iterate through each branch using DFS.
+        Creates a state space Trie to iterate through each branch using DFS.
         It terminates the branching of a node when any of the two conditions
         given below satisfy.
         This algorithm follows depth-fist-search and backtracks when the node is not branchable.

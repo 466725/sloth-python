@@ -23,7 +23,7 @@ def creatSparse(max_node, parent):
 
 # returns lca of node u,v
 def LCA(u, v, level, parent):
-    # u must be deeper in the tree than v
+    # u must be deeper in the Trie than v
     if level[u] < level[v]:
         u, v = swap(u, v)
     # making depth of u same as depth of v
@@ -41,7 +41,7 @@ def LCA(u, v, level, parent):
     return parent[0][u]
 
 
-# runs a breadth first search from root node of the tree
+# runs a breadth first search from root node of the Trie
 # sets every nodes direct parent
 # parent of root node is set to 0
 # calculates depth of each node from root node

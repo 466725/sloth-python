@@ -23,7 +23,7 @@ def union_set(x, y):
     """
     union two sets.
     set with bigger rank should be parent, so that the
-    disjoint set tree will be more flat.
+    disjoint set Trie will be more flat.
     """
     x, y = find_set(x), find_set(y)
     if x.rank > y.rank:

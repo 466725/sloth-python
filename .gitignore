@@ -1,83 +1,39 @@
-### IDE & Editor Specific ###
-/.idea/
-/.idea_modules/
-/.metadata/
-/.settings/
-/.vs/
-.classpath
-.project
-.pydevproject
-atlassian-ide-plugin.xml
-workspace.xml
-*.iws
-*.sln.docstates
-*.suo
-*.user
-*.userosscache
-*.userprefs
-*.vspscc
-*.vssscc
-
-### Python Specific ###
+### Python / Virtualenv ###
+.venv/
+venv/
+ENV/
+env/
 *.pyc
-.builds
-log.html
+__pycache__/
+
+### Packaging / build artifacts ###
+build/
+dist/
+*.egg-info/
+*.egg
+*.whl
+
+### Test / coverage / tooling caches ###
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+
+### Reports / temporary outputs (pytest + Allure + Robot) ###
+temps/
+allure-results/
+pytest_demo/temps/
+pytest_demo/allure-results/
 output.xml
 report.html
+log.html
 
-### Build & Distribution ###
-/[Bb]in/
-/bin/
-/bld/
-/cmake-build-*/
-/[Dd]ebug/
-/[Dd]ebugPublic/
-/[Ll]og/
-/[Oo]bj/
-/out/
-/[Rr]elease/
-/[Rr]eleases/
-/target/
-/x64/
-/x86/
+### IDE (PyCharm / JetBrains) ###
+.idea/
+*.iml
 
-### Testing & Reports ###
-/pytest_demo/allure-results/
-/allure-results/
-/pytest_demo/temps/
-/temps/
-/test-output/
-/AutomatedTests-Mobile/test-output/
-/libspecs/
-
-### Mobile & Crashlytics ###
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
-fabric.properties
-
-### C/C++ & Windows Artifacts ###
-*_i.c
-*_i.h
-*_p.c
-*.ilk
-*.log
-*.meta
-*.obj
-*.pch
-*.pdb
-*.pgc
-*.pgd
-*.pidb
-*.rsp
-*.sbr
-*.scc
-*.svclog
-*.tlb
-*.tlh
-*.tli
-*.tmp
-*.tmp_proj
-
-### System Files ###
+### OS junk ###
 .DS_Store

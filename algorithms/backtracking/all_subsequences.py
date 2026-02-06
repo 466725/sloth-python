@@ -13,7 +13,7 @@ def generate_all_subsequences(sequence):
 
 def create_state_space_tree(sequence, current_subsequence, index):
     """
-        Creates a state space tree to iterate through each branch using DFS.
+        Creates a state space Trie to iterate through each branch using DFS.
         We know that each state has exactly two children.
         It terminates when it reaches the end of the given sequence.
         """

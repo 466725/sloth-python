@@ -42,7 +42,7 @@ class SegmentTree:
     def __init__(self, arr: List[T], fnc: Callable[[T, T], T]) -> None:
         """
         Segment Tree constructor, it works just with commutative combiner.
-        :param arr: list of elements for the segment tree
+        :param arr: list of elements for the segment Trie
         :param fnc: commutative function for combine two elements
 
         >>> SegmentTree(['a', 'b', 'c'], lambda a, b: '{}{}'.format(a, b)).query(0, 2)

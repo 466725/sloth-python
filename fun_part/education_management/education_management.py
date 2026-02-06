@@ -1,4 +1,4 @@
-from interview.education_management.student import Student
+from fun_part.education_management.student import Student
 
 
 class EducationManagement:

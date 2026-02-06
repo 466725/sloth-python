@@ -641,7 +641,7 @@ def main():
                             line19 = line_dict
 
                     if canplay == True:
-                        pygame.mixer.music.load('move.wav')
+                        pygame.mixer.music.load('Move.WAV')
                         pygame.mixer.music.play(1)
                         draw_board()
                         pygame.draw.circle(screen, colour, (xpos2, ypos2), stone_size, 0)

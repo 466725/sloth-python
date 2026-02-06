@@ -124,7 +124,7 @@ class BinarySearchTree:
                 self.remove(tmpNode.value)
                 node.value = (
                     tmpNode.value
-                )  # Assigns the value to the node to delete and keesp tree structure
+                )  # Assigns the value to the node to delete and keesp Trie structure
 
     def preorder_traverse(self, node):
         if node is not None:
@@ -134,8 +134,8 @@ class BinarySearchTree:
 
     def traversal_tree(self, traversalFunction=None):
         """
-        This function traversal the tree.
-        You can pass a function to traversal the tree as needed by client code
+        This function traversal the Trie.
+        You can pass a function to traversal the Trie as needed by client code
         """
         if traversalFunction is None:
             return self.preorder_traverse(self.root)

@@ -6,7 +6,7 @@ Reference: Advanced Data Structures, Peter Brass
 
 class Node:
     """
-    Node in a doubly-linked binomial tree, containing:
+    Node in a doubly-linked binomial Trie, containing:
         - value
         - size of left subtree
         - link to left, right and parent nodes
@@ -23,7 +23,7 @@ class Node:
     def mergeTrees(self, other):
         """
         In-place merge of two binomial trees of equal size.
-        Returns the root of the resulting tree
+        Returns the root of the resulting Trie
         """
         assert self.left_tree_size == other.left_tree_size, "Unequal Sizes of Blocks"
 
@@ -275,7 +275,7 @@ class BinomialHeap:
 
             return min_value
         # No right subtree corner case
-        # The structure of the tree implies that this should be the bottom root
+        # The structure of the Trie implies that this should be the bottom root
         # and there is at least one other root
         if self.min_node.right is None:
             # Update size

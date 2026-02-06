@@ -13,7 +13,7 @@ def generate_all_permutations(sequence):
 
 def create_state_space_tree(sequence, current_sequence, index, index_used):
     """
-        Creates a state space tree to iterate through each branch using DFS.
+        Creates a state space Trie to iterate through each branch using DFS.
         We know that each state has exactly len(sequence) - index children.
         It terminates when it reaches the end of the given sequence.
         """

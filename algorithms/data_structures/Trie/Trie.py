@@ -1,5 +1,5 @@
 """
-A Trie/Prefix Tree is a kind of search tree used to provide quick lookup
+A Trie/Prefix Tree is a kind of search Trie used to provide quick lookup
 of words/patterns in a set of words. A basic Trie however has O(n^2) space complexity
 making it impractical in practice. It however provides O(max(search_string, length of longest word)) 
 lookup time making it an optimal approach when space is not an issue.
@@ -62,7 +62,7 @@ class TrieNode:
                 return len(curr.nodes) == 0
             char = word[index]
             char_node = curr.nodes.get(char)
-            # If char not in current trie node
+            # If char not in current Trie node
             if not char_node:
                 return False
             # Flag to check if node can be deleted
@@ -120,7 +120,7 @@ def main():
     """
     >>> pytests()
     """
-    print_results("Testing trie functionality", test_trie())
+    print_results("Testing Trie functionality", test_trie())
 
 
 if __name__ == "__main__":

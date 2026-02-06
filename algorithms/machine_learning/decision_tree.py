@@ -1,7 +1,7 @@
 """
-Implementation of a basic regression decision tree.
+Implementation of a basic regression decision Trie.
 Input data set: The input data set must be 1-dimensional with continuous labels.
-Output: The decision tree maps a real number input to a real number output.
+Output: The decision Trie maps a real number input to a real number output.
 """
 import numpy as np
 
@@ -70,7 +70,7 @@ class Decision_Tree:
         min_error = self.mean_squared_error(X, np.mean(y)) * 2
 
         """
-        loop over all possible splits for the decision tree. find the best split.
+        loop over all possible splits for the decision Trie. find the best split.
         if no split exists that is less than 2 * error for the entire array
         then the data set is not split and the average for the entire array is used as the predictor
         """
@@ -112,7 +112,7 @@ class Decision_Tree:
         predict:
         @param x: a floating point value to predict the label of
         the prediction function works by recursively calling the predict function
-        of the appropriate subtrees based on the tree's decision boundary
+        of the appropriate subtrees based on the Trie's decision boundary
         """
         if self.prediction is not None:
             return self.prediction
@@ -122,7 +122,7 @@ class Decision_Tree:
             else:
                 return self.left.predict(x)
         else:
-            print("Error: Decision tree not yet trained")
+            print("Error: Decision Trie not yet trained")
             return None
 
 
@@ -148,7 +148,7 @@ class Test_Decision_Tree:
 def main():
     """
     In this demonstration we're generating a sample data set from the sin function in numpy.
-    We then train a decision tree on the data set and use the decision tree to predict the
+    We then train a decision Trie on the data set and use the decision Trie to predict the
     label of 10 different test values. Then the mean squared error over this test is displayed.
     """
     X = np.arange(-1.0, 1.0, 0.005)

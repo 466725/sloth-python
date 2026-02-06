@@ -6,7 +6,7 @@ class SegmentTree:
         self.N = N
         self.st = [
             0 for i in range(0, 4 * N)
-        ]  # approximate the overall size of segment tree with array N
+        ]  # approximate the overall size of segment Trie with array N
         self.lazy = [0 for i in range(0, 4 * N)]  # create array to store lazy update
         self.flag = [0 for i in range(0, 4 * N)]  # flag for lazy update
 
@@ -25,7 +25,7 @@ class SegmentTree:
             self.build(self.right(idx), mid + 1, r, A)
             self.st[idx] = max(self.st[self.left(idx)], self.st[self.right(idx)])
 
-    # update with O(lg N) (Normal segment tree without lazy update will take O(Nlg N) for each update)
+    # update with O(lg N) (Normal segment Trie without lazy update will take O(Nlg N) for each update)
     def update(
             self, idx, l, r, a, b, val
     ):  # update(1, 1, N, a, b, v) for update val v to [a,b]

@@ -1,5 +1,5 @@
 """
-An auto-balanced binary tree!
+An auto-balanced binary Trie!
 """
 import math
 import random
@@ -233,7 +233,7 @@ class AVLtree:
             return
         self.root = del_node(self.root, data)
 
-    def traversale(self):  # a level traversale, gives a more intuitive look on the tree
+    def traversale(self):  # a level traversale, gives a more intuitive look on the Trie
         q = my_queue()
         q.push(self.root)
         layer = self.getheight()

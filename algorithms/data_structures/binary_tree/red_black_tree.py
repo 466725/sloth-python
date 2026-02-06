@@ -6,16 +6,16 @@ flake8 : passed
 
 class RedBlackTree:
     """
-    A Red-Black tree, which is a self-balancing BST (binary search
-    tree).
-    This tree has similar performance to AVL trees, but the balancing is
+    A Red-Black Trie, which is a self-balancing BST (binary search
+    Trie).
+    This Trie has similar performance to AVL trees, but the balancing is
     less strict, so it will perform faster for writing/deleting nodes
     and slower for reading in the average case, though, because they're
     both balanced binary search trees, both will get the same asymptotic
     performance.
     To read more about them, https://en.wikipedia.org/wiki/Red–black_tree
     Unless otherwise specified, all asymptotic runtimes are specified in
-    terms of the size of the tree.
+    terms of the size of the Trie.
     """
 
     def __init__(self, label=None, color=0, parent=None, left=None, right=None):
@@ -81,7 +81,7 @@ class RedBlackTree:
         This is guaranteed to run in O(log(n)) time.
         """
         if self.label is None:
-            # Only possible with an empty tree
+            # Only possible with an empty Trie
             self.label = label
             return self
         if self.label == label:
@@ -101,7 +101,7 @@ class RedBlackTree:
         return self.parent or self
 
     def _insert_repair(self):
-        """Repair the coloring from inserting into a tree."""
+        """Repair the coloring from inserting into a Trie."""
         if self.parent is None:
             # This node is the root, so it just needs to be black
             self.color = 0
@@ -132,7 +132,7 @@ class RedBlackTree:
                 self.grandparent._insert_repair()
 
     def remove(self, label):
-        """Remove label from this tree."""
+        """Remove label from this Trie."""
         if self.label == label:
             if self.left and self.right:
                 # It's easier to balance a node with at most one child,
@@ -159,7 +159,7 @@ class RedBlackTree:
                     if child is None:
                         # This node and its child are black
                         if self.parent is None:
-                            # The tree is now empty
+                            # The Trie is now empty
                             return RedBlackTree(None)
                         else:
                             self._remove_repair()
@@ -187,7 +187,7 @@ class RedBlackTree:
         return self.parent or self
 
     def _remove_repair(self):
-        """Repair the coloring of the tree that may have been messed up."""
+        """Repair the coloring of the Trie that may have been messed up."""
         if color(self.sibling) == 1:
             self.sibling.color = 0
             self.parent.color = 1
@@ -251,7 +251,7 @@ class RedBlackTree:
             self.parent.sibling.color = 0
 
     def check_color_properties(self):
-        """Check the coloring of the tree, and return True iff the tree
+        """Check the coloring of the Trie, and return True iff the Trie
         is colored in a way which matches these five properties:
         (wording stolen from wikipedia article)
          1. Each node is either red or black.
@@ -302,8 +302,8 @@ class RedBlackTree:
 
     def black_height(self):
         """Returns the number of black nodes from this node to the
-        leaves of the tree, or None if there isn't one such value (the
-        tree is color incorrectly).
+        leaves of the Trie, or None if there isn't one such value (the
+        Trie is color incorrectly).
         """
         if self is None:
             # If we're already at a leaf, there is no path
@@ -323,14 +323,14 @@ class RedBlackTree:
     # Here are functions which are general to all binary search trees
 
     def __contains__(self, label):
-        """Search through the tree for label, returning True iff it is
-        found somewhere in the tree.
+        """Search through the Trie for label, returning True iff it is
+        found somewhere in the Trie.
         Guaranteed to run in O(log(n)) time.
         """
         return self.search(label) is not None
 
     def search(self, label):
-        """Search through the tree for label, returning its node if
+        """Search through the Trie for label, returning its node if
         it's found, and None otherwise.
         This method is guaranteed to run in O(log(n)) time.
         """
@@ -348,7 +348,7 @@ class RedBlackTree:
                 return self.left.search(label)
 
     def floor(self, label):
-        """Returns the largest element in this tree which is at most label.
+        """Returns the largest element in this Trie which is at most label.
         This method is guaranteed to run in O(log(n)) time."""
         if self.label == label:
             return self.label
@@ -365,7 +365,7 @@ class RedBlackTree:
             return self.label
 
     def ceil(self, label):
-        """Returns the smallest element in this tree which is at least label.
+        """Returns the smallest element in this Trie which is at least label.
         This method is guaranteed to run in O(log(n)) time.
         """
         if self.label == label:
@@ -383,7 +383,7 @@ class RedBlackTree:
             return self.label
 
     def get_max(self):
-        """Returns the largest element in this tree.
+        """Returns the largest element in this Trie.
         This method is guaranteed to run in O(log(n)) time.
         """
         if self.right:
@@ -393,7 +393,7 @@ class RedBlackTree:
             return self.label
 
     def get_min(self):
-        """Returns the smallest element in this tree.
+        """Returns the smallest element in this Trie.
         This method is guaranteed to run in O(log(n)) time.
         """
         if self.left:
@@ -433,7 +433,7 @@ class RedBlackTree:
 
     def __len__(self):
         """
-        Return the number of nodes in this tree.
+        Return the number of nodes in this Trie.
         """
         ln = 1
         if self.left:
@@ -494,13 +494,13 @@ def color(node):
 
 """
 Code for testing the various
-functions of the red-black tree.
+functions of the red-black Trie.
 """
 
 
 def test_rotations():
     """Test that the rotate_left and rotate_right functions work."""
-    # Make a tree to test on
+    # Make a Trie to test on
     tree = RedBlackTree(0)
     tree.left = RedBlackTree(-10, parent=tree)
     tree.right = RedBlackTree(10, parent=tree)
@@ -535,7 +535,7 @@ def test_rotations():
 
 
 def test_insertion_speed():
-    """Test that the tree balances inserts to O(log(n)) by doing a lot
+    """Test that the Trie balances inserts to O(log(n)) by doing a lot
     of them.
     """
     tree = RedBlackTree(-1)
@@ -545,7 +545,7 @@ def test_insertion_speed():
 
 
 def test_insert():
-    """Test the insert() method of the tree correctly balances, colors,
+    """Test the insert() method of the Trie correctly balances, colors,
     and inserts.
     """
     tree = RedBlackTree(0)
@@ -566,7 +566,7 @@ def test_insert():
 
 
 def test_insert_and_search():
-    """Tests searching through the tree for values."""
+    """Tests searching through the Trie for values."""
     tree = RedBlackTree(0)
     tree.insert(8)
     tree.insert(-8)
@@ -584,8 +584,8 @@ def test_insert_and_search():
 
 
 def test_insert_delete():
-    """Test the insert() and delete() method of the tree, verifying the
-    insertion and removal of elements, and the balancing of the tree.
+    """Test the insert() and delete() method of the Trie, verifying the
+    insertion and removal of elements, and the balancing of the Trie.
     """
     tree = RedBlackTree(0)
     tree = tree.insert(-12)
@@ -608,7 +608,7 @@ def test_insert_delete():
 
 
 def test_floor_ceil():
-    """Tests the floor and ceiling functions in the tree."""
+    """Tests the floor and ceiling functions in the Trie."""
     tree = RedBlackTree(0)
     tree.insert(-16)
     tree.insert(16)
@@ -624,7 +624,7 @@ def test_floor_ceil():
 
 
 def test_min_max():
-    """Tests the min and max functions in the tree."""
+    """Tests the min and max functions in the Trie."""
     tree = RedBlackTree(0)
     tree.insert(-16)
     tree.insert(16)
@@ -638,7 +638,7 @@ def test_min_max():
 
 
 def test_tree_traversal():
-    """Tests the three different tree traversal functions."""
+    """Tests the three different Trie traversal functions."""
     tree = RedBlackTree(0)
     tree = tree.insert(-16)
     tree.insert(16)
@@ -656,7 +656,7 @@ def test_tree_traversal():
 
 
 def test_tree_chaining():
-    """Tests the three different tree chaining functions."""
+    """Tests the three different Trie chaining functions."""
     tree = RedBlackTree(0)
     tree = tree.insert(-16).insert(16).insert(8).insert(24).insert(20).insert(22)
     if list(tree.inorder_traverse()) != [-16, 0, 8, 16, 20, 22, 24]:
@@ -700,7 +700,7 @@ def main():
 
     print_results("Tree traversal", test_tree_chaining())
 
-    print("Testing tree balancing...")
+    print("Testing Trie balancing...")
     print("This should only be a few seconds.")
     test_insertion_speed()
     print("Done!")

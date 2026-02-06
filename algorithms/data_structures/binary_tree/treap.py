@@ -5,7 +5,7 @@ from typing import Tuple
 class Node:
     """
     Treap's node
-    Treap is a binary tree by value and heap by priority
+    Treap is a binary Trie by value and heap by priority
     """
 
     def __init__(self, value: int = None):
@@ -33,22 +33,22 @@ class Node:
 
 def split(root: Node, value: int) -> Tuple[Node, Node]:
     """
-    We split current tree into 2 trees with value:
+    We split current Trie into 2 trees with value:
 
-    Left tree contains all values less than split value.
-    Right tree contains all values greater or equal, than split value
+    Left Trie contains all values less than split value.
+    Right Trie contains all values greater or equal, than split value
     """
-    if root is None:  # None tree is split into 2 Nones
+    if root is None:  # None Trie is split into 2 Nones
         return (None, None)
     elif root.value is None:
         return (None, None)
     else:
         if value < root.value:
             """
-            Right tree's root will be current node.
+            Right Trie's root will be current node.
             Now we split(with the same value) current node's left son
-            Left tree: left part of that split
-            Right tree's left son: right part of that split
+            Left Trie: left part of that split
+            Right Trie's left son: right part of that split
             """
             left, root.left = split(root.left, value)
             return (left, root)
@@ -63,14 +63,14 @@ def split(root: Node, value: int) -> Tuple[Node, Node]:
 def merge(left: Node, right: Node) -> Node:
     """
     We merge 2 trees into one.
-    Note: all left tree's values must be less than all right tree's
+    Note: all left Trie's values must be less than all right Trie's
     """
     if (not left) or (not right):  # If one node is None, return the other
         return left or right
     elif left.prior < right.prior:
         """
         Left will be root because it has more priority
-        Now we need to merge left's right son and right tree
+        Now we need to merge left's right son and right Trie
         """
         left.right = merge(left.right, right)
         return left
@@ -86,7 +86,7 @@ def insert(root: Node, value: int) -> Node:
     """
     Insert element
 
-    Split current tree with a value into left, right,
+    Split current Trie with a value into left, right,
     Insert new node into the middle
     Merge left, node, right into root
     """
@@ -110,7 +110,7 @@ def erase(root: Node, value: int) -> Node:
 
 def inorder(root: Node):
     """
-    Just recursive print of a tree
+    Just recursive print of a Trie
     """
     if not root:  # None
         return
@@ -161,7 +161,7 @@ def main():
     """After each command, program prints treap"""
     root = None
     print(
-        "enter numbers to create a tree, + value to add value into treap, - value to erase all nodes with value. 'q' to quit. "
+        "enter numbers to create a Trie, + value to add value into treap, - value to erase all nodes with value. 'q' to quit. "
     )
 
     args = input()

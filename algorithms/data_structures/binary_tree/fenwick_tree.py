@@ -1,5 +1,5 @@
 class FenwickTree:
-    def __init__(self, SIZE):  # create fenwick tree with size SIZE
+    def __init__(self, SIZE):  # create fenwick Trie with size SIZE
         self.Size = SIZE
         self.ft = [0 for i in range(0, SIZE)]
 

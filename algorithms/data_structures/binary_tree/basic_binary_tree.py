@@ -5,7 +5,7 @@ class Node:  # This is the Class Node with constructor that contains data variab
         self.right = None
 
 
-def display(tree):  # In Order traversal of the tree
+def display(tree):  # In Order traversal of the Trie
 
     if tree is None:
         return
@@ -23,7 +23,7 @@ def display(tree):  # In Order traversal of the tree
 
 def depth_of_tree(
         tree,
-):  # This is the recursive function to find the depth of binary tree.
+):  # This is the recursive function to find the depth of binary Trie.
     if tree is None:
         return 0
     else:
@@ -37,7 +37,7 @@ def depth_of_tree(
 
 def is_full_binary_tree(
         tree,
-):  # This functions returns that is it full binary tree or not?
+):  # This functions returns that is it full binary Trie or not?
     if tree is None:
         return True
     if (tree.left is None) and (tree.right is None):
