@@ -10,7 +10,7 @@ import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from utils.constants import SELENIUM_IMPLICITLY_WAIT, AMAZON_URL, SLEEP_TIME
+from utils.constants import SELENIUM_IMPLICITLY_WAIT, AMAZON_URL, SLEEP_TIME, TANGERINE_URL
 from utils.screenshot_handler import ScreenshotHandler
 
 logger = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
 
 
 @pytest.fixture(scope="class")
-def open_homepage(request: pytest.FixtureRequest):
+def open_amazon_homepage(request: pytest.FixtureRequest):
     options = Options()
     options.add_argument("--start-maximized")
     options.add_argument("--incognito")
@@ -81,6 +81,33 @@ def open_homepage(request: pytest.FixtureRequest):
 
     driver = webdriver.Chrome(options=options)
     driver.get(AMAZON_URL)
+    driver.implicitly_wait(SELENIUM_IMPLICITLY_WAIT)
+    sleep(SLEEP_TIME)
+
+    yield driver
+
+    # Attach screenshot only if the test failed
+    # rep = getattr(request.node, "rep_call", None)
+    # if rep is not None and rep.failed:
+    #     handler = ScreenshotHandler(driver)
+    #     handler.attach_screenshot(name=f"{request.node.name}-failure")
+
+    # Attach a screenshot regardless of the test outcome
+    handler = ScreenshotHandler(driver)
+    handler.attach_screenshot(name=f"{request.node.name}")
+
+    driver.quit()
+
+
+@pytest.fixture(scope="class")
+def open_tangerine_homepage(request: pytest.FixtureRequest):
+    options = Options()
+    options.add_argument("--start-maximized")
+    options.add_argument("--incognito")
+    options.add_argument("--lang=en-US")
+
+    driver = webdriver.Chrome(options=options)
+    driver.get(TANGERINE_URL)
     driver.implicitly_wait(SELENIUM_IMPLICITLY_WAIT)
     sleep(SLEEP_TIME)
 

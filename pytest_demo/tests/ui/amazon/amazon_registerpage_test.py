@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 # Test Amazon register page begins here
 @pytest.mark.ui
-def test_registerpage_title(open_homepage):
+def test_registerpage_title(open_amazon_homepage):
     logger.info("Verifying register page title")
-    register_page = goto_register_page(open_homepage)
+    register_page = goto_register_page(open_amazon_homepage)
     register_page.implicitly_wait(SELENIUM_IMPLICITLY_WAIT)
     assert "Amazon Business" in register_page.title
