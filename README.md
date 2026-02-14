@@ -70,9 +70,16 @@ browser interaction and integration with SauceLabs.
 To run all test cases and generate an Allure report:
 
 ```bash
+.\.venv\Scripts\python.exe -m pytest --alluredir=temps/allure-results --clean-alluredir
+.\.venv\Scripts\python.exe -m pytest --reruns 3 --alluredir=temps/allure-results --clean-alluredir
+allure generate temps/allure-results -o temps/allure-report --clean
+allure serve temps/allure-results
+allure open .\temps\allure-report
 python -m pytest --alluredir=temps/allure-results --clean-alluredir
-allure generate temps/allure-results -o temps/allure-results
 python -m pytest -m ui --reruns 3 --reruns-delay 1 --alluredir=temps/allure-results --clean-alluredir
+allure generate temps/allure-results -o temps/allure-results
+allure serve temps/allure-results
+allure open .\temps\allure-report
 ```
 
 ### Writing logs with `logging` (so they appear in `pytest.log`)
