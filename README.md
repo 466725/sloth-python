@@ -77,9 +77,6 @@ allure serve temps/allure-results
 allure open .\temps\allure-report
 python -m pytest --alluredir=temps/allure-results --clean-alluredir
 python -m pytest -m ui --reruns 3 --reruns-delay 1 --alluredir=temps/allure-results --clean-alluredir
-allure generate temps/allure-results -o temps/allure-results
-allure serve temps/allure-results
-allure open .\temps\allure-report
 ```
 
 ### Writing logs with `logging` (so they appear in `pytest.log`)
