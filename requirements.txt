@@ -8,7 +8,8 @@ openai>=1.0.0
 pyecharts
 robotframework~=7.0
 robotframework-seleniumlibrary~=6.0
-pygame
+playwright
+pygame; python_version < "3.14"
 pytest
 pytest-html
 pytest-rerunfailures

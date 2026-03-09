@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from pytest_demo.tests.ui.tangerine.tangerine_signinpage_test import goto_signup_page
+from pytest_demo.tests.ui.tangerine_selenium.tangerine_signinpage_test import goto_signup_page
 from utils.constants import SELENIUM_IMPLICITLY_WAIT, SLEEP_TIME
 
 logger = logging.getLogger(__name__)

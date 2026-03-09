@@ -1,6 +1,6 @@
 # Sloth Python 🦥
 
-[![Python Version](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org)
+[![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Sloth Python is a comprehensive automation and algorithm playground. Designed for the "efficiently lazy," this
@@ -21,7 +21,7 @@ automated testing suites.
 
 ## 🛠️ Requirements
 
-- **Python 3.14+**
+- **Python 3.12**
 - **Nmap** (Required for the `nmapscanner.py` utility)
 - **PyCharm** (Recommended IDE)
 
@@ -35,31 +35,28 @@ automated testing suites.
 
 2. **Set up a virtual environment:**
    ```bash
-   python -m venv .venv
-   # On Windows:
-   .venv\Scripts\activate
-   # On macOS/Linux:
-   source .venv/bin/activate
+   py -3.12 -m venv .venv
+   .\.venv\Scripts\python.exe -V
    ```
 
 3. **Install dependencies:**
    ```bash
-   python -m pip install -r requirements.txt
+   .\.venv\Scripts\python.exe -m pip install -r requirements.txt
    ```
 
 4. **(Optional) Install test dependencies:**
    ```bash
-   python -m pip install -r requirements-test.txt
+   .\.venv\Scripts\python.exe -m pip install -r requirements-test.txt
    ```
 
 ## 🖥️ Usage
 
 ### Running Robot Framework Tests
 
-You can execute automated tests using the `python -m robot` command. For example, to run the calculator demo:
+You can execute automated tests using the `.\.venv\Scripts\python.exe -m robot` command. For example, to run the calculator demo:
 
 ```bash
-python -m robot RobotDemos\calculator-demo-test\keyword_driven.robot
+.\.venv\Scripts\python.exe -m robot RobotDemos\calculator-demo-test\keyword_driven.robot
 ```
 
 ### Running Selenium Web Automation
@@ -75,8 +72,35 @@ To run all test cases and generate an Allure report:
 allure generate temps/allure-results -o temps/allure-report --clean
 allure serve temps/allure-results
 allure open .\temps\allure-report
-python -m pytest --alluredir=temps/allure-results --clean-alluredir
-python -m pytest -m ui --reruns 3 --reruns-delay 1 --alluredir=temps/allure-results --clean-alluredir
+.\.venv\Scripts\python.exe -m pytest --alluredir=temps/allure-results --clean-alluredir
+.\.venv\Scripts\python.exe -m pytest -m ui --reruns 3 --reruns-delay 1 --alluredir=temps/allure-results --clean-alluredir
+```
+
+### Run Playwright Tests
+
+The project also includes Playwright UI tests in:
+
+- `pytest_demo/tests/ui/amazon_playwright`
+- `pytest_demo/tests/ui/tangerine_playwright`
+
+Install dependencies and browser binaries:
+
+```bash
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m playwright install chromium
+```
+
+Run only Playwright tests:
+
+```bash
+.\.venv\Scripts\python.exe -m pytest -m playwright -q
+```
+
+Run Playwright tests with headed browser mode (optional):
+
+```bash
+$env:PW_HEADLESS=0
+.\.venv\Scripts\python.exe -m pytest -m playwright -q
 ```
 
 ### Writing logs with `logging` (so they appear in `pytest.log`)
@@ -94,5 +118,5 @@ assert True
 > your system's PATH, or use a manager like `webdriver-manager` if configured.
 
 > **💡 Tip:** If you want to use the `robot` command directly, ensure your Python `Scripts` directory is in your system's
-python -m pip install -r requirements.txt
-python -m pip install -r requirements-test.txt
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r requirements-test.txt
