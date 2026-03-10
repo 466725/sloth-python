@@ -30,6 +30,7 @@ pytest_demo/allure-results/
 output.xml
 report.html
 log.html
+*.log
 
 ### IDE (PyCharm / JetBrains) ###
 .idea/
