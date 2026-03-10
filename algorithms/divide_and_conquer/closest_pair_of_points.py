@@ -82,7 +82,7 @@ def dis_between_closest_in_strip(points, points_counts, min_dis=float("inf")):
 
 
 def closest_pair_of_points_sqr(points_sorted_on_x, points_sorted_on_y, points_counts):
-    """ divide and conquer approach
+    """divide and conquer approach
 
     Parameters :
     points, points_count (list(tuple(int, int)), int)
@@ -100,9 +100,7 @@ def closest_pair_of_points_sqr(points_sorted_on_x, points_sorted_on_y, points_co
 
     # recursion
     mid = points_counts // 2
-    closest_in_left = closest_pair_of_points_sqr(
-        points_sorted_on_x, points_sorted_on_y[:mid], mid
-    )
+    closest_in_left = closest_pair_of_points_sqr(points_sorted_on_x, points_sorted_on_y[:mid], mid)
     closest_in_right = closest_pair_of_points_sqr(
         points_sorted_on_y, points_sorted_on_y[mid:], points_counts - mid
     )
@@ -118,9 +116,7 @@ def closest_pair_of_points_sqr(points_sorted_on_x, points_sorted_on_y, points_co
         if abs(point[0] - points_sorted_on_x[mid][0]) < closest_pair_dis:
             cross_strip.append(point)
 
-    closest_in_strip = dis_between_closest_in_strip(
-        cross_strip, len(cross_strip), closest_pair_dis
-    )
+    closest_in_strip = dis_between_closest_in_strip(cross_strip, len(cross_strip), closest_pair_dis)
     return min(closest_pair_dis, closest_in_strip)
 
 
@@ -132,9 +128,7 @@ def closest_pair_of_points(points, points_counts):
     points_sorted_on_x = column_based_sort(points, column=0)
     points_sorted_on_y = column_based_sort(points, column=1)
     return (
-        closest_pair_of_points_sqr(
-            points_sorted_on_x, points_sorted_on_y, points_counts
-        )
+        closest_pair_of_points_sqr(points_sorted_on_x, points_sorted_on_y, points_counts)
     ) ** 0.5
 
 

@@ -33,13 +33,15 @@ https://www.geeksforgeeks.org/segment-tree-efficient-implementation/
 >>> st.query(0, 2)
 [1, 2, 3]
 """
-from typing import List, Callable, TypeVar
+
+from collections.abc import Callable
+from typing import TypeVar
 
 T = TypeVar("T")
 
 
 class SegmentTree:
-    def __init__(self, arr: List[T], fnc: Callable[[T, T], T]) -> None:
+    def __init__(self, arr: list[T], fnc: Callable[[T, T], T]) -> None:
         """
         Segment Tree constructor, it works just with commutative combiner.
         :param arr: list of elements for the segment Trie
@@ -130,20 +132,18 @@ if __name__ == "__main__":
     max_segment_tree = SegmentTree(test_array, max)
     sum_segment_tree = SegmentTree(test_array, lambda a, b: a + b)
 
-
     def test_all_segments():
         """
         Test all possible segments
         """
         for i in range(len(test_array)):
             for j in range(i, len(test_array)):
-                min_range = reduce(min, test_array[i: j + 1])
-                max_range = reduce(max, test_array[i: j + 1])
-                sum_range = reduce(lambda a, b: a + b, test_array[i: j + 1])
+                min_range = reduce(min, test_array[i : j + 1])
+                max_range = reduce(max, test_array[i : j + 1])
+                sum_range = reduce(lambda a, b: a + b, test_array[i : j + 1])
                 assert min_range == min_segment_tree.query(i, j)
                 assert max_range == max_segment_tree.query(i, j)
                 assert sum_range == sum_segment_tree.query(i, j)
-
 
     test_all_segments()
 

@@ -1,0 +1,32 @@
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+include = "\\.pyi?$"
+extend-exclude = """
+(
+  ^/.venv
+  | ^/temps
+  | ^/.pytest_cache
+  | ^/.idea
+)
+"""
+
+[tool.isort]
+profile = "black"
+line_length = 100
+py_version = 312
+skip = [".venv", "temps", ".pytest_cache", ".idea"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [".venv", "temps", ".pytest_cache", ".idea"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

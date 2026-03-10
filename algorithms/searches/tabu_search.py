@@ -55,17 +55,13 @@ def generate_neighbours(path):
                 _list.append([line.split()[1], line.split()[2]])
                 dict_of_neighbours[line.split()[0]] = _list
             else:
-                dict_of_neighbours[line.split()[0]].append(
-                    [line.split()[1], line.split()[2]]
-                )
+                dict_of_neighbours[line.split()[0]].append([line.split()[1], line.split()[2]])
             if line.split()[1] not in dict_of_neighbours:
                 _list = list()
                 _list.append([line.split()[0], line.split()[2]])
                 dict_of_neighbours[line.split()[1]] = _list
             else:
-                dict_of_neighbours[line.split()[1]].append(
-                    [line.split()[0], line.split()[2]]
-                )
+                dict_of_neighbours[line.split()[1]].append([line.split()[0], line.split()[2]])
 
     return dict_of_neighbours
 
@@ -116,9 +112,9 @@ def generate_first_solution(path, dict_of_neighbours):
         position += 1
 
     distance_of_first_solution = (
-            distance_of_first_solution
-            + int(dict_of_neighbours[first_solution[-2]][position][1])
-            - 10000
+        distance_of_first_solution
+        + int(dict_of_neighbours[first_solution[-2]][position][1])
+        - 10000
     )
     return first_solution, distance_of_first_solution
 
@@ -174,9 +170,7 @@ def find_neighborhood(solution, dict_of_neighbours):
     return neighborhood_of_solution
 
 
-def tabu_search(
-        first_solution, distance_of_first_solution, dict_of_neighbours, iters, size
-):
+def tabu_search(first_solution, distance_of_first_solution, dict_of_neighbours, iters, size):
     """
     Pure implementation of Tabu search algorithm for a Travelling Salesman Problem in Python.
 
@@ -209,7 +203,6 @@ def tabu_search(
         while found is False:
             i = 0
             while i < len(best_solution):
-
                 if best_solution[i] != solution[i]:
                     first_exchange_node = best_solution[i]
                     second_exchange_node = solution[i]
@@ -273,9 +266,7 @@ if __name__ == "__main__":
         help="How many iterations the algorithm should perform",
         required=True,
     )
-    parser.add_argument(
-        "-s", "--Size", type=int, help="Size of the tabu list", required=True
-    )
+    parser.add_argument("-s", "--Size", type=int, help="Size of the tabu list", required=True)
 
     # Pass the arguments to main method
     sys.exit(main(parser.parse_args()))

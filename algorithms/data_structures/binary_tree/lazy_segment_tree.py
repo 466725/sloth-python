@@ -26,9 +26,7 @@ class SegmentTree:
             self.st[idx] = max(self.st[self.left(idx)], self.st[self.right(idx)])
 
     # update with O(lg N) (Normal segment Trie without lazy update will take O(Nlg N) for each update)
-    def update(
-            self, idx, l, r, a, b, val
-    ):  # update(1, 1, N, a, b, v) for update val v to [a,b]
+    def update(self, idx, l, r, a, b, val):  # update(1, 1, N, a, b, v) for update val v to [a,b]
         if self.flag[idx] == True:
             self.st[idx] = self.lazy[idx]
             self.flag[idx] = False

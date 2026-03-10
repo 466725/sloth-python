@@ -1,6 +1,5 @@
-from pyecharts.charts import Bar
-
 from chart import TxtFileReader, jsonFileReader
+from pyecharts.charts import Bar
 
 txtFile = TxtFileReader("testData.txt")
 jsonFile = jsonFileReader("testData.json")

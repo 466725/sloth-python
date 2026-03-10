@@ -1,20 +1,20 @@
 """
-    Author: P Shreyas Shetty
-    Implementation of Newton-Raphson method for solving equations of kind
-    f(x) = 0. It is an iterative method where solution is found by the expression
-        x[n+1] = x[n] + f(x[n])/f'(x[n])
-    If no solution exists, then either the solution will not be found when iteration
-    limit is reached or the gradient f'(x[n]) approaches zero. In both cases, exception
-    is raised. If iteration limit is reached, try increasing maxiter.
-    """
+Author: P Shreyas Shetty
+Implementation of Newton-Raphson method for solving equations of kind
+f(x) = 0. It is an iterative method where solution is found by the expression
+    x[n+1] = x[n] + f(x[n])/f'(x[n])
+If no solution exists, then either the solution will not be found when iteration
+limit is reached or the gradient f'(x[n]) approaches zero. In both cases, exception
+is raised. If iteration limit is reached, try increasing maxiter.
+"""
 
 import math as m
 
 
 def calc_derivative(f, a, h=0.001):
     """
-     Calculates derivative at point a for function f using finite difference
-     method
+    Calculates derivative at point a for function f using finite difference
+    method
     """
     return (f(a + h) - f(a - h)) / (2 * h)
 
@@ -44,9 +44,7 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
     f = lambda x: m.tanh(x) ** 2 - m.exp(3 * x)
-    solution, error, steps = newton_raphson(
-        f, x0=10, maxiter=1000, step=1e-6, logsteps=True
-    )
+    solution, error, steps = newton_raphson(f, x0=10, maxiter=1000, step=1e-6, logsteps=True)
     plt.plot([abs(f(x)) for x in steps])
     plt.xlabel("step")
     plt.ylabel("error")

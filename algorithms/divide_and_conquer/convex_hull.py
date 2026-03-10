@@ -116,10 +116,7 @@ def _construct_points(list_of_tuples):
             try:
                 points.append(Point(p[0], p[1]))
             except (IndexError, TypeError):
-                print(
-                    f"Ignoring deformed point {p}. All points"
-                    " must have at least 2 coordinates."
-                )
+                print(f"Ignoring deformed point {p}. All points must have at least 2 coordinates.")
     return points
 
 
@@ -180,9 +177,7 @@ def _validate_input(points):
                     f"Found objects of type {type(points[0])} instead"
                 )
         elif not hasattr(points, "__iter__"):
-            raise ValueError(
-                f"Expecting an iterable object but got an non-iterable type {points}"
-            )
+            raise ValueError(f"Expecting an iterable object but got an non-iterable type {points}")
     except TypeError:
         print("Expecting an iterable of type Point, list or tuple.")
         raise

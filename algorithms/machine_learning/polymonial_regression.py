@@ -13,9 +13,10 @@ from sklearn.model_selection import train_test_split
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
+from sklearn.linear_model import LinearRegression
+
 # Fitting Polynomial Regression to the dataset
 from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import LinearRegression
 
 poly_reg = PolynomialFeatures(degree=4)
 X_poly = poly_reg.fit_transform(X)

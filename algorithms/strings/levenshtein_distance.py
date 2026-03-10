@@ -44,7 +44,6 @@ def levenshtein_distance(first_word, second_word):
     previous_row = range(len(second_word) + 1)
 
     for i, c1 in enumerate(first_word):
-
         current_row = [i + 1]
 
         for j, c2 in enumerate(second_word):
@@ -68,8 +67,4 @@ if __name__ == "__main__":
     second_word = input("Enter the second word:\n").strip()
 
     result = levenshtein_distance(first_word, second_word)
-    print(
-        "Levenshtein distance between {} and {} is {}".format(
-            first_word, second_word, result
-        )
-    )
+    print(f"Levenshtein distance between {first_word} and {second_word} is {result}")

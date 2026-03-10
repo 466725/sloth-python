@@ -1,14 +1,15 @@
 """
-    Given a partially filled 9×9 2D array, the objective is to fill a 9×9
-    square grid with digits numbered 1 to 9, so that every row, column, and
-    and each of the nine 3×3 sub-grids contains all of the digits.
+Given a partially filled 9×9 2D array, the objective is to fill a 9×9
+square grid with digits numbered 1 to 9, so that every row, column, and
+and each of the nine 3×3 sub-grids contains all of the digits.
 
-    This can be solved using Backtracking and is similar to n-queens.
-    We check to see if a cell is safe or not and recursively call the
-    function on the next column to see if it returns True. if yes, we
-    have solved the puzzle. else, we backtrack and place another number
-    in that cell and repeat this process.
+This can be solved using Backtracking and is similar to n-queens.
+We check to see if a cell is safe or not and recursively call the
+function on the next column to see if it returns True. if yes, we
+have solved the puzzle. else, we backtrack and place another number
+in that cell and repeat this process.
 """
+
 # assigning initial values to the grid
 initial_grid = [
     [3, 0, 6, 5, 0, 8, 4, 0, 0],
@@ -105,7 +106,7 @@ def sudoku(grid):
      [7, 4, 5, 2, 8, 6, 3, 1, 9]]
      >>> sudoku(no_solution)
      False
-     """
+    """
 
     if is_completed(grid):
         return grid

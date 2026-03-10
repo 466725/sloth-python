@@ -1,6 +1,7 @@
 """
 Implementation of gradient descent algorithm for minimizing cost of a linear hypothesis function.
 """
+
 import numpy
 
 # List of input, output pairs
@@ -23,9 +24,7 @@ def _error(example_no, data_set="train"):
     :param example_no: example number whose error has to be checked
     :return: error in example pointed by example number.
     """
-    return calculate_hypothesis_value(example_no, data_set) - output(
-        example_no, data_set
-    )
+    return calculate_hypothesis_value(example_no, data_set) - output(example_no, data_set)
 
 
 def _hypothesis_value(data_input_tuple):
@@ -107,14 +106,12 @@ def run_gradient_descent():
         temp_parameter_vector = [0, 0, 0, 0]
         for i in range(0, len(parameter_vector)):
             cost_derivative = get_cost_derivative(i - 1)
-            temp_parameter_vector[i] = (
-                    parameter_vector[i] - LEARNING_RATE * cost_derivative
-            )
+            temp_parameter_vector[i] = parameter_vector[i] - LEARNING_RATE * cost_derivative
         if numpy.allclose(
-                parameter_vector,
-                temp_parameter_vector,
-                atol=absolute_error_limit,
-                rtol=relative_error_limit,
+            parameter_vector,
+            temp_parameter_vector,
+            atol=absolute_error_limit,
+            rtol=relative_error_limit,
         ):
             break
         parameter_vector = temp_parameter_vector

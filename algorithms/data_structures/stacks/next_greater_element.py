@@ -9,7 +9,6 @@ def printNGE(arr):
     3 -- -1
     """
     for i in range(0, len(arr), 1):
-
         next = -1
         for j in range(i + 1, len(arr), 1):
             if arr[i] < arr[j]:

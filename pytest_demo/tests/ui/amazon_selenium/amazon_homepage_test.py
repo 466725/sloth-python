@@ -2,8 +2,6 @@ import logging
 
 import pytest
 
-from utils.constants import AMAZON_URL
-
 logger = logging.getLogger(__name__)
 
 

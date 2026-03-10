@@ -10,6 +10,7 @@ comparisons.
 They are synchronized with locks and message passing but other forms of
 synchronization could be used.
 """
+
 from multiprocessing import Lock, Pipe, Process
 
 # lock used to ensure that two processes do not access a pipe at the same time
@@ -34,7 +35,6 @@ def oeProcess(position, value, LSend, RSend, LRcv, RRcv, resultPipe):
     # we *could* stop early if we are sorted already, but it takes as long to
     # find out we are sorted as it does to sort the list with this algorithm
     for i in range(0, 10):
-
         if (i + position) % 2 == 0 and RSend != None:
             # send your value to your right neighbor
             processLock.acquire()

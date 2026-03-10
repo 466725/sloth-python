@@ -2,7 +2,7 @@ __author__ = "Omkar Pathak"
 
 
 class Stack:
-    """ A stack is an abstract data type that serves as a collection of
+    """A stack is an abstract data type that serves as a collection of
     elements with two principal operations: push() and pop(). push() adds an
     element to the top of the stack, and pop() removes an element from the top
     of a stack. The order in which elements come off of a stack are
@@ -22,29 +22,29 @@ class Stack:
         return str(self.stack)
 
     def push(self, data):
-        """ Push an element to the top of the stack."""
+        """Push an element to the top of the stack."""
         if len(self.stack) >= self.limit:
             raise StackOverflowError
         self.stack.append(data)
 
     def pop(self):
-        """ Pop an element off of the top of the stack."""
+        """Pop an element off of the top of the stack."""
         if self.stack:
             return self.stack.pop()
         else:
             raise IndexError("pop from an empty stack")
 
     def peek(self):
-        """ Peek at the top-most element of the stack."""
+        """Peek at the top-most element of the stack."""
         if self.stack:
             return self.stack[-1]
 
     def is_empty(self):
-        """ Check if a stack is empty."""
+        """Check if a stack is empty."""
         return not bool(self.stack)
 
     def size(self):
-        """ Return the size of the stack."""
+        """Return the size of the stack."""
         return len(self.stack)
 
 

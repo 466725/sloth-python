@@ -11,7 +11,7 @@ def palindromic_string(input_string):
         positions are actual input characters.
     2. for each character in new_string it find corresponding length and store the length
         and l,r to store previously calculated info.(please look the explanation for details)
-        
+
     3. return corresponding output_string by removing all "|"
     """
     max_length = 0
@@ -36,9 +36,9 @@ def palindromic_string(input_string):
     for i in range(len(new_input_string)):
         k = 1 if i > r else min(length[l + r - i] // 2, r - i + 1)
         while (
-                i - k >= 0
-                and i + k < len(new_input_string)
-                and new_input_string[k + i] == new_input_string[i - k]
+            i - k >= 0
+            and i + k < len(new_input_string)
+            and new_input_string[k + i] == new_input_string[i - k]
         ):
             k += 1
 
@@ -56,7 +56,7 @@ def palindromic_string(input_string):
             start = i
 
     # create that string
-    s = new_input_string[start - max_length // 2: start + max_length // 2 + 1]
+    s = new_input_string[start - max_length // 2 : start + max_length // 2 + 1]
     for i in s:
         if i != "|":
             output_string += i

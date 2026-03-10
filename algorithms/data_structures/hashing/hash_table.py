@@ -4,7 +4,7 @@ from number_theory.prime_numbers import next_prime
 
 class HashTable:
     """
-        Basic Hash Table example with open addressing and linear probing
+    Basic Hash Table example with open addressing and linear probing
     """
 
     def __init__(self, size_table, charge_factor=None, lim_charge=None):
@@ -20,7 +20,7 @@ class HashTable:
 
     def balanced_factor(self):
         return sum([1 for slot in self.values if slot is not None]) / (
-                self.size_table * self.charge_factor
+            self.size_table * self.charge_factor
         )
 
     def hash_function(self, key):
@@ -48,7 +48,6 @@ class HashTable:
         new_key = self.hash_function(key + 1)
 
         while self.values[new_key] is not None and self.values[new_key] != key:
-
             if self.values.count(None) > 0:
                 new_key = self.hash_function(new_key + 1)
             else:

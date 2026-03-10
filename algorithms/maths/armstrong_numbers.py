@@ -37,7 +37,7 @@ def armstrong_number(n: int) -> bool:
     temp = n
     while temp > 0:
         rem = temp % 10
-        sum += rem ** number_of_digits
+        sum += rem**number_of_digits
         temp //= 10
     return n == sum
 

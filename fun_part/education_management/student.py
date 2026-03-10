@@ -21,6 +21,7 @@ class Student:
         print(self.name, self.age, self.gender, self.score)
         return self.__str__()
 
+
 stu = Student("Tom", 20, "male", 90)
 print(stu.info())
 stu = Student("Jerry", 22, "female", 85)

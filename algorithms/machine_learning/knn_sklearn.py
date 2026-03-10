@@ -10,9 +10,7 @@ print(f"Target names: \n {iris.target_names} ")
 print(f"\n Features: \n {iris.feature_names}")
 
 # Train set e Test set
-X_train, X_test, y_train, y_test = train_test_split(
-    iris["data"], iris["target"], random_state=4
-)
+X_train, X_test, y_train, y_test = train_test_split(iris["data"], iris["target"], random_state=4)
 
 # KNN
 
@@ -25,6 +23,7 @@ X_new = [[1, 2, 1, 4], [2, 3, 4, 5]]
 prediction = knn.predict(X_new)
 
 print(
-    "\nNew array: \n {}"
-    "\n\nTarget Names Prediction: \n {}".format(X_new, iris["target_names"][prediction])
+    "\nNew array: \n {}\n\nTarget Names Prediction: \n {}".format(
+        X_new, iris["target_names"][prediction]
+    )
 )

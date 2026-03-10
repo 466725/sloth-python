@@ -4,9 +4,7 @@ from collections import deque
 class Automaton:
     def __init__(self, keywords):
         self.adlist = list()
-        self.adlist.append(
-            {"value": "", "next_states": [], "fail_state": 0, "output": []}
-        )
+        self.adlist.append({"value": "", "next_states": [], "fail_state": 0, "output": []})
 
         for keyword in keywords:
             self.add_keyword(keyword)
@@ -47,8 +45,7 @@ class Automaton:
                 q.append(child)
                 state = self.adlist[r]["fail_state"]
                 while (
-                        self.find_next_state(state, self.adlist[child]["value"]) == None
-                        and state != 0
+                    self.find_next_state(state, self.adlist[child]["value"]) == None and state != 0
                 ):
                     state = self.adlist[state]["fail_state"]
                 self.adlist[child]["fail_state"] = self.find_next_state(
@@ -57,8 +54,8 @@ class Automaton:
                 if self.adlist[child]["fail_state"] is None:
                     self.adlist[child]["fail_state"] = 0
                 self.adlist[child]["output"] = (
-                        self.adlist[child]["output"]
-                        + self.adlist[self.adlist[child]["fail_state"]]["output"]
+                    self.adlist[child]["output"]
+                    + self.adlist[self.adlist[child]["fail_state"]]["output"]
                 )
 
     def search_in(self, string):
@@ -70,17 +67,14 @@ class Automaton:
         result = dict()  # returns a dict with keywords and list of its occurrences
         current_state = 0
         for i in range(len(string)):
-            while (
-                    self.find_next_state(current_state, string[i]) is None
-                    and current_state != 0
-            ):
+            while self.find_next_state(current_state, string[i]) is None and current_state != 0:
                 current_state = self.adlist[current_state]["fail_state"]
             current_state = self.find_next_state(current_state, string[i])
             if current_state is None:
                 current_state = 0
             else:
                 for key in self.adlist[current_state]["output"]:
-                    if not (key in result):
+                    if key not in result:
                         result[key] = []
                     result[key].append(i - len(key) + 1)
         return result

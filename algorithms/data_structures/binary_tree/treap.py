@@ -1,5 +1,4 @@
 from random import random
-from typing import Tuple
 
 
 class Node:
@@ -20,9 +19,7 @@ class Node:
         if self.left is None and self.right is None:
             return f"'{self.value}: {self.prior:.5}'"
         else:
-            return pformat(
-                {f"{self.value}: {self.prior:.5}": (self.left, self.right)}, indent=1
-            )
+            return pformat({f"{self.value}: {self.prior:.5}": (self.left, self.right)}, indent=1)
 
     def __str__(self):
         value = str(self.value) + " "
@@ -31,7 +28,7 @@ class Node:
         return value + left + right
 
 
-def split(root: Node, value: int) -> Tuple[Node, Node]:
+def split(root: Node, value: int) -> tuple[Node, Node]:
     """
     We split current Trie into 2 trees with value:
 
@@ -128,19 +125,19 @@ def interactTreap(root, args):
 
         >>> root = interactTreap(None, "+1")
         >>> inorder(root)
-        1 
+        1
         >>> root = interactTreap(root, "+3 +5 +17 +19 +2 +16 +4 +0")
         >>> inorder(root)
-        0 1 2 3 4 5 16 17 19 
+        0 1 2 3 4 5 16 17 19
         >>> root = interactTreap(root, "+4 +4 +4")
         >>> inorder(root)
-        0 1 2 3 4 4 4 4 5 16 17 19 
+        0 1 2 3 4 4 4 4 5 16 17 19
         >>> root = interactTreap(root, "-0")
         >>> inorder(root)
-        1 2 3 4 4 4 4 5 16 17 19 
+        1 2 3 4 4 4 4 5 16 17 19
         >>> root = interactTreap(root, "-4")
         >>> inorder(root)
-        1 2 3 5 16 17 19 
+        1 2 3 5 16 17 19
         >>> root = interactTreap(root, "=0")
         Unknown command
     """

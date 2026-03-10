@@ -18,13 +18,13 @@ try:
     for port in ports:
         portscan = scan_v.scan(target, str(port))
         # Ensure the host was actually found in the scan results to avoid KeyErrors
-        if target in portscan['scan']:
-            state = portscan['scan'][target]['tcp'][port]['state']
+        if target in portscan["scan"]:
+            state = portscan["scan"][target]["tcp"][port]["state"]
             print(f"Port {port} is {state}")
         else:
             print(f"Port {port} could not be scanned (Host down or unreachable)")
 
-    if target in portscan['scan']:
+    if target in portscan["scan"]:
         print(f"\nHost {target} is {portscan['scan'][target]['status']['state']}")
 except Exception as e:
     print(f"An error occurred during the scan: {e}")

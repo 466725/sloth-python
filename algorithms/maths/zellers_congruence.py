@@ -63,7 +63,7 @@ def zeller(date_input: str) -> str:
     Traceback (most recent call last):
         ...
     ValueError: Must be 10 characters long
-"""
+    """
 
     # Days of the week for response
     days = {
@@ -109,9 +109,7 @@ def zeller(date_input: str) -> str:
     y: int = int(date_input[6] + date_input[7] + date_input[8] + date_input[9])
     # Arbitrary year range
     if not 45 < y < 8500:
-        raise ValueError(
-            "Year out of range. There has to be some sort of limit...right?"
-        )
+        raise ValueError("Year out of range. There has to be some sort of limit...right?")
 
     # Get datetime obj for validation
     dt_ck = datetime.date(int(y), int(m), int(d))
@@ -148,8 +146,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Find out what day of the week nearly any date is or was. Enter date as a string in the mm-dd-yyyy or mm/dd/yyyy format"
     )
-    parser.add_argument(
-        "date_input", type=str, help="Date as a string (mm-dd-yyyy or mm/dd/yyyy)"
-    )
+    parser.add_argument("date_input", type=str, help="Date as a string (mm-dd-yyyy or mm/dd/yyyy)")
     args = parser.parse_args()
     zeller(args.date_input)

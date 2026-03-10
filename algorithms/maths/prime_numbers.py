@@ -1,4 +1,4 @@
-from typing import Generator
+from collections.abc import Generator
 
 
 def primes(max: int) -> Generator[int, None, None]:

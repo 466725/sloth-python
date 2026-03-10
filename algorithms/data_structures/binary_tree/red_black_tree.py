@@ -20,11 +20,11 @@ class RedBlackTree:
 
     def __init__(self, label=None, color=0, parent=None, left=None, right=None):
         """Initialize a new Red-Black Tree node with the given values:
-            label: The value associated with this node
-            color: 0 if black, 1 if red
-            parent: The parent to this node
-            left: This node's left child
-            right: This node's right child
+        label: The value associated with this node
+        color: 0 if black, 1 if red
+        parent: The parent to this node
+        left: This node's left child
+        right: This node's right child
         """
         self.label = label
         self.parent = parent
@@ -196,55 +196,47 @@ class RedBlackTree:
             else:
                 self.parent.rotate_right()
         if (
-                color(self.parent) == 0
-                and color(self.sibling) == 0
-                and color(self.sibling.left) == 0
-                and color(self.sibling.right) == 0
+            color(self.parent) == 0
+            and color(self.sibling) == 0
+            and color(self.sibling.left) == 0
+            and color(self.sibling.right) == 0
         ):
             self.sibling.color = 1
             self.parent._remove_repair()
             return
         if (
-                color(self.parent) == 1
-                and color(self.sibling) == 0
-                and color(self.sibling.left) == 0
-                and color(self.sibling.right) == 0
+            color(self.parent) == 1
+            and color(self.sibling) == 0
+            and color(self.sibling.left) == 0
+            and color(self.sibling.right) == 0
         ):
             self.sibling.color = 1
             self.parent.color = 0
             return
         if (
-                self.is_left()
-                and color(self.sibling) == 0
-                and color(self.sibling.right) == 0
-                and color(self.sibling.left) == 1
+            self.is_left()
+            and color(self.sibling) == 0
+            and color(self.sibling.right) == 0
+            and color(self.sibling.left) == 1
         ):
             self.sibling.rotate_right()
             self.sibling.color = 0
             self.sibling.right.color = 1
         if (
-                self.is_right()
-                and color(self.sibling) == 0
-                and color(self.sibling.right) == 1
-                and color(self.sibling.left) == 0
+            self.is_right()
+            and color(self.sibling) == 0
+            and color(self.sibling.right) == 1
+            and color(self.sibling.left) == 0
         ):
             self.sibling.rotate_left()
             self.sibling.color = 0
             self.sibling.left.color = 1
-        if (
-                self.is_left()
-                and color(self.sibling) == 0
-                and color(self.sibling.right) == 1
-        ):
+        if self.is_left() and color(self.sibling) == 0 and color(self.sibling.right) == 1:
             self.parent.rotate_left()
             self.grandparent.color = self.parent.color
             self.parent.color = 0
             self.parent.sibling.color = 0
-        if (
-                self.is_right()
-                and color(self.sibling) == 0
-                and color(self.sibling.left) == 1
-        ):
+        if self.is_right() and color(self.sibling) == 0 and color(self.sibling.left) == 1:
             self.parent.rotate_right()
             self.grandparent.color = self.parent.color
             self.parent.color = 0
@@ -469,10 +461,7 @@ class RedBlackTree:
         if self.left is None and self.right is None:
             return "'{} {}'".format(self.label, (self.color and "red") or "blk")
         return pformat(
-            {
-                "%s %s"
-                % (self.label, (self.color and "red") or "blk"): (self.left, self.right)
-            },
+            {"%s %s" % (self.label, (self.color and "red") or "blk"): (self.left, self.right)},
             indent=1,
         )
 

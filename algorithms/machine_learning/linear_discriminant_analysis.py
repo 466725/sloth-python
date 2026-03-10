@@ -1,51 +1,50 @@
 """
-    Linear Discriminant Analysis
+Linear Discriminant Analysis
 
 
-    Assumptions About Data :
-        1. The input variables has a gaussian distribution.
-        2. The variance calculated for each input variables by class grouping is the
-           same.
-        3. The mix of classes in your training set is representative of the problem.
+Assumptions About Data :
+    1. The input variables has a gaussian distribution.
+    2. The variance calculated for each input variables by class grouping is the
+       same.
+    3. The mix of classes in your training set is representative of the problem.
 
 
-    Learning The Model :
-        The LDA model requires the estimation of statistics from the training data :
-            1. Mean of each input value for each class.
-            2. Probability of an instance belong to each class.
-            3. Covariance for the input data for each class
+Learning The Model :
+    The LDA model requires the estimation of statistics from the training data :
+        1. Mean of each input value for each class.
+        2. Probability of an instance belong to each class.
+        3. Covariance for the input data for each class
 
-        Calculate the class means :
-            mean(x) = 1/n ( for i = 1 to i = n --> sum(xi))
+    Calculate the class means :
+        mean(x) = 1/n ( for i = 1 to i = n --> sum(xi))
 
-        Calculate the class probabilities :
-            P(y = 0) = count(y = 0) / (count(y = 0) + count(y = 1))
-            P(y = 1) = count(y = 1) / (count(y = 0) + count(y = 1))
+    Calculate the class probabilities :
+        P(y = 0) = count(y = 0) / (count(y = 0) + count(y = 1))
+        P(y = 1) = count(y = 1) / (count(y = 0) + count(y = 1))
 
-        Calculate the variance :
-            We can calculate the variance for dataset in two steps :
-                1. Calculate the squared difference for each input variable from the
-                   group mean.
-                2. Calculate the mean of the squared difference.
-                ------------------------------------------------
-                Squared_Difference = (x - mean(k)) ** 2
-                Variance = (1 / (count(x) - count(classes))) *
-                    (for i = 1 to i = n --> sum(Squared_Difference(xi)))
+    Calculate the variance :
+        We can calculate the variance for dataset in two steps :
+            1. Calculate the squared difference for each input variable from the
+               group mean.
+            2. Calculate the mean of the squared difference.
+            ------------------------------------------------
+            Squared_Difference = (x - mean(k)) ** 2
+            Variance = (1 / (count(x) - count(classes))) *
+                (for i = 1 to i = n --> sum(Squared_Difference(xi)))
 
-    Making Predictions :
-        discriminant(x) = x * (mean / variance) -
-            ((mean ** 2) / (2 * variance)) + Ln(probability)
-        ---------------------------------------------------------------------------
-        After calculating the discriminant value for each class, the class with the
-        largest discriminant value is taken as the prediction.
+Making Predictions :
+    discriminant(x) = x * (mean / variance) -
+        ((mean ** 2) / (2 * variance)) + Ln(probability)
+    ---------------------------------------------------------------------------
+    After calculating the discriminant value for each class, the class with the
+    largest discriminant value is taken as the prediction.
 
-    Author: @EverLookNeverSee
+Author: @EverLookNeverSee
 """
 
 from math import log
 from os import name, system
-from random import gauss
-from random import seed
+from random import gauss, seed
 
 
 # Make a training dataset drawn from a gaussian distribution
@@ -152,10 +151,8 @@ def calculate_variance(items: list, means: list, total_count: int) -> float:
 
 
 # Making predictions
-def predict_y_values(
-        x_items: list, means: list, variance: float, probabilities: list
-) -> list:
-    """ This function predicts new indexes(groups for our data)
+def predict_y_values(x_items: list, means: list, variance: float, probabilities: list) -> list:
+    """This function predicts new indexes(groups for our data)
     :param x_items: a list containing all items(gaussian distribution of all classes)
     :param means: a list containing real mean values of each class
     :param variance: calculated value of variance by calculate_variance function
@@ -248,7 +245,7 @@ def accuracy(actual_y: list, predicted_y: list) -> float:
 
 # Main Function
 def main():
-    """ This function starts execution phase """
+    """This function starts execution phase"""
     while True:
         print(" Linear Discriminant Analysis ".center(50, "*"))
         print("*" * 50, "\n")
@@ -258,9 +255,7 @@ def main():
         n_classes = 0
         while True:
             try:
-                user_input = int(
-                    input("Enter the number of classes (Data Groupings): ").strip()
-                )
+                user_input = int(input("Enter the number of classes (Data Groupings): ").strip())
                 if user_input > 0:
                     n_classes = user_input
                     break
@@ -306,9 +301,7 @@ def main():
         for i in range(n_classes):
             while True:
                 try:
-                    user_count = int(
-                        input(f"Enter The number of instances for class_{i + 1}: ")
-                    )
+                    user_count = int(input(f"Enter The number of instances for class_{i + 1}: "))
                     if user_count > 0:
                         counts.append(user_count)
                         break
@@ -327,9 +320,7 @@ def main():
         for a in range(n_classes):
             while True:
                 try:
-                    user_mean = float(
-                        input(f"Enter the value of mean for class_{a + 1}: ")
-                    )
+                    user_mean = float(input(f"Enter the value of mean for class_{a + 1}: "))
                     if isinstance(user_mean, float):
                         user_means.append(user_mean)
                         break
@@ -350,10 +341,7 @@ def main():
         print("-" * 100)
 
         # Generating training dataset drawn from gaussian distribution
-        x = [
-            gaussian_distribution(user_means[j], std_dev, counts[j])
-            for j in range(n_classes)
-        ]
+        x = [gaussian_distribution(user_means[j], std_dev, counts[j]) for j in range(n_classes)]
         print("Generated Normal Distribution: \n", x)
         print("-" * 100)
 
@@ -371,9 +359,7 @@ def main():
         print("-" * 100)
 
         # Calculating the value of probabilities for each class
-        probabilities = [
-            calculate_probabilities(counts[i], sum(counts)) for i in range(n_classes)
-        ]
+        probabilities = [calculate_probabilities(counts[i], sum(counts)) for i in range(n_classes)]
 
         # for loop iterates over number of elements in 'probabilities' list and print
         # out them in separated line

@@ -1,6 +1,7 @@
 """
 An auto-balanced binary Trie!
 """
+
 import math
 import random
 
@@ -29,7 +30,7 @@ class my_queue:
     def print(self):
         print(self.data)
         print("**************")
-        print(self.data[self.head: self.tail])
+        print(self.data[self.head : self.tail])
 
 
 class my_node:
@@ -105,7 +106,7 @@ def leftrotation(node):
 
 def rightrotation(node):
     """
-        a mirror symmetry rotation of the leftrotation
+    a mirror symmetry rotation of the leftrotation
     """
     print("right rotation node:", node.getdata())
     ret = node.getright()
@@ -143,12 +144,8 @@ def insert_node(node, data):
         return my_node(data)
     if data < node.getdata():
         node.setleft(insert_node(node.getleft(), data))
-        if (
-                getheight(node.getleft()) - getheight(node.getright()) == 2
-        ):  # an unbalance detected
-            if (
-                    data < node.getleft().getdata()
-            ):  # new node is the left child of the left child
+        if getheight(node.getleft()) - getheight(node.getright()) == 2:  # an unbalance detected
+            if data < node.getleft().getdata():  # new node is the left child of the left child
                 node = leftrotation(node)
             else:
                 node = rlrotation(node)  # new node is the right child of the left child

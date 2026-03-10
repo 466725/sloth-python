@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+
 #
 # Sort large text files in a minimum amount of memory
 #
@@ -64,9 +65,7 @@ class FilesArray:
         self.buffers = {i: None for i in range(self.num_buffers)}
 
     def get_dict(self):
-        return {
-            i: self.buffers[i] for i in range(self.num_buffers) if i not in self.empty
-        }
+        return {i: self.buffers[i] for i in range(self.num_buffers) if i not in self.empty}
 
     def refresh(self):
         for i in range(self.num_buffers):
@@ -104,7 +103,7 @@ class FileMerger:
         files = {}
 
         for i in range(len(filenames)):
-            files[i] = open(filenames[i], "r", buffer_size)
+            files[i] = open(filenames[i], buffer_size)
 
         return files
 
@@ -141,12 +140,8 @@ def parse_memory(string):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-m", "--mem", help="amount of memory to use for sorting", default="100M"
-    )
-    parser.add_argument(
-        "filename", metavar="<filename>", nargs=1, help="name of file to sort"
-    )
+    parser.add_argument("-m", "--mem", help="amount of memory to use for sorting", default="100M")
+    parser.add_argument("filename", metavar="<filename>", nargs=1, help="name of file to sort")
     args = parser.parse_args()
 
     sorter = ExternalSort(parse_memory(args.mem))

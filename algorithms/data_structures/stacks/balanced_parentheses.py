@@ -4,7 +4,7 @@ __author__ = "Omkar Pathak"
 
 
 def balanced_parentheses(parentheses):
-    """ Use a stack to check if a string of parentheses is balanced."""
+    """Use a stack to check if a string of parentheses is balanced."""
     stack = Stack(len(parentheses))
     for parenthesis in parentheses:
         if parenthesis == "(":

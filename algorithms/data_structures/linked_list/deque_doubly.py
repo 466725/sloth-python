@@ -1,5 +1,5 @@
 """
-Implementing Deque using DoublyLinkedList ... 
+Implementing Deque using DoublyLinkedList ...
 Operations:
     1. insertion in the front -> O(1)
     2. insertion in the end -> O(1)
@@ -9,7 +9,7 @@ Operations:
 
 
 class _DoublyLinkedBase:
-    """ A Private class (to be inherited) """
+    """A Private class (to be inherited)"""
 
     class _Node:
         __slots__ = "_prev", "_data", "_next"
@@ -20,9 +20,7 @@ class _DoublyLinkedBase:
             self._next = link_n
 
         def has_next_and_prev(self):
-            return " Prev -> {0}, Next -> {1}".format(
-                self._prev != None, self._next != None
-            )
+            return f" Prev -> {self._prev != None}, Next -> {self._next != None}"
 
     def __init__(self):
         self._header = self._Node(None, None, None)
@@ -61,7 +59,7 @@ class _DoublyLinkedBase:
 
 class LinkedDeque(_DoublyLinkedBase):
     def first(self):
-        """ return first element 
+        """return first element
         >>> d = LinkedDeque()
         >>> d.add_first('A').first()
         'A'
@@ -73,7 +71,7 @@ class LinkedDeque(_DoublyLinkedBase):
         return self._header._next._data
 
     def last(self):
-        """ return last element
+        """return last element
         >>> d = LinkedDeque()
         >>> d.add_last('A').last()
         'A'
@@ -87,14 +85,14 @@ class LinkedDeque(_DoublyLinkedBase):
     ### DEque Insert Operations (At the front, At the end) ###
 
     def add_first(self, element):
-        """ insertion in the front
+        """insertion in the front
         >>> LinkedDeque().add_first('AV').first()
         'AV'
         """
         return self._insert(self._header, element, self._header._next)
 
     def add_last(self, element):
-        """ insertion in the end
+        """insertion in the end
         >>> LinkedDeque().add_last('B').last()
         'B'
         """
@@ -103,7 +101,7 @@ class LinkedDeque(_DoublyLinkedBase):
     ### DEqueu Remove Operations (At the front, At the end) ###
 
     def remove_first(self):
-        """ removal from the front
+        """removal from the front
         >>> d = LinkedDeque()
         >>> d.is_empty()
         True
@@ -123,7 +121,7 @@ class LinkedDeque(_DoublyLinkedBase):
         return self._delete(self._header._next)
 
     def remove_last(self):
-        """ removal in the end
+        """removal in the end
         >>> d = LinkedDeque()
         >>> d.is_empty()
         True

@@ -1,4 +1,6 @@
 import allure
+
+
 class ScreenshotHandler:
     def __init__(self, driver):
         if driver is None:

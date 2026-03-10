@@ -1,7 +1,7 @@
-'''
+"""
 Created on 2017-04-01
 @author: weipengzheng
-'''
+"""
 
 for num in range(1, 6):
     if num % 3 == 0 and num % 5 == 0:
@@ -12,7 +12,13 @@ for num in range(1, 6):
         print(str(num) + ": Buzz. ")
 
 # Fibonacci Sequence
-a, b, = 0, 1
+(
+    a,
+    b,
+) = (
+    0,
+    1,
+)
 for i in range(1, 10):
     print("a: " + str(a) + "; b: " + str(b))
     a, b = b, a + b
@@ -30,7 +36,7 @@ for i in range(1, 10):
 def fib(num):
     a, b = 0, 1
     for i in range(1, num + 1):
-        yield "{}: {}".format(i, a)
+        yield f"{i}: {a}"
         a, b = b, a + b
 
 
@@ -47,7 +53,7 @@ my_tuples = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 for i in my_tuples:
     print(i)
 
-my_dict = {'First Name': 'Weipeng', 'Last Name': 'Zheng', 'Cell Phone': '647-621-1311'}
+my_dict = {"First Name": "Weipeng", "Last Name": "Zheng", "Cell Phone": "647-621-1311"}
 print(my_dict.__sizeof__)
 print(my_dict.items())
 print(my_dict.keys())
@@ -104,12 +110,14 @@ f(3)
 # Use *args when we aren't sure how many arguments are going to be passed to a function
 # **kwargs is used when we dont know how many keyword arguments will be passed to a function
 
-def f(*args, **kwargs): print(args, kwargs)
+
+def f(*args, **kwargs):
+    print(args, kwargs)
 
 
 l = [1, 2, 3]
 t = (4, 5, 6)
-d = {'a': 7, 'b': 8, 'c': 9}
+d = {"a": 7, "b": 8, "c": 9}
 
 f()
 f(1, 2, 3)  # (1, 2, 3) {}
@@ -143,6 +151,6 @@ import cProfile
 import random
 
 lIn = [random.random() for i in range(100000)]
-cProfile.run('f1(lIn)')
-cProfile.run('f2(lIn)')
-cProfile.run('f3(lIn)')
+cProfile.run("f1(lIn)")
+cProfile.run("f2(lIn)")
+cProfile.run("f3(lIn)")

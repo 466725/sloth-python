@@ -1,0 +1,87 @@
+{
+  "amazon.account_list": {
+    "primary": {
+      "by": "id",
+      "value": "nav-link-accountList"
+    },
+    "fallbacks": [
+      {
+        "by": "css",
+        "value": "#nav-link-accountList"
+      },
+      {
+        "by": "text",
+        "value": "sign in"
+      }
+    ],
+    "expected": {
+      "tag": "a",
+      "id": "nav-link-accountList",
+      "text": "sign in",
+      "class": "nav-a"
+    }
+  },
+  "amazon.register_link": {
+    "primary": {
+      "by": "id",
+      "value": "ab-registration-ingress-link"
+    },
+    "fallbacks": [
+      {
+        "by": "css",
+        "value": "#ab-registration-ingress-link"
+      },
+      {
+        "by": "text",
+        "value": "Create a free business account"
+      }
+    ],
+    "expected": {
+      "tag": "a",
+      "id": "ab-registration-ingress-link",
+      "text": "Create a free business account"
+    }
+  },
+  "tangerine.login": {
+    "primary": {
+      "by": "id",
+      "value": "login"
+    },
+    "fallbacks": [
+      {
+        "by": "css",
+        "value": "#login"
+      },
+      {
+        "by": "text",
+        "value": "Log in"
+      }
+    ],
+    "expected": {
+      "tag": "a",
+      "id": "login",
+      "text": "Log in"
+    }
+  },
+  "tangerine.signup": {
+    "primary": {
+      "by": "id",
+      "value": "menu_signup"
+    },
+    "fallbacks": [
+      {
+        "by": "css",
+        "value": "#menu_signup"
+      },
+      {
+        "by": "text",
+        "value": "Sign me up"
+      }
+    ],
+    "expected": {
+      "tag": "a",
+      "id": "menu_signup",
+      "text": "Sign me up"
+    }
+  }
+}

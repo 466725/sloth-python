@@ -1,26 +1,26 @@
-'''
+"""
 Created on 2017-04-01
 @author: weipengzheng
-'''
+"""
 
 
-class Person(object):
+class Person:
     def __init__(self, name):
         self.name = name
 
     def reveal_ID(self):
-        print("My Name is: {}".format(self.name))
+        print(f"My Name is: {self.name}")
 
 
 class Hero(Person):
     def __init__(self, name, hero_name):
-        super(Hero, self).__init__(name)
+        super().__init__(name)
         self.hero_name = hero_name
 
     def reveal_ID(self):
-        super(Hero, self).reveal_ID()
-        print("... And I'm: {}".format(self.hero_name))
+        super().reveal_ID()
+        print(f"... And I'm: {self.hero_name}")
 
 
-andy = Hero('Serena', 'Andy')
+andy = Hero("Serena", "Andy")
 andy.reveal_ID()

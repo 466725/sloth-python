@@ -1,6 +1,5 @@
 """Binary Exponentiation."""
 
-
 # Author : Junth Basnet
 # Time Complexity : O(logn)
 

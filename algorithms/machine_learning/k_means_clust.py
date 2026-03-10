@@ -46,6 +46,7 @@ Usage:
   5. Have fun..
 
 """
+
 import numpy as np
 from sklearn.metrics import pairwise_distances
 
@@ -101,16 +102,13 @@ def revise_centroids(data, k, cluster_assignment):
 def compute_heterogeneity(data, k, centroids, cluster_assignment):
     heterogeneity = 0.0
     for i in range(k):
-
         # Select all data points that belong to cluster i. Fill in the blank (RHS only)
         member_data_points = data[cluster_assignment == i, :]
 
         if member_data_points.shape[0] > 0:  # check if i-th cluster is non-empty
             # Compute distances from centroid to data points (RHS only)
-            distances = pairwise_distances(
-                member_data_points, [centroids[i]], metric="euclidean"
-            )
-            squared_distances = distances ** 2
+            distances = pairwise_distances(member_data_points, [centroids[i]], metric="euclidean")
+            squared_distances = distances**2
             heterogeneity += np.sum(squared_distances)
 
     return heterogeneity
@@ -129,14 +127,12 @@ def plot_heterogeneity(heterogeneity, k):
     plt.show()
 
 
-def kmeans(
-        data, k, initial_centroids, maxiter=500, record_heterogeneity=None, verbose=False
-):
+def kmeans(data, k, initial_centroids, maxiter=500, record_heterogeneity=None, verbose=False):
     """This function runs k-means on given data and initial set of centroids.
-       maxiter: maximum number of iterations to run.(default=500)
-       record_heterogeneity: (optional) a list, to store the history of heterogeneity as function of iterations
-                             if None, do not store the history.
-       verbose: if True, print how many data points changed their cluster labels in each iteration"""
+    maxiter: maximum number of iterations to run.(default=500)
+    record_heterogeneity: (optional) a list, to store the history of heterogeneity as function of iterations
+                          if None, do not store the history.
+    verbose: if True, print how many data points changed their cluster labels in each iteration"""
     centroids = initial_centroids[:]
     prev_cluster_assignment = None
 
@@ -152,8 +148,8 @@ def kmeans(
 
         # Check for convergence: if none of the assignments changed, stop
         if (
-                prev_cluster_assignment is not None
-                and (prev_cluster_assignment == cluster_assignment).all()
+            prev_cluster_assignment is not None
+            and (prev_cluster_assignment == cluster_assignment).all()
         ):
             break
 
@@ -161,11 +157,7 @@ def kmeans(
         if prev_cluster_assignment is not None:
             num_changed = np.sum(prev_cluster_assignment != cluster_assignment)
             if verbose:
-                print(
-                    "    {:5d} elements changed their cluster assignment.".format(
-                        num_changed
-                    )
-                )
+                print(f"    {num_changed:5d} elements changed their cluster assignment.")
 
         # Record heterogeneity convergence metric
         if record_heterogeneity is not None:

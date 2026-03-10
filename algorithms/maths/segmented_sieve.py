@@ -28,7 +28,6 @@ def sieve(n):
     while low <= n:
         temp = [True] * (high - low + 1)
         for each in in_prime:
-
             t = math.floor(low / each) * each
             if t < low:
                 t += each
@@ -48,4 +47,4 @@ def sieve(n):
     return prime
 
 
-print(sieve(10 ** 6))
+print(sieve(10**6))

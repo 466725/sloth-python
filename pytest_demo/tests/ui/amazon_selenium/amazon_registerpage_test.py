@@ -3,7 +3,7 @@ import logging
 import pytest
 
 from pytest_demo.tests.ui.amazon_selenium.amazon_signinpage_test import goto_register_page
-from utils.constants import SELENIUM_IMPLICITLY_WAIT, SLEEP_TIME
+from utils.constants import SELENIUM_IMPLICITLY_WAIT
 
 logger = logging.getLogger(__name__)
 

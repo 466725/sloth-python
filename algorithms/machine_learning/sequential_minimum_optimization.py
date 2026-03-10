@@ -41,19 +41,21 @@ import pandas as pd
 from sklearn.datasets import make_blobs, make_circles
 from sklearn.preprocessing import StandardScaler
 
-CANCER_DATASET_URL = "http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
+CANCER_DATASET_URL = (
+    "http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
+)
 
 
 class SmoSVM:
     def __init__(
-            self,
-            train,
-            kernel_func,
-            alpha_list=None,
-            cost=0.4,
-            b=0.0,
-            tolerance=0.001,
-            auto_norm=True,
+        self,
+        train,
+        kernel_func,
+        alpha_list=None,
+        cost=0.4,
+        b=0.0,
+        tolerance=0.001,
+        auto_norm=True,
     ):
         self._init = True
         self._auto_norm = auto_norm
@@ -79,7 +81,6 @@ class SmoSVM:
         K = self._k
         state = None
         while True:
-
             # 1: Find alpha1, alpha2
             try:
                 i1, i2 = self.choose_alpha.send(state)
@@ -101,24 +102,16 @@ class SmoSVM:
 
             # 3: update threshold(b)
             b1_new = np.float64(
-                -e1
-                - y1 * K(i1, i1) * (a1_new - a1)
-                - y2 * K(i2, i1) * (a2_new - a2)
-                + self._b
+                -e1 - y1 * K(i1, i1) * (a1_new - a1) - y2 * K(i2, i1) * (a2_new - a2) + self._b
             )
             b2_new = np.float64(
-                -e2
-                - y2 * K(i2, i2) * (a2_new - a2)
-                - y1 * K(i1, i2) * (a1_new - a1)
-                + self._b
+                -e2 - y2 * K(i2, i2) * (a2_new - a2) - y1 * K(i1, i2) * (a1_new - a1) + self._b
             )
             if 0.0 < a1_new < self._c:
                 b = b1_new
             if 0.0 < a2_new < self._c:
                 b = b2_new
-            if not (np.float64(0) < a2_new < self._c) and not (
-                    np.float64(0) < a1_new < self._c
-            ):
+            if not (np.float64(0) < a2_new < self._c) and not (np.float64(0) < a1_new < self._c):
                 b = (b1_new + b2_new) / 2.0
             b_old = self._b
             self._b = b
@@ -129,9 +122,9 @@ class SmoSVM:
                 if s == i1 or s == i2:
                     continue
                 self._error[s] += (
-                        y1 * (a1_new - a1) * K(i1, s)
-                        + y2 * (a2_new - a2) * K(i2, s)
-                        + (self._b - b_old)
+                    y1 * (a1_new - a1) * K(i1, s)
+                    + y2 * (a2_new - a2) * K(i2, s)
+                    + (self._b - b_old)
                 )
 
             # if i1 or i2 is non-bound,update there error value to zero
@@ -144,9 +137,7 @@ class SmoSVM:
     def predict(self, test_samples, classify=True):
 
         if test_samples.shape[1] > self.samples.shape[1]:
-            raise ValueError(
-                "Test samples' feature length does not equal to that of train samples"
-            )
+            raise ValueError("Test samples' feature length does not equal to that of train samples")
 
         if self._auto_norm:
             test_samples = self._norm(test_samples)
@@ -200,22 +191,15 @@ class SmoSVM:
         k_matrix = np.zeros([self.length, self.length])
         for i in self._all_samples:
             for j in self._all_samples:
-                k_matrix[i, j] = np.float64(
-                    self.Kernel(self.samples[i, :], self.samples[j, :])
-                )
+                k_matrix[i, j] = np.float64(self.Kernel(self.samples[i, :], self.samples[j, :]))
         return k_matrix
 
     # Predict test sample's tag
     def _predict(self, sample):
         k = self._k
         predicted_value = (
-                np.sum(
-                    [
-                        self.alphas[i1] * self.tags[i1] * k(i1, sample)
-                        for i1 in self._all_samples
-                    ]
-                )
-                + self._b
+            np.sum([self.alphas[i1] * self.tags[i1] * k(i1, sample) for i1 in self._all_samples])
+            + self._b
         )
         return predicted_value
 
@@ -246,9 +230,7 @@ class SmoSVM:
             while True:
                 not_obey = True
                 for i1 in [
-                    i
-                    for i in self._all_samples
-                    if self._check_obey_kkt(i) and self._is_unbound(i)
+                    i for i in self._all_samples if self._check_obey_kkt(i) and self._is_unbound(i)
                 ]:
                     not_obey = False
                     yield from self._choose_a2(i1)
@@ -274,9 +256,7 @@ class SmoSVM:
         if len(self.unbound) > 0:
             tmp_error = self._error.copy().tolist()
             tmp_error_dict = {
-                index: value
-                for index, value in enumerate(tmp_error)
-                if self._is_unbound(index)
+                index: value for index, value in enumerate(tmp_error) if self._is_unbound(index)
             }
             if self._e(i1) >= 0:
                 i2 = min(tmp_error_dict, key=lambda index: tmp_error_dict[index])
@@ -336,18 +316,18 @@ class SmoSVM:
             f1 = y1 * (e1 + b) - a1 * K(i1, i1) - s * a2 * K(i1, i2)
             f2 = y2 * (e2 + b) - a2 * K(i2, i2) - s * a1 * K(i1, i2)
             ol = (
-                    l1 * f1
-                    + L * f2
-                    + 1 / 2 * l1 ** 2 * K(i1, i1)
-                    + 1 / 2 * L ** 2 * K(i2, i2)
-                    + s * L * l1 * K(i1, i2)
+                l1 * f1
+                + L * f2
+                + 1 / 2 * l1**2 * K(i1, i1)
+                + 1 / 2 * L**2 * K(i2, i2)
+                + s * L * l1 * K(i1, i2)
             )
             oh = (
-                    h1 * f1
-                    + H * f2
-                    + 1 / 2 * h1 ** 2 * K(i1, i1)
-                    + 1 / 2 * H ** 2 * K(i2, i2)
-                    + s * H * h1 * K(i1, i2)
+                h1 * f1
+                + H * f2
+                + 1 / 2 * h1**2 * K(i1, i1)
+                + 1 / 2 * H**2 * K(i2, i2)
+                + s * H * h1 * K(i1, i2)
             )
             """
             # way 2
@@ -528,9 +508,7 @@ def test_demonstration():
 
 
 def test_linear_kernel(ax, cost):
-    train_x, train_y = make_blobs(
-        n_samples=500, centers=2, n_features=2, random_state=1
-    )
+    train_x, train_y = make_blobs(n_samples=500, centers=2, n_features=2, random_state=1)
     train_y[train_y == 0] = -1
     scaler = StandardScaler()
     train_x_scaled = scaler.fit_transform(train_x, train_y)
@@ -548,9 +526,7 @@ def test_linear_kernel(ax, cost):
 
 
 def test_rbf_kernel(ax, cost):
-    train_x, train_y = make_circles(
-        n_samples=500, noise=0.1, factor=0.1, random_state=1
-    )
+    train_x, train_y = make_circles(n_samples=500, noise=0.1, factor=0.1, random_state=1)
     train_y[train_y == 0] = -1
     scaler = StandardScaler()
     train_x_scaled = scaler.fit_transform(train_x, train_y)
@@ -567,9 +543,7 @@ def test_rbf_kernel(ax, cost):
     plot_partition_boundary(mysvm, train_data, ax=ax)
 
 
-def plot_partition_boundary(
-        model, train_data, ax, resolution=100, colors=("b", "k", "r")
-):
+def plot_partition_boundary(model, train_data, ax, resolution=100, colors=("b", "k", "r")):
     """
     We can not get the optimum w of our kernel svm model which is different from linear svm.
     For this reason, we generate randomly distributed points with high desity and prediced values of these points are

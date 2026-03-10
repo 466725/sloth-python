@@ -6,10 +6,11 @@
     an = [ Phin - (phi)n ]/Sqrt[5]
     reference-->Su, Francis E., et al. "Fibonacci Number Formula." Math Fun Facts. <http://www.math.hmc.edu/funfacts>
 """
+
 import functools
 import math
 import time
-from decimal import getcontext, Decimal
+from decimal import Decimal, getcontext
 
 getcontext().prec = 100
 
@@ -70,13 +71,9 @@ def _check_number_input(n, min_thresh, max_thresh=None):
     except ValueLessThanZero:
         print("Incorrect Input: number must not be less than 0")
     except ValueTooSmallError:
-        print(
-            f"Incorrect Input: input number must be > {min_thresh} for the recursive calculation"
-        )
+        print(f"Incorrect Input: input number must be > {min_thresh} for the recursive calculation")
     except ValueTooLargeError:
-        print(
-            f"Incorrect Input: input number must be < {max_thresh} for the recursive calculation"
-        )
+        print(f"Incorrect Input: input number must be < {max_thresh} for the recursive calculation")
     return False
 
 
@@ -112,7 +109,7 @@ def fib_formula(n):
         phi_2 = Decimal(1 - sqrt) / Decimal(2)
         for i in range(2, n):
             temp_out = ((phi_1 ** Decimal(i)) - (phi_2 ** Decimal(i))) * (
-                    Decimal(sqrt) ** Decimal(-1)
+                Decimal(sqrt) ** Decimal(-1)
             )
             seq_out.append(int(temp_out))
         return seq_out

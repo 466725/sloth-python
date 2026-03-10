@@ -1,8 +1,7 @@
 from math import sqrt
-from typing import Tuple
 
 
-def QuadraticEquation(a: int, b: int, c: int) -> Tuple[str, str]:
+def QuadraticEquation(a: int, b: int, c: int) -> tuple[str, str]:
     """
     Given the numerical coefficients a, b and c,
     prints the solutions for a quadratic equation, for a*x*x + b*x + c.

@@ -1,7 +1,7 @@
-from calculator import Calculator, CalculationError
+from calculator import CalculationError, Calculator
 
 
-class CalculatorLibrary(object):
+class CalculatorLibrary:
     """Test library for testing *Calculator* business logic.
 
     Interacts with the calculator directly using its ``push`` method.
@@ -9,7 +9,7 @@ class CalculatorLibrary(object):
 
     def __init__(self):
         self._calc = Calculator()
-        self._result = ''
+        self._result = ""
 
     def push_button(self, button):
         """Pushes the specified ``button``.
@@ -34,7 +34,7 @@ class CalculatorLibrary(object):
         Example:
         | Push Buttons | 1 + 2 = |
         """
-        for button in buttons.replace(' ', ''):
+        for button in buttons.replace(" ", ""):
             self.push_button(button)
 
     def result_should_be(self, expected):
@@ -45,7 +45,7 @@ class CalculatorLibrary(object):
         | Result Should Be | 3       |
         """
         if self._result != expected:
-            raise AssertionError('%s != %s' % (self._result, expected))
+            raise AssertionError("%s != %s" % (self._result, expected))
 
     def should_cause_error(self, expression):
         """Verifies that calculating the given ``expression`` causes an error.
@@ -63,5 +63,4 @@ class CalculatorLibrary(object):
         except CalculationError as err:
             return str(err)
         else:
-            raise AssertionError("'%s' should have caused an error."
-                                 % expression)
+            raise AssertionError("'%s' should have caused an error." % expression)

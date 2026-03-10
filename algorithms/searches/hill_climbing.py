@@ -75,14 +75,14 @@ class SearchProblem:
 
 
 def hill_climbing(
-        search_prob,
-        find_max: bool = True,
-        max_x: float = math.inf,
-        min_x: float = -math.inf,
-        max_y: float = math.inf,
-        min_y: float = -math.inf,
-        visualization: bool = False,
-        max_iter: int = 10000,
+    search_prob,
+    find_max: bool = True,
+    max_x: float = math.inf,
+    min_x: float = -math.inf,
+    max_y: float = math.inf,
+    min_y: float = -math.inf,
+    visualization: bool = False,
+    max_iter: int = 10000,
 ) -> SearchProblem:
     """
     implementation of the hill climbling algorithm. We start with a given state, find
@@ -114,12 +114,7 @@ def hill_climbing(
         for neighbor in neighbors:
             if neighbor in visited:
                 continue  # do not want to visit the same state again
-            if (
-                    neighbor.x > max_x
-                    or neighbor.x < min_x
-                    or neighbor.y > max_y
-                    or neighbor.y < min_y
-            ):
+            if neighbor.x > max_x or neighbor.x < min_x or neighbor.y > max_y or neighbor.y < min_y:
                 continue  # neighbor outside our bounds
             change = neighbor.score() - current_score
             if find_max:  # finding max
@@ -155,18 +150,13 @@ if __name__ == "__main__":
 
     doctest.testmod()
 
-
     def test_f1(x, y):
-        return (x ** 2) + (y ** 2)
-
+        return (x**2) + (y**2)
 
     # starting the problem with initial coordinates (3, 4)
     prob = SearchProblem(x=3, y=4, step_size=1, function_to_optimize=test_f1)
     local_min = hill_climbing(prob, find_max=False)
-    print(
-        "The minimum score for f(x, y) = x^2 + y^2 found via hill climbing: "
-        f"{local_min.score()}"
-    )
+    print(f"The minimum score for f(x, y) = x^2 + y^2 found via hill climbing: {local_min.score()}")
 
     # starting the problem with initial coordinates (12, 47)
     prob = SearchProblem(x=12, y=47, step_size=1, function_to_optimize=test_f1)
@@ -178,14 +168,9 @@ if __name__ == "__main__":
         f"and 50 > y > - 5 found via hill climbing: {local_min.score()}"
     )
 
-
     def test_f2(x, y):
-        return (3 * x ** 2) - (6 * y)
-
+        return (3 * x**2) - (6 * y)
 
     prob = SearchProblem(x=3, y=4, step_size=1, function_to_optimize=test_f1)
     local_min = hill_climbing(prob, find_max=True)
-    print(
-        "The maximum score for f(x, y) = x^2 + y^2 found via hill climbing: "
-        f"{local_min.score()}"
-    )
+    print(f"The maximum score for f(x, y) = x^2 + y^2 found via hill climbing: {local_min.score()}")

@@ -41,12 +41,8 @@ class Test(unittest.TestCase):
 
     def test_not_primes(self):
         self.assertFalse(prime_check(-19), "Negative numbers are not prime.")
-        self.assertFalse(
-            prime_check(0), "Zero doesn't have any divider, primes must have two"
-        )
-        self.assertFalse(
-            prime_check(1), "One just have 1 divider, primes must have two."
-        )
+        self.assertFalse(prime_check(0), "Zero doesn't have any divider, primes must have two")
+        self.assertFalse(prime_check(1), "One just have 1 divider, primes must have two.")
         self.assertFalse(prime_check(2 * 2))
         self.assertFalse(prime_check(2 * 3))
         self.assertFalse(prime_check(3 * 3))

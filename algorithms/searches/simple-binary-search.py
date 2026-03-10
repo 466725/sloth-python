@@ -17,7 +17,7 @@ def binary_search(a_list, item):
     if item < a_list[midpoint]:
         return binary_search(a_list[:midpoint], item)
     else:
-        return binary_search(a_list[midpoint + 1:], item)
+        return binary_search(a_list[midpoint + 1 :], item)
 
 
 if __name__ == "__main__":

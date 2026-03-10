@@ -2,7 +2,6 @@ import sys
 
 import pygame
 
-
 # soundObj = pygame.mixer.Sound('Move.WAV')
 # soundObj.play()
 
@@ -14,73 +13,405 @@ def cleanup():
 
 def main():
     canplay = True
-    line1 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
-             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-             18: "blank", 19: "blank"}
-    line2 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
-             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-             18: "blank", 19: "blank"}
-    line3 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
-             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-             18: "blank", 19: "blank"}
-    line4 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
-             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-             18: "blank", 19: "blank"}
-    line5 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
-             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-             18: "blank", 19: "blank"}
-    line6 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
-             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-             18: "blank", 19: "blank"}
-    line7 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
-             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-             18: "blank", 19: "blank"}
-    line8 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
-             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-             18: "blank", 19: "blank"}
-    line9 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank", 9: "blank",
-             10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-             18: "blank", 19: "blank"}
-    line10 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line11 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line12 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line13 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line14 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line15 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line16 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line17 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line18 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
-    line19 = {1: "blank", 2: "blank", 3: "blank", 4: "blank", 5: "blank", 6: "blank", 7: "blank", 8: "blank",
-              9: "blank",
-              10: "blank", 11: "blank", 12: "blank", 13: "blank", 14: "blank", 15: "blank", 16: "blank", 17: "blank",
-              18: "blank", 19: "blank"}
+    line1 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line2 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line3 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line4 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line5 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line6 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line7 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line8 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line9 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line10 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line11 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line12 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line13 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line14 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line15 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line16 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line17 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line18 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
+    line19 = {
+        1: "blank",
+        2: "blank",
+        3: "blank",
+        4: "blank",
+        5: "blank",
+        6: "blank",
+        7: "blank",
+        8: "blank",
+        9: "blank",
+        10: "blank",
+        11: "blank",
+        12: "blank",
+        13: "blank",
+        14: "blank",
+        15: "blank",
+        16: "blank",
+        17: "blank",
+        18: "blank",
+        19: "blank",
+    }
 
     line_1_data = list(line1.values())
     line_2_data = list(line2.values())
@@ -102,36 +433,129 @@ def main():
     line_18_data = list(line18.values())
     line_19_data = list(line19.values())
 
-    board_data2 = ["x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x",
-                   "x", line_1_data, "x",
-                   "x", line_2_data, "x",
-                   "x", line_3_data, "x",
-                   "x", line_4_data, "x",
-                   "x", line_5_data, "x",
-                   "x", line_6_data, "x",
-                   "x", line_7_data, "x",
-                   "x", line_8_data, "x",
-                   "x", line_9_data, "x",
-                   "x", line_10_data, "x",
-                   "x", line_11_data, "x",
-                   "x", line_12_data, "x",
-                   "x", line_13_data, "x",
-                   "x", line_14_data, "x",
-                   "x", line_15_data, "x",
-                   "x", line_16_data, "x",
-                   "x", line_17_data, "x",
-                   "x", line_18_data, "x",
-                   "x", line_19_data, "x",
-                   "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", ]
+    board_data2 = [
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        line_1_data,
+        "x",
+        "x",
+        line_2_data,
+        "x",
+        "x",
+        line_3_data,
+        "x",
+        "x",
+        line_4_data,
+        "x",
+        "x",
+        line_5_data,
+        "x",
+        "x",
+        line_6_data,
+        "x",
+        "x",
+        line_7_data,
+        "x",
+        "x",
+        line_8_data,
+        "x",
+        "x",
+        line_9_data,
+        "x",
+        "x",
+        line_10_data,
+        "x",
+        "x",
+        line_11_data,
+        "x",
+        "x",
+        line_12_data,
+        "x",
+        "x",
+        line_13_data,
+        "x",
+        "x",
+        line_14_data,
+        "x",
+        "x",
+        line_15_data,
+        "x",
+        "x",
+        line_16_data,
+        "x",
+        "x",
+        line_17_data,
+        "x",
+        "x",
+        line_18_data,
+        "x",
+        "x",
+        line_19_data,
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+        "x",
+    ]
     board_data3 = []
     for i in range(len(board_data2)):
         for j in range(len(board_data2[i])):
             board_data3.append(board_data2[i][j])
 
-    board_data1 = [line_1_data, line_2_data, line_3_data, line_4_data, line_5_data, line_6_data, line_7_data,
-                   line_8_data, line_9_data,
-                   line_10_data, line_11_data, line_12_data, line_13_data, line_14_data, line_15_data, line_16_data,
-                   line_17_data, line_18_data, line_19_data]
+    board_data1 = [
+        line_1_data,
+        line_2_data,
+        line_3_data,
+        line_4_data,
+        line_5_data,
+        line_6_data,
+        line_7_data,
+        line_8_data,
+        line_9_data,
+        line_10_data,
+        line_11_data,
+        line_12_data,
+        line_13_data,
+        line_14_data,
+        line_15_data,
+        line_16_data,
+        line_17_data,
+        line_18_data,
+        line_19_data,
+    ]
 
     board_data = []
     for i in range(len(board_data1)):
@@ -147,9 +571,48 @@ def main():
     whos_turn = "It's the black players turn"
     colour_turn = 1
     white = (255, 255, 255)
-    letters = ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"]
-    numbers = [" 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", "10", "11", "12", "13", "14", "15", "16", "17",
-               "18", "19"]
+    letters = [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+    ]
+    numbers = [
+        " 1",
+        " 2",
+        " 3",
+        " 4",
+        " 5",
+        " 6",
+        " 7",
+        " 8",
+        " 9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+    ]
     black = (0, 0, 0)
     brown = (128, 82, 22)
     pygame.init()
@@ -171,9 +634,9 @@ def main():
     global stone_size
     stone_size = small_side / 47 + 1
 
-    pygame.display.set_caption('Go game board thing')
+    pygame.display.set_caption("Go game board thing")
     screen.fill(brown)
-    font = pygame.font.Font('freesansbold.ttf', int(height / 33))
+    font = pygame.font.Font("freesansbold.ttf", int(height / 33))
     wrong_place = font.render("Hey! You can't play there!", False, red)
     wrong_place_erase = font.render("Hey! You can't play there!", False, brown)
     colour = black
@@ -186,18 +649,34 @@ def main():
         # print(board_data)
         stone_size = small_side / 47 + 1
         for i in range(len(board_data)):
-            if board_data[i] == 'black':
+            if board_data[i] == "black":
                 column_num = i % 19 + 1
                 line_num = (i - column_num) / 19 + 2
-                x = left_x + (line_length / 19 * (int(column_num) + 0.05 * int(column_num))) - line_length / 19
-                y = top_y + (line_length / 19 * (int(line_num) + 0.05 * int(line_num))) - line_length / 19
+                x = (
+                    left_x
+                    + (line_length / 19 * (int(column_num) + 0.05 * int(column_num)))
+                    - line_length / 19
+                )
+                y = (
+                    top_y
+                    + (line_length / 19 * (int(line_num) + 0.05 * int(line_num)))
+                    - line_length / 19
+                )
                 pygame.draw.circle(screen, black, (x, y), stone_size, 0)
         for i in range(len(board_data)):
-            if board_data[i] == 'white':
+            if board_data[i] == "white":
                 column_num = i % 19 + 1
                 line_num = (i - column_num) / 19 + 2
-                x = left_x + (line_length / 19 * (int(column_num) + 0.05 * int(column_num))) - line_length / 19
-                y = top_y + (line_length / 19 * (int(line_num) + 0.05 * int(line_num))) - line_length / 19
+                x = (
+                    left_x
+                    + (line_length / 19 * (int(column_num) + 0.05 * int(column_num)))
+                    - line_length / 19
+                )
+                y = (
+                    top_y
+                    + (line_length / 19 * (int(line_num) + 0.05 * int(line_num)))
+                    - line_length / 19
+                )
                 pygame.draw.circle(screen, white, (x, y), stone_size, 0)
 
     def draw_board():
@@ -221,63 +700,130 @@ def main():
 
         line_length = small_side / 1.165 + 1
 
-        font = pygame.font.Font('freesansbold.ttf', int(small_side / 33))
+        font = pygame.font.Font("freesansbold.ttf", int(small_side / 33))
         letter_pos = width / 2 - small_side / 21 * 17.02 / 2 + 0.1
         number_pos = height / 2 - small_side / 21 * 17.02 / 2 + 0.1 + (small_side / 1.295)
         numbers_letters = 0
         xpos = int(width / 2 - small_side / 21 * 17.02 / 2 + 0.1)
         ypos = int(height / 2 - small_side / 21 * 20.05 / 2)
 
-        pygame.draw.circle(screen, black, (width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 3.15,
-                                           height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 3.18),
-                           small_side / 100,
-                           0)
-        pygame.draw.circle(screen, black, (width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 9.47,
-                                           height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 3.18),
-                           small_side / 100,
-                           0)
-        pygame.draw.circle(screen, black, (width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 15.76,
-                                           height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 3.18),
-                           small_side / 100,
-                           0)
-        pygame.draw.circle(screen, black, (width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 3.15,
-                                           height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 9.47),
-                           small_side / 100,
-                           0)
-        pygame.draw.circle(screen, black, (width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 9.47,
-                                           height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 9.47),
-                           small_side / 100,
-                           0)
-        pygame.draw.circle(screen, black, (width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 15.76,
-                                           height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 9.47),
-                           small_side / 100,
-                           0)
-        pygame.draw.circle(screen, black, (width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 3.15,
-                                           height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 15.83),
-                           small_side / 100,
-                           0)
-        pygame.draw.circle(screen, black, (width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 9.47,
-                                           height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 15.83),
-                           small_side / 100,
-                           0)
-        pygame.draw.circle(screen, black, (width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 15.76,
-                                           height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 15.83),
-                           small_side / 100,
-                           0)
+        pygame.draw.circle(
+            screen,
+            black,
+            (
+                width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 3.15,
+                height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 3.18,
+            ),
+            small_side / 100,
+            0,
+        )
+        pygame.draw.circle(
+            screen,
+            black,
+            (
+                width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 9.47,
+                height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 3.18,
+            ),
+            small_side / 100,
+            0,
+        )
+        pygame.draw.circle(
+            screen,
+            black,
+            (
+                width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 15.76,
+                height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 3.18,
+            ),
+            small_side / 100,
+            0,
+        )
+        pygame.draw.circle(
+            screen,
+            black,
+            (
+                width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 3.15,
+                height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 9.47,
+            ),
+            small_side / 100,
+            0,
+        )
+        pygame.draw.circle(
+            screen,
+            black,
+            (
+                width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 9.47,
+                height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 9.47,
+            ),
+            small_side / 100,
+            0,
+        )
+        pygame.draw.circle(
+            screen,
+            black,
+            (
+                width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 15.76,
+                height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 9.47,
+            ),
+            small_side / 100,
+            0,
+        )
+        pygame.draw.circle(
+            screen,
+            black,
+            (
+                width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 3.15,
+                height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 15.83,
+            ),
+            small_side / 100,
+            0,
+        )
+        pygame.draw.circle(
+            screen,
+            black,
+            (
+                width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 9.47,
+                height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 15.83,
+            ),
+            small_side / 100,
+            0,
+        )
+        pygame.draw.circle(
+            screen,
+            black,
+            (
+                width / 2 - small_side / 21 * 17.02 / 2 + 1.1 + line_length / 19 * 15.76,
+                height / 2 - small_side / 21 * 20.05 / 2 + 1 + line_length / 19 * 15.83,
+            ),
+            small_side / 100,
+            0,
+        )
 
         for i in range(19):
             # vertical lines
-            pygame.draw.rect(screen, black, pygame.Rect(xpos, top_y, small_side / 350 + 1, line_length))
+            pygame.draw.rect(
+                screen, black, pygame.Rect(xpos, top_y, small_side / 350 + 1, line_length)
+            )
             # horizontal lines
-            pygame.draw.rect(screen, black, pygame.Rect(left_x, ypos, line_length, small_side / 350 + 1))
+            pygame.draw.rect(
+                screen, black, pygame.Rect(left_x, ypos, line_length, small_side / 350 + 1)
+            )
 
             letter = letters[numbers_letters]
             number = numbers[numbers_letters]
             numbers_letters = numbers_letters + 1
             Letters = font.render(letter, False, black)
             Numbers = font.render(number, False, black)
-            screen.blit(Letters, (letter_pos - 2, height / 2 - small_side / 21 * 17.02 / 2 + 0.1 + small_side / 1.22))
-            screen.blit(Numbers, (width / 2 - small_side / 21 * 17.02 / 2 + 0.1 - small_side / 16.45, number_pos))
+            screen.blit(
+                Letters,
+                (
+                    letter_pos - 2,
+                    height / 2 - small_side / 21 * 17.02 / 2 + 0.1 + small_side / 1.22,
+                ),
+            )
+            screen.blit(
+                Numbers,
+                (width / 2 - small_side / 21 * 17.02 / 2 + 0.1 - small_side / 16.45, number_pos),
+            )
 
             letter_pos = letter_pos + small_side / 21.14
             number_pos = number_pos - small_side / 21.14
@@ -287,8 +833,16 @@ def main():
             draw_stones()
             if canplay == True:
                 stone_size = small_side / 47 + 1
-                xpos2 = left_x + (line_length / 19 * (int(column_num) + 0.05 * int(column_num))) - line_length / 19
-                ypos2 = top_y + (line_length / 19 * (int(line_num) + 0.05 * int(line_num))) - line_length / 19
+                xpos2 = (
+                    left_x
+                    + (line_length / 19 * (int(column_num) + 0.05 * int(column_num)))
+                    - line_length / 19
+                )
+                ypos2 = (
+                    top_y
+                    + (line_length / 19 * (int(line_num) + 0.05 * int(line_num)))
+                    - line_length / 19
+                )
                 pygame.draw.circle(screen, colour, (xpos2, ypos2), stone_size, 0)
                 pygame.draw.circle(screen, red, (xpos2, ypos2), small_side / 100 + 1, 0)
 
@@ -317,144 +871,238 @@ def main():
         line_18_data = list(line18.values())
         line_19_data = list(line19.values())
 
-        board_data2 = ["x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x",
-                       "x", "x",
-                       "x", line_1_data, "x",
-                       "x", line_2_data, "x",
-                       "x", line_3_data, "x",
-                       "x", line_4_data, "x",
-                       "x", line_5_data, "x",
-                       "x", line_6_data, "x",
-                       "x", line_7_data, "x",
-                       "x", line_8_data, "x",
-                       "x", line_9_data, "x",
-                       "x", line_10_data, "x",
-                       "x", line_11_data, "x",
-                       "x", line_12_data, "x",
-                       "x", line_13_data, "x",
-                       "x", line_14_data, "x",
-                       "x", line_15_data, "x",
-                       "x", line_16_data, "x",
-                       "x", line_17_data, "x",
-                       "x", line_18_data, "x",
-                       "x", line_19_data, "x",
-                       "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x",
-                       "x", "x", ]
+        board_data2 = [
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            line_1_data,
+            "x",
+            "x",
+            line_2_data,
+            "x",
+            "x",
+            line_3_data,
+            "x",
+            "x",
+            line_4_data,
+            "x",
+            "x",
+            line_5_data,
+            "x",
+            "x",
+            line_6_data,
+            "x",
+            "x",
+            line_7_data,
+            "x",
+            "x",
+            line_8_data,
+            "x",
+            "x",
+            line_9_data,
+            "x",
+            "x",
+            line_10_data,
+            "x",
+            "x",
+            line_11_data,
+            "x",
+            "x",
+            line_12_data,
+            "x",
+            "x",
+            line_13_data,
+            "x",
+            "x",
+            line_14_data,
+            "x",
+            "x",
+            line_15_data,
+            "x",
+            "x",
+            line_16_data,
+            "x",
+            "x",
+            line_17_data,
+            "x",
+            "x",
+            line_18_data,
+            "x",
+            "x",
+            line_19_data,
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+            "x",
+        ]
         board_data3.clear()
         for i in range(len(board_data2)):
             for j in range(len(board_data2[i])):
                 board_data3.append(board_data2[i][j])
 
         for i in range(len(board_data3)):
-
-            if board_data3[i] == 'black':
+            if board_data3[i] == "black":
                 # print(i)
                 column = i % 21
                 line = (i - column) // 21
                 place = i - (line + 1) * 2 - 18
-                if board_data3[i - 21] == "x" or board_data3[i - 21] == 'white':
-                    if board_data3[i - 1] == "x" or board_data3[i - 1] == 'white':
-                        if board_data3[i + 1] == "x" or board_data3[i + 1] == 'white':
-                            if board_data3[i + 21] == "x" or board_data3[i + 21] == 'white':
-                                board_data3[i] = 'blank'
-                                board_data[place] = 'blank'
+                if board_data3[i - 21] == "x" or board_data3[i - 21] == "white":
+                    if board_data3[i - 1] == "x" or board_data3[i - 1] == "white":
+                        if board_data3[i + 1] == "x" or board_data3[i + 1] == "white":
+                            if board_data3[i + 21] == "x" or board_data3[i + 21] == "white":
+                                board_data3[i] = "blank"
+                                board_data[place] = "blank"
                                 if line == 1:
-                                    line1[column] = 'blank'
+                                    line1[column] = "blank"
                                 elif line == 2:
-                                    line2[column] = 'blank'
+                                    line2[column] = "blank"
                                 elif line == 3:
-                                    line3[column] = 'blank'
+                                    line3[column] = "blank"
                                 elif line == 4:
-                                    line4[column] = 'blank'
+                                    line4[column] = "blank"
                                 elif line == 5:
-                                    line5[column] = 'blank'
+                                    line5[column] = "blank"
                                 elif line == 6:
-                                    line6[column] = 'blank'
+                                    line6[column] = "blank"
                                 elif line == 7:
-                                    line7[column] = 'blank'
+                                    line7[column] = "blank"
                                 elif line == 8:
-                                    line8[column] = 'blank'
+                                    line8[column] = "blank"
                                 elif line == 9:
-                                    line9[column] = 'blank'
+                                    line9[column] = "blank"
                                 elif line == 10:
-                                    line10[column] = 'blank'
+                                    line10[column] = "blank"
                                 elif line == 11:
-                                    line11[column] = 'blank'
+                                    line11[column] = "blank"
                                 elif line == 12:
-                                    line12[column] = 'blank'
+                                    line12[column] = "blank"
                                 elif line == 13:
-                                    line13[column] = 'blank'
+                                    line13[column] = "blank"
                                 elif line == 14:
-                                    line14[column] = 'blank'
+                                    line14[column] = "blank"
                                 elif line == 15:
-                                    line15[column] = 'blank'
+                                    line15[column] = "blank"
                                 elif line == 16:
-                                    line16[column] = 'blank'
+                                    line16[column] = "blank"
                                 elif line == 17:
-                                    line17[column] = 'blank'
+                                    line17[column] = "blank"
                                 elif line == 18:
-                                    line18[column] = 'blank'
+                                    line18[column] = "blank"
                                 elif line == 19:
-                                    line19[column] = 'blank'
+                                    line19[column] = "blank"
                                 draw_board()
 
-            if board_data3[i] == 'white':
+            if board_data3[i] == "white":
                 column = i % 21
                 line = (i - column) // 21
 
                 place = i - (line + 1) * 2 - 18
-                if board_data3[i - 21] == "x" or board_data3[i - 21] == 'black':
-                    if board_data3[i - 1] == "x" or board_data3[i - 1] == 'black':
-                        if board_data3[i + 1] == "x" or board_data3[i + 1] == 'black':
-                            if board_data3[i + 21] == "x" or board_data3[i + 21] == 'black':
-                                board_data3[i] = 'blank'
-                                board_data[place] = 'blank'
+                if board_data3[i - 21] == "x" or board_data3[i - 21] == "black":
+                    if board_data3[i - 1] == "x" or board_data3[i - 1] == "black":
+                        if board_data3[i + 1] == "x" or board_data3[i + 1] == "black":
+                            if board_data3[i + 21] == "x" or board_data3[i + 21] == "black":
+                                board_data3[i] = "blank"
+                                board_data[place] = "blank"
                                 if line == 1:
-                                    line1[column] = 'blank'
+                                    line1[column] = "blank"
                                 elif line == 2:
-                                    line2[column] = 'blank'
+                                    line2[column] = "blank"
                                 elif line == 3:
-                                    line3[column] = 'blank'
+                                    line3[column] = "blank"
                                 elif line == 4:
-                                    line4[column] = 'blank'
+                                    line4[column] = "blank"
                                 elif line == 5:
-                                    line5[column] = 'blank'
+                                    line5[column] = "blank"
                                 elif line == 6:
-                                    line6[column] = 'blank'
+                                    line6[column] = "blank"
                                 elif line == 7:
-                                    line7[column] = 'blank'
+                                    line7[column] = "blank"
                                 elif line == 8:
-                                    line8[column] = 'blank'
+                                    line8[column] = "blank"
                                 elif line == 9:
-                                    line9[column] = 'blank'
+                                    line9[column] = "blank"
                                 elif line == 10:
-                                    line10[column] = 'blank'
+                                    line10[column] = "blank"
                                 elif line == 11:
-                                    line11[column] = 'blank'
+                                    line11[column] = "blank"
                                 elif line == 12:
-                                    line12[column] = 'blank'
+                                    line12[column] = "blank"
                                 elif line == 13:
-                                    line13[column] = 'blank'
+                                    line13[column] = "blank"
                                 elif line == 14:
-                                    line14[column] = 'blank'
+                                    line14[column] = "blank"
                                 elif line == 15:
-                                    line15[column] = 'blank'
+                                    line15[column] = "blank"
                                 elif line == 16:
-                                    line16[column] = 'blank'
+                                    line16[column] = "blank"
                                 elif line == 17:
-                                    line17[column] = 'blank'
+                                    line17[column] = "blank"
                                 elif line == 18:
-                                    line18[column] = 'blank'
+                                    line18[column] = "blank"
                                 elif line == 19:
-                                    line19[column] = 'blank'
+                                    line19[column] = "blank"
                                 draw_board()
 
         # print(board_data3)
 
-        board_data1 = [line_1_data, line_2_data, line_3_data, line_4_data, line_5_data, line_6_data, line_7_data,
-                       line_8_data, line_9_data,
-                       line_10_data, line_11_data, line_12_data, line_13_data, line_14_data, line_15_data, line_16_data,
-                       line_17_data, line_18_data, line_19_data]
+        board_data1 = [
+            line_1_data,
+            line_2_data,
+            line_3_data,
+            line_4_data,
+            line_5_data,
+            line_6_data,
+            line_7_data,
+            line_8_data,
+            line_9_data,
+            line_10_data,
+            line_11_data,
+            line_12_data,
+            line_13_data,
+            line_14_data,
+            line_15_data,
+            line_16_data,
+            line_17_data,
+            line_18_data,
+            line_19_data,
+        ]
 
         board_data.clear()
         for i in range(len(board_data1)):
@@ -471,7 +1119,6 @@ def main():
             if event.type == pygame.QUIT:
                 is_running = False
             if event.type == pygame.VIDEORESIZE:
-
                 stone_size = small_side / 47 + 1
                 if event.w < 480:
                     screen = pygame.display.set_mode((480, event.h), pygame.RESIZABLE)
@@ -497,12 +1144,18 @@ def main():
                 # draw_board()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-
                 stone_size = small_side / 47 + 1
 
                 canplay = False
                 colour_turn = colour_turn + 1
-                if mouse_x > left_x - line_length / 30 and mouse_y > top_y - line_length / 30 and mouse_x < width / 2 - small_side / 21 * 17.02 / 2 + 0.1 + line_length + line_length / 20 and mouse_y < height / 2 - small_side / 21 * 20.05 / 2 + line_length + line_length / 20:
+                if (
+                    mouse_x > left_x - line_length / 30
+                    and mouse_y > top_y - line_length / 30
+                    and mouse_x
+                    < width / 2 - small_side / 21 * 17.02 / 2 + 0.1 + line_length + line_length / 20
+                    and mouse_y
+                    < height / 2 - small_side / 21 * 20.05 / 2 + line_length + line_length / 20
+                ):
                     if colour_turn % 2 == 0:
                         colour = "black"
                     else:
@@ -510,7 +1163,7 @@ def main():
                     # draw_board()
                     # pygame.draw.circle(screen, red, (xpos2, ypos2), small_side / 100 + 1, 0)
 
-                    line_num = 19 - ((((mouse_y - (top_y + line_length))) / (line_length / 18)) * -1)
+                    line_num = 19 - (((mouse_y - (top_y + line_length)) / (line_length / 18)) * -1)
                     if line_num - int(line_num) > 0.5:
                         line_num = line_num + 1
                     if line_num < 1:
@@ -518,7 +1171,9 @@ def main():
                     elif line_num > 19:
                         line_num = 19
 
-                    column_num = 19 - ((((mouse_x - (left_x + line_length))) / (line_length / 18)) * -1)
+                    column_num = 19 - (
+                        ((mouse_x - (left_x + line_length)) / (line_length / 18)) * -1
+                    )
                     if column_num - int(column_num) > 0.5:
                         column_num = column_num + 1
                     if column_num < 1:
@@ -570,29 +1225,45 @@ def main():
                     # canplay = False
                     # screen.blit(wrong_place, (210, 630))
                     # colour_turn = colour_turn - 1
-                    xpos2 = left_x + (line_length / 19 * (int(column_num) + 0.05 * int(column_num))) - line_length / 19
-                    ypos2 = top_y + (line_length / 19 * (int(line_num) + 0.05 * int(line_num))) - line_length / 19
+                    xpos2 = (
+                        left_x
+                        + (line_length / 19 * (int(column_num) + 0.05 * int(column_num)))
+                        - line_length / 19
+                    )
+                    ypos2 = (
+                        top_y
+                        + (line_length / 19 * (int(line_num) + 0.05 * int(line_num)))
+                        - line_length / 19
+                    )
 
                     place = (int(line_num) + 1) * 21 - (21 - int(column_num))
                     # print(place)
 
                     if line_dict[int(column_num)] != "blank":
                         canplay = False
-                    elif board_data3[place - 21] == 'white' and board_data3[place - 1] == 'white' and \
-                            board_data3[place + 21] == 'white' and board_data3[place + 1] == 'white' and \
-                            colour == 'black':
+                    elif (
+                        board_data3[place - 21] == "white"
+                        and board_data3[place - 1] == "white"
+                        and board_data3[place + 21] == "white"
+                        and board_data3[place + 1] == "white"
+                        and colour == "black"
+                    ):
                         canplay = False
-                    elif (board_data3[place - 21] == 'black' or board_data3[place - 21] == 'x') and \
-                            (board_data3[place - 1] == 'black' or board_data3[place - 1] == 'x') and \
-                            (board_data3[place + 21] == 'black' or board_data3[place + 21] == 'x') and \
-                            (board_data3[place + 1] == 'black' or board_data3[place + 1] == 'x') and \
-                            colour == 'white':
+                    elif (
+                        (board_data3[place - 21] == "black" or board_data3[place - 21] == "x")
+                        and (board_data3[place - 1] == "black" or board_data3[place - 1] == "x")
+                        and (board_data3[place + 21] == "black" or board_data3[place + 21] == "x")
+                        and (board_data3[place + 1] == "black" or board_data3[place + 1] == "x")
+                        and colour == "white"
+                    ):
                         canplay = False
-                    elif (board_data3[place - 21] == 'white' or board_data3[place - 21] == 'x') and \
-                            (board_data3[place - 1] == 'white' or board_data3[place - 1] == 'x') and \
-                            (board_data3[place + 21] == 'white' or board_data3[place + 21] == 'x') and \
-                            (board_data3[place + 1] == 'white' or board_data3[place + 1] == 'x') and \
-                            colour == 'black':
+                    elif (
+                        (board_data3[place - 21] == "white" or board_data3[place - 21] == "x")
+                        and (board_data3[place - 1] == "white" or board_data3[place - 1] == "x")
+                        and (board_data3[place + 21] == "white" or board_data3[place + 21] == "x")
+                        and (board_data3[place + 1] == "white" or board_data3[place + 1] == "x")
+                        and colour == "black"
+                    ):
                         canplay = False
                     else:
                         canplay = True
@@ -641,7 +1312,7 @@ def main():
                             line19 = line_dict
 
                     if canplay == True:
-                        pygame.mixer.music.load('Move.WAV')
+                        pygame.mixer.music.load("Move.WAV")
                         pygame.mixer.music.play(1)
                         draw_board()
                         pygame.draw.circle(screen, colour, (xpos2, ypos2), stone_size, 0)

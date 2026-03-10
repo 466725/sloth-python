@@ -1,7 +1,7 @@
 """
-        In this problem, we want to determine all possible combinations of k
-        numbers out of 1 ... n. We use backtracking to solve this problem.
-        Time complexity: O(C(n,k)) which is O(n choose k) = O((n!/(k! * (n - k)!)))
+In this problem, we want to determine all possible combinations of k
+numbers out of 1 ... n. We use backtracking to solve this problem.
+Time complexity: O(C(n,k)) which is O(n choose k) = O((n!/(k! * (n - k)!)))
 """
 
 
@@ -16,6 +16,7 @@ def generate_all_combinations(n: int, k: int) -> [[int]]:
         print(r)
     return result
 
+
 def create_all_state(increment, total_number, level, current_list, total_list):
     if level == 0:
         total_list.append(current_list[:])
@@ -25,9 +26,11 @@ def create_all_state(increment, total_number, level, current_list, total_list):
         create_all_state(i + 1, total_number, level - 1, current_list, total_list)
         current_list.pop()
 
+
 def print_all_state(total_list):
     for i in total_list:
         print(*i)
+
 
 if __name__ == "__main__":
     n = 4

@@ -1,7 +1,4 @@
-from typing import List
-
-
-def abs_max(x: List[int]) -> int:
+def abs_max(x: list[int]) -> int:
     """
     >>> abs_max([0,5,1,11])
     11

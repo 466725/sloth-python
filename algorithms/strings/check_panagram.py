@@ -2,7 +2,7 @@
 
 
 def check_panagram(
-        input_str: str = "The quick brown fox jumps over the lazy dog",
+    input_str: str = "The quick brown fox jumps over the lazy dog",
 ) -> bool:
     """
     A Panagram String contains all the alphabets at least once.
@@ -14,9 +14,7 @@ def check_panagram(
     False
     """
     frequency = set()
-    input_str = input_str.replace(
-        " ", ""
-    )  # Replacing all the Whitespaces in our sentence
+    input_str = input_str.replace(" ", "")  # Replacing all the Whitespaces in our sentence
     for alpha in input_str:
         if "a" <= alpha.lower() <= "z":
             frequency.add(alpha.lower())

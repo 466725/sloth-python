@@ -23,7 +23,7 @@ def interpolation_search(sorted_collection, item):
                 return None
 
         point = left + ((item - sorted_collection[left]) * (right - left)) // (
-                sorted_collection[right] - sorted_collection[left]
+            sorted_collection[right] - sorted_collection[left]
         )
 
         # out of range check
@@ -66,7 +66,7 @@ def interpolation_search_by_recursion(sorted_collection, item, left, right):
             return None
 
     point = left + ((item - sorted_collection[left]) * (right - left)) // (
-            sorted_collection[right] - sorted_collection[left]
+        sorted_collection[right] - sorted_collection[left]
     )
 
     # out of range check
@@ -81,13 +81,9 @@ def interpolation_search_by_recursion(sorted_collection, item, left, right):
         return interpolation_search_by_recursion(sorted_collection, item, right, left)
     else:
         if sorted_collection[point] > item:
-            return interpolation_search_by_recursion(
-                sorted_collection, item, left, point - 1
-            )
+            return interpolation_search_by_recursion(sorted_collection, item, left, point - 1)
         else:
-            return interpolation_search_by_recursion(
-                sorted_collection, item, point + 1, right
-            )
+            return interpolation_search_by_recursion(sorted_collection, item, point + 1, right)
 
 
 def __assert_sorted(collection):

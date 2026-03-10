@@ -6,6 +6,7 @@ This is a type of divide and conquer algorithm which divides the search space in
 Time Complexity  : O(log3 N)
 Space Complexity : O(1)
 """
+
 import sys
 
 # This is the precision for this function which can be altered.
@@ -26,7 +27,6 @@ def ite_ternary_search(A, target):
     right = len(A) - 1
     while True:
         if left < right:
-
             if right - left < precision:
                 return lin_search(left, right, A, target)
 
@@ -53,7 +53,6 @@ def ite_ternary_search(A, target):
 # This is the recursive method of the ternary search algorithm.
 def rec_ternary_search(left, right, A, target):
     if left < right:
-
         if right - left < precision:
             return lin_search(left, right, A, target)
 

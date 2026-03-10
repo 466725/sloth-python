@@ -118,9 +118,7 @@ class BinarySearchTree:
             elif node.right is None:  # Has only left children
                 self.__reassign_nodes(node, node.left)
             else:
-                tmpNode = self.get_max(
-                    node.left
-                )  # Gets the max value of the left branch
+                tmpNode = self.get_max(node.left)  # Gets the max value of the left branch
                 self.remove(tmpNode.value)
                 node.value = (
                     tmpNode.value

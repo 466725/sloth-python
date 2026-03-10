@@ -14,11 +14,11 @@ class TxtFileReader(FileReader):
         self.filename = filename
 
     def readData(self) -> list[Record]:
-        file = open(self.filename, 'r', encoding='utf-8')
+        file = open(self.filename, encoding="utf-8")
         record_list: list[Record] = []
         for line in file.readlines():
             line = line.strip()
-            data_list = line.split(',')
+            data_list = line.split(",")
             record = Record(data_list[0], data_list[1], data_list[2], data_list[3])
             record_list.append(record)
         file.close()
@@ -30,11 +30,13 @@ class jsonFileReader(FileReader):
         self.filename = filename
 
     def readData(self) -> list[Record]:
-        file = open(self.filename, 'r', encoding='utf-8')
+        file = open(self.filename, encoding="utf-8")
         record_list: list[Record] = []
         data_list = json.load(file)
         for data_dict in data_list:
-            record = Record(data_dict["name"], data_dict["age"], data_dict["gender"], data_dict["occupation"])
+            record = Record(
+                data_dict["name"], data_dict["age"], data_dict["gender"], data_dict["occupation"]
+            )
             record_list.append(record)
         file.close()
         return record_list

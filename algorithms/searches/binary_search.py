@@ -9,6 +9,7 @@ python3 -m doctest -v binary_search.py
 For manual testing run:
 python binary_search.py
 """
+
 import bisect
 
 

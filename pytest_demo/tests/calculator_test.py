@@ -7,6 +7,7 @@ from utils.csv_reader import read_csv_to_list
 
 logger = logging.getLogger(__name__)
 
+
 @allure.epic("EPIC-1")
 @allure.feature("FEATURE-1")
 @allure.story("STORY-1")

@@ -10,9 +10,9 @@ def quick_sort(data: list) -> list:
         return data
     else:
         return (
-                quick_sort([e for e in data[1:] if e <= data[0]])
-                + [data[0]]
-                + quick_sort([e for e in data[1:] if e > data[0]])
+            quick_sort([e for e in data[1:] if e <= data[0]])
+            + [data[0]]
+            + quick_sort([e for e in data[1:] if e > data[0]])
         )
 
 

@@ -2,15 +2,16 @@ import logging
 
 import pytest
 
+from pytest_demo.self_healing.locator_store import get_locator
+from pytest_demo.self_healing.self_healing import click
+
 logger = logging.getLogger(__name__)
-account_list_link_id = "nav-link-accountList"
-register_page_link_id = "ab-registration-ingress-link"
 
 
 def goto_register_page(open_amazon_homepage_pw):
     logger.info("Navigating to Amazon register page (Playwright)")
-    open_amazon_homepage_pw.locator(f"#{account_list_link_id}").click()
-    open_amazon_homepage_pw.locator(f"#{register_page_link_id}").click()
+    click(open_amazon_homepage_pw, "amazon.account_list", get_locator("amazon.account_list"))
+    click(open_amazon_homepage_pw, "amazon.register_link", get_locator("amazon.register_link"))
     return open_amazon_homepage_pw
 
 
@@ -18,5 +19,5 @@ def goto_register_page(open_amazon_homepage_pw):
 @pytest.mark.playwright
 def test_signinpage_title(open_amazon_homepage_pw):
     logger.info("Verifying Amazon signin page title (Playwright)")
-    open_amazon_homepage_pw.locator(f"#{account_list_link_id}").click()
+    click(open_amazon_homepage_pw, "amazon.account_list", get_locator("amazon.account_list"))
     assert "Amazon Sign-In" in open_amazon_homepage_pw.title()

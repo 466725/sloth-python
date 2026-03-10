@@ -54,7 +54,9 @@ class EducationManagement:
         print(f"Welcome to {self.system_name}! Version: {self.system_version}")
         while True:
             print("\n" + "#" * 48 + "\nMenu:")
-            print("1. Add student\n2. Remove student\n3. Update student score\n4. Get student count\n5. Exit")
+            print(
+                "1. Add student\n2. Remove student\n3. Update student score\n4. Get student count\n5. Exit"
+            )
             print("#" * 48)
 
             try:

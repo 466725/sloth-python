@@ -1,5 +1,5 @@
-w = int(input('Insert the width of the grid.'))
-h = int(input('Insert the height of the grid.'))
+w = int(input("Insert the width of the grid."))
+h = int(input("Insert the height of the grid."))
 b = 0
 for i in range(1, h + 1):
     for j in range(1, w + 1):

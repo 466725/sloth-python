@@ -12,6 +12,7 @@ class Animal:
     def eat(self):
         pass
 
+
 class Dog(Animal):
     def make_sound(self):
         print("Woof!")

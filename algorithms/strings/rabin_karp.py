@@ -36,15 +36,14 @@ def rabin_karp(pattern, text):
         modulus_power = (modulus_power * alphabet_size) % modulus
 
     for i in range(0, t_len - p_len + 1):
-        if text_hash == p_hash and text[i: i + p_len] == pattern:
+        if text_hash == p_hash and text[i : i + p_len] == pattern:
             return True
         if i == t_len - p_len:
             continue
         # Calculating the ruling hash
         text_hash = (
-                            (text_hash - ord(text[i]) * modulus_power) * alphabet_size
-                            + ord(text[i + p_len])
-                    ) % modulus
+            (text_hash - ord(text[i]) * modulus_power) * alphabet_size + ord(text[i + p_len])
+        ) % modulus
     return False
 
 

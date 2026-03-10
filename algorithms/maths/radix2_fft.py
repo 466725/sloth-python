@@ -12,36 +12,36 @@ class FFT:
 
     Reference:
     https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm#The_radix-2_DIT_case
-        
-    For polynomials of degree m and n the algorithms has complexity 
+
+    For polynomials of degree m and n the algorithms has complexity
     O(n*logn + m*logm)
-        
+
     The main part of the algorithm is split in two parts:
-        1) __DFT: We compute the discrete fourier transform (DFT) of A and B using a 
-        bottom-up dynamic approach - 
+        1) __DFT: We compute the discrete fourier transform (DFT) of A and B using a
+        bottom-up dynamic approach -
         2) __multiply: Once we obtain the DFT of A*B, we can similarly
         invert it to obtain A*B
 
-    The class FFT takes two polynomials A and B with complex coefficients as arguments; 
+    The class FFT takes two polynomials A and B with complex coefficients as arguments;
     The two polynomials should be represented as a sequence of coefficients starting
-    from the free term. Thus, for instance x + 2*x^3 could be represented as 
-    [0,1,0,2] or (0,1,0,2). The constructor adds some zeros at the end so that the 
-    polynomials have the same length which is a power of 2 at least the length of 
-    their product. 
-    
+    from the free term. Thus, for instance x + 2*x^3 could be represented as
+    [0,1,0,2] or (0,1,0,2). The constructor adds some zeros at the end so that the
+    polynomials have the same length which is a power of 2 at least the length of
+    their product.
+
     Example:
-     
+
     Create two polynomials as sequences
     >>> A = [0, 1, 0, 2]  # x+2x^3
     >>> B = (2, 3, 4, 0)  # 2+3x+4x^2
-    
+
     Create an FFT object with them
     >>> x = FFT(A, B)
-    
+
     Print product
     >>> print(x.product)  # 2x + 3x^2 + 8x^3 + 4x^4 + 6x^5
     [(-0+0j), (2+0j), (3+0j), (8+0j), (6+0j), (8+0j)]
-    
+
     __str__ test
     >>> print(x)
     A = 0*x^0 + 1*x^1 + 2*x^0 + 3*x^2
@@ -64,9 +64,7 @@ class FFT:
         self.len_B = len(self.polyB)
 
         # Add 0 to make lengths equal a power of 2
-        self.C_max_length = int(
-            2 ** np.ceil(np.log2(len(self.polyA) + len(self.polyB) - 1))
-        )
+        self.C_max_length = int(2 ** np.ceil(np.log2(len(self.polyA) + len(self.polyB) - 1)))
 
         while len(self.polyA) < self.C_max_length:
             self.polyA.append(0)
@@ -91,7 +89,7 @@ class FFT:
         next_ncol = self.C_max_length // 2
         while next_ncol > 0:
             new_dft = [[] for i in range(next_ncol)]
-            root = self.root ** next_ncol
+            root = self.root**next_ncol
 
             # First half of next step
             current_root = 1
@@ -132,18 +130,11 @@ class FFT:
                 for i in range(next_ncol // 2):
                     # Even positions
                     new_inverseC[i].append(
-                        (
-                                inverseC[i][j]
-                                + inverseC[i][j + self.C_max_length // next_ncol]
-                        )
-                        / 2
+                        (inverseC[i][j] + inverseC[i][j + self.C_max_length // next_ncol]) / 2
                     )
                     # Odd positions
                     new_inverseC[i + next_ncol // 2].append(
-                        (
-                                inverseC[i][j]
-                                - inverseC[i][j + self.C_max_length // next_ncol]
-                        )
+                        (inverseC[i][j] - inverseC[i][j + self.C_max_length // next_ncol])
                         / (2 * current_root)
                     )
                 current_root *= root
@@ -160,15 +151,9 @@ class FFT:
 
     # Overwrite __str__ for print(); Shows A, B and A*B
     def __str__(self):
-        A = "A = " + " + ".join(
-            f"{coef}*x^{i}" for coef, i in enumerate(self.polyA[: self.len_A])
-        )
-        B = "B = " + " + ".join(
-            f"{coef}*x^{i}" for coef, i in enumerate(self.polyB[: self.len_B])
-        )
-        C = "A*B = " + " + ".join(
-            f"{coef}*x^{i}" for coef, i in enumerate(self.product)
-        )
+        A = "A = " + " + ".join(f"{coef}*x^{i}" for coef, i in enumerate(self.polyA[: self.len_A]))
+        B = "B = " + " + ".join(f"{coef}*x^{i}" for coef, i in enumerate(self.polyB[: self.len_B]))
+        C = "A*B = " + " + ".join(f"{coef}*x^{i}" for coef, i in enumerate(self.product))
 
         return "\n".join((A, B, C))
 

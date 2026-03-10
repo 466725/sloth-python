@@ -103,6 +103,29 @@ $env:PW_HEADLESS=0
 .\.venv\Scripts\python.exe -m pytest -m playwright -q
 ```
 
+### Self-Healing UI Framework (Playwright)
+
+The Playwright UI tests now use a self-healing locator framework:
+
+- Framework modules: `pytest_demo/self_healing/`
+- Central locator store: `pytest_demo/locators/locators.json`
+- Target test packages:
+  - `pytest_demo/tests/ui/amazon_playwright`
+  - `pytest_demo/tests/ui/tangerine_playwright`
+
+Self-healing flow:
+
+1. Try primary locator.
+2. Try configured fallback locators.
+3. If all fail, run DOM similarity scan.
+4. If a close match is found, generate a new locator and auto-update `locators.json`.
+
+Run self-healing Playwright tests:
+
+```bash
+.\.venv\Scripts\python.exe -m pytest -m playwright -q
+```
+
 ### Writing logs with `logging` (so they appear in `pytest.log`)
 
 `print()` output does **not** go to `log_file`. If you want messages in `pytest.log`

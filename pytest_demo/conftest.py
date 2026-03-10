@@ -10,7 +10,7 @@ import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from utils.constants import SELENIUM_IMPLICITLY_WAIT, AMAZON_URL, SLEEP_TIME, TANGERINE_URL
+from utils.constants import AMAZON_URL, SELENIUM_IMPLICITLY_WAIT, SLEEP_TIME, TANGERINE_URL
 from utils.screenshot_handler import ScreenshotHandler
 
 logger = logging.getLogger(__name__)
