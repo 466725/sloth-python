@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main, master ]
+    types: [ closed ]
+  schedule:
+    - cron: '0 2 * * *'  # Run nightly at 2 AM UTC
+
+jobs:
+  smoke-test:
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.14'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run smoke tests (unit + api)
+      run: |
+        python -m pytest -m "unit or api" --tb=short
+    - name: Run Robot Framework smoke tests
+      run: |
+        python -m robot robot_demos/calculator/
+
+  regression-test:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.14'
+    - name: Setup Chrome
+      uses: browser-actions/setup-chrome@v1
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Install Playwright browsers
+      run: |
+        playwright install
+    - name: Run all pytest tests
+      run: |
+        python -m pytest --tb=short --maxfail=5
+      env:
+        PW_HEADLESS: 1
+    - name: Run all Robot Framework tests
+      run: |
+        python -m robot robot_demos/
+    - name: Generate Allure report
+      if: always()
+      run: |
+        pip install allure-pytest
+        allure generate temps/allure-results -o allure-report --clean
+      continue-on-error: true
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ github.run_id }}
+        path: |
+          allure-report/
+          log.html
+          report.html
+          output.xml
