@@ -75,6 +75,22 @@ allure serve temps/allure-results
 allure open .\temps\allure-report
 ```
 
+To run only Amazon or only Tangerine related UI tests (folder-based selection):
+
+```bash
+# Amazon only (Selenium + Playwright)
+.\.venv\Scripts\python.exe -m pytest pytest_demo\tests\ui\amazon_* -m ui
+
+# Tangerine only (Selenium + Playwright)
+.\.venv\Scripts\python.exe -m pytest pytest_demo\tests\ui\tangerine_* -m ui
+
+# Amazon Playwright only
+.\.venv\Scripts\python.exe -m pytest pytest_demo\tests\ui\amazon_playwright -m playwright -q
+
+# Tangerine Playwright only
+.\.venv\Scripts\python.exe -m pytest pytest_demo\tests\ui\tangerine_playwright -m playwright -q
+```
+
 ### Run Playwright Tests
 
 The project also includes Playwright UI tests in:
