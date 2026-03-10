@@ -10,7 +10,7 @@ Documentation     Example test cases using the keyword-driven testing approach.
 ...               if also business people need to understand tests. If the
 ...               same workflow needs to repeated multiple times, it is best
 ...               to use to the _data-driven_ approach.
-Library           CalculatorLibrary.py
+Library           calculator_library.py
 
 *** Test Cases ***
 Push button

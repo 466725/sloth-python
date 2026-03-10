@@ -56,7 +56,7 @@ automated testing suites.
 You can execute automated tests using the `.\.venv\Scripts\python.exe -m robot` command. For example, to run the calculator demo:
 
 ```bash
-.\.venv\Scripts\python.exe -m robot RobotDemos\calculator-demo-test\keyword_driven.robot
+.\.venv\Scripts\python.exe -m robot robot_demos\calculator\keyword_driven.robot
 ```
 
 ### Running Selenium Web Automation
@@ -69,11 +69,10 @@ To run all test cases and generate an Allure report:
 ```bash
 .\.venv\Scripts\python.exe -m pytest --alluredir=temps/allure-results --clean-alluredir
 .\.venv\Scripts\python.exe -m pytest --reruns 3 --alluredir=temps/allure-results --clean-alluredir
+.\.venv\Scripts\python.exe -m pytest -m ui --reruns 3 --reruns-delay 1 --alluredir=temps/allure-results --clean-alluredir
 allure generate temps/allure-results -o temps/allure-report --clean
 allure serve temps/allure-results
 allure open .\temps\allure-report
-.\.venv\Scripts\python.exe -m pytest --alluredir=temps/allure-results --clean-alluredir
-.\.venv\Scripts\python.exe -m pytest -m ui --reruns 3 --reruns-delay 1 --alluredir=temps/allure-results --clean-alluredir
 ```
 
 ### Run Playwright Tests

@@ -64,3 +64,51 @@ class CalculatorLibrary:
             return str(err)
         else:
             raise AssertionError("'%s' should have caused an error." % expression)
+
+
+# Robot Framework imports this file by path (`Library  calculator_library.py`),
+# which makes it a module library. Expose module-level keywords and ensure state
+# is reset between test cases.
+try:
+    from robot.libraries.BuiltIn import BuiltIn
+except Exception:  # pragma: no cover
+    BuiltIn = None
+
+
+ROBOT_LIBRARY_SCOPE = "TEST CASE"
+_LIB = None
+_CURRENT_TEST = None
+
+
+def _get_test_name():
+    if BuiltIn is None:
+        return None
+    try:
+        return BuiltIn().get_variable_value("${TEST NAME}")
+    except Exception:
+        return None
+
+
+def _lib():
+    global _LIB, _CURRENT_TEST
+    test_name = _get_test_name()
+    if _LIB is None or test_name != _CURRENT_TEST:
+        _LIB = CalculatorLibrary()
+        _CURRENT_TEST = test_name
+    return _LIB
+
+
+def push_button(button):
+    _lib().push_button(button)
+
+
+def push_buttons(buttons):
+    _lib().push_buttons(buttons)
+
+
+def result_should_be(expected):
+    _lib().result_should_be(expected)
+
+
+def should_cause_error(expression):
+    return _lib().should_cause_error(expression)

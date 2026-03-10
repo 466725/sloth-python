@@ -23,8 +23,8 @@
   },
   "amazon.register_link": {
     "primary": {
-      "by": "id",
-      "value": "ab-registration-ingress-link"
+      "by": "xpath",
+      "value": "/html"
     },
     "fallbacks": [
       {
