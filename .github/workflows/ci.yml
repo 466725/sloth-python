@@ -31,14 +31,18 @@ jobs:
   regression-test:
     if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
+    services:
+      selenium:
+        image: selenium/standalone-chrome:18c17c7d95c2
+        ports:
+          - 4444:4444
+        options: --shm-size=2g
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.14'
-    - name: Setup Chrome
-      uses: browser-actions/setup-chrome@v1
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -51,6 +55,7 @@ jobs:
         python -m pytest --tb=short --maxfail=5
       env:
         PW_HEADLESS: 1
+        SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
     - name: Run all Robot Framework tests
       run: |
         python -m robot robot_demos/

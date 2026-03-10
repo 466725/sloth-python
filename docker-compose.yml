@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  selenium:
+    image: selenium/standalone-chrome:18c17c7d95c2
+    container_name: selenium-chrome
+    ports:
+      - "4444:4444"
+    shm_size: 2gb
+    environment:
+      SE_NODE_MAX_INSTANCES: 3
+      SE_NODE_MAX_SESSION: 3
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - sloth-network
+
+networks:
+  sloth-network:
+    driver: bridge

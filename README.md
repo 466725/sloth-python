@@ -229,6 +229,84 @@ Run self-healing Playwright tests:
 .\.venv\Scripts\python.exe -m pytest -m playwright -q
 ```
 
+### Docker Setup (Selenium Tests)
+
+Running Selenium tests with Docker provides a consistent, isolated browser environment. This project includes a `docker-compose.yml` configuration for easy local testing with selenium/standalone-chrome.
+
+#### Prerequisites
+
+- Docker Desktop installed and running
+- docker-compose command available
+
+#### Quick Start
+
+Start the Docker services:
+```bash
+docker-compose up -d
+```
+
+Verify the container is running and healthy:
+```bash
+docker-compose ps
+```
+
+#### Run Selenium Tests with Docker
+
+Set the `SELENIUM_REMOTE_URL` environment variable and run tests:
+
+**Windows (CMD):**
+```cmd
+set SELENIUM_REMOTE_URL=http://localhost:4444/wd/hub
+.\.venv\Scripts\python.exe -m pytest pytest_demo/tests/ui/amazon_selenium pytest_demo/tests/ui/tangerine_selenium --tb=short
+```
+
+**Windows (PowerShell):**
+```powershell
+$env:SELENIUM_REMOTE_URL="http://localhost:4444/wd/hub"
+.\.venv\Scripts\python.exe -m pytest pytest_demo/tests/ui/amazon_selenium pytest_demo/tests/ui/tangerine_selenium --tb=short
+```
+
+**Linux/macOS:**
+```bash
+export SELENIUM_REMOTE_URL=http://localhost:4444/wd/hub
+python -m pytest pytest_demo/tests/ui/amazon_selenium pytest_demo/tests/ui/tangerine_selenium --tb=short
+```
+
+#### Stop Docker Services
+
+```bash
+docker-compose down
+```
+
+#### View Docker Logs
+
+```bash
+# All services
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f selenium
+```
+
+#### Docker Configuration Details
+
+The `docker-compose.yml` includes:
+- **Image**: `selenium/standalone-chrome:18c17c7d95c2`
+- **Port**: 4444 (WebDriver protocol)
+- **Shared Memory**: 2GB (ensures Chrome stability)
+- **Health Check**: Automatic container health monitoring
+- **Concurrency**: 3 max instances and 3 max sessions per node
+
+#### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Port 4444 already in use | Edit `docker-compose.yml` and change `ports` to `- "5555:4444"`, then set `SELENIUM_REMOTE_URL=http://localhost:5555/wd/hub` |
+| Container won't start | Run `docker-compose logs selenium` to check logs; try `docker-compose down` and `docker-compose up -d` again |
+| Tests can't connect to Selenium | Verify container is running (`docker-compose ps`), wait 30+ seconds for health check to pass, and confirm environment variable is set |
+
+For more detailed Docker setup instructions, see [DOCKER_SETUP.md](DOCKER_SETUP.md).
+
 ### Writing Logs with `logging` (so they appear in `pytest.log`)
 
 `print()` output does not go to pytest `log_file`. Use Python logging instead:
@@ -245,3 +323,104 @@ def test_something():
 
 Tip: if you want to use `robot`/`pytest` commands directly, activate the virtual environment so `.venv\Scripts` is on
 your PATH.
+
+## CI/CD Pipeline (GitHub Actions)
+
+This project includes automated testing via GitHub Actions with two distinct workflows:
+
+### Smoke Tests (On PR Merge)
+
+Triggered when a pull request is **merged** to `main` or `master` branch.
+
+**Tests Executed:**
+- Unit tests (`pytest -m unit`)
+- API tests (`pytest -m api`)
+- Robot Framework calculator tests (basic validation)
+
+**Purpose:** Quick validation of critical functionality before code reaches production.
+
+**Execution Time:** ~2-3 minutes
+
+```yaml
+trigger: Pull Request merged to main/master
+tests: unit + api + robot framework smoke tests
+```
+
+### Regression Tests (Nightly Schedule)
+
+Triggered automatically **every night at 2 AM UTC** (configurable via cron in `.github/workflows/ci.yml`).
+
+**Services:**
+- selenium/standalone-chrome Docker container (port 4444)
+- Shared memory: 2GB
+
+**Tests Executed:**
+- All pytest tests (unit, API, Selenium UI, Playwright UI)
+- All Robot Framework tests
+- Allure report generation
+- Test artifacts uploaded
+
+**Environment Variables:**
+- `PW_HEADLESS: 1` - Playwright runs in headless mode
+- `SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub` - Connect to Docker Selenium grid
+
+**Execution Time:** ~10-15 minutes
+
+**Generated Artifacts:**
+- Allure report
+- HTML test reports (pytest, Robot Framework)
+- Test output XML files
+
+### Workflow Configuration
+
+The workflow is defined in `.github/workflows/ci.yml`:
+
+| Component | Details |
+|-----------|---------|
+| **Trigger Events** | PR merge to main/master + Nightly schedule (2 AM UTC) |
+| **Python Version** | 3.14 |
+| **Test Framework** | pytest + Robot Framework |
+| **Selenium** | Docker container (standalone-chrome) for nightly runs |
+| **Playwright** | Local browser installation for nightly runs |
+| **Reporting** | Allure + HTML reports + XML output |
+| **Artifacts** | Automatically uploaded to GitHub Actions (30-day retention) |
+
+### How to View Results
+
+1. Navigate to **Actions** tab in GitHub repository
+2. Click on a workflow run to see details
+3. View test output in the **Logs** section
+4. Download test artifacts from the **Artifacts** section
+
+### Modifying the Schedule
+
+To change the nightly test schedule, edit `.github/workflows/ci.yml`:
+
+```yaml
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Current: 2 AM UTC daily
+    # Examples:
+    # - cron: '0 3 * * MON-FRI'  # 3 AM UTC weekdays only
+    # - cron: '30 1 * * *'       # 1:30 AM UTC daily
+```
+
+Cron format: `minute hour day month day_of_week`
+
+### Local Testing vs CI
+
+| Aspect | Local | CI/CD |
+|--------|-------|-------|
+| Selenium Tests | Uses local Chrome + chromedriver | Docker selenium grid |
+| Playwright | Local browser installation | Auto-installed in pipeline |
+| Environment Setup | Manual via docker-compose | Automated via GitHub Actions |
+| Reporting | Manual allure command | Auto-generated |
+| Artifacts | Local file system | GitHub Actions storage (30 days) |
+
+### CI/CD Best Practices
+
+1. **Keep Smoke Tests Fast**: Only essential unit/API tests on PR merge
+2. **Nightly Regression**: Full suite including UI tests via Docker Selenium
+3. **Monitor Artifacts**: Download reports from failed runs for debugging
+4. **Check Logs**: Always review GitHub Actions logs for detailed error info
+5. **Docker Health**: Selenium container includes health checks for reliability
