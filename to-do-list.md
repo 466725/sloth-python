@@ -31,6 +31,7 @@ beautifulsoup4
 lxml
 scikit-learn
 pytest
+
 2. Step 1 — Build a Basic Selenium Framework
 
 First create a simple Selenium wrapper.
@@ -44,6 +45,7 @@ def get_driver():
 
     driver = webdriver.Chrome(options=options)
     return driver
+
 3. Step 2 — Store Locators in a Central Repository
 
 Store all locators so the framework can update them automatically.
@@ -64,6 +66,7 @@ import json
 def load_locators():
     with open("locators/locators.json") as f:
         return json.load(f)
+
 4. Step 3 — Implement Locator Fallback Strategy
 
 If the primary locator fails, try alternatives.
@@ -172,6 +175,7 @@ def find_element(driver, locator):
             return driver.find_element("xpath", new_xpath)
 
         raise
+
 8. Step 7 — Update Locator Automatically (Optional but impressive)
 
 When healing succeeds:
@@ -188,6 +192,7 @@ New locator: //button[@data-testid='login']
 This makes the framework learn over time.
 
 9. Step 8 — Write a Test Using the Framework
+
 test_login.py
 from framework.driver_manager import get_driver
 from framework.self_healing import find_element
@@ -205,6 +210,7 @@ def test_login():
     login_btn.click()
 
     driver.quit()
+
 10. Step 9 — Add Logging for Demonstration
 
 Very useful for interviews.
