@@ -12,21 +12,21 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.14'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Run smoke tests (unit + api)
-      run: |
-        python -m pytest -m "unit or api" --tb=short
-    - name: Run Robot Framework smoke tests
-      run: |
-        python -m robot robot_demos/calculator/
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.14'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run smoke tests (unit + api)
+        run: |
+          python -m pytest -m "unit or api" --tb=short
+      - name: Run Robot Framework smoke tests
+        run: |
+          python -m robot robot_demos/calculator/
 
   regression-test:
     if: github.event_name == 'schedule'
@@ -38,40 +38,46 @@ jobs:
           - 4444:4444
         options: --shm-size=2g
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.14'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Install Playwright browsers
-      run: |
-        playwright install
-    - name: Run all pytest tests
-      run: |
-        python -m pytest --tb=short --maxfail=5
-      env:
-        PW_HEADLESS: 1
-        SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
-    - name: Run all Robot Framework tests
-      run: |
-        python -m robot robot_demos/
-    - name: Generate Allure report
-      if: always()
-      run: |
-        pip install allure-pytest
-        allure generate temps/allure-results -o allure-report --clean
-      continue-on-error: true
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results-${{ github.run_id }}
-        path: |
-          allure-report/
-          log.html
-          report.html
-          output.xml
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.14'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Install Playwright browsers
+        run: |
+          playwright install
+      - name: Run all pytest tests
+        run: |
+          python -m pytest --tb=short --maxfail=5
+        env:
+          PW_HEADLESS: 1
+          SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
+      - name: Run all Robot Framework tests
+        run: |
+          python -m robot robot_demos/
+      - name: Install Allure CLI
+        run: |
+          wget https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -zxvf allure-2.27.0.tgz
+          sudo mv allure-2.27.0 /opt/allure
+          sudo ln -s /opt/allure/bin/allure /usr/bin/allure
+      - name: Generate Allure report
+        if: always()
+        run: |
+          pip install allure-pytest
+          allure generate temps/allure-results -o allure-report --clean
+        continue-on-error: true
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_id }}
+          path: |
+            allure-report/
+            log.html
+            report.html
+            output.xml
