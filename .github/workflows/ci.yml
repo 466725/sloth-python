@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       selenium:
-        image: selenium/standalone-chrome:18c17c7d95c2
+        image: selenium/standalone-chrome@sha256:18c17c7d95c29f21966ad6151c64aa1a3bf661c575a09f58d33c4bf2e5c66568
         ports:
           - 4444:4444
         options: --shm-size=2g
