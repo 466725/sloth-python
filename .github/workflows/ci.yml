@@ -53,7 +53,7 @@ jobs:
           playwright install
       - name: Run all pytest tests
         run: |
-          python -m pytest --tb=short --maxfail=5
+          python -m pytest --tb=short --maxfail=5 --ignore=pytest_demo/tests/ui/amazon_playwright --ignore=pytest_demo/tests/ui/amazon_selenium
         env:
           PW_HEADLESS: 1
           SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub

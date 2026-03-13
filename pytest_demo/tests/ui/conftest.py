@@ -30,7 +30,7 @@ def open_amazon_homepage_pw(request: pytest.FixtureRequest):
         browser = p.chromium.launch(headless=_headless_enabled())
         context = browser.new_context(locale="en-US")
         page = context.new_page()
-        page.goto(AMAZON_URL, wait_until="domcontentloaded")
+        page.goto(AMAZON_URL, wait_until="load")
         yield page
         _attach_page_screenshot(page, f"{request.node.name}-playwright")
         context.close()

@@ -1,30 +1,30 @@
 {
   "amazon.account_list": {
     "primary": {
-      "by": "id",
-      "value": "nav-link-accountList"
+      "by": "text",
+      "value": "Hello, Sign in"
     },
     "fallbacks": [
       {
-        "by": "css",
-        "value": "#nav-link-accountList"
+        "by": "id",
+        "value": "nav-link-accountList"
       },
       {
-        "by": "text",
-        "value": "sign in"
+        "by": "css",
+        "value": "#nav-link-accountList"
       }
     ],
     "expected": {
       "tag": "a",
       "id": "nav-link-accountList",
-      "text": "sign in",
-      "class": "nav-a"
+      "text": "Hello, Sign in",
+      "class": "nav-a nav-a-2 nav-truncate"
     }
   },
   "amazon.register_link": {
     "primary": {
-      "by": "xpath",
-      "value": "/html"
+      "by": "id",
+      "value": "ab-registration-ingress-link"
     },
     "fallbacks": [
       {
