@@ -244,7 +244,7 @@ to rank elements.
 
 Final Result (What you can claim on resume)
 
-Your project demonstrates:
+The project demonstrates:
 
 ✔ Intelligent locator fallback strategies
 ✔ DOM similarity heuristics
