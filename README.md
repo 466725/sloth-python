@@ -163,16 +163,10 @@ allure serve temps/allure-results
 allure open .\temps\allure-report
 ```
 
-Run only Amazon or only Tangerine related UI tests (folder-based selection):
+Run only Tangerine related UI tests (folder-based selection):
 ```bash
-# Amazon only (Selenium + Playwright)
-.\.venv\Scripts\python.exe -m pytest pytest_demo\tests\ui\amazon_selenium pytest_demo\tests\ui\amazon_playwright -m ui
-
 # Tangerine only (Selenium + Playwright)
 .\.venv\Scripts\python.exe -m pytest pytest_demo\tests\ui\tangerine_selenium pytest_demo\tests\ui\tangerine_playwright -m ui
-
-# Amazon Playwright only
-.\.venv\Scripts\python.exe -m pytest pytest_demo\tests\ui\amazon_playwright -m playwright -q
 
 # Tangerine Playwright only
 .\.venv\Scripts\python.exe -m pytest pytest_demo\tests\ui\tangerine_playwright -m playwright -q
@@ -180,7 +174,7 @@ Run only Amazon or only Tangerine related UI tests (folder-based selection):
 
 Alternative (keyword-based selection with `-k`):
 ```bash
-.\.venv\Scripts\python.exe -m pytest pytest_demo\tests\ui -m ui -k amazon
+.\.venv\Scripts\python.exe -m pytest pytest_demo\tests\ui -m ui -k tangerine
 .\.venv\Scripts\python.exe -m pytest pytest_demo\tests\ui -m ui -k tangerine
 ```
 
@@ -190,7 +184,6 @@ Alternative (keyword-based selection with `-k`):
 ### Playwright Tests
 
 Playwright UI tests are in:
-- `pytest_demo/tests/ui/amazon_playwright`
 - `pytest_demo/tests/ui/tangerine_playwright`
 
 Install browser binaries:
@@ -215,7 +208,6 @@ The Playwright UI tests include a self-healing locator framework:
 - Framework modules: `pytest_demo/self_healing/`
 - Central locator store: `pytest_demo/locators/locators.json`
 - Target test packages:
-  - `pytest_demo/tests/ui/amazon_playwright`
   - `pytest_demo/tests/ui/tangerine_playwright`
 
 Self-healing flow:
@@ -257,19 +249,19 @@ Set the `SELENIUM_REMOTE_URL` environment variable and run tests:
 **Windows (CMD):**
 ```cmd
 set SELENIUM_REMOTE_URL=http://localhost:4444/wd/hub
-.\.venv\Scripts\python.exe -m pytest pytest_demo/tests/ui/amazon_selenium pytest_demo/tests/ui/tangerine_selenium --tb=short
+.\.venv\Scripts\python.exe -m pytest pytest_demo/tests/ui/tangerine_selenium --tb=short
 ```
 
 **Windows (PowerShell):**
 ```powershell
 $env:SELENIUM_REMOTE_URL="http://localhost:4444/wd/hub"
-.\.venv\Scripts\python.exe -m pytest pytest_demo/tests/ui/amazon_selenium pytest_demo/tests/ui/tangerine_selenium --tb=short
+.\.venv\Scripts\python.exe -m pytest pytest_demo/tests/ui/tangerine_selenium --tb=short
 ```
 
 **Linux/macOS:**
 ```bash
 export SELENIUM_REMOTE_URL=http://localhost:4444/wd/hub
-python -m pytest pytest_demo/tests/ui/amazon_selenium pytest_demo/tests/ui/tangerine_selenium --tb=short
+python -m pytest pytest_demo/tests/ui/tangerine_selenium --tb=short
 ```
 
 #### Stop Docker Services

@@ -9,9 +9,8 @@ from time import sleep
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.remote.webdriver import WebDriver as RemoteWebDriver
 
-from utils.constants import AMAZON_URL, SELENIUM_IMPLICITLY_WAIT, SLEEP_TIME, TANGERINE_URL
+from utils.constants import SELENIUM_IMPLICITLY_WAIT, SLEEP_TIME, TANGERINE_URL
 from utils.screenshot_handler import ScreenshotHandler
 
 logger = logging.getLogger(__name__)
@@ -71,37 +70,6 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     rep = outcome.get_result()
     if rep.when == "call":
         item.rep_call = rep
-
-
-@pytest.fixture(scope="class")
-def open_amazon_homepage(request: pytest.FixtureRequest):
-    options = Options()
-    options.add_argument("--start-maximized")
-    options.add_argument("--incognito")
-    options.add_argument("--lang=en-US")
-
-    selenium_url = os.getenv("SELENIUM_REMOTE_URL")
-    if selenium_url:
-        driver = webdriver.Remote(command_executor=selenium_url, options=options)
-    else:
-        driver = webdriver.Chrome(options=options)
-    driver.get(AMAZON_URL)
-    driver.implicitly_wait(SELENIUM_IMPLICITLY_WAIT)
-    sleep(SLEEP_TIME)
-
-    yield driver
-
-    # Attach screenshot only if the test failed
-    # rep = getattr(request.node, "rep_call", None)
-    # if rep is not None and rep.failed:
-    #     handler = ScreenshotHandler(driver)
-    #     handler.attach_screenshot(name=f"{request.node.name}-failure")
-
-    # Attach a screenshot regardless of the test outcome
-    handler = ScreenshotHandler(driver)
-    handler.attach_screenshot(name=f"{request.node.name}")
-
-    driver.quit()
 
 
 @pytest.fixture(scope="class")

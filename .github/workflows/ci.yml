@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-test.txt
+          pip install -r requirements.txt
       - name: Run smoke tests (unit + api)
         run: |
           python -m pytest -m "unit or api" --tb=short
@@ -47,13 +47,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-test.txt
+          pip install -r requirements.txt
       - name: Install Playwright browsers
         run: |
           playwright install
       - name: Run all pytest tests
         run: |
-          python -m pytest --tb=short --maxfail=5 --ignore=pytest_demo/tests/ui/amazon_playwright --ignore=pytest_demo/tests/ui/amazon_selenium
+          python -m pytest --tb=short --maxfail=5
         env:
           PW_HEADLESS: 1
           SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub

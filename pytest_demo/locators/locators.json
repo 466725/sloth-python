@@ -1,47 +1,4 @@
 {
-  "amazon.account_list": {
-    "primary": {
-      "by": "text",
-      "value": "Hello, Sign in"
-    },
-    "fallbacks": [
-      {
-        "by": "id",
-        "value": "nav-link-accountList"
-      },
-      {
-        "by": "css",
-        "value": "#nav-link-accountList"
-      }
-    ],
-    "expected": {
-      "tag": "a",
-      "id": "nav-link-accountList",
-      "text": "Hello, Sign in",
-      "class": "nav-a nav-a-2 nav-truncate"
-    }
-  },
-  "amazon.register_link": {
-    "primary": {
-      "by": "id",
-      "value": "ab-registration-ingress-link"
-    },
-    "fallbacks": [
-      {
-        "by": "css",
-        "value": "#ab-registration-ingress-link"
-      },
-      {
-        "by": "text",
-        "value": "Create a free business account"
-      }
-    ],
-    "expected": {
-      "tag": "a",
-      "id": "ab-registration-ingress-link",
-      "text": "Create a free business account"
-    }
-  },
   "tangerine.login": {
     "primary": {
       "by": "id",
