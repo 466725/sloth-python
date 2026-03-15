@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.ui
 @pytest.mark.playwright
-def test_homepage_title(open_tangerine_homepage_pw):
-    logger.info("Verifying Tangerine homepage title (Playwright)")
-    find_element(open_tangerine_homepage_pw, "tangerine.login", get_locator("tangerine.login"))
-    assert "Tangerine" in open_tangerine_homepage_pw.title()
+def test_homepage_title(tangerine_homepage):
+    logger.info("Verifying Tangerine homepage title")
+    find_element(tangerine_homepage, "tangerine.login", get_locator("tangerine.login"))
+    assert "Tangerine" in tangerine_homepage.title()

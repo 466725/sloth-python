@@ -18,3 +18,5 @@ pytest-rerunfailures
 allure-pytest
 pytest-result-log
 requests
+
+allure-python-commons
