@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 url = CINEPLEX_URL + "/ClientServices/CineplexClientServicesWeb/CreateApplicationSession"
 print(url)
 
-payload = '{\n\t"ApplicationKey": "9fbcb70c-8bcd-43eb-930f-d99968b4561e"\n}'
+payload = '{\n\t"ApplicationKey": "sk-7c0d26b0161a421ea75206737071e2d8"\n}'
 print(payload)
 headers = {
     "Content-Type": "application/json",
