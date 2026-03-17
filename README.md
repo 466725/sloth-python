@@ -3,22 +3,25 @@
 [![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Sloth Python is an automation and algorithm playground. It serves as a reference project for modern test automation patterns, featuring Robot Framework, pytest (UI/API), and a custom self-healing Playwright framework.
+A comprehensive automation and algorithms reference project demonstrating modern testing patterns and best practices.
 
-## 🚀 Key Features
+Sloth Python combines robust test automation frameworks (Robot Framework, pytest) with AI-powered self-healing capabilities, comprehensive algorithm implementations, and practical CI/CD integration examples.
 
-- **Test Automation:**
-  - **Robot Framework:** Keyword-driven testing with Selenium, Requests, and DataDriver.
-  - **Pytest:** Comprehensive suite covering Unit, API, and Web UI testing.
-  - **Web UI:** Examples using both **Selenium** and **Playwright**.
-  - **Self-Healing:** A custom Playwright implementation that automatically repairs broken locators.
-- **Algorithms & Math:** Implementations of common algorithms, data structures, and ML basics.
-- **Tools:** Network security utilities (Nmap) and fun demos.
+## 📌 Key Highlights
 
-## 📋 Prerequisites
+- **Advanced Test Automation:** Multi-framework support with Robot Framework and pytest for unit, API, and UI testing
+- **Self-Healing Locators:** AI-assisted Playwright framework that automatically detects and repairs broken element selectors
+- **Algorithm Library:** Curated implementations of algorithms, data structures, and machine learning concepts
+- **Production-Ready CI/CD:** GitHub Actions workflows for automated smoke tests and nightly regression suites
+- **Docker Integration:** Containerized Selenium Grid for consistent cross-environment testing
+- **Comprehensive Examples:** Real-world test scenarios and automation patterns
 
-- **Python 3.12+** (Project is tested on 3.14)
+## 📦 Prerequisites
+
+- **Python 3.12+** (Tested with Python 3.14)
 - **Git**
+- **Docker & Docker Compose** (Optional, for containerized Selenium Grid)
+
 
 ## 🛠️ Installation
 
@@ -102,64 +105,318 @@ python -m robot --outputdir temps robot_demos/calculator/
 **Reports:**
 Checking `temps/` folder for `log.html`, `report.html`, and `output.xml`.
 
-## 🧠 Self-Healing Framework (Playwright)
+## 🤖 Self-Healing Framework (Playwright)
 
-This project features a self-healing mechanism for Playwright UI tests.
-- **Location:** `pytest_demo/self_healing/`
-- **Locator Store:** `pytest_demo/locators/locators.json`
+This project includes an advanced self-healing mechanism for Playwright-based UI tests that automatically detects and repairs broken locators.
 
-**How it works:**
-1. If a primary locator fails, the framework tries backup locators.
-2. If those fail, it scans the DOM for similar elements.
-3. If a match is found, the test passes, and `locators.json` is updated automatically.
+**Location:** `pytest_demo/self_healing/`
+**Locator Store:** `pytest_demo/locators/locators.json`
 
-## 🐳 Docker Support (Selenium)
+### How It Works
 
-You can run Selenium tests in a Docker container to ensure a consistent environment.
+1. **Primary Locator Failure** → Framework attempts primary locator
+2. **Backup Locators** → Tries backup selectors from locator store
+3. **DOM Scanning** → Scans page DOM for similar elements using fuzzy matching
+4. **Auto-Update** → If a match is found, test passes and `locators.json` is automatically updated
+5. **Resilience** → Subsequent test runs use the updated selector
 
-1. **Start Selenium Grid:**
-   ```bash
-   docker-compose up -d
-   ```
+### Benefits
 
-2. **Run Tests against Docker:**
-   ```bash
-   # Windows (PowerShell)
-   $env:SELENIUM_REMOTE_URL="http://localhost:4444/wd/hub"
-   pytest pytest_demo/tests/ui/tangerine_selenium --tb=short
+- **Reduced Maintenance:** Eliminates manual locator fixes after UI changes
+- **Improved Stability:** Tests are more resilient to minor DOM alterations
+- **Smart Learning:** System learns from failures and improves over time
 
-   # Linux/Mac
-   export SELENIUM_REMOTE_URL=http://localhost:4444/wd/hub
-   pytest pytest_demo/tests/ui/tangerine_selenium --tb=short
-   ```
+## 🐳 Docker Support (Containerized Selenium Grid)
 
-3. **Stop Services:**
-   ```bash
-   docker-compose down
-   ```
+Run Selenium tests in a Docker container to ensure consistent testing environments across development, CI/CD, and cloud deployments.
 
-## 🔄 CI/CD Pipeline
+### Prerequisites
 
-Automated testing is handled via GitHub Actions:
+- Docker and Docker Compose installed
 
-- **Smoke Tests (PR Merge):** Runs Unit, API, and basic Robot tests.
-- **Nightly Regression (2 AM UTC):** Runs the full suite (including UI tests via Docker and Playwright) and generates Allure reports.
+### Quick Start
 
-**Artifacts:** Test reports are uploaded to GitHub Actions run artifacts (retained for 30 days).
+#### 1. Start Selenium Grid
+
+```bash
+docker-compose up -d
+```
+
+This starts a Selenium Hub and browser nodes (Chrome, Firefox).
+
+#### 2. Run Tests Against Docker
+
+**Windows (PowerShell):**
+```powershell
+$env:SELENIUM_REMOTE_URL="http://localhost:4444/wd/hub"
+pytest pytest_demo/tests/ui/tangerine_selenium --tb=short
+```
+
+**Linux/macOS:**
+```bash
+export SELENIUM_REMOTE_URL=http://localhost:4444/wd/hub
+pytest pytest_demo/tests/ui/tangerine_selenium --tb=short
+```
+
+#### 3. Access Selenium Dashboard
+
+Open your browser and navigate to: `http://localhost:4444`
+
+#### 4. Stop Services
+
+```bash
+docker-compose down
+```
+
+### Troubleshooting
+
+- **Port 4444 already in use:** Modify `docker-compose.yml` port mappings
+- **Tests timeout:** Increase `SELENIUM_GRID_TIMEOUT` in configuration
+- **Browser not found:** Run `docker-compose up --build` to rebuild images
+
+## 🔄 CI/CD Pipeline & Automation
+
+Automated testing is orchestrated through GitHub Actions workflows to ensure code quality and early defect detection.
+
+### Workflow Overview
+
+**Smoke Tests (On Pull Request)**
+- Runs on every PR merge
+- Includes: Unit tests, API tests, and basic Robot Framework suites
+- Duration: ~5-10 minutes
+- Provides fast feedback on code changes
+
+**Nightly Regression Suite (2 AM UTC)**
+- Comprehensive test execution
+- Includes: All UI tests (Selenium via Docker, Playwright), API tests, and integration tests
+- Generates Allure reports
+- Duration: ~30-45 minutes
+
+### Test Artifacts
+
+All test reports and logs are uploaded to GitHub Actions run artifacts:
+- Retention period: 30 days
+- Available in the "Artifacts" section of completed workflow runs
+- Includes: HTML reports, Allure data, logs, and screenshots
+
+### Viewing Reports
+
+1. Navigate to the workflow run on GitHub
+2. Download the artifacts zip file
+3. Extract and open `report.html` in your browser
+
+### Local CI/CD Simulation
+
+To simulate the CI/CD pipeline locally:
+
+```bash
+# Run smoke tests
+pytest -m "unit or api"
+
+# Run full regression
+pytest -m "not slow"
+
+# Generate reports
+pytest --alluredir=temps/allure-results --clean-alluredir
+```
 
 ## 📂 Project Structure
 
-```text
-sloth-python/
-├── algorithms/          # Data structures & ML algorithms
-├── pytest_demo/         # Pytest suite
-│   ├── tests/           # Unit, API, and UI tests
-│   ├── self_healing/    # Self-healing engine
-│   └── locators/        # JSON locator store
-├── robot_demos/         # Robot Framework suites
-├── utils/               # Shared utilities (Config, Constants)
-├── .github/workflows/   # CI/CD definitions
-├── docker-compose.yml   # Selenium Grid config
-├── requirements.txt     # Project dependencies
-└── README.md            # You are here
 ```
+sloth-python/
+├── algorithms/                  # Algorithms & Data Structures
+│   ├── backtracking/           # Backtracking algorithms
+│   ├── divide_and_conquer/     # Divide & conquer patterns
+│   ├── machine_learning/       # ML implementations (KNN, SVM, Decision Trees, etc.)
+│   ├── maths/                  # Mathematical algorithms
+│   ├── searches/               # Search algorithms (binary, linear, etc.)
+│   ├── sorts/                  # Sorting algorithms
+│   ├── strings/                # String manipulation algorithms
+│   ├── conversions/            # Number system conversions
+│   └── data_structures/        # Trees, heaps, queues, stacks, tries, etc.
+│
+├── pytest_demo/                 # Pytest Test Suite
+│   ├── tests/                  # Test cases
+│   │   ├── unit/               # Unit tests
+│   │   ├── api/                # API tests (Requests)
+│   │   └── ui/                 # UI tests
+│   │       ├── tangerine_selenium/
+│   │       └── tangerine_playwright/
+│   ├── self_healing/           # Self-healing Playwright framework
+│   ├── locators/               # Locator repository (locators.json)
+│   ├── conftest.py             # Pytest fixtures & configuration
+│   └── pytest.ini              # Pytest settings
+│
+├── robot_demos/                 # Robot Framework Test Suites
+│   ├── calculator/             # Calculator test suite
+│   └── tangerine/              # Tangerine test suite
+│
+├── fun_part/                    # Educational & Fun Examples
+│   ├── go_game/                # Game implementations
+│   ├── bilibili/               # API demo projects
+│   └── web_programming/        # Web examples
+│
+├── utils/                       # Shared Utilities
+│   ├── config.py               # Configuration management
+│   ├── constants.py            # Application constants
+│   ├── csv_reader.py           # CSV utilities
+│   └── screenshot_handler.py   # Screenshot utilities
+│
+├── .github/workflows/          # GitHub Actions CI/CD definitions
+├── docker-compose.yml          # Selenium Grid configuration
+├── requirements.txt            # Python dependencies
+├── pytest.ini                  # Pytest configuration
+├── pyproject.toml              # Project metadata
+└── README.md                   # This file
+```
+
+### Key Directories Explained
+
+- **algorithms/** - Production-ready implementations for learning and reference
+- **pytest_demo/** - Complete test automation examples with best practices
+- **robot_demos/** - Keyword-driven test automation patterns
+- **utils/** - Reusable components (config, constants, helpers)
+
+---
+
+## 🎓 Best Practices & Patterns
+
+This project demonstrates industry best practices:
+
+### Test Automation Patterns
+- **Page Object Model (POM)** - Maintainable UI test structure
+- **Fixtures & Dependency Injection** - Pytest fixtures for test setup/teardown
+- **Marker-Based Organization** - Categorize tests (unit, api, ui, slow, etc.)
+- **Parameterization** - Run same test with multiple data sets
+- **Self-Healing** - AI-powered locator recovery mechanism
+
+### Code Quality
+- **Type Hints** - Type annotations for better IDE support and documentation
+- **Docstrings** - Comprehensive module and function documentation
+- **Error Handling** - Proper exception handling and logging
+- **Configuration Management** - Externalized config for different environments
+- **DRY Principle** - Reusable utilities and helper functions
+
+### CI/CD & DevOps
+- **Automated Testing** - Smoke tests on PRs, full regression nightly
+- **Containerization** - Docker/Compose for consistent environments
+- **Report Generation** - HTML and Allure reports for test visibility
+- **Artifact Management** - Retained for compliance and debugging
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**Issue: "ModuleNotFoundError" when running tests**
+```bash
+# Solution: Ensure virtual environment is activated and dependencies installed
+source .venv/bin/activate  # or .\.venv\Scripts\activate on Windows
+pip install -r requirements.txt
+```
+
+**Issue: Playwright tests timeout**
+```bash
+# Solution: Install browsers and check network connectivity
+playwright install
+pytest pytest_demo/tests/ui/tangerine_playwright --timeout=30000
+```
+
+**Issue: Selenium Grid connection refused**
+```bash
+# Solution: Verify Docker is running and containers are healthy
+docker-compose ps
+docker-compose logs selenium-hub
+```
+
+**Issue: Locator selector not found in Playwright**
+- The self-healing mechanism should auto-fix this
+- Check `pytest_demo/locators/locators.json` for updated selectors
+- Manual fix: Update the JSON or run with `-v` flag for detailed logs
+
+## 📖 Documentation & Resources
+
+### Test Frameworks
+- [Pytest Documentation](https://docs.pytest.org/)
+- [Robot Framework User Guide](https://robotframework.org/robotframework/#introduction)
+- [Playwright Python API](https://playwright.dev/python/)
+- [Selenium Documentation](https://www.selenium.dev/documentation/)
+
+### Technologies
+- [Python Official Documentation](https://docs.python.org/)
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [Docker Documentation](https://docs.docker.com/)
+
+### Related Tools
+- [Allure Report Framework](https://docs.qameta.io/allure/)
+- [Pytest HTML Plugin](https://pytest-html.readthedocs.io/)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. **Fork the repository** and create a feature branch
+2. **Follow PEP 8** style guidelines
+3. **Add tests** for new functionality
+4. **Run the test suite** locally before submitting PR
+5. **Update documentation** as needed
+6. **Submit a pull request** with clear description of changes
+
+### Development Setup
+
+```bash
+# Clone your fork
+git clone https://github.com/yourusername/sloth-python.git
+cd sloth-python
+
+# Create feature branch
+git checkout -b feature/your-feature-name
+
+# Make changes, test, and commit
+pytest  # Run tests
+git commit -m "feat: describe your changes"
+git push origin feature/your-feature-name
+
+# Create Pull Request on GitHub
+```
+
+## 📝 License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+
+The MIT License permits:
+- ✅ Commercial use
+- ✅ Modification
+- ✅ Distribution
+- ✅ Private use
+
+With the conditions:
+- ⚠️ License and copyright notice must be included
+
+## 📧 Support & Feedback
+
+### Getting Help
+
+- **GitHub Issues** - Report bugs or request features
+- **Discussions** - Ask questions and share ideas
+- **Code Comments** - Review inline documentation for implementation details
+
+### Reporting Bugs
+
+When reporting bugs, please include:
+1. Python version and OS
+2. Steps to reproduce
+3. Expected vs actual behavior
+4. Relevant logs or screenshots
+
+### Feature Requests
+
+Describe:
+1. The problem you're trying to solve
+2. Proposed solution or use case
+3. Alternative approaches considered
+
+---
+
+## ⭐ Acknowledgments
+
+Built with modern Python testing tools and best practices.
