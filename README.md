@@ -93,17 +93,19 @@ Robot Framework demos are located in `robot_demos/`.
 
 **Run All Demos:**
 ```bash
-# Output results to 'temps' directory
-python -m robot --outputdir temps robot_demos/
+# Output results under temps/robot_all
+python -m robot --outputdir temps/robot_all robot_demos/
 ```
 
 **Run Specific Suite:**
 ```bash
-python -m robot --outputdir temps robot_demos/calculator/
+python -m robot --outputdir temps/robot_calculator robot_demos/calculator/
+python -m robot --outputdir temps/robot_tangerine_selenium robot_demos/tangerine_selenium/
+python -m robot --outputdir temps/robot_tangerine_playwright robot_demos/tangerine_playwright/
 ```
 
 **Reports:**
-Checking `temps/` folder for `log.html`, `report.html`, and `output.xml`.
+Robot generates `output.xml`, `log.html`, and `report.html` in the selected output directory under `temps/`.
 
 ## 🤖 Self-Healing Framework (Playwright)
 
@@ -249,7 +251,8 @@ sloth-python/
 │
 ├── robot_demos/                 # Robot Framework Test Suites
 │   ├── calculator/             # Calculator test suite
-│   └── tangerine/              # Tangerine test suite
+│   ├── tangerine_selenium/     # Tangerine UI suite (SeleniumLibrary)
+│   └── tangerine_playwright/   # Tangerine UI suite (custom Playwright library)
 │
 ├── fun_part/                    # Educational & Fun Examples
 │   ├── go_game/                # Game implementations

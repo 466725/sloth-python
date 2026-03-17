@@ -12,12 +12,20 @@ This suite mirrors the Tangerine UI checks from `pytest_demo/tests/ui/tangerine_
 ## Run
 
 ```powershell
-robot robot_demos/tangerine_selenium
+robot -d temps/robot_tangerine_selenium robot_demos/tangerine_selenium
 ```
 
 ## Optional dry run (syntax only)
 
 ```powershell
-robot --dryrun robot_demos/tangerine_selenium
+robot --dryrun -d temps/robot_tangerine_selenium_dryrun robot_demos/tangerine_selenium
 ```
+
+## Outputs
+
+Robot output files are generated under `temps/robot_tangerine_selenium/`:
+
+- `output.xml`
+- `log.html`
+- `report.html`
 
