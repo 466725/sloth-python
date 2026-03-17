@@ -10,6 +10,10 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
+from pytest_demo.tests.ui.tangerine_support import (
+    open_tangerine_homepage_playwright,
+    open_tangerine_homepage_selenium,
+)
 from utils.constants import SELENIUM_IMPLICITLY_WAIT, SLEEP_TIME, TANGERINE_URL
 from utils.screenshot_handler import ScreenshotHandler
 
@@ -28,21 +32,21 @@ def _attach_page_screenshot(page, name: str) -> None:
     )
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def tangerine_homepage(request: pytest.FixtureRequest):
     pw = pytest.importorskip("playwright.sync_api")
     with pw.sync_playwright() as p:
         browser = p.chromium.launch(headless=_headless_enabled())
         context = browser.new_context(locale="en-US")
         page = context.new_page()
-        page.goto(TANGERINE_URL, wait_until="domcontentloaded")
+        open_tangerine_homepage_playwright(page)
         yield page
         _attach_page_screenshot(page, f"{request.node.name}-playwright")
         context.close()
         browser.close()
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def open_tangerine_homepage(request: pytest.FixtureRequest):
     options = Options()
     options.add_argument("--start-maximized")
@@ -54,8 +58,8 @@ def open_tangerine_homepage(request: pytest.FixtureRequest):
         driver = webdriver.Remote(command_executor=selenium_url, options=options)
     else:
         driver = webdriver.Chrome(options=options)
-    driver.get(TANGERINE_URL)
     driver.implicitly_wait(SELENIUM_IMPLICITLY_WAIT)
+    open_tangerine_homepage_selenium(driver)
     sleep(SLEEP_TIME)
 
     yield driver
