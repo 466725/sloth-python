@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from playwright.sync_api import Browser, BrowserContext, Page, Playwright, sync_playwright
 
+from pytest_demo.self_healing.locator_store import get_locator
+from pytest_demo.self_healing.self_healing import click as self_healing_click
 from utils.config import settings
 
 ROBOT_LIBRARY_SCOPE = "GLOBAL"
@@ -10,6 +12,9 @@ _pw: Playwright | None = None
 _browser: Browser | None = None
 _context: BrowserContext | None = None
 _page: Page | None = None
+
+# Keep Robot self-healing read-only by default to avoid silent locator store writes.
+SELF_HEAL_AUTO_UPDATE = False
 
 
 def open_browser_session() -> None:
@@ -57,14 +62,12 @@ def accept_cookies_if_present() -> None:
 
 
 def go_to_sign_in_page() -> None:
-    page = _require_page()
-    page.locator("#login").first.click(timeout=8000)
+    _click_with_self_healing("tangerine.login")
 
 
 def go_to_sign_up_page() -> None:
-    page = _require_page()
-    page.locator("#login").first.click(timeout=8000)
-    page.locator("#menu_signup").first.click(timeout=8000)
+    _click_with_self_healing("tangerine.login")
+    _click_with_self_healing("tangerine.signup")
 
 
 def page_title_should_contain(expected: str) -> None:
@@ -78,4 +81,16 @@ def _require_page() -> Page:
     if _page is None:
         raise RuntimeError("Browser session is not started. Call 'Open Browser Session' first.")
     return _page
+
+
+def _click_with_self_healing(locator_key: str) -> None:
+    page = _require_page()
+    locator = get_locator(locator_key)
+    self_healing_click(
+        page,
+        key=locator_key,
+        locator=locator,
+        auto_update=SELF_HEAL_AUTO_UPDATE,
+    )
+
 
