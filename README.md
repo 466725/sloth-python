@@ -75,6 +75,18 @@ pytest --alluredir=temps/allure-results --clean-alluredir
 allure serve temps/allure-results
 ```
 
+**Unit Test Examples:**
+```bash
+# Run all unit tests
+pytest -m unit
+
+# Run only csv reader unit tests
+pytest pytest_demo/tests/unit/test_csv_reader.py -q
+
+# Run one unit test case by node id
+pytest pytest_demo/tests/unit/test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
+```
+
 **Specific UI Suites:**
 ```bash
 # Tangerine Website (Selenium & Playwright)

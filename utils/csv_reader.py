@@ -22,20 +22,30 @@ def read_csv(file_path: str | Path) -> Iterator[dict[str, str]]:
         yield from reader
 
 
-def read_csv_to_list(file_path: str | Path) -> list[list[int]]:
+def read_csv_to_list(
+    file_path: str | Path, *, convert_to_int: bool = True
+) -> list[list[int]] | list[list[str]]:
     path = resolve_path(file_path)
     with path.open("r", encoding="utf-8", newline="") as file:
         reader = csv.reader(file)
         # skips header row
         next(reader)
-        return [
-            list(map(int, row)) for row in reader if row
-        ]  # skips empty rows (optional but handy)
+        rows = [row for row in reader if row]  # skips empty rows (optional but handy)
+        if not convert_to_int:
+            return rows
+
+        try:
+            return [list(map(int, row)) for row in rows]
+        except ValueError as error:
+            raise ValueError(
+                "Found non-integer cell while convert_to_int=True. "
+                "Use convert_to_int=False for mixed CSV content."
+            ) from error
 
 
 if __name__ == "__main__":
     # Demo usage (only runs when executing this file directly)
-    csv_path = "pytest_demo/calculator-data.csv"
-    print(read_csv_to_list(csv_path)[1:])
+    csv_path = "pytest_demo/theatre-data.csv"
+    print(read_csv_to_list(csv_path, convert_to_int=False)[1:3])
     for row in read_csv(csv_path):
         print(row)
