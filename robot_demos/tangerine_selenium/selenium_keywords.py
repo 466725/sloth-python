@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import os
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
+from utils.config import settings
 
 ROBOT_LIBRARY_SCOPE = "GLOBAL"
 
@@ -17,46 +17,28 @@ def open_browser_session() -> None:
     if _driver is not None:
         return
 
-    # Check if running in CI with Selenium Grid
-    remote_url = os.getenv("SELENIUM_REMOTE_URL")
+    remote_url = settings.selenium.remote_url
+    options = webdriver.ChromeOptions()
+    for argument in settings.selenium.common_arguments:
+        options.add_argument(argument)
     
     if remote_url:
-        # Use Selenium Grid for CI
-        options = webdriver.ChromeOptions()
-        headless = os.getenv("SELENIUM_HEADLESS", "1") != "0"
-        if headless:
+        if settings.selenium.headless:
             options.add_argument("--headless=new")
         try:
             _driver = webdriver.Remote(command_executor=remote_url, options=options)
-            _driver.implicitly_wait(10)
+            _driver.implicitly_wait(settings.selenium.implicit_wait)
         except Exception as e:
             raise RuntimeError(f"Failed to connect to Selenium Grid at {remote_url}: {e}")
     else:
-        # Use local Chrome for local testing
-        options = webdriver.ChromeOptions()
-        headless = os.getenv("SELENIUM_HEADLESS", "1") != "0"
-        if headless:
+        if settings.selenium.headless:
             options.add_argument("--headless=new")
-        
-        # Additional options for CI environments to prevent crashes
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-gpu")
-        options.add_argument("--disable-extensions")
-        options.add_argument("--disable-web-resources")
-        options.add_argument("--disable-sync")
-        options.add_argument("--disable-plugins")
-        options.add_argument("--disable-images")
-        options.add_argument("--disable-background-networking")
-        options.add_argument("--no-first-run")
-        options.add_argument("--no-default-browser-check")
-        
-        # Set window size
-        options.add_argument("--window-size=1920,1080")
+        for argument in settings.selenium.stability_arguments:
+            options.add_argument(argument)
         
         try:
             _driver = webdriver.Chrome(options=options)
-            _driver.implicitly_wait(10)
+            _driver.implicitly_wait(settings.selenium.implicit_wait)
         except Exception as e:
             raise RuntimeError(f"Failed to initialize Chrome WebDriver: {e}")
 
@@ -64,24 +46,25 @@ def open_browser_session() -> None:
 def close_browser_session() -> None:
     global _driver
     if _driver is not None:
+        driver = _driver
         try:
-            _driver.save_screenshot("temps/selenium-robot-last.png")
+            driver.save_screenshot("temps/selenium-robot-last.png")
         except Exception:
             pass
-        _driver.quit()
+        driver.quit()
         _driver = None
 
 
 def open_tangerine_homepage() -> None:
     driver = _require_driver()
-    driver.get("https://www.tangerine.ca/en/personal")
+    driver.get(settings.ui.base_url)
     accept_cookies_if_present()
 
 
 def accept_cookies_if_present() -> None:
     driver = _require_driver()
     try:
-        wait = WebDriverWait(driver, 5)
+        wait = WebDriverWait(driver, settings.ui.cookie_banner_timeout_seconds)
         cookie_button = wait.until(
             EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler"))
         )
@@ -93,14 +76,14 @@ def accept_cookies_if_present() -> None:
 
 def go_to_sign_in_page() -> None:
     driver = _require_driver()
-    wait = WebDriverWait(driver, 8)
+    wait = WebDriverWait(driver, settings.selenium.explicit_wait)
     login_button = wait.until(EC.element_to_be_clickable((By.ID, "login")))
     login_button.click()
 
 
 def go_to_sign_up_page() -> None:
     driver = _require_driver()
-    wait = WebDriverWait(driver, 8)
+    wait = WebDriverWait(driver, settings.selenium.explicit_wait)
     login_button = wait.until(EC.element_to_be_clickable((By.ID, "login")))
     login_button.click()
     signup_button = wait.until(EC.element_to_be_clickable((By.ID, "menu_signup")))

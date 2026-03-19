@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import os
 from contextlib import contextmanager
+
+from utils.config import settings
 
 
 @contextmanager
@@ -10,8 +11,8 @@ def get_page(base_url: str, locale: str = "en-US"):
     sync_playwright = pw_mod.sync_playwright
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=os.getenv("PW_HEADLESS", "1") != "0")
-        context = browser.new_context(locale=locale)
+        browser = p.chromium.launch(headless=settings.playwright.headless)
+        context = browser.new_context(locale=locale or settings.ui.locale)
         page = context.new_page()
         page.goto(base_url, wait_until="domcontentloaded")
         try:

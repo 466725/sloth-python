@@ -1,33 +1,19 @@
-import os
 from pathlib import Path
 from typing import Final
 
-
-def _env_int(name: str, default: int) -> int:
-    """Read an integer from environment variables with a safe default."""
-    value = os.getenv(name)
-    if value is None:
-        return default
-    return int(value)
-
+from utils.config import settings
 
 BASE_DIR: Final[Path] = Path(__file__).resolve().parents[1]
 ALLURE_IMG_DIR: Final[Path] = BASE_DIR / "temps" / "allure-report" / "images"
 
-SELENIUM_IMPLICIT_WAIT: Final[int] = _env_int("SELENIUM_IMPLICIT_WAIT", 10)
-SELENIUM_EXPLICIT_WAIT: Final[int] = _env_int("SELENIUM_EXPLICIT_WAIT", 10)
-SLEEP_TIME: Final[int] = _env_int("SLEEP_TIME", 1)
+SELENIUM_IMPLICIT_WAIT: Final[int] = settings.selenium.implicit_wait
+SELENIUM_EXPLICIT_WAIT: Final[int] = settings.selenium.explicit_wait
+SLEEP_TIME: Final[int] = settings.ui.sleep_time
 
-# Backward-compatible aliases (to be removed after call sites are migrated).
-SELENIUM_IMPLICITLY_WAIT: Final[int] = SELENIUM_IMPLICIT_WAIT
-SELENIUM_EXPLICITLY_WAIT: Final[int] = SELENIUM_EXPLICIT_WAIT
-
-TANGERINE_URL: Final[str] = os.getenv(
-    "TANGERINE_URL", "https://www.tangerine.ca/en/personal"
-)
-DEEP_SEEK_URL: Final[str] = os.getenv("DEEP_SEEK_URL", "https://api.deepseek.com")
-OPENAI_URL: Final[str] = os.getenv("OPENAI_URL", "https://api.openai.com")
-CINEPLEX_URL: Final[str] = os.getenv("CINEPLEX_URL", "https://connect.cineplex.com")
+TANGERINE_URL: Final[str] = settings.urls.tangerine
+DEEP_SEEK_URL: Final[str] = settings.urls.deep_seek
+OPENAI_URL: Final[str] = settings.urls.openai
+CINEPLEX_URL: Final[str] = settings.urls.cineplex
 
 
 def print_configured_constants() -> None:
@@ -38,8 +24,6 @@ def print_configured_constants() -> None:
         "SELENIUM_IMPLICIT_WAIT",
         "SELENIUM_EXPLICIT_WAIT",
         "SLEEP_TIME",
-        "SELENIUM_IMPLICITLY_WAIT",
-        "SELENIUM_EXPLICITLY_WAIT",
         "TANGERINE_URL",
         "DEEP_SEEK_URL",
         "OPENAI_URL",

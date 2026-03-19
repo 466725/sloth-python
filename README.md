@@ -22,7 +22,6 @@ Sloth Python combines robust test automation frameworks (Robot Framework, pytest
 - **Git**
 - **Docker & Docker Compose** (Optional, for containerized Selenium Grid)
 
-
 ## 🛠️ Installation
 
 1. **Clone the repository:**
@@ -52,6 +51,31 @@ Sloth Python combines robust test automation frameworks (Robot Framework, pytest
    ```bash
    playwright install
    ```
+
+## Configuration
+
+Runtime settings are centralized in `utils/config.py` and read from environment variables with safe defaults.
+
+| Variable | Default | Description |
+|---|---|---|
+| `TANGERINE_URL` | `https://www.tangerine.ca/en/personal` | Base URL for Tangerine UI tests |
+| `DEEP_SEEK_URL` | `https://api.deepseek.com` | Base URL for DeepSeek-compatible API calls |
+| `OPENAI_URL` | `https://api.openai.com` | Base URL for OpenAI API calls |
+| `CINEPLEX_URL` | `https://connect.cineplex.com` | Base URL for Cineplex API tests |
+| `UI_LOCALE` | `en-US` | Browser locale used by Playwright/Selenium |
+| `SLEEP_TIME` | `1` | Generic sleep duration used in selected fixtures |
+| `COOKIE_BANNER_TIMEOUT_SECONDS` | `5` | Wait time for Tangerine cookie banner handling |
+| `PW_HEADLESS` | `true` | Playwright headless mode (`1/0`, `true/false`, `yes/no`, `on/off`) |
+| `SELENIUM_HEADLESS` | `true` | Selenium headless mode (`1/0`, `true/false`, `yes/no`, `on/off`) |
+| `SELENIUM_REMOTE_URL` | _(unset)_ | Selenium Grid URL (when set, tests use remote WebDriver) |
+| `SELENIUM_IMPLICIT_WAIT` | `10` | Selenium implicit wait seconds |
+| `SELENIUM_EXPLICIT_WAIT` | `10` | Selenium explicit wait seconds |
+
+Quick local check:
+
+```bash
+python -m utils.config
+```
 
 ## 🏃 Running Tests
 
@@ -144,10 +168,6 @@ This project includes an advanced self-healing mechanism for Playwright-based UI
 
 Run Selenium tests in a Docker container to ensure consistent testing environments across development, CI/CD, and cloud deployments.
 
-### Prerequisites
-
-- Docker and Docker Compose installed
-
 ### Quick Start
 
 #### 1. Start Selenium Grid
@@ -221,7 +241,7 @@ All test reports and logs are uploaded to GitHub Actions run artifacts:
 
 ### Local CI/CD Simulation
 
-To simulate the CI/CD pipeline locally:
+Use these commands to mimic the core CI flow locally (see `Running Tests` for more command variants):
 
 ```bash
 # Run smoke tests
@@ -229,9 +249,6 @@ pytest -m "unit or api"
 
 # Run full regression
 pytest -m "not slow"
-
-# Generate reports
-pytest --alluredir=temps/allure-results --clean-alluredir
 ```
 
 ## 📂 Project Structure
@@ -379,9 +396,7 @@ Contributions are welcome! Please follow these guidelines:
 ### Development Setup
 
 ```bash
-# Clone your fork
-git clone https://github.com/yourusername/sloth-python.git
-cd sloth-python
+# Complete initial setup first (see Installation), then:
 
 # Create feature branch
 git checkout -b feature/your-feature-name
@@ -411,9 +426,9 @@ With the conditions:
 
 ### Getting Help
 
-- **GitHub Issues** - Report bugs or request features
+- **GitHub Issues** - Report bugs and request features
 - **Discussions** - Ask questions and share ideas
-- **Code Comments** - Review inline documentation for implementation details
+- **Documentation** - Check `README.md` and inline code comments for implementation details
 
 ### Reporting Bugs
 
@@ -425,7 +440,7 @@ When reporting bugs, please include:
 
 ### Feature Requests
 
-Describe:
+Please include:
 1. The problem you're trying to solve
 2. Proposed solution or use case
 3. Alternative approaches considered

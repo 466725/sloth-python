@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import os
-
 from playwright.sync_api import Browser, BrowserContext, Page, Playwright, sync_playwright
+
+from utils.config import settings
 
 ROBOT_LIBRARY_SCOPE = "GLOBAL"
 
@@ -18,9 +18,8 @@ def open_browser_session() -> None:
         return
 
     _pw = sync_playwright().start()
-    headless = os.getenv("PW_HEADLESS", "1") != "0"
-    _browser = _pw.chromium.launch(headless=headless)
-    _context = _browser.new_context(locale="en-US")
+    _browser = _pw.chromium.launch(headless=settings.playwright.headless)
+    _context = _browser.new_context(locale=settings.ui.locale)
     _page = _context.new_page()
 
 
@@ -44,7 +43,7 @@ def close_browser_session() -> None:
 
 def open_tangerine_homepage() -> None:
     page = _require_page()
-    page.goto("https://www.tangerine.ca/en/personal", wait_until="domcontentloaded")
+    page.goto(settings.ui.base_url, wait_until="domcontentloaded")
     accept_cookies_if_present()
 
 

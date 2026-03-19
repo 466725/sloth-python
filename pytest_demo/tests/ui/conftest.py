@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import os
 
 import allure
 import pytest
@@ -14,14 +13,10 @@ from pytest_demo.tests.ui.tangerine_support import (
     open_tangerine_homepage_playwright,
     open_tangerine_homepage_selenium,
 )
-from utils.constants import SELENIUM_IMPLICITLY_WAIT, SLEEP_TIME, TANGERINE_URL
+from utils.config import settings
 from utils.screenshot_handler import ScreenshotHandler
 
 logger = logging.getLogger(__name__)
-
-
-def _headless_enabled() -> bool:
-    return os.getenv("PW_HEADLESS", "1") != "0"
 
 
 def _attach_page_screenshot(page, name: str) -> None:
@@ -36,8 +31,8 @@ def _attach_page_screenshot(page, name: str) -> None:
 def tangerine_homepage(request: pytest.FixtureRequest):
     pw = pytest.importorskip("playwright.sync_api")
     with pw.sync_playwright() as p:
-        browser = p.chromium.launch(headless=_headless_enabled())
-        context = browser.new_context(locale="en-US")
+        browser = p.chromium.launch(headless=settings.playwright.headless)
+        context = browser.new_context(locale=settings.ui.locale)
         page = context.new_page()
         open_tangerine_homepage_playwright(page)
         yield page
@@ -49,18 +44,17 @@ def tangerine_homepage(request: pytest.FixtureRequest):
 @pytest.fixture(scope="function")
 def open_tangerine_homepage(request: pytest.FixtureRequest):
     options = Options()
-    options.add_argument("--start-maximized")
-    options.add_argument("--incognito")
-    options.add_argument("--lang=en-US")
+    for argument in settings.selenium.common_arguments:
+        options.add_argument(argument)
 
-    selenium_url = os.getenv("SELENIUM_REMOTE_URL")
+    selenium_url = settings.selenium.remote_url
     if selenium_url:
         driver = webdriver.Remote(command_executor=selenium_url, options=options)
     else:
         driver = webdriver.Chrome(options=options)
-    driver.implicitly_wait(SELENIUM_IMPLICITLY_WAIT)
+    driver.implicitly_wait(settings.selenium.implicit_wait)
     open_tangerine_homepage_selenium(driver)
-    sleep(SLEEP_TIME)
+    sleep(settings.ui.sleep_time)
 
     yield driver
 

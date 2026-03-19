@@ -8,20 +8,20 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from utils.constants import TANGERINE_URL
+from utils.config import settings
 
 logger = logging.getLogger(__name__)
 
 COOKIE_ACCEPT_BUTTON_ID = "onetrust-accept-btn-handler"
 COOKIE_ACCEPT_BUTTON_SELECTOR = f"#{COOKIE_ACCEPT_BUTTON_ID}"
-COOKIE_BANNER_TIMEOUT_SECONDS = 5
+COOKIE_BANNER_TIMEOUT_SECONDS = settings.ui.cookie_banner_timeout_seconds
 COOKIE_BANNER_TIMEOUT_MS = COOKIE_BANNER_TIMEOUT_SECONDS * 1000
 
 
 def open_tangerine_homepage_playwright(page: Any) -> None:
     """Open the Tangerine homepage and dismiss the cookie banner when present."""
     logger.info("Opening Tangerine homepage in Playwright")
-    page.goto(TANGERINE_URL, wait_until="domcontentloaded")
+    page.goto(settings.ui.base_url, wait_until="domcontentloaded")
     accept_tangerine_cookies_playwright(page)
 
 
@@ -45,7 +45,7 @@ def accept_tangerine_cookies_playwright(page: Any) -> None:
 def open_tangerine_homepage_selenium(driver: Any) -> None:
     """Open the Tangerine homepage and dismiss the cookie banner when present."""
     logger.info("Opening Tangerine homepage in Selenium")
-    driver.get(TANGERINE_URL)
+    driver.get(settings.ui.base_url)
     accept_tangerine_cookies_selenium(driver)
 
 
