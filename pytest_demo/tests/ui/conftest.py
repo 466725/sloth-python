@@ -28,7 +28,8 @@ _VALID_VIDEO_MODES = {_VIDEO_MODE_FAILED, _VIDEO_MODE_ALL, _VIDEO_MODE_OFF}
 
 
 def _playwright_video_mode() -> str:
-    mode = os.getenv("PLAYWRIGHT_VIDEO_MODE", _VIDEO_MODE_FAILED).strip().lower()
+    # mode = os.getenv("PLAYWRIGHT_VIDEO_MODE", _VIDEO_MODE_FAILED).strip().lower()
+    mode = _VIDEO_MODE_ALL
     if mode in _VALID_VIDEO_MODES:
         return mode
     logger.warning(
@@ -36,7 +37,7 @@ def _playwright_video_mode() -> str:
         mode,
         _VIDEO_MODE_FAILED,
     )
-    return _VIDEO_MODE_FAILED
+    return _VIDEO_MODE_ALL
 
 
 def _slugify_nodeid(nodeid: str) -> str:
