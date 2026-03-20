@@ -144,6 +144,14 @@ python -m robot --outputdir temps/robot_tangerine_playwright robot_demos/tangeri
 **Reports:**
 Robot generates `output.xml`, `log.html`, and `report.html` in the selected output directory under `temps/`.
 
+**Artifact behavior (Tangerine suites):**
+- `robot_demos/tangerine_selenium`: failed tests log screenshot links under `artifacts/selenium_screenshots/`
+- `robot_demos/tangerine_playwright`: failed tests log screenshot links under `artifacts/playwright/screenshots/`
+- `robot_demos/tangerine_playwright`: failed tests log video links under `artifacts/playwright/videos/` (passed-test videos are cleaned up)
+
+**Import path note:**
+The Tangerine Robot keyword libraries self-bootstrap the project root import path, so running with `-P` is optional for normal local usage.
+
 ## 🤖 Self-Healing Framework (Playwright)
 
 This project includes an advanced self-healing mechanism for Playwright-based UI tests that automatically detects and repairs broken locators.

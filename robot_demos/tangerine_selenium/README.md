@@ -2,63 +2,56 @@
 
 This suite mirrors the Tangerine UI checks from `pytest_demo/tests/ui/tangerine_selenium` using Robot Framework and Selenium WebDriver.
 
-## Architecture
-
-This test suite uses a custom Python library `selenium_keywords.py` that provides Robot Framework keywords for Selenium operations. This approach:
-
-- **Supports CI/CD**: Automatically uses Selenium Grid when `SELENIUM_REMOTE_URL` is set
-- **Supports local testing**: Falls back to local Chrome WebDriver
-- **Provides proper resource management**: Each test suite gets its own browser instance
-- **Mirrors Playwright approach**: Uses the same pattern as `tangerine_playwright/` tests
-
-See `IMPLEMENTATION_NOTES.md` for detailed architecture information.
-
-## Test Coverage
+## Coverage
 
 - Homepage title verification
-- Sign-in page navigation and title verification
-- Sign-up page navigation and title verification
-- Cookie banner handling (automatic in `Test Setup`)
+- Sign-in navigation and title verification
+- Sign-up navigation and title verification
+- Cookie banner handling in `Test Setup` (`Open Tangerine Homepage`)
 
-Each test file includes:
-- **Suite Setup**: `Open Browser Session` - Creates a fresh browser instance
-- **Test Setup**: `Open Tangerine Homepage` - Navigates to homepage before each test
-- **Suite Teardown**: `Close Browser Session` - Cleans up and captures screenshot
+## Runtime Behavior
+
+- `Suite Setup`: `Open Browser Session`
+- `Test Setup`: `Open Tangerine Homepage`
+- `Test Teardown`: `Capture Failure Artifacts`
+- `Suite Teardown`: `Close Browser Session`
+
+On failure, screenshot links are logged into Robot `log.html`/`report.html`.
 
 ## Running Locally
 
-```bash
+```powershell
 # Headless (default)
-robot robot_demos/tangerine_selenium
+robot -d temps/robot_tangerine_selenium robot_demos/tangerine_selenium
 
-# With GUI
-SELENIUM_HEADLESS=0 robot robot_demos/tangerine_selenium
+# With GUI (PowerShell)
+$env:SELENIUM_HEADLESS='0'
+robot -d temps/robot_tangerine_selenium robot_demos/tangerine_selenium
 ```
 
 ## Running in CI
 
 The GitHub Actions workflow automatically sets `SELENIUM_REMOTE_URL` to use Selenium Grid:
 
-```bash
-SELENIUM_REMOTE_URL=http://localhost:4444/wd/hub robot robot_demos/tangerine_selenium
+```powershell
+$env:SELENIUM_REMOTE_URL='http://localhost:4444/wd/hub'
+robot -d temps/robot_tangerine_selenium robot_demos/tangerine_selenium
 ```
 
 ## Outputs
 
-Robot output files are generated in the current directory:
+Robot output files are generated under `temps/robot_tangerine_selenium/`:
 - `output.xml`
 - `log.html`
 - `report.html`
 
-When running with `-d temps` flag:
-```bash
-robot -d temps robot_demos/tangerine_selenium
-```
+Failure screenshots are saved under:
 
-Files are saved to `temps/`:
-- `temps/output.xml`
-- `temps/log.html`
-- `temps/report.html`
+- `temps/robot_tangerine_selenium/artifacts/selenium_screenshots/`
+
+## Import Path Note
+
+`selenium_keywords.py` auto-adds project root to `sys.path`, so `-P` is optional for standard local runs.
 
 ## Dependencies
 
