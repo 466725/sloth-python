@@ -122,6 +122,8 @@ pytest pytest_demo/tests/ui/tangerine_selenium
 pytest pytest_demo/tests/ui/tangerine_playwright
 ```
 
+For `pytest_demo/tests/ui/tangerine_playwright`, Playwright records video per test and keeps/attaches it only when a test fails. Videos are written under `temps/playwright-videos/tangerine_playwright/`.
+
 ### Robot Framework
 
 Robot Framework demos are located in `robot_demos/`.
