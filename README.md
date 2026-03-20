@@ -61,7 +61,6 @@ Runtime settings are centralized in `utils/config.py` and read from environment 
 | `TANGERINE_URL` | `https://www.tangerine.ca/en/personal` | Base URL for Tangerine UI tests |
 | `DEEP_SEEK_URL` | `https://api.deepseek.com` | Base URL for DeepSeek-compatible API calls |
 | `OPENAI_URL` | `https://api.openai.com` | Base URL for OpenAI API calls |
-| `CINEPLEX_URL` | `https://connect.cineplex.com` | Base URL for Cineplex API tests |
 | `UI_LOCALE` | `en-US` | Browser locale used by Playwright/Selenium |
 | `SLEEP_TIME` | `1` | Generic sleep duration used in selected fixtures |
 | `COOKIE_BANNER_TIMEOUT_SECONDS` | `5` | Wait time for Tangerine cookie banner handling |
