@@ -118,34 +118,28 @@ For `pytest_demo/tests/ui/tangerine_playwright`, Playwright records video per te
 
 ### AI-Generated UI Scripts (Python + Playwright + MCP + AI)
 
-The project now includes an AI generator that:
-
-- Captures live page context with Playwright
-- Packages it in an MCP-style payload (DOM, element tree, screenshot, network events)
-- Sends your goal + context to an OpenAI-compatible model
-- Writes a runnable pytest + Playwright test file
-
-Set API key:
-
-```powershell
-$env:OPENAI_API_KEY = "<your-key>"
-```
-
-Generate a Tangerine test script:
-
-```powershell
-python -m pytest_demo.ai_generation.cli --url "https://www.tangerine.ca/en" --goal "Verify the homepage loads and sign-in entry point is visible" --test-name "test_tangerine_homepage_generated" --output "pytest_demo/tests/AI/generated_playwright/test_tangerine_homepage_generated.py"
-```
-
-Run generated tests:
-
-```powershell
-pytest -q pytest_demo/tests/AI/generated_playwright
-```
+Generated Playwright tests default to `pytest_demo/tests/AI/generated_playwright/`. For generation commands, examples, and configuration, see [AI-Generated UI Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp).
 
 ### Robot Framework
 
 Robot Framework demos are located in `robot_demos/`.
+
+#### Tangerine Playwright Robot Suite
+
+The suite under `robot_demos/tangerine_playwright/` mirrors the Tangerine UI coverage from `pytest_demo/tests/ui/tangerine_playwright`.
+
+**Included checks:**
+- Homepage title validation
+- Sign-in navigation title validation
+- Sign-up navigation title validation
+
+**Suite lifecycle:**
+- `Suite Setup`: `Open Browser Session`
+- `Test Setup`: `Open Tangerine Homepage`
+- `Test Teardown`: `Capture Failure Artifacts`
+- `Suite Teardown`: `Close Browser Session`
+
+The shared `Test Setup` always opens the Tangerine homepage and accepts the cookie banner when it is present.
 
 **Run All Demos:**
 ```bash
@@ -159,12 +153,19 @@ python -m robot --outputdir temps/robot_calculator robot_demos/calculator/
 python -m robot --outputdir temps/robot_tangerine_playwright robot_demos/tangerine_playwright/
 ```
 
+**Optional dry run (syntax and keyword wiring only):**
+```bash
+python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_demos/tangerine_playwright/
+```
+
 **Reports:**
 Robot generates `output.xml`, `log.html`, and `report.html` in the selected output directory under `temps/`.
 
 **Artifact behavior (Tangerine suite):**
-- `robot_demos/tangerine_playwright`: failed tests log screenshot links under `artifacts/playwright/screenshots/`
-- `robot_demos/tangerine_playwright`: failed tests log video links under `artifacts/playwright/videos/` (passed-test videos are cleaned up)
+- For `temps/robot_tangerine_playwright/`, failure screenshots are saved under `artifacts/playwright/screenshots/`
+- For `temps/robot_tangerine_playwright/`, failure videos are saved under `artifacts/playwright/videos/`
+- Screenshot and video links are logged into Robot `log.html` / `report.html`
+- Passed-test videos are deleted to reduce artifact size
 
 **Import path note:**
 The Tangerine Robot keyword libraries self-bootstrap the project root import path, so running with `-P` is optional for normal local usage.
@@ -191,6 +192,20 @@ This project includes an advanced self-healing mechanism for Playwright-based UI
 - **Reduced Maintenance:** Eliminates manual locator fixes after UI changes
 - **Improved Stability:** Tests are more resilient to minor DOM alterations
 - **Smart Learning:** System learns from failures and improves over time
+
+### Robot Tangerine Suite Scope
+
+The Robot suite in `robot_demos/tangerine_playwright/` uses the same self-healing locator store, but limits healing to these keys in the Playwright keywords:
+
+- `tangerine.login`
+- `tangerine.signup`
+
+Locator definitions are shared from:
+
+- `pytest_demo/locators/signinpage.json`
+- `pytest_demo/locators/signuppage.json`
+
+Robot mode currently runs with read-only healing (`auto_update=False`) so it can recover using stored locator strategies without silently rewriting the locator files.
 
 ## 🤖 AI-Generated UI Test Scripts (Python + Playwright + MCP)
 
@@ -259,15 +274,7 @@ Options:
   --help                  Show help message
 ```
 
-### Example Commands
-
-**Generate homepage test:**
-```powershell
-python -m pytest_demo.ai_generation.cli `
-  --url "https://www.tangerine.ca/en/personal" `
-  --goal "Verify homepage loads and Sign In entry point is visible" `
-  --test-name "test_tangerine_homepage"
-```
+### More Example Commands
 
 **Generate sign-in page test:**
 ```powershell
@@ -355,29 +362,24 @@ def test_tangerine_homepage(page: Page):
 - ✅ Automatically adds missing imports
 - ✅ Ready to integrate with CI/CD
 
-### Integration with Self-Healing
+### Relationship to Self-Healing
 
-Generated tests work seamlessly with the self-healing framework:
-
-1. Generated tests use stable locators from the live page
-2. If locators break over time, self-healing automatically repairs them
-3. Updated selectors are saved to `pytest_demo/locators/*.json`
-4. Subsequent test runs use the healed locators
+Generated tests are plain pytest + Playwright files. They do not automatically wrap interactions with the self-healing helpers, so treat them as a strong starting point and adapt them if you want them to participate in the locator-store workflow described in the self-healing section.
 
 ### Testing & Validation
 
-The feature includes full unit test coverage:
+The generator and its configuration are covered by focused unit tests:
 
 ```powershell
-pytest -q pytest_demo/tests/AI/test_ai_generation.py
+pytest -q pytest_demo/tests/AI/test_ai_generation.py pytest_demo/tests/unit/test_config.py
 ```
 
 Tests validate:
 - Prompt structure includes goal and MCP context
-- Code extraction from markdown blocks
+- Code normalization from fenced markdown responses
 - Fallback template generation
-- Configuration defaults and overrides
-- CLI argument parsing
+- Root-relative output path resolution
+- Configuration defaults and environment overrides
 
 ### Notes & Best Practices
 
@@ -394,24 +396,25 @@ Automated testing is orchestrated through GitHub Actions workflows to ensure cod
 
 ### Workflow Overview
 
-**Smoke Tests (On Pull Request)**
-- Runs on every PR merge
-- Includes: Unit tests, API tests, and basic Robot Framework suites
-- Duration: ~5-10 minutes
-- Provides fast feedback on code changes
+**Smoke Tests (Push + Pull Request)**
+- Run on pushes to `main` / `master`
+- Run on pull requests targeting `main` / `master` while the PR is open
+- Include pytest `unit` + `api` coverage and the Robot calculator suite
+- Provide fast feedback on core regressions
 
 **Nightly Regression Suite (2 AM UTC)**
-- Comprehensive test execution
-- Includes: Playwright UI tests, API tests, and integration tests
-- Generates Allure reports
-- Duration: ~30-45 minutes
+- Runs from the scheduled workflow at `0 2 * * *`
+- Installs Playwright browsers with dependencies
+- Executes the full pytest suite and all Robot suites
+- Attempts Allure report generation after the test run
 
 ### Test Artifacts
 
-All test reports and logs are uploaded to GitHub Actions run artifacts:
-- Retention period: 30 days
-- Available in the "Artifacts" section of completed workflow runs
-- Includes: HTML reports, Allure data, logs, and screenshots
+The workflow uploads generated reports when available in the run's **Artifacts** section, including:
+- `allure-report/`
+- `temps/log.html`
+- `temps/report.html`
+- `temps/output.xml`
 
 ### Viewing Reports
 
@@ -426,9 +429,12 @@ Use these commands to mimic the core CI flow locally (see `Running Tests` for mo
 ```bash
 # Run smoke tests
 pytest -m "unit or api"
+python -m robot robot_demos/calculator/
 
-# Run full regression
-pytest -m "not slow"
+# Run a nightly-like full pass
+playwright install
+pytest --tb=short --maxfail=5
+python -m robot --outputdir temps robot_demos/
 ```
 
 ## 📂 Project Structure
@@ -458,7 +464,7 @@ sloth-python/
 │   ├── self_healing/           # Self-healing Playwright framework
 │   ├── locators/               # Locator repository (signinpage.json, signuppage.json)
 │   ├── conftest.py             # Pytest fixtures & configuration
-│   └── pytest.ini              # Pytest settings
+│   └── ...
 │
 ├── robot_demos/                 # Robot Framework Test Suites
 │   ├── calculator/             # Calculator test suite
@@ -497,7 +503,7 @@ This project demonstrates industry best practices:
 ### Test Automation Patterns
 - **Page Object Model (POM)** - Maintainable UI test structure
 - **Fixtures & Dependency Injection** - Pytest fixtures for test setup/teardown
-- **Marker-Based Organization** - Categorize tests (unit, api, ui, slow, etc.)
+- **Marker-Based Organization** - Categorize tests with markers such as `unit`, `api`, `ui`, and `playwright`
 - **Parameterization** - Run same test with multiple data sets
 - **Self-Healing** - AI-powered locator recovery mechanism
 
@@ -511,7 +517,7 @@ This project demonstrates industry best practices:
 ### CI/CD & DevOps
 - **Automated Testing** - Smoke tests on PRs, full regression nightly
 - **Report Generation** - HTML and Allure reports for test visibility
-- **Artifact Management** - Retained for compliance and debugging
+- **Artifact Management** - Uploaded for debugging and report review
 
 ## 🐛 Troubleshooting
 
@@ -526,13 +532,13 @@ pip install -r requirements.txt
 
 **Issue: Playwright tests timeout**
 ```bash
-# Solution: Install browsers and check network connectivity
+# Solution: Install browsers and retry a focused UI suite first
 playwright install
-pytest pytest_demo/tests/ui/tangerine_playwright --timeout=30000
+pytest pytest_demo/tests/ui/tangerine_playwright -q
 ```
 
 **Issue: Locator selector not found in Playwright**
-- The self-healing mechanism should auto-fix this
+- If the test uses the self-healing helpers, the framework may recover automatically
 - Check `pytest_demo/locators/signinpage.json` and `pytest_demo/locators/signuppage.json` for updated selectors
 - Manual fix: Update the JSON or run with `-v` flag for detailed logs
 

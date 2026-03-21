@@ -35,7 +35,6 @@ class UrlSettings:
 	tangerine: str
 	deep_seek: str
 	openai: str
-	cineplex: str
 
 
 @dataclass(frozen=True)
@@ -72,7 +71,6 @@ def load_settings() -> Settings:
 		tangerine=_env_str("TANGERINE_URL", "https://www.tangerine.ca/en/personal"),
 		deep_seek=_env_str("DEEP_SEEK_URL", "https://api.deepseek.com"),
 		openai=_env_str("OPENAI_URL", "https://api.openai.com"),
-		cineplex=_env_str("CINEPLEX_URL", "https://connect.cineplex.com"),
 	)
 
 	ui = UiSettings(
@@ -103,7 +101,6 @@ def print_configured_settings() -> None:
 	print(f"urls.tangerine={settings.urls.tangerine}")
 	print(f"urls.deep_seek={settings.urls.deep_seek}")
 	print(f"urls.openai={settings.urls.openai}")
-	print(f"urls.cineplex={settings.urls.cineplex}")
 	print(f"ui.base_url={settings.ui.base_url}")
 	print(f"ui.locale={settings.ui.locale}")
 	print(f"ui.sleep_time={settings.ui.sleep_time}")
