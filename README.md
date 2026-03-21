@@ -66,7 +66,7 @@ Runtime settings are centralized in `utils/config.py` and read from environment 
 | `AI_GEN_MODEL` | `gpt-4.1` | Model used by the UI test generator |
 | `AI_GEN_BASE_URL` | `OPENAI_URL` value | OpenAI-compatible base URL used by generator |
 | `AI_GEN_MAX_DOM_CHARS` | `12000` | Max DOM/element-tree size sent to the model |
-| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/ui/generated_playwright` | Default output folder for generated tests |
+| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/AI/generated_playwright` | Default output folder for generated tests |
 
 Quick local check:
 
@@ -134,13 +134,13 @@ $env:OPENAI_API_KEY = "<your-key>"
 Generate a Tangerine test script:
 
 ```powershell
-python -m pytest_demo.ai_generation.cli --url "https://www.tangerine.ca/en" --goal "Verify the homepage loads and sign-in entry point is visible" --test-name "test_tangerine_homepage_generated" --output "pytest_demo/tests/ui/generated_playwright/test_tangerine_homepage_generated.py"
+python -m pytest_demo.ai_generation.cli --url "https://www.tangerine.ca/en" --goal "Verify the homepage loads and sign-in entry point is visible" --test-name "test_tangerine_homepage_generated" --output "pytest_demo/tests/AI/generated_playwright/test_tangerine_homepage_generated.py"
 ```
 
 Run generated tests:
 
 ```powershell
-pytest -q pytest_demo/tests/ui/generated_playwright
+pytest -q pytest_demo/tests/AI/generated_playwright
 ```
 
 ### Robot Framework
@@ -205,7 +205,7 @@ The system follows a 6-step end-to-end workflow:
 3. **Prompt Construction** - Context + goal are packaged into a structured prompt
 4. **AI Generation** - OpenAI-compatible model generates Python test code
 5. **Code Normalization** - Output is cleaned, validated, and formatted
-6. **File Output** - Runnable test file is written to `pytest_demo/tests/ui/generated_playwright/`
+6. **File Output** - Runnable test file is written to `pytest_demo/tests/AI/generated_playwright/`
 
 ### Prerequisites for AI Generation
 
@@ -234,13 +234,13 @@ python -m pytest_demo.ai_generation.cli `
   --url "https://www.tangerine.ca/en/personal" `
   --goal "Verify homepage loads and Sign In button is visible" `
   --test-name "test_tangerine_homepage" `
-  --output "pytest_demo/tests/ui/generated_playwright/test_tangerine_homepage.py"
+  --output "pytest_demo/tests/AI/generated_playwright/test_tangerine_homepage.py"
 ```
 
 **Step 3: Run the generated test**
 
 ```powershell
-pytest -q pytest_demo/tests/ui/generated_playwright/test_tangerine_homepage.py
+pytest -q pytest_demo/tests/AI/generated_playwright/test_tangerine_homepage.py
 ```
 
 ### CLI Reference
@@ -287,7 +287,7 @@ python -m pytest_demo.ai_generation.cli `
 
 **Run all generated tests:**
 ```powershell
-pytest -q pytest_demo/tests/ui/generated_playwright
+pytest -q pytest_demo/tests/AI/generated_playwright
 ```
 
 ### Configuration
@@ -299,14 +299,14 @@ AI generation settings are read from `utils/config.py` and environment variables
 | `AI_GEN_MODEL` | `gpt-4.1` | LLM model identifier |
 | `AI_GEN_BASE_URL` | OpenAI endpoint | API base URL (OpenAI-compatible) |
 | `AI_GEN_MAX_DOM_CHARS` | `12000` | Max DOM size sent to model |
-| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/ui/generated_playwright` | Default output folder |
+| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/AI/generated_playwright` | Default output folder |
 
 Override defaults via environment variables:
 
 ```powershell
 $env:AI_GEN_MODEL = "gpt-4.1-mini"
 $env:AI_GEN_BASE_URL = "https://api.deepseek.com"
-$env:AI_GEN_OUTPUT_DIR = "pytest_demo/tests/ui/my_generated_tests"
+$env:AI_GEN_OUTPUT_DIR = "pytest_demo/tests/AI/my_generated_tests"
 ```
 
 ### Modules & Architecture
@@ -449,10 +449,11 @@ sloth-python/
 ├── pytest_demo/                 # Pytest Test Suite
 │   ├── ai_generation/           # AI + MCP context driven script generator
 │   ├── tests/                  # Test cases
+│   │   ├── AI/                 # AI-generation tests and generated Playwright scripts
+│   │   │   └── generated_playwright/
 │   │   ├── unit/               # Unit tests
 │   │   ├── api/                # API tests (Requests)
 │   │   └── ui/                 # UI tests
-│   │       ├── generated_playwright/
 │   │       └── tangerine_playwright/
 │   ├── self_healing/           # Self-healing Playwright framework
 │   ├── locators/               # Locator repository (signinpage.json, signuppage.json)

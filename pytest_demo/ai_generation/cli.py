@@ -3,11 +3,12 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from pytest_demo.ai_generation.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
 from pytest_demo.ai_generation.generator import PlaywrightTestScriptGenerator, ScriptClient
 from pytest_demo.ai_generation.mcp_context import PlaywrightMCPContextCollector
+from pytest_demo.ai_generation.paths import resolve_output_path
 from utils.config import settings
 
 
@@ -70,16 +71,16 @@ def main(argv: list[str] | None = None) -> int:
         context.close()
         browser.close()
 
-    client = OpenAIChatScriptClient(
+    client: ScriptClient = OpenAIChatScriptClient(
         OpenAIClientConfig(
             api_key=api_key,
             model=args.model,
             base_url=(args.base_url or None),
         )
     )
-    generator = PlaywrightTestScriptGenerator(cast(ScriptClient, client))
+    generator = PlaywrightTestScriptGenerator(client)
 
-    output_path = Path(args.output)
+    output_path = resolve_output_path(args.output)
     result = generator.generate(
         snapshot=snapshot,
         goal=args.goal,

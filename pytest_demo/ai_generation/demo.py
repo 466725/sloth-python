@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from pytest_demo.ai_generation.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
-from pytest_demo.ai_generation.generator import PlaywrightTestScriptGenerator
+from pytest_demo.ai_generation.generator import PlaywrightTestScriptGenerator, ScriptClient
 from pytest_demo.ai_generation.mcp_context import BrowserSnapshot
+from pytest_demo.ai_generation.paths import resolve_output_path
 
 
 def demo_generate_tangerine_homepage_test():
@@ -72,9 +72,12 @@ def test_tangerine_homepage_generated(page: Page):
     assert "Welcome to Tangerine" in heading.text_content()
 ```"""
 
-    generator = PlaywrightTestScriptGenerator(MockClient())
+    client: ScriptClient = MockClient()
+    generator = PlaywrightTestScriptGenerator(client)
 
-    output_path = Path("pytest_demo/tests/ui/generated_playwright/test_tangerine_homepage_generated.py")
+    output_path = resolve_output_path(
+        Path("pytest_demo/tests/AI/generated_playwright/test_tangerine_homepage_generated.py")
+    )
     result = generator.generate(
         snapshot=snapshot,
         goal="Verify the Tangerine homepage loads, displays the Sign In and Sign Up buttons",

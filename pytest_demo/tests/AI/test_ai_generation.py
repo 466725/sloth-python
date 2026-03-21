@@ -5,6 +5,7 @@ import pytest
 
 from pytest_demo.ai_generation.generator import PlaywrightTestScriptGenerator, ScriptClient
 from pytest_demo.ai_generation.mcp_context import BrowserSnapshot
+from pytest_demo.ai_generation.paths import resolve_output_path
 from pytest_demo.ai_generation.prompt_builder import build_generation_prompt
 
 
@@ -18,14 +19,26 @@ class _FakeClient:
         return self.response
 
 
-@pytest.mark.unit
-def test_prompt_builder_includes_goal_and_mcp_context():
-    snapshot = BrowserSnapshot(
+def _script_client(response: str) -> ScriptClient:
+    return cast(ScriptClient, cast(object, _FakeClient(response)))
+
+
+def _snapshot(*, dom: str, element_tree: str, network_events: list[dict[str, str]] | None = None) -> BrowserSnapshot:
+    return BrowserSnapshot(
         url="https://www.tangerine.ca/en",
         title="Tangerine",
+        dom=dom,
+        element_tree=element_tree,
+        screenshot_base64="abc123",
+        network_events=network_events or [],
+    )
+
+
+@pytest.mark.unit
+def test_prompt_builder_includes_goal_and_mcp_context():
+    snapshot = _snapshot(
         dom="<html><body><a id='login'>Log in</a></body></html>",
         element_tree="<body><a id='login'>Log in</a></body>",
-        screenshot_base64="abc123",
         network_events=[{"method": "GET", "url": "https://www.tangerine.ca/en", "status": "200"}],
     )
 
@@ -37,15 +50,8 @@ def test_prompt_builder_includes_goal_and_mcp_context():
 
 @pytest.mark.unit
 def test_generator_writes_code_from_fenced_response(tmp_path: Path):
-    snapshot = BrowserSnapshot(
-        url="https://www.tangerine.ca/en",
-        title="Tangerine",
-        dom="<html></html>",
-        element_tree="<body></body>",
-        screenshot_base64="abc123",
-        network_events=[],
-    )
-    client = _FakeClient(
+    snapshot = _snapshot(dom="<html></html>", element_tree="<body></body>")
+    client = _script_client(
         """```python
 from playwright.sync_api import Page
 
@@ -54,7 +60,7 @@ def test_smoke(page: Page):
     assert \"Tangerine\" in page.title()
 ```"""
     )
-    generator = PlaywrightTestScriptGenerator(cast(ScriptClient, client))
+    generator = PlaywrightTestScriptGenerator(client)
 
     output_path = tmp_path / "test_generated.py"
     result = generator.generate(
@@ -71,16 +77,9 @@ def test_smoke(page: Page):
 
 @pytest.mark.unit
 def test_generator_fallback_template_when_ai_response_is_not_code(tmp_path: Path):
-    snapshot = BrowserSnapshot(
-        url="https://www.tangerine.ca/en",
-        title="Tangerine",
-        dom="<html></html>",
-        element_tree="<body></body>",
-        screenshot_base64="abc123",
-        network_events=[],
-    )
-    client = _FakeClient("I cannot help with this")
-    generator = PlaywrightTestScriptGenerator(cast(ScriptClient, client))
+    snapshot = _snapshot(dom="<html></html>", element_tree="<body></body>")
+    client = _script_client("I cannot help with this")
+    generator = PlaywrightTestScriptGenerator(client)
 
     output_path = tmp_path / "test_generated.py"
     result = generator.generate(
@@ -93,3 +92,23 @@ def test_generator_fallback_template_when_ai_response_is_not_code(tmp_path: Path
     content = result.output_path.read_text(encoding="utf-8")
     assert "def test_generated_ui_flow" in content
     assert "assert page.title()" in content
+
+
+@pytest.mark.unit
+def test_resolve_output_path_anchors_relative_path_to_project_root():
+    relative_output = Path("pytest_demo/tests/AI/generated_playwright/test_generated_ui_flow.py")
+
+    resolved = resolve_output_path(relative_output)
+
+    expected_root = Path(__file__).resolve().parents[3]
+    assert resolved == (expected_root / relative_output).resolve()
+
+
+@pytest.mark.unit
+def test_resolve_output_path_keeps_absolute_path_unchanged(tmp_path: Path):
+    absolute_output = tmp_path / "test_generated_ui_flow.py"
+
+    resolved = resolve_output_path(absolute_output)
+
+    assert resolved == absolute_output
+

@@ -89,7 +89,7 @@ def load_settings() -> Settings:
 		model=_env_str("AI_GEN_MODEL", "gpt-4.1"),
 		base_url=_env_str("AI_GEN_BASE_URL", urls.openai),
 		max_dom_chars=_env_int("AI_GEN_MAX_DOM_CHARS", 12000),
-		output_dir=_env_str("AI_GEN_OUTPUT_DIR", "pytest_demo/tests/ui/generated_playwright"),
+		output_dir=_env_str("AI_GEN_OUTPUT_DIR", "pytest_demo/tests/AI/generated_playwright"),
 	)
 
 	return Settings(urls=urls, ui=ui, playwright=playwright, ai_generation=ai_generation)
