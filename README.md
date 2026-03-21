@@ -9,18 +9,16 @@ Sloth Python combines robust test automation frameworks (Robot Framework, pytest
 
 ## 📌 Key Highlights
 
-- **Advanced Test Automation:** Multi-framework support with Robot Framework and pytest for unit, API, and UI testing
+- **Advanced Test Automation:** Robot Framework and pytest examples for unit, API, and Playwright-based UI testing
 - **Self-Healing Locators:** AI-assisted Playwright framework that automatically detects and repairs broken element selectors
 - **Algorithm Library:** Curated implementations of algorithms, data structures, and machine learning concepts
 - **Production-Ready CI/CD:** GitHub Actions workflows for automated smoke tests and nightly regression suites
-- **Docker Integration:** Containerized Selenium Grid for consistent cross-environment testing
 - **Comprehensive Examples:** Real-world test scenarios and automation patterns
 
 ## 📦 Prerequisites
 
 - **Python 3.12+** (Tested with Python 3.14)
 - **Git**
-- **Docker & Docker Compose** (Optional, for containerized Selenium Grid)
 
 ## 🛠️ Installation
 
@@ -45,7 +43,7 @@ Sloth Python combines robust test automation frameworks (Robot Framework, pytest
    ```bash
    pip install -r requirements.txt
    ```
-   *Note: This installs all necessary packages for Robot Framework, Pytest, Playwright, and Selenium.*
+   *Note: This installs the packages used by Robot Framework, pytest, Playwright, and the supporting demo utilities.*
 
 4. **Install Playwright Browsers:**
    ```bash
@@ -61,14 +59,10 @@ Runtime settings are centralized in `utils/config.py` and read from environment 
 | `TANGERINE_URL` | `https://www.tangerine.ca/en/personal` | Base URL for Tangerine UI tests |
 | `DEEP_SEEK_URL` | `https://api.deepseek.com` | Base URL for DeepSeek-compatible API calls |
 | `OPENAI_URL` | `https://api.openai.com` | Base URL for OpenAI API calls |
-| `UI_LOCALE` | `en-US` | Browser locale used by Playwright/Selenium |
+| `UI_LOCALE` | `en-US` | Browser locale used by Playwright-based UI tests |
 | `SLEEP_TIME` | `1` | Generic sleep duration used in selected fixtures |
 | `COOKIE_BANNER_TIMEOUT_SECONDS` | `5` | Wait time for Tangerine cookie banner handling |
 | `PW_HEADLESS` | `true` | Playwright headless mode (`1/0`, `true/false`, `yes/no`, `on/off`) |
-| `SELENIUM_HEADLESS` | `true` | Selenium headless mode (`1/0`, `true/false`, `yes/no`, `on/off`) |
-| `SELENIUM_REMOTE_URL` | _(unset)_ | Selenium Grid URL (when set, tests use remote WebDriver) |
-| `SELENIUM_IMPLICIT_WAIT` | `10` | Selenium implicit wait seconds |
-| `SELENIUM_EXPLICIT_WAIT` | `10` | Selenium explicit wait seconds |
 
 Quick local check:
 
@@ -90,7 +84,7 @@ pytest
 # Run only Unit and API tests (Fast)
 pytest -m "unit or api"
 
-# Run UI tests (Selenium & Playwright)
+# Run UI tests
 pytest -m ui
 
 # Generate Allure Report
@@ -112,12 +106,6 @@ pytest pytest_demo/tests/unit/test_csv_reader.py::test_read_csv_to_list_converts
 
 **Specific UI Suites:**
 ```bash
-# Tangerine Website (Selenium & Playwright)
-pytest pytest_demo/tests/ui/tangerine_selenium pytest_demo/tests/ui/tangerine_playwright
-
-# Tangerine (Selenium Only)
-pytest pytest_demo/tests/ui/tangerine_selenium
-
 # Tangerine (Playwright Only)
 pytest pytest_demo/tests/ui/tangerine_playwright
 ```
@@ -137,15 +125,13 @@ python -m robot --outputdir temps/robot_all robot_demos/
 **Run Specific Suite:**
 ```bash
 python -m robot --outputdir temps/robot_calculator robot_demos/calculator/
-python -m robot --outputdir temps/robot_tangerine_selenium robot_demos/tangerine_selenium/
 python -m robot --outputdir temps/robot_tangerine_playwright robot_demos/tangerine_playwright/
 ```
 
 **Reports:**
 Robot generates `output.xml`, `log.html`, and `report.html` in the selected output directory under `temps/`.
 
-**Artifact behavior (Tangerine suites):**
-- `robot_demos/tangerine_selenium`: failed tests log screenshot links under `artifacts/selenium_screenshots/`
+**Artifact behavior (Tangerine suite):**
 - `robot_demos/tangerine_playwright`: failed tests log screenshot links under `artifacts/playwright/screenshots/`
 - `robot_demos/tangerine_playwright`: failed tests log video links under `artifacts/playwright/videos/` (passed-test videos are cleaned up)
 
@@ -175,50 +161,6 @@ This project includes an advanced self-healing mechanism for Playwright-based UI
 - **Improved Stability:** Tests are more resilient to minor DOM alterations
 - **Smart Learning:** System learns from failures and improves over time
 
-## 🐳 Docker Support (Containerized Selenium Grid)
-
-Run Selenium tests in a Docker container to ensure consistent testing environments across development, CI/CD, and cloud deployments.
-
-### Quick Start
-
-#### 1. Start Selenium Grid
-
-```bash
-docker-compose up -d
-```
-
-This starts a Selenium Hub and browser nodes (Chrome, Firefox).
-
-#### 2. Run Tests Against Docker
-
-**Windows (PowerShell):**
-```powershell
-$env:SELENIUM_REMOTE_URL="http://localhost:4444/wd/hub"
-pytest pytest_demo/tests/ui/tangerine_selenium --tb=short
-```
-
-**Linux/macOS:**
-```bash
-export SELENIUM_REMOTE_URL=http://localhost:4444/wd/hub
-pytest pytest_demo/tests/ui/tangerine_selenium --tb=short
-```
-
-#### 3. Access Selenium Dashboard
-
-Open your browser and navigate to: `http://localhost:4444`
-
-#### 4. Stop Services
-
-```bash
-docker-compose down
-```
-
-### Troubleshooting
-
-- **Port 4444 already in use:** Modify `docker-compose.yml` port mappings
-- **Tests timeout:** Increase `SELENIUM_GRID_TIMEOUT` in configuration
-- **Browser not found:** Run `docker-compose up --build` to rebuild images
-
 ## 🔄 CI/CD Pipeline & Automation
 
 Automated testing is orchestrated through GitHub Actions workflows to ensure code quality and early defect detection.
@@ -233,7 +175,7 @@ Automated testing is orchestrated through GitHub Actions workflows to ensure cod
 
 **Nightly Regression Suite (2 AM UTC)**
 - Comprehensive test execution
-- Includes: All UI tests (Selenium via Docker, Playwright), API tests, and integration tests
+- Includes: Playwright UI tests, API tests, and integration tests
 - Generates Allure reports
 - Duration: ~30-45 minutes
 
@@ -282,7 +224,6 @@ sloth-python/
 │   │   ├── unit/               # Unit tests
 │   │   ├── api/                # API tests (Requests)
 │   │   └── ui/                 # UI tests
-│   │       ├── tangerine_selenium/
 │   │       └── tangerine_playwright/
 │   ├── self_healing/           # Self-healing Playwright framework
 │   ├── locators/               # Locator repository (signinpage.json, signuppage.json)
@@ -291,7 +232,6 @@ sloth-python/
 │
 ├── robot_demos/                 # Robot Framework Test Suites
 │   ├── calculator/             # Calculator test suite
-│   ├── tangerine_selenium/     # Tangerine UI suite (SeleniumLibrary)
 │   └── tangerine_playwright/   # Tangerine UI suite (custom Playwright library)
 │
 ├── fun_part/                    # Educational & Fun Examples
@@ -302,11 +242,9 @@ sloth-python/
 ├── utils/                       # Shared Utilities
 │   ├── config.py               # Configuration management
 │   ├── constants.py            # Application constants
-│   ├── csv_reader.py           # CSV utilities
-│   └── screenshot_handler.py   # Screenshot utilities
+│   └── csv_reader.py           # CSV utilities
 │
 ├── .github/workflows/          # GitHub Actions CI/CD definitions
-├── docker-compose.yml          # Selenium Grid configuration
 ├── requirements.txt            # Python dependencies
 ├── pytest.ini                  # Pytest configuration
 ├── pyproject.toml              # Project metadata
@@ -342,7 +280,6 @@ This project demonstrates industry best practices:
 
 ### CI/CD & DevOps
 - **Automated Testing** - Smoke tests on PRs, full regression nightly
-- **Containerization** - Docker/Compose for consistent environments
 - **Report Generation** - HTML and Allure reports for test visibility
 - **Artifact Management** - Retained for compliance and debugging
 
@@ -364,13 +301,6 @@ playwright install
 pytest pytest_demo/tests/ui/tangerine_playwright --timeout=30000
 ```
 
-**Issue: Selenium Grid connection refused**
-```bash
-# Solution: Verify Docker is running and containers are healthy
-docker-compose ps
-docker-compose logs selenium-hub
-```
-
 **Issue: Locator selector not found in Playwright**
 - The self-healing mechanism should auto-fix this
 - Check `pytest_demo/locators/signinpage.json` and `pytest_demo/locators/signuppage.json` for updated selectors
@@ -382,12 +312,10 @@ docker-compose logs selenium-hub
 - [Pytest Documentation](https://docs.pytest.org/)
 - [Robot Framework User Guide](https://robotframework.org/robotframework/#introduction)
 - [Playwright Python API](https://playwright.dev/python/)
-- [Selenium Documentation](https://www.selenium.dev/documentation/)
 
 ### Technologies
 - [Python Official Documentation](https://docs.python.org/)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Docker Documentation](https://docs.docker.com/)
 
 ### Related Tools
 - [Allure Report Framework](https://docs.qameta.io/allure/)
@@ -422,7 +350,7 @@ git push origin feature/your-feature-name
 
 ## 📝 License
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License**.
 
 The MIT License permits:
 - ✅ Commercial use

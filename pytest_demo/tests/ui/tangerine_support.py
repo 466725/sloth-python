@@ -3,11 +3,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from selenium.common.exceptions import TimeoutException, WebDriverException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-
 from utils.config import settings
 
 logger = logging.getLogger(__name__)
@@ -41,31 +36,4 @@ def accept_tangerine_cookies_playwright(page: Any) -> None:
     except Exception as exc:
         logger.warning("Unable to accept Tangerine cookie banner in Playwright: %s", exc)
 
-
-def open_tangerine_homepage_selenium(driver: Any) -> None:
-    """Open the Tangerine homepage and dismiss the cookie banner when present."""
-    logger.info("Opening Tangerine homepage in Selenium")
-    driver.get(settings.ui.base_url)
-    accept_tangerine_cookies_selenium(driver)
-
-
-def accept_tangerine_cookies_selenium(driver: Any) -> None:
-    """Accept the OneTrust cookie banner for Selenium sessions when it appears."""
-    wait = WebDriverWait(driver, COOKIE_BANNER_TIMEOUT_SECONDS)
-
-    try:
-        button = wait.until(EC.element_to_be_clickable((By.ID, COOKIE_ACCEPT_BUTTON_ID)))
-    except TimeoutException:
-        logger.info("Tangerine cookie banner not displayed for Selenium session")
-        return
-
-    try:
-        button.click()
-        logger.info("Accepted Tangerine cookie banner in Selenium")
-    except WebDriverException as exc:
-        logger.warning(
-            "Selenium native click failed for Tangerine cookie banner. Falling back to JavaScript: %s",
-            exc,
-        )
-        driver.execute_script("arguments[0].click();", button)
 

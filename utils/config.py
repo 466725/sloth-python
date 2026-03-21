@@ -29,13 +29,6 @@ def _env_str(name: str, default: str) -> str:
 	return os.getenv(name, default).strip() or default
 
 
-def _env_optional_str(name: str) -> str | None:
-	value = os.getenv(name)
-	if value is None:
-		return None
-	value = value.strip()
-	return value or None
-
 
 @dataclass(frozen=True)
 class UrlSettings:
@@ -59,21 +52,10 @@ class PlaywrightSettings:
 
 
 @dataclass(frozen=True)
-class SeleniumSettings:
-	headless: bool
-	remote_url: str | None
-	implicit_wait: int
-	explicit_wait: int
-	common_arguments: tuple[str, ...]
-	stability_arguments: tuple[str, ...]
-
-
-@dataclass(frozen=True)
 class Settings:
 	urls: UrlSettings
 	ui: UiSettings
 	playwright: PlaywrightSettings
-	selenium: SeleniumSettings
 
 
 def load_settings() -> Settings:
@@ -95,33 +77,7 @@ def load_settings() -> Settings:
 		headless=_env_bool("PW_HEADLESS", True),
 	)
 
-	selenium = SeleniumSettings(
-		headless=_env_bool("SELENIUM_HEADLESS", True),
-		remote_url=_env_optional_str("SELENIUM_REMOTE_URL"),
-		implicit_wait=_env_int("SELENIUM_IMPLICIT_WAIT", 10),
-		explicit_wait=_env_int("SELENIUM_EXPLICIT_WAIT", 10),
-		common_arguments=(
-			"--start-maximized",
-			"--incognito",
-			f"--lang={ui.locale}",
-		),
-		stability_arguments=(
-			"--no-sandbox",
-			"--disable-dev-shm-usage",
-			"--disable-gpu",
-			"--disable-extensions",
-			"--disable-web-resources",
-			"--disable-sync",
-			"--disable-plugins",
-			"--disable-images",
-			"--disable-background-networking",
-			"--no-first-run",
-			"--no-default-browser-check",
-			"--window-size=1920,1080",
-		),
-	)
-
-	return Settings(urls=urls, ui=ui, playwright=playwright, selenium=selenium)
+	return Settings(urls=urls, ui=ui, playwright=playwright)
 
 
 settings: Final[Settings] = load_settings()
@@ -141,12 +97,6 @@ def print_configured_settings() -> None:
 		f"{settings.ui.cookie_banner_timeout_seconds}"
 	)
 	print(f"playwright.headless={settings.playwright.headless}")
-	print(f"selenium.headless={settings.selenium.headless}")
-	print(f"selenium.remote_url={settings.selenium.remote_url}")
-	print(f"selenium.implicit_wait={settings.selenium.implicit_wait}")
-	print(f"selenium.explicit_wait={settings.selenium.explicit_wait}")
-	print(f"selenium.common_arguments={settings.selenium.common_arguments}")
-	print(f"selenium.stability_arguments={settings.selenium.stability_arguments}")
 
 
 if __name__ == "__main__":

@@ -14,10 +14,6 @@ CONFIG_ENV_VARS = [
     "SLEEP_TIME",
     "COOKIE_BANNER_TIMEOUT_SECONDS",
     "PW_HEADLESS",
-    "SELENIUM_HEADLESS",
-    "SELENIUM_REMOTE_URL",
-    "SELENIUM_IMPLICIT_WAIT",
-    "SELENIUM_EXPLICIT_WAIT",
 ]
 
 
@@ -37,12 +33,6 @@ def test_settings_defaults_are_loaded_from_expected_fallbacks(monkeypatch: pytes
     assert module.settings.ui.sleep_time == 1
     assert module.settings.ui.cookie_banner_timeout_seconds == 5
     assert module.settings.playwright.headless is True
-    assert module.settings.selenium.headless is True
-    assert module.settings.selenium.remote_url is None
-    assert module.settings.selenium.implicit_wait == 10
-    assert module.settings.selenium.explicit_wait == 10
-    assert "--incognito" in module.settings.selenium.common_arguments
-    assert "--window-size=1920,1080" in module.settings.selenium.stability_arguments
 
 
 @pytest.mark.unit
@@ -53,10 +43,6 @@ def test_settings_support_environment_overrides(monkeypatch: pytest.MonkeyPatch)
     monkeypatch.setenv("SLEEP_TIME", "2")
     monkeypatch.setenv("COOKIE_BANNER_TIMEOUT_SECONDS", "7")
     monkeypatch.setenv("PW_HEADLESS", "false")
-    monkeypatch.setenv("SELENIUM_HEADLESS", "0")
-    monkeypatch.setenv("SELENIUM_REMOTE_URL", "http://grid:4444/wd/hub")
-    monkeypatch.setenv("SELENIUM_IMPLICIT_WAIT", "12")
-    monkeypatch.setenv("SELENIUM_EXPLICIT_WAIT", "15")
 
     module = importlib.reload(module)
 
@@ -66,11 +52,6 @@ def test_settings_support_environment_overrides(monkeypatch: pytest.MonkeyPatch)
     assert module.settings.ui.sleep_time == 2
     assert module.settings.ui.cookie_banner_timeout_seconds == 7
     assert module.settings.playwright.headless is False
-    assert module.settings.selenium.headless is False
-    assert module.settings.selenium.remote_url == "http://grid:4444/wd/hub"
-    assert module.settings.selenium.implicit_wait == 12
-    assert module.settings.selenium.explicit_wait == 15
-    assert "--lang=fr-CA" in module.settings.selenium.common_arguments
 
 
 @pytest.mark.unit
