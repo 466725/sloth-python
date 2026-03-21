@@ -14,6 +14,10 @@ CONFIG_ENV_VARS = [
     "SLEEP_TIME",
     "COOKIE_BANNER_TIMEOUT_SECONDS",
     "PW_HEADLESS",
+    "AI_GEN_MODEL",
+    "AI_GEN_BASE_URL",
+    "AI_GEN_MAX_DOM_CHARS",
+    "AI_GEN_OUTPUT_DIR",
 ]
 
 
@@ -33,6 +37,10 @@ def test_settings_defaults_are_loaded_from_expected_fallbacks(monkeypatch: pytes
     assert module.settings.ui.sleep_time == 1
     assert module.settings.ui.cookie_banner_timeout_seconds == 5
     assert module.settings.playwright.headless is True
+    assert module.settings.ai_generation.model == "gpt-4.1"
+    assert module.settings.ai_generation.base_url == module.settings.urls.openai
+    assert module.settings.ai_generation.max_dom_chars == 12000
+    assert module.settings.ai_generation.output_dir == "pytest_demo/tests/ui/generated_playwright"
 
 
 @pytest.mark.unit
@@ -43,6 +51,10 @@ def test_settings_support_environment_overrides(monkeypatch: pytest.MonkeyPatch)
     monkeypatch.setenv("SLEEP_TIME", "2")
     monkeypatch.setenv("COOKIE_BANNER_TIMEOUT_SECONDS", "7")
     monkeypatch.setenv("PW_HEADLESS", "false")
+    monkeypatch.setenv("AI_GEN_MODEL", "gpt-4.1-mini")
+    monkeypatch.setenv("AI_GEN_BASE_URL", "https://api.openai.com/v1")
+    monkeypatch.setenv("AI_GEN_MAX_DOM_CHARS", "8000")
+    monkeypatch.setenv("AI_GEN_OUTPUT_DIR", "temps/generated-tests")
 
     module = importlib.reload(module)
 
@@ -52,6 +64,10 @@ def test_settings_support_environment_overrides(monkeypatch: pytest.MonkeyPatch)
     assert module.settings.ui.sleep_time == 2
     assert module.settings.ui.cookie_banner_timeout_seconds == 7
     assert module.settings.playwright.headless is False
+    assert module.settings.ai_generation.model == "gpt-4.1-mini"
+    assert module.settings.ai_generation.base_url == "https://api.openai.com/v1"
+    assert module.settings.ai_generation.max_dom_chars == 8000
+    assert module.settings.ai_generation.output_dir == "temps/generated-tests"
 
 
 @pytest.mark.unit

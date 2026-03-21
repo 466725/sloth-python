@@ -52,10 +52,19 @@ class PlaywrightSettings:
 
 
 @dataclass(frozen=True)
+class AIGenerationSettings:
+	model: str
+	base_url: str
+	max_dom_chars: int
+	output_dir: str
+
+
+@dataclass(frozen=True)
 class Settings:
 	urls: UrlSettings
 	ui: UiSettings
 	playwright: PlaywrightSettings
+	ai_generation: AIGenerationSettings
 
 
 def load_settings() -> Settings:
@@ -76,8 +85,14 @@ def load_settings() -> Settings:
 	playwright = PlaywrightSettings(
 		headless=_env_bool("PW_HEADLESS", True),
 	)
+	ai_generation = AIGenerationSettings(
+		model=_env_str("AI_GEN_MODEL", "gpt-4.1"),
+		base_url=_env_str("AI_GEN_BASE_URL", urls.openai),
+		max_dom_chars=_env_int("AI_GEN_MAX_DOM_CHARS", 12000),
+		output_dir=_env_str("AI_GEN_OUTPUT_DIR", "pytest_demo/tests/ui/generated_playwright"),
+	)
 
-	return Settings(urls=urls, ui=ui, playwright=playwright)
+	return Settings(urls=urls, ui=ui, playwright=playwright, ai_generation=ai_generation)
 
 
 settings: Final[Settings] = load_settings()
@@ -97,6 +112,10 @@ def print_configured_settings() -> None:
 		f"{settings.ui.cookie_banner_timeout_seconds}"
 	)
 	print(f"playwright.headless={settings.playwright.headless}")
+	print(f"ai_generation.model={settings.ai_generation.model}")
+	print(f"ai_generation.base_url={settings.ai_generation.base_url}")
+	print(f"ai_generation.max_dom_chars={settings.ai_generation.max_dom_chars}")
+	print(f"ai_generation.output_dir={settings.ai_generation.output_dir}")
 
 
 if __name__ == "__main__":

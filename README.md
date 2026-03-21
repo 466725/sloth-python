@@ -63,6 +63,10 @@ Runtime settings are centralized in `utils/config.py` and read from environment 
 | `SLEEP_TIME` | `1` | Generic sleep duration used in selected fixtures |
 | `COOKIE_BANNER_TIMEOUT_SECONDS` | `5` | Wait time for Tangerine cookie banner handling |
 | `PW_HEADLESS` | `true` | Playwright headless mode (`1/0`, `true/false`, `yes/no`, `on/off`) |
+| `AI_GEN_MODEL` | `gpt-4.1` | Model used by the UI test generator |
+| `AI_GEN_BASE_URL` | `OPENAI_URL` value | OpenAI-compatible base URL used by generator |
+| `AI_GEN_MAX_DOM_CHARS` | `12000` | Max DOM/element-tree size sent to the model |
+| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/ui/generated_playwright` | Default output folder for generated tests |
 
 Quick local check:
 
@@ -111,6 +115,33 @@ pytest pytest_demo/tests/ui/tangerine_playwright
 ```
 
 For `pytest_demo/tests/ui/tangerine_playwright`, Playwright records video per test and keeps/attaches it only when a test fails. Videos are written under `temps/playwright-videos/tangerine_playwright/`.
+
+### AI-Generated UI Scripts (Python + Playwright + MCP + AI)
+
+The project now includes an AI generator that:
+
+- Captures live page context with Playwright
+- Packages it in an MCP-style payload (DOM, element tree, screenshot, network events)
+- Sends your goal + context to an OpenAI-compatible model
+- Writes a runnable pytest + Playwright test file
+
+Set API key:
+
+```powershell
+$env:OPENAI_API_KEY = "<your-key>"
+```
+
+Generate a Tangerine test script:
+
+```powershell
+python -m pytest_demo.ai_generation.cli --url "https://www.tangerine.ca/en" --goal "Verify the homepage loads and sign-in entry point is visible" --test-name "test_tangerine_homepage_generated" --output "pytest_demo/tests/ui/generated_playwright/test_tangerine_homepage_generated.py"
+```
+
+Run generated tests:
+
+```powershell
+pytest -q pytest_demo/tests/ui/generated_playwright
+```
 
 ### Robot Framework
 
@@ -220,10 +251,12 @@ sloth-python/
 │   └── data_structures/        # Trees, heaps, queues, stacks, tries, etc.
 │
 ├── pytest_demo/                 # Pytest Test Suite
+│   ├── ai_generation/           # AI + MCP context driven script generator
 │   ├── tests/                  # Test cases
 │   │   ├── unit/               # Unit tests
 │   │   ├── api/                # API tests (Requests)
 │   │   └── ui/                 # UI tests
+│   │       ├── generated_playwright/
 │   │       └── tangerine_playwright/
 │   ├── self_healing/           # Self-healing Playwright framework
 │   ├── locators/               # Locator repository (signinpage.json, signuppage.json)
