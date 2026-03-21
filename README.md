@@ -192,6 +192,202 @@ This project includes an advanced self-healing mechanism for Playwright-based UI
 - **Improved Stability:** Tests are more resilient to minor DOM alterations
 - **Smart Learning:** System learns from failures and improves over time
 
+## 🤖 AI-Generated UI Test Scripts (Python + Playwright + MCP)
+
+This project includes an AI-powered test generation system that automatically creates pytest + Playwright test scripts from live page context.
+
+### How It Works
+
+The system follows a 6-step end-to-end workflow:
+
+1. **Browser Automation** - Playwright opens the target page
+2. **Context Collection** - MCP-style context is captured (DOM, screenshots, network events)
+3. **Prompt Construction** - Context + goal are packaged into a structured prompt
+4. **AI Generation** - OpenAI-compatible model generates Python test code
+5. **Code Normalization** - Output is cleaned, validated, and formatted
+6. **File Output** - Runnable test file is written to `pytest_demo/tests/ui/generated_playwright/`
+
+### Prerequisites for AI Generation
+
+- `OPENAI_API_KEY` environment variable must be set
+- All dependencies in `requirements.txt` installed (includes `mcp` and `openai`)
+- Playwright browsers installed: `playwright install`
+
+### Quick Start: Generate Your First Test
+
+**Step 1: Set your API key**
+
+```powershell
+$env:OPENAI_API_KEY = "<your-openai-api-key>"
+```
+
+Supports OpenAI-compatible endpoints:
+- OpenAI (default)
+- DeepSeek
+- Azure OpenAI
+- Other OpenAI API clones
+
+**Step 2: Generate a test (example: Tangerine homepage)**
+
+```powershell
+python -m pytest_demo.ai_generation.cli `
+  --url "https://www.tangerine.ca/en/personal" `
+  --goal "Verify homepage loads and Sign In button is visible" `
+  --test-name "test_tangerine_homepage" `
+  --output "pytest_demo/tests/ui/generated_playwright/test_tangerine_homepage.py"
+```
+
+**Step 3: Run the generated test**
+
+```powershell
+pytest -q pytest_demo/tests/ui/generated_playwright/test_tangerine_homepage.py
+```
+
+### CLI Reference
+
+```
+python -m pytest_demo.ai_generation.cli [OPTIONS]
+
+Options:
+  --url TEXT              Target page URL (required)
+  --goal TEXT             Natural language test goal (required)
+  --test-name TEXT        Generated function name (default: test_generated_ui_flow)
+  --output TEXT           Output file path (uses AI_GEN_OUTPUT_DIR by default)
+  --model TEXT            LLM model name (default: gpt-4.1)
+  --base-url TEXT         OpenAI-compatible endpoint (default: OPENAI_URL)
+  --headless {true,false} Run Playwright headless (default: from PW_HEADLESS)
+  --help                  Show help message
+```
+
+### Example Commands
+
+**Generate homepage test:**
+```powershell
+python -m pytest_demo.ai_generation.cli `
+  --url "https://www.tangerine.ca/en/personal" `
+  --goal "Verify homepage loads and Sign In entry point is visible" `
+  --test-name "test_tangerine_homepage"
+```
+
+**Generate sign-in page test:**
+```powershell
+python -m pytest_demo.ai_generation.cli `
+  --url "https://www.tangerine.ca/app/#/login" `
+  --goal "Verify sign-in page loads and username/password fields are present" `
+  --test-name "test_tangerine_signin"
+```
+
+**Generate sign-up page test:**
+```powershell
+python -m pytest_demo.ai_generation.cli `
+  --url "https://www.tangerine.ca/app/#/signup" `
+  --goal "Verify sign-up page loads and registration form is visible" `
+  --test-name "test_tangerine_signup"
+```
+
+**Run all generated tests:**
+```powershell
+pytest -q pytest_demo/tests/ui/generated_playwright
+```
+
+### Configuration
+
+AI generation settings are read from `utils/config.py` and environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `AI_GEN_MODEL` | `gpt-4.1` | LLM model identifier |
+| `AI_GEN_BASE_URL` | OpenAI endpoint | API base URL (OpenAI-compatible) |
+| `AI_GEN_MAX_DOM_CHARS` | `12000` | Max DOM size sent to model |
+| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/ui/generated_playwright` | Default output folder |
+
+Override defaults via environment variables:
+
+```powershell
+$env:AI_GEN_MODEL = "gpt-4.1-mini"
+$env:AI_GEN_BASE_URL = "https://api.deepseek.com"
+$env:AI_GEN_OUTPUT_DIR = "pytest_demo/tests/ui/my_generated_tests"
+```
+
+### Modules & Architecture
+
+| Module | Purpose |
+|--------|---------|
+| `mcp_context.py` | Collects Playwright page context (MCP protocol) |
+| `prompt_builder.py` | Constructs structured prompts for the AI model |
+| `ai_client.py` | OpenAI-compatible chat client |
+| `generator.py` | Orchestrates generation: context → AI → file |
+| `cli.py` | Command-line interface for test generation |
+
+Location: `pytest_demo/ai_generation/`
+
+### Example Generated Test
+
+When you run the generator with the homepage goal, it produces:
+
+```python
+from playwright.sync_api import Page
+import pytest
+
+@pytest.mark.ui
+def test_tangerine_homepage(page: Page):
+    page.goto("https://www.tangerine.ca/en/personal", wait_until="domcontentloaded")
+    
+    # Verify page loads with correct title
+    assert page.title() == "Tangerine"
+    
+    # Verify Sign In button is visible
+    login_button = page.locator("#login")
+    assert login_button.is_visible()
+    
+    # Verify main heading is present
+    heading = page.locator("h1")
+    assert heading.is_visible()
+    assert "Welcome" in heading.text_content()
+```
+
+**Key features of generated tests:**
+
+- ✅ Fully runnable pytest + Playwright code
+- ✅ Uses resilient locator strategies (id, css, text)
+- ✅ Includes meaningful assertions based on page context
+- ✅ Safe fallback template if AI response is malformed
+- ✅ Automatically adds missing imports
+- ✅ Ready to integrate with CI/CD
+
+### Integration with Self-Healing
+
+Generated tests work seamlessly with the self-healing framework:
+
+1. Generated tests use stable locators from the live page
+2. If locators break over time, self-healing automatically repairs them
+3. Updated selectors are saved to `pytest_demo/locators/*.json`
+4. Subsequent test runs use the healed locators
+
+### Testing & Validation
+
+The feature includes full unit test coverage:
+
+```powershell
+pytest -q pytest_demo/tests/AI/test_ai_generation.py
+```
+
+Tests validate:
+- Prompt structure includes goal and MCP context
+- Code extraction from markdown blocks
+- Fallback template generation
+- Configuration defaults and overrides
+- CLI argument parsing
+
+### Notes & Best Practices
+
+- **API Costs**: OpenAI API calls are charged per token. Monitor usage during testing.
+- **Model Selection**: `gpt-4.1` recommended for best results; `gpt-4.1-mini` for cost savings
+- **Headless Mode**: Use `--headless false` during development to watch test generation
+- **DOM Size**: Large pages (>12000 chars) are truncated. Adjust with `AI_GEN_MAX_DOM_CHARS`
+- **Test Quality**: Review generated tests before committing. AI is powerful but not perfect.
+- **Custom Endpoints**: Use `--base-url` for DeepSeek, Azure, or self-hosted OpenAI clones
+
 ## 🔄 CI/CD Pipeline & Automation
 
 Automated testing is orchestrated through GitHub Actions workflows to ensure code quality and early defect detection.
