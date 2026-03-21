@@ -14,7 +14,9 @@ This suite mirrors the Tangerine UI checks from `pytest_demo/tests/ui/tangerine_
 - Enabled only for these locator keys in Robot Playwright keywords:
   - `tangerine.login`
   - `tangerine.signup`
-- Locator definitions are shared from `pytest_demo/locators/locators.json`
+- Locator definitions are shared from split files:
+  - `pytest_demo/locators/signinpage.json`
+  - `pytest_demo/locators/signuppage.json`
 - Robot mode currently runs with read-only healing (`auto_update=False`)
 
 ## Runtime Behavior

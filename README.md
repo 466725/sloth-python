@@ -157,14 +157,16 @@ The Tangerine Robot keyword libraries self-bootstrap the project root import pat
 This project includes an advanced self-healing mechanism for Playwright-based UI tests that automatically detects and repairs broken locators.
 
 **Location:** `pytest_demo/self_healing/`
-**Locator Store:** `pytest_demo/locators/locators.json`
+**Locator Store:**
+- `pytest_demo/locators/signinpage.json`
+- `pytest_demo/locators/signuppage.json`
 
 ### How It Works
 
 1. **Primary Locator Failure** → Framework attempts primary locator
 2. **Backup Locators** → Tries backup selectors from locator store
 3. **DOM Scanning** → Scans page DOM for similar elements using fuzzy matching
-4. **Auto-Update** → If a match is found, test passes and `locators.json` is automatically updated
+4. **Auto-Update** → If a match is found, test passes and the page-specific locator file is automatically updated
 5. **Resilience** → Subsequent test runs use the updated selector
 
 ### Benefits
@@ -283,7 +285,7 @@ sloth-python/
 │   │       ├── tangerine_selenium/
 │   │       └── tangerine_playwright/
 │   ├── self_healing/           # Self-healing Playwright framework
-│   ├── locators/               # Locator repository (locators.json)
+│   ├── locators/               # Locator repository (signinpage.json, signuppage.json)
 │   ├── conftest.py             # Pytest fixtures & configuration
 │   └── pytest.ini              # Pytest settings
 │
@@ -371,7 +373,7 @@ docker-compose logs selenium-hub
 
 **Issue: Locator selector not found in Playwright**
 - The self-healing mechanism should auto-fix this
-- Check `pytest_demo/locators/locators.json` for updated selectors
+- Check `pytest_demo/locators/signinpage.json` and `pytest_demo/locators/signuppage.json` for updated selectors
 - Manual fix: Update the JSON or run with `-v` flag for detailed logs
 
 ## 📖 Documentation & Resources
