@@ -9,7 +9,7 @@ wxpython; sys_platform == "win32"
 openai>=1.0.0
 mcp
 pyecharts
-robotframework~=7.0
+robotframework~=7.4
 playwright
 pygame; python_version < "3.14"
 pytest
