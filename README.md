@@ -11,6 +11,7 @@ Sloth Python combines robust test automation frameworks (Robot Framework, pytest
 
 - **Advanced Test Automation:** Robot Framework and pytest examples for unit, API, and Playwright-based UI testing
 - **Self-Healing Locators:** AI-assisted Playwright framework that automatically detects and repairs broken element selectors
+- **AI Test Script Generation:** MCP-aware Playwright workflow that generates runnable pytest UI tests from natural-language goals
 - **Algorithm Library:** Curated implementations of algorithms, data structures, and machine learning concepts
 - **Production-Ready CI/CD:** GitHub Actions workflows for automated smoke tests and nightly regression suites
 - **Comprehensive Examples:** Real-world test scenarios and automation patterns
