@@ -12,13 +12,12 @@ SYSTEM_PROMPT = (
 
 
 def build_generation_prompt(snapshot: BrowserSnapshot, goal: str, test_name: str) -> str:
+    # Optimize context to reduce token count - only send essential info
     context = {
         "url": snapshot.url,
         "title": snapshot.title,
-        "dom": snapshot.dom,
-        "element_tree": snapshot.element_tree,
-        "network_events": snapshot.network_events,
-        "mcp_payload": snapshot.to_mcp_payload(),
+        "element_tree": snapshot.element_tree[:3000],  # Trim to first 3000 chars
+        # Don't include full DOM, network events, or mcp_payload to reduce tokens
     }
 
     return dedent(
@@ -30,12 +29,16 @@ def build_generation_prompt(snapshot: BrowserSnapshot, goal: str, test_name: str
         Requirements:
         - Include imports required by the generated test.
         - Navigate to `{snapshot.url}`.
-        - Verify the page with at least one assertion.
-        - Prefer locator strategies that are likely stable.
-        - Do not include explanations, markdown, or prose.
+        - Verify the page with at least one meaningful assertion.
+        - Prefer locator strategies (id, data-testid, text) that are likely stable.
+        - Do not include explanations, markdown, or prose. Return code only.
 
-        Browser context (JSON):
-        {json.dumps(context, ensure_ascii=True)}
+        Page context:
+        Title: {snapshot.title}
+        URL: {snapshot.url}
+        
+        Element tree (truncated):
+        {snapshot.element_tree[:2000]}
         """
     ).strip()
 
