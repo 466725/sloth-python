@@ -39,12 +39,12 @@ def test_generator_writes_code_from_fenced_response(tmp_path: Path):
     snapshot = _snapshot(dom="<html></html>", element_tree="<body></body>")
     client = _script_client(
         """```python
-from playwright.sync_api import Page
-
-def test_smoke(page: Page):
-    page.goto(\"https://www.tangerine.ca/en\")
-    assert \"Tangerine\" in page.title()
-```"""
+        from playwright.sync_api import Page
+        
+        def test_smoke(page: Page):
+            page.goto(\"https://www.tangerine.ca/en\")
+            assert \"Tangerine\" in page.title()
+        ```"""
     )
     generator = PlaywrightTestScriptGenerator(client)
 
@@ -59,4 +59,3 @@ def test_smoke(page: Page):
     content = result.output_path.read_text(encoding="utf-8")
     assert "def test_generated_ui_flow" in content
     assert "page.goto" in content
-

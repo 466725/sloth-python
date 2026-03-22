@@ -12,32 +12,32 @@ def demo_generate_tangerine_homepage_test():
         url="https://www.tangerine.ca/en/personal",
         title="Tangerine",
         dom="""<html>
-<head><title>Tangerine</title></head>
-<body>
-  <header>
-    <nav>
-      <a id="login" href="/app#/login">Log in</a>
-      <a id="menu_signup" href="/app#/signup">Sign me up</a>
-    </nav>
-  </header>
-  <main>
-    <h1>Welcome to Tangerine</h1>
-    <p>Your trusted online banking partner</p>
-  </main>
-</body>
-</html>""",
-        element_tree="""<body>
-  <header>
-    <nav>
-      <a id="login" href="/app#/login">Log in</a>
-      <a id="menu_signup" href="/app#/signup">Sign me up</a>
-    </nav>
-  </header>
-  <main>
-    <h1>Welcome to Tangerine</h1>
-    <p>Your trusted online banking partner</p>
-  </main>
-</body>""",
+            <head><title>Tangerine</title></head>
+            <body>
+              <header>
+                <nav>
+                  <a id="login" href="/app#/login">Log in</a>
+                  <a id="menu_signup" href="/app#/signup">Sign me up</a>
+                </nav>
+              </header>
+              <main>
+                <h1>Welcome to Tangerine</h1>
+                <p>Your trusted online banking partner</p>
+              </main>
+            </body>
+            </html>""",
+                    element_tree="""<body>
+              <header>
+                <nav>
+                  <a id="login" href="/app#/login">Log in</a>
+                  <a id="menu_signup" href="/app#/signup">Sign me up</a>
+                </nav>
+              </header>
+              <main>
+                <h1>Welcome to Tangerine</h1>
+                <p>Your trusted online banking partner</p>
+              </main>
+            </body>""",
         screenshot_base64="iVBORw0KGgoAAAANSUhEUgAAAAUA...",
         network_events=[
             {"method": "GET", "url": "https://www.tangerine.ca/en/personal", "status": "200"},
@@ -48,29 +48,29 @@ def demo_generate_tangerine_homepage_test():
     class MockClient:
         def generate(self, *, system_prompt: str, user_prompt: str) -> str:
             return """```python
-from playwright.sync_api import Page
-import pytest
-
-@pytest.mark.ui
-def test_tangerine_homepage_generated(page: Page):
-    page.goto("https://www.tangerine.ca/en/personal", wait_until="domcontentloaded")
-    
-    # Verify page loads with correct title
-    assert page.title() == "Tangerine"
-    
-    # Verify Sign In button is visible
-    login_button = page.locator("#login")
-    assert login_button.is_visible()
-    
-    # Verify Sign Up button is visible
-    signup_button = page.locator("#menu_signup")
-    assert signup_button.is_visible()
-    
-    # Verify main heading is present
-    heading = page.locator("h1")
-    assert heading.is_visible()
-    assert "Welcome to Tangerine" in heading.text_content()
-```"""
+                from playwright.sync_api import Page
+                import pytest
+                
+                @pytest.mark.ui
+                def test_tangerine_homepage_generated(page: Page):
+                    page.goto("https://www.tangerine.ca/en/personal", wait_until="domcontentloaded")
+                    
+                    # Verify page loads with correct title
+                    assert page.title() == "Tangerine"
+                    
+                    # Verify Sign In button is visible
+                    login_button = page.locator("#login")
+                    assert login_button.is_visible()
+                    
+                    # Verify Sign Up button is visible
+                    signup_button = page.locator("#menu_signup")
+                    assert signup_button.is_visible()
+                    
+                    # Verify main heading is present
+                    heading = page.locator("h1")
+                    assert heading.is_visible()
+                    assert "Welcome to Tangerine" in heading.text_content()
+                ```"""
 
     client: ScriptClient = MockClient()
     generator = PlaywrightTestScriptGenerator(client)
