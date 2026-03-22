@@ -15,8 +15,14 @@ from utils.config import settings
 def _parser() -> argparse.ArgumentParser:
     ai_cfg: Any = settings.ai_generation
     parser = argparse.ArgumentParser(description="Generate pytest + Playwright UI tests from live page context.")
-    parser.add_argument("--url", required=True, help="Target page URL.")
-    parser.add_argument("--goal", required=True, help="Natural-language test goal for the AI generator.")
+    parser.add_argument(
+        "--url",
+        required=True,
+        help="Target page URL.")
+    parser.add_argument(
+        "--goal",
+        required=True,
+        help="Natural-language test goal for the AI generator.")
     parser.add_argument(
         "--test-name",
         default="test_generated_ui_flow",
