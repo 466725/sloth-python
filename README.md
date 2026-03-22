@@ -2,7 +2,8 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI Status](https://github.com/466725/sloth-python/actions/workflows/ci.yml/badge.svg)](https://github.com/466725/sloth-python/actions)
+[![CI Status](https://github.com/yourusername/sloth-python/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/sloth-python/actions)
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/466725)
 
 A comprehensive automation and algorithms reference project demonstrating modern testing patterns and best practices.
 
@@ -589,6 +590,22 @@ pytest pytest_demo/tests/ui/tangerine_playwright -q
 ### Related Tools
 - [Allure Report Framework](https://docs.qameta.io/allure/)
 - [Pytest HTML Plugin](https://pytest-html.readthedocs.io/)
+
+## ❤️ Support This Project
+
+If you find **Sloth Python** useful — whether for learning, professional automation, or as a reference — please consider sponsoring!
+
+Your support helps fund:
+- 🛠️ Ongoing maintenance and new features
+- 🤖 AI/Playwright tooling improvements
+- 📚 More algorithm and test examples
+- ⏱️ Faster responses to issues and PRs
+
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github&style=for-the-badge)](https://github.com/sponsors/466725)
+
+Even a small monthly contribution makes a big difference. Thank you! 🙏
+
+---
 
 ## 🤝 Contributing
 
