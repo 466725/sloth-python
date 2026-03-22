@@ -14,52 +14,52 @@
 |  |      (Windows / Linux)       +--------------->|  OpenAI-compatible endpoint      |  |
 |  |                              |                |  LLM  (e.g. gpt-4o-mini)         |  |
 |  |   pytest_demo/ai_generation  |<---------------+----------------------------------+  |
-|  |   - cli.py                   |  Generated                                          |
-|  |   - generator.py             |  code (text)                                        |
-|  |   - prompt_builder.py        |                                                     |
+|  |   - cli.py                   |  Generated                                           |
+|  |   - generator.py             |  code (text)                                         |
+|  |   - prompt_builder.py        |                                                      |
 |  |   - mcp_context.py           |                +----------------------------------+  |
 |  |   - ai_client.py             |                |   Test Target (Tangerine Bank)   |  |
 |  |                              |   Browser      |  https://www.tangerine.ca/...    |  |
 |  |   +-----------------------+  +--------------->+----------------------------------+  |
-|  |   |      Playwright       |  |                                                     |
-|  |   |  - Launch browser     |  |                                                     |
-|  |   |  - Navigate to URL    |  |                                                     |
-|  |   |  - Capture DOM        |  |                                                     |
-|  |   |  - Capture screenshot |  |                                                     |
-|  |   |  - Capture network    |  |                                                     |
-|  |   +-----------+-----------+  |                                                     |
-|  |               |              |                                                     |
-|  |               v              |                                                     |
-|  |   +-----------------------+  |                                                     |
-|  |   |   MCP Context Layer   |  |                                                     |
-|  |   |   BrowserSnapshot     |  |                                                     |
-|  |   |  { url, title,        |  |                                                     |
-|  |   |    dom, element_tree, |  |                                                     |
-|  |   |    screenshot,        |  |                                                     |
-|  |   |    network_events }   |  |                                                     |
-|  |   +-----------+-----------+  |                                                     |
-|  |               |              |                                                     |
-|  |               v              |                                                     |
-|  |   +-----------------------+  |                                                     |
-|  |   |    Prompt Builder     |  |                                                     |
-|  |   |  - Optimize context   |  |                                                     |
-|  |   |  - Build instruction  |  |                                                     |
-|  |   |  - Inject test goal   |  |                                                     |
-|  |   +-----------+-----------+  |                                                     |
-|  |               |              |                                                     |
-|  |               v              |                                                     |
-|  |   +-----------------------+  |                                                     |
-|  |   |    Test Generator     |  |                                                     |
-|  |   |  - Parse AI response  |  |                                                     |
-|  |   |  - Strip MD fences    |  |                                                     |
-|  |   |  - Save .py file      |  |                                                     |
-|  |   +-----------+-----------+  |                                                     |
-|  |               |              |                                                     |
-|  |               v              |                                                     |
-|  |   generated_playwright/*.py  |                                                     |
-|  |   @pytest.mark.ai            |                                                     |
-|  |   Manual review recommended  |                                                     |
-|  +------------------------------+                                                     |
+|  |   |      Playwright       |  |                                                      |
+|  |   |  - Launch browser     |  |                                                      |
+|  |   |  - Navigate to URL    |  |                                                      |
+|  |   |  - Capture DOM        |  |                                                      |
+|  |   |  - Capture screenshot |  |                                                      |
+|  |   |  - Capture network    |  |                                                      |
+|  |   +-----------+-----------+  |                                                      |
+|  |               |              |                                                      |
+|  |               v              |                                                      |
+|  |   +-----------------------+  |                                                      |
+|  |   |   MCP Context Layer   |  |                                                      |
+|  |   |   BrowserSnapshot     |  |                                                      |
+|  |   |  { url, title,        |  |                                                      |
+|  |   |    dom, element_tree, |  |                                                      |
+|  |   |    screenshot,        |  |                                                      |
+|  |   |    network_events }   |  |                                                      |
+|  |   +-----------+-----------+  |                                                      |
+|  |               |              |                                                      |
+|  |               v              |                                                      |
+|  |   +-----------------------+  |                                                      |
+|  |   |    Prompt Builder     |  |                                                      |
+|  |   |  - Optimize context   |  |                                                      |
+|  |   |  - Build instruction  |  |                                                      |
+|  |   |  - Inject test goal   |  |                                                      |
+|  |   +-----------+-----------+  |                                                      |
+|  |               |              |                                                      |
+|  |               v              |                                                      |
+|  |   +-----------------------+  |                                                      |
+|  |   |    Test Generator     |  |                                                      |
+|  |   |  - Parse AI response  |  |                                                      |
+|  |   |  - Strip MD fences    |  |                                                      |
+|  |   |  - Save .py file      |  |                                                      |
+|  |   +-----------+-----------+  |                                                      |
+|  |               |              |                                                      |
+|  |               v              |                                                      |
+|  |   generated_playwright/*.py  |                                                      |
+|  |   @pytest.mark.ai            |                                                      |
+|  |   Manual review recommended  |                                                      |
+|  +------------------------------+                                                      |
 |                                                                                        |
 +----------------------------------------------------------------------------------------+
 ```
@@ -138,74 +138,172 @@ python -m pytest pytest_demo/tests/AI/generated_playwright/<your_file>.py -v -s
 
 ---
 
-## Data Flow (Concise)
+## Data Flow (Summary)
 
 ```text
-Goal + URL
-   ->
-Playwright context capture
-   ->
-MCP snapshot
-   ->
-Prompt optimization
-   ->
-AI API request
-   ->
-Generated Python test
-   ->
-Saved test file
-   ->
-Manual validation (pytest -m ai)
-   ->
-Optional commit/push
+Goal + Target URL
+        │
+        ▼
+Playwright browser context capture
+        │
+        ▼
+MCP BrowserSnapshot  { url, title, dom, element_tree, screenshot, network_events }
+        │
+        ▼
+Prompt builder  →  optimised system + user prompt
+        │
+        ▼
+AI API request  (OpenRouter / OpenAI-compatible)
+        │
+        ▼
+Generated Python test code (text)
+        │
+        ▼
+Normalisation & file save  →  pytest_demo/tests/AI/generated_playwright/
+        │
+        ▼
+Manual validation  →  pytest -m ai -v
+        │
+        ▼
+Optional: git add / commit / promote to stable suite
 ```
 
 ---
 
 ## Key Components and Roles
 
-| Component | Role |
-|----------|------|
-| `cli.py` | Entry point (args, env, orchestration) |
-| `mcp_context.py` | Collects browser context into structured snapshot |
-| `prompt_builder.py` | Builds optimized AI prompt |
-| `ai_client.py` | OpenAI-compatible API client |
-| `generator.py` | Normalizes and writes generated test code |
-| Playwright | Browser automation + page inspection |
-| OpenRouter / AI server | LLM code generation |
-| Tangerine website | Real test target |
+| Component | File | Role |
+|---|---|---|
+| CLI entry point | `cli.py` | Parses args, wires all components, drives generation |
+| Context collector | `mcp_context.py` | Captures live browser state as `BrowserSnapshot` |
+| Prompt builder | `prompt_builder.py` | Builds optimised, token-efficient AI prompt |
+| AI client | `ai_client.py` | OpenAI-compatible HTTP client |
+| Script generator | `generator.py` | Normalises AI output and writes the `.py` test file |
+| Playwright | — | Browser automation and page inspection |
+| OpenRouter | — | LLM gateway (supports GPT-4o, Gemini, Mistral, etc.) |
+| Tangerine website | — | Real test target used for demos |
 
 ---
 
 ## Practical Quality Rules
 
-1. Treat generated tests as drafts, not final truth.
-2. Prefer stable locators (`id`, `data-testid`, robust text).
-3. Avoid brittle exact-title assertions unless guaranteed stable.
-4. Add `@pytest.mark.ai` to generated tests so CI can exclude them by default.
-5. Promote only validated tests into stable suites.
+1. Treat generated tests as **drafts** — review before committing.
+2. Prefer stable locators: `id`, `data-testid`, ARIA role, visible text.
+3. Avoid exact-title assertions unless the title is guaranteed stable.
+4. Keep `@pytest.mark.ai` until the test is validated and promoted.
+5. Only merge tests that pass reliably against the live site.
 
 ---
 
-## Typical Timing and Cost (Approx.)
+## Typical Timings and Cost
 
-- Browser context capture: ~2-4s
-- AI generation: ~2-8s
-- Total generation cycle: ~6-15s
-- Cost depends on model and token usage; optimization significantly reduces cost.
+| Phase | Duration |
+|---|---|
+| Browser context capture | ~2–4 s |
+| AI generation | ~2–8 s |
+| Total cycle | ~6–15 s |
+
+Cost depends on the model and token count. Keeping DOM context trimmed
+(`AI_GEN_MAX_DOM_CHARS`) significantly reduces cost per generation.
 
 ---
 
-## Recommended Local Commands
+## Useful Commands
 
 ```bash
-# Generate
+# Show all CLI options
 python -m pytest_demo.ai_generation.cli --help
 
-# Validate only AI-generated tests
+# Run only AI-generated tests
 pytest -m ai -v
 
-# Exclude AI-generated tests (CI-style)
+# Run everything except AI-generated tests (CI default)
 pytest -m "not ai" -v
+
+# Run the demo (mock client, no API key needed)
+python pytest_demo/ai_generation/demo.py
 ```
+
+---
+
+## Try It Yourself — Generate a New Script
+
+Follow these steps to generate a test for any new scenario from scratch.
+
+### Step 1 — Set Environment Variables
+
+If you have already added `OPENAI_API_KEY` as a **permanent Windows environment variable**
+(Control Panel → System → Advanced → Environment Variables), you do **not** need to set it
+again — it survives reboots and new terminal sessions.
+
+You only need to set the two OpenRouter-specific vars per session (or add them to Windows env
+vars once as well):
+
+```powershell
+# PowerShell — only required if not already set as permanent Windows env vars
+$env:OPENAI_API_KEY  = "sk-or-v1-<your-openrouter-key>"   # skip if already permanent
+$env:AI_GEN_BASE_URL = "https://openrouter.ai/api/v1"
+$env:AI_GEN_MODEL    = "openai/gpt-4o-mini"                # any model at openrouter.ai/models
+```
+
+> **Tip:** Add `AI_GEN_BASE_URL` and `AI_GEN_MODEL` to Windows env vars too so you never
+> need to set them again.
+>
+> **Recommended free/cheap models:** `openai/gpt-4o-mini`, `google/gemini-flash-1.5`,
+> `mistralai/mistral-7b-instruct`
+
+### Step 2 — Choose Your Scenario
+
+| Scenario | `--url` | `--goal` |
+|---|---|---|
+| Tangerine homepage | `https://www.tangerine.ca/en/personal` | `verify hero section and nav links are visible` |
+| Sign In page | `https://www.tangerine.ca/app#/login` | `verify sign-in form has username, password and submit button` |
+| Sign Up page | `https://www.tangerine.ca/app#/signup` | `verify all required sign-up form fields are present` |
+| Any other page | your URL | your natural-language goal |
+
+### Step 3 — Run the CLI
+
+```powershell
+cd C:\path\to\sloth-python
+
+python -m pytest_demo.ai_generation.cli `
+  --url       "https://www.tangerine.ca/app#/login" `
+  --goal      "verify the sign-in form has username and password fields and a submit button" `
+  --test-name "test_tangerine_signin_form" `
+  --output    "pytest_demo/tests/AI/generated_playwright/test_tangerine_signin_form.py"
+```
+
+Playwright opens headless Chromium, captures page context, sends it to the AI, and writes
+the generated test file automatically.
+
+### Step 4 — Review the Generated File
+
+Open the file in your IDE and check:
+
+- [ ] Function name matches `--test-name`
+- [ ] Selectors look stable (`id`, `role`, `text` — not brittle XPath)
+- [ ] Assertions are meaningful
+
+### Step 5 — Run the Generated Test
+
+```bash
+python -m pytest pytest_demo/tests/AI/generated_playwright/test_tangerine_signin_form.py -v -s
+```
+
+### Step 6 — (Optional) Watch It in a Real Browser
+
+```powershell
+$env:PW_HEADLESS = "false"
+python -m pytest pytest_demo/tests/AI/generated_playwright/test_tangerine_signin_form.py -v -s
+```
+
+### Notes
+
+- Re-running the CLI with the same `--output` path **overwrites the file** — use a unique
+  `--test-name` per scenario to keep previous scripts.
+- The `@pytest.mark.ai` marker is injected automatically; CI excludes these tests by default
+  until you manually promote them.
+- If the first attempt fails, tweak the selector or assertion manually — AI drafts are a
+  starting point, not a finished product.
+
 
