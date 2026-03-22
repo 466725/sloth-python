@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Enable version updates for pip dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "466725"
+    labels:
+      - "type/dependencies"
+      - "priority/low"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+

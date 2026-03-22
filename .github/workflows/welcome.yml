@@ -1,0 +1,32 @@
+name: All Issues
+on:
+  issues:
+    types: [opened, reopened]
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: |
+            🎉 Thank you for opening your first issue! We appreciate your contribution to Sloth Python.
+            
+            A maintainer will review your issue shortly. In the meantime:
+            - Make sure all the required information is included
+            - Check [existing issues](https://github.com/466725/sloth-python/issues) to avoid duplicates
+            - Read the [Contributing Guide](CONTRIBUTING.md) for more details
+            
+            If you have any questions, feel free to ask in our [Discussions](https://github.com/466725/sloth-python/discussions).
+          pr-message: |
+            🎉 Thank you for opening your first pull request! We're excited to review your changes.
+            
+            Please make sure:
+            - Your PR title is clear and descriptive
+            - The description explains what and why
+            - All tests are passing
+            - You've followed the [Contributing Guide](CONTRIBUTING.md)
+            
+            A maintainer will review your PR soon!
+

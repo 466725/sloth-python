@@ -2,7 +2,7 @@ import re
 from playwright.sync_api import Page, expect
 import pytest
 
-@pytest.mark.ui
+#@pytest.mark.ui
 def test_tangerine_homepage_generated(page: Page):
     page.goto("https://www.tangerine.ca/en/personal", wait_until="domcontentloaded")
     

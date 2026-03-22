@@ -2,10 +2,36 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI Status](https://github.com/466725/sloth-python/actions/workflows/ci.yml/badge.svg)](https://github.com/466725/sloth-python/actions)
 
 A comprehensive automation and algorithms reference project demonstrating modern testing patterns and best practices.
 
-Sloth Python combines robust test automation frameworks (Robot Framework, pytest) with AI-powered self-healing capabilities, comprehensive algorithm implementations, and practical CI/CD integration examples.
+**Sloth Python** is an educational and professional-grade project combining:
+- 🧪 **Advanced test automation frameworks** (Robot Framework, pytest, Playwright)
+- 🤖 **AI-powered self-healing test locators** that automatically repair broken selectors
+- 🏗️ **Comprehensive algorithm library** (data structures, ML, divide & conquer, and more)
+- ⚙️ **Production-ready CI/CD workflows** using GitHub Actions
+- 🔧 **AI-driven test script generation** from natural-language goals using MCP
+
+Perfect for learning modern test automation, exploring algorithms, or as a reference for professional test frameworks.
+
+## 📚 Table of Contents
+
+- [Quick Start](#-quick-start)
+- [Installation](#️-installation)
+- [Getting Started as a Contributor](GETTING_STARTED.md)
+- [Configuration](#configuration)
+- [Running Tests](#-running-tests)
+- [Self-Healing Framework](#-self-healing-framework-playwright)
+- [AI-Generated Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp)
+- [CI/CD Pipeline](#️-cicd-pipeline--automation)
+- [Project Structure](#-project-structure)
+- [Best Practices](#-best-practices--patterns)
+- [Troubleshooting](#-troubleshooting)
+- [Documentation](#-documentation--resources)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Support & Feedback](#-support--feedback)
 
 ## 📌 Key Highlights
 
@@ -21,13 +47,19 @@ Sloth Python combines robust test automation frameworks (Robot Framework, pytest
 - **Python 3.12+** (Tested with Python 3.14)
 - **Git**
 
-## 🛠️ Installation
+## 🚀 Quick Start
+
+**New to open source?** Check out [GETTING_STARTED.md](GETTING_STARTED.md) for a beginner-friendly guide.
+
+**Want to contribute?** Start with the [Contributing Guide](CONTRIBUTING.md).
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/sloth-python.git
+   git clone https://github.com/466725/sloth-python.git
    cd sloth-python
    ```
+
+## 🛠️ Installation
 
 2. **Create and activate a virtual environment:**
    ```bash
@@ -560,30 +592,83 @@ pytest pytest_demo/tests/ui/tangerine_playwright -q
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these guidelines:
+Contributions are welcome and appreciated! Whether you're fixing bugs, adding features, improving documentation, or sharing new algorithm implementations, we'd love your help.
 
-1. **Fork the repository** and create a feature branch
-2. **Follow PEP 8** style guidelines
-3. **Add tests** for new functionality
-4. **Run the test suite** locally before submitting PR
-5. **Update documentation** as needed
-6. **Submit a pull request** with clear description of changes
+### How to Contribute
 
-### Development Setup
+1. **Fork the repository** on GitHub
+2. **Create a feature branch** with a descriptive name:
+   ```bash
+   git checkout -b feature/add-new-algorithm
+   git checkout -b fix/self-healing-bug
+   git checkout -b docs/improve-readme
+   ```
+3. **Make your changes** and ensure code quality:
+   - Follow **PEP 8** style guidelines
+   - Add **type hints** for new functions
+   - Include **docstrings** and comments
+   - Write **unit tests** for new functionality
+4. **Test your changes** locally:
+   ```bash
+   pytest -m "unit or api"  # Quick smoke test
+   pytest --tb=short        # Full test suite
+   ```
+5. **Commit with clear messages**:
+   ```bash
+   git commit -m "feat: add new sorting algorithm"
+   git commit -m "fix: correct self-healing locator logic"
+   ```
+6. **Push your branch** and **create a Pull Request** on GitHub with:
+   - Clear title and description
+   - Reference to any related issues (e.g., `Fixes #42`)
+   - Explanation of changes and why they're needed
+
+### Areas for Contribution
+
+- **Algorithms** - New algorithm implementations in `algorithms/` (with tests)
+- **Test Automation** - Enhanced Robot Framework keywords, new UI test examples
+- **Self-Healing** - Improvements to the locator recovery mechanism
+- **AI Generation** - Enhancements to the MCP-driven test generator
+- **Documentation** - README updates, code examples, tutorials
+- **CI/CD** - Workflow improvements, additional test coverage
+
+### Development Workflow
 
 ```bash
 # Complete initial setup first (see Installation), then:
 
-# Create feature branch
+# Create and switch to feature branch
 git checkout -b feature/your-feature-name
 
-# Make changes, test, and commit
-pytest  # Run tests
+# Install dependencies (if adding new packages)
+pip install -r requirements.txt
+
+# Make your changes and test
+pytest
+python -m robot robot_demos/calculator/
+
+# Commit and push
+git add .
 git commit -m "feat: describe your changes"
 git push origin feature/your-feature-name
 
 # Create Pull Request on GitHub
 ```
+
+### Code Standards
+
+- **Python** - PEP 8, type hints, docstrings
+- **Tests** - Pytest or Robot Framework with clear naming
+- **Documentation** - Updated README.md or inline comments for complex logic
+- **Commit Messages** - Clear, concise, use conventional commits (feat:, fix:, docs:, etc.)
+
+### Questions or Need Help?
+
+- **GitHub Discussions** - Ask questions and share ideas
+- **GitHub Issues** - Report bugs or request features
+- **Check existing issues** - Your question might already be answered
+
+Thank you for contributing! 🙌
 
 ## 📝 License
 
@@ -602,27 +687,80 @@ With the conditions:
 
 ### Getting Help
 
-- **GitHub Issues** - Report bugs and request features
-- **Discussions** - Ask questions and share ideas
+- **[GitHub Issues](https://github.com/466725/sloth-python/issues)** - Report bugs and request features
+- **[GitHub Discussions](https://github.com/466725/sloth-python/discussions)** - Ask questions, share ideas, and discuss best practices
 - **Documentation** - Check `README.md` and inline code comments for implementation details
+- **Example Tests** - Review `pytest_demo/` and `robot_demos/` for working examples
 
 ### Reporting Bugs
 
-When reporting bugs, please include:
-1. Python version and OS
-2. Steps to reproduce
-3. Expected vs actual behavior
-4. Relevant logs or screenshots
+Found a bug? Please open an issue with:
+1. **Python version** and **OS** (e.g., Python 3.14 on Windows 11)
+2. **Steps to reproduce** the issue
+3. **Expected vs actual behavior**
+4. **Error message** and stack trace (if applicable)
+5. **Environment details** (e.g., Playwright version, headless/headed mode)
 
 ### Feature Requests
 
-Please include:
-1. The problem you're trying to solve
-2. Proposed solution or use case
-3. Alternative approaches considered
+Have an idea for improvement? Open an issue with:
+1. **Clear description** of the feature or problem
+2. **Proposed solution** or use case
+3. **Alternative approaches** you've considered (if any)
+4. **Examples** or code snippets showing the idea
+
+### Discussions
+
+Have questions or want to discuss testing strategies? Use **GitHub Discussions** to:
+- Share test automation patterns and best practices
+- Get advice on test framework choices
+- Discuss algorithm implementations
+- Connect with other contributors
+
+We actively monitor both Issues and Discussions—your feedback helps improve this project!
+
+---
+
+## 📋 Project Governance
+
+### Community & Contribution Resources
+
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Detailed guidelines for contributing code, algorithms, or documentation
+- **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** - Community standards and expectations for respectful interaction
+- **[SECURITY.md](SECURITY.md)** - How to responsibly report security vulnerabilities
+- **[ISSUES_AND_PULL_REQUESTS.md](ISSUES_AND_PULL_REQUESTS.md)** - Templates and guidelines for issues and PRs
+
+### GitHub Issue Templates
+
+We provide issue templates to streamline reporting:
+- **Bug Reports** - For issues and problems
+- **Feature Requests** - For new functionality ideas
+- **Documentation** - For improvements to docs
+- **Questions** - For general inquiries (consider using Discussions instead)
 
 ---
 
 ## ⭐ Acknowledgments
 
-Built with modern Python testing tools and best practices.
+### Built With
+
+- [Python](https://www.python.org/) - Programming language
+- [Pytest](https://docs.pytest.org/) - Testing framework
+- [Playwright](https://playwright.dev/python/) - Modern browser automation
+- [Robot Framework](https://robotframework.org/) - Keyword-driven testing
+- [OpenAI API](https://openai.com/api/) - AI-powered test generation
+
+### Inspiration & References
+
+This project draws on industry best practices from:
+- Test automation communities
+- Software engineering principles
+- Algorithm research and implementations
+
+### Community
+
+We welcome feedback, contributions, and ideas from the community. If you find this project useful, please consider:
+- ⭐ Starring the repository
+- 🔗 Sharing it with others
+- 🤝 Contributing improvements
+- 💬 Providing feedback via Issues or Discussions
