@@ -77,3 +77,16 @@ def test_invalid_boolean_environment_value_raises_value_error(monkeypatch: pytes
     with pytest.raises(ValueError, match="PW_HEADLESS"):
         importlib.reload(config_module)
 
+
+@pytest.mark.unit
+def test_openai_base_url_is_normalized_to_v1(monkeypatch: pytest.MonkeyPatch):
+    _reload_config(monkeypatch)
+    monkeypatch.setenv("OPENAI_URL", "https://api.openai.com")
+    monkeypatch.setenv("AI_GEN_BASE_URL", "https://api.openai.com")
+
+    module = importlib.reload(config_module)
+
+    assert module.settings.urls.openai == "https://api.openai.com/v1"
+    assert module.settings.ai_generation.base_url == "https://api.openai.com/v1"
+
+

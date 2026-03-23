@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from urllib.parse import urlparse
 from typing import Final
 
 
@@ -27,6 +28,15 @@ def _env_int(name: str, default: int) -> int:
 
 def _env_str(name: str, default: str) -> str:
 	return os.getenv(name, default).strip() or default
+
+
+def _normalize_openai_base_url(url: str) -> str:
+	"""Ensure OpenAI-compatible URL has the /v1 prefix expected by the SDK path layout."""
+	normalized = url.rstrip("/")
+	parsed = urlparse(normalized)
+	if parsed.netloc == "api.openai.com" and not parsed.path.endswith("/v1"):
+		return f"{normalized}/v1"
+	return normalized
 
 
 
@@ -70,7 +80,7 @@ def load_settings() -> Settings:
 	urls = UrlSettings(
 		tangerine=_env_str("TANGERINE_URL", "https://www.tangerine.ca/en/personal"),
 		deep_seek=_env_str("DEEP_SEEK_URL", "https://api.deepseek.com"),
-		openai=_env_str("OPENAI_URL", "https://api.openai.com"),
+		openai=_normalize_openai_base_url(_env_str("OPENAI_URL", "https://api.openai.com/v1")),
 	)
 
 	ui = UiSettings(
@@ -85,7 +95,7 @@ def load_settings() -> Settings:
 	)
 	ai_generation = AIGenerationSettings(
 		model=_env_str("AI_GEN_MODEL", "gpt-4.1"),
-		base_url=_env_str("AI_GEN_BASE_URL", urls.openai),
+		base_url=_normalize_openai_base_url(_env_str("AI_GEN_BASE_URL", urls.openai)),
 		max_dom_chars=_env_int("AI_GEN_MAX_DOM_CHARS", 12000),
 		output_dir=_env_str("AI_GEN_OUTPUT_DIR", "pytest_demo/tests/AI/generated_playwright"),
 	)
