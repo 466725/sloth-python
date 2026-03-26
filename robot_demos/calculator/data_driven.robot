@@ -11,7 +11,7 @@ Documentation     Example test cases using the data-driven testing approach.
 ...               Notice that one of these tests fails on purpose to show how
 ...               failures look like.
 Test Template     Calculate
-Library           calculator_library.py
+Library           robot_demos.calculator.calculator_library.CalculatorLibrary
 
 *** Test Cases ***    Expression    Expected
 Addition              12 + 2 + 2    16
