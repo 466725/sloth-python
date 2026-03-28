@@ -65,6 +65,7 @@ def attach_failure_artifacts() -> None:
     if page is None or context is None:
         return
 
+    # Gets Robot’s output directory (or defaults to temps) and turns it into a filesystem path object.
     built_in = BuiltIn()
     output_dir = Path(_variable_as_str(built_in, "${OUTPUT DIR}", "temps"))
     artifacts_dir = output_dir / "artifacts" / "playwright"
@@ -193,5 +194,3 @@ def _variable_as_str(built_in: BuiltIn, name: str, default: str) -> str:
     if isinstance(value, str):
         return value
     return str(value)
-
-
