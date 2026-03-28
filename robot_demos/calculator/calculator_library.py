@@ -63,6 +63,3 @@ class CalculatorLibrary:
             return str(err)
         else:
             raise AssertionError(f"'{expression}' should have caused an error.")
-
-
-
