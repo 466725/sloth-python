@@ -1,6 +1,5 @@
 from pathlib import Path
 import os
-from typing import cast
 
 import pytest
 
@@ -12,18 +11,18 @@ from pytest_demo.ai_generation.paths import resolve_output_path
 from pytest_demo.ai_generation.prompt_builder import SYSTEM_PROMPT, build_generation_prompt
 
 
-class _FakeClient:
+class _FakeClient(ScriptClient):
     def __init__(self, response: str):
         self.response = response
 
-    def generate(self, *, system_prompt: str, user_prompt: str) -> str:
+    def generate(self, *, system_prompt: str, user_prompt: str) -> str:  # type: ignore[override]
         assert "pytest" in system_prompt
         assert "Goal:" in user_prompt
         return self.response
 
 
 def _script_client(response: str) -> ScriptClient:
-    return cast(ScriptClient, cast(object, _FakeClient(response)))
+    return _FakeClient(response)
 
 
 def _snapshot(*, dom: str, element_tree: str, network_events: list[dict[str, str]] | None = None) -> BrowserSnapshot:
@@ -130,4 +129,3 @@ def test_real_ai_generation_without_cli_from_explicit_prompts():
     assert output_path.exists()
     assert f"def {test_name}(" in content
     assert "page.goto" in content
-
