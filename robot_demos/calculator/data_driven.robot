@@ -5,7 +5,11 @@ Documentation     Example test cases using the data-driven testing approach.
 ...               the same workflow multiple times.
 ...
 Test Template     Calculate
+Library           DebugLibrary
 Library           robot_demos.calculator.calculator_library.CalculatorLibrary
+
+*** Variables ***
+${DEBUG_BREAKPOINT}    ${False}
 
 *** Test Cases ***    Expression    Expected
 Addition              12 + 2 + 2    16
@@ -28,10 +32,17 @@ Calculation error     [Template]    Calculation should fail
 *** Keywords ***
 Calculate
     [Arguments]    ${expression}    ${expected}
+    Maybe Debug Breakpoint
     Push buttons    C${expression}=
     Result should be    ${expected}
 
 Calculation should fail
     [Arguments]    ${expression}    ${expected}
+    Maybe Debug Breakpoint
     ${error} =    Should cause error    C${expression}=
     Should be equal    ${expected}    ${error}    # Using `BuiltIn` keyword
+
+Maybe Debug Breakpoint
+    ${debug_enabled}=    Convert To Boolean    ${DEBUG_BREAKPOINT}
+    Run Keyword If    ${debug_enabled}    Debug
+

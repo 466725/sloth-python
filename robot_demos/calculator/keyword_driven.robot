@@ -6,6 +6,11 @@ Documentation     Example test cases using the keyword-driven testing approach.
 ...               existing is easy even for people without programming skills.
 
 Library           robot_demos.calculator.calculator_library.CalculatorLibrary
+Library           DebugLibrary
+Test Setup        Maybe Debug Breakpoint
+
+*** Variables ***
+${DEBUG_BREAKPOINT}    ${False}
 
 *** Test Cases ***
 Push button
@@ -32,3 +37,9 @@ Clear
     Push button    1
     Push button    C
     Result should be    ${EMPTY}    # ${EMPTY} is a built-in variable
+
+*** Keywords ***
+Maybe Debug Breakpoint
+    ${debug_enabled}=    Convert To Boolean    ${DEBUG_BREAKPOINT}
+    Run Keyword If    ${debug_enabled}    Debug
+

@@ -10,6 +10,7 @@ openai>=1.0.0
 mcp
 pyecharts
 robotframework~=7.4
+robotframework-debuglibrary
 playwright
 pygame; python_version < "3.14"
 pytest
