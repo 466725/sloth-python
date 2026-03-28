@@ -11,17 +11,13 @@ for num in range(1, 6):
     elif num % 5 == 0:
         print(str(num) + ": Buzz. ")
 
+
 # Fibonacci Sequence
-(
-    a,
-    b,
-) = (
-    0,
-    1,
-)
+(a, b,) = (0, 1,)
 for i in range(1, 10):
     print("a: " + str(a) + "; b: " + str(b))
     a, b = b, a + b
+
 
 # Fibonacci Sequence
 a, b, c = 0, 1, 1
@@ -43,11 +39,13 @@ def fib(num):
 for item in fib(10):
     print(item)
 
+
 my_list = [10, 20, 30, 40, 50, 60, 70, 80, 90]
 for i in my_list:
     print(i)
 squares = [num * num for num in my_list]
 print(squares)
+
 
 my_tuples = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 for i in my_tuples:
@@ -59,9 +57,11 @@ print(my_dict.items())
 print(my_dict.keys())
 print(my_dict.values())
 
+
 my_set = [10, 20, 20, 20, 30, 40, 50, 60, 70, 80, 90]
 for i in my_set:
     print(i)
+
 
 # simple iteration
 a = []
@@ -69,19 +69,23 @@ for x in range(10):
     a.append(x * 2)
 print(a)
 
+
 # list comprehension
 a = [x * 2 for x in range(10)]
 print(a)
 
+
 # dict comprehension
 a = {x: x * 2 for x in range(10)}
 print(a)
+
 
 # the basic way
 s = 0
 for x in range(10):
     s += x
 print(s)
+
 
 # the right way
 s = sum(range(10))
