@@ -32,7 +32,6 @@ Calculation error     [Template]    Calculation should fail
 *** Keywords ***
 Calculate
     [Arguments]    ${expression}    ${expected}
-    Maybe Debug Breakpoint
     Push buttons    C${expression}=
     Result should be    ${expected}
 
