@@ -18,5 +18,6 @@ pytest-rerunfailures
 allure-pytest
 pytest-result-log
 requests
+mysql-connector-python
 
 allure-python-commons
