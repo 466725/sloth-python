@@ -1,2 +1,2 @@
-"""AI-driven Playwright test generation package."""
+"""ai-driven Playwright test generation package."""
 

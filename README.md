@@ -88,19 +88,19 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 Runtime settings are centralized in `utils/config.py` and read from environment variables with safe defaults.
 
-| Variable | Default | Description |
-|---|---|---|
-| `TANGERINE_URL` | `https://www.tangerine.ca/en/personal` | Base URL for Tangerine UI tests |
-| `DEEP_SEEK_URL` | `https://api.deepseek.com` | Base URL for DeepSeek-compatible API calls |
-| `OPENAI_URL` | `https://api.openai.com` | Base URL for OpenAI API calls |
-| `UI_LOCALE` | `en-US` | Browser locale used by Playwright-based UI tests |
-| `SLEEP_TIME` | `1` | Generic sleep duration used in selected fixtures |
-| `COOKIE_BANNER_TIMEOUT_SECONDS` | `5` | Wait time for Tangerine cookie banner handling |
-| `PW_HEADLESS` | `true` | Playwright headless mode (`1/0`, `true/false`, `yes/no`, `on/off`) |
-| `AI_GEN_MODEL` | `gpt-4.1` | Model used by the UI test generator |
-| `AI_GEN_BASE_URL` | `OPENAI_URL` value | OpenAI-compatible base URL used by generator |
-| `AI_GEN_MAX_DOM_CHARS` | `12000` | Max DOM/element-tree size sent to the model |
-| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/AI/generated_playwright` | Default output folder for generated tests |
+| Variable | Default                                     | Description |
+|---|---------------------------------------------|---|
+| `TANGERINE_URL` | `https://www.tangerine.ca/en/personal`      | Base URL for Tangerine UI tests |
+| `DEEP_SEEK_URL` | `https://api.deepseek.com`                  | Base URL for DeepSeek-compatible API calls |
+| `OPENAI_URL` | `https://api.openai.com`                    | Base URL for OpenAI API calls |
+| `UI_LOCALE` | `en-US`                                     | Browser locale used by Playwright-based UI tests |
+| `SLEEP_TIME` | `1`                                         | Generic sleep duration used in selected fixtures |
+| `COOKIE_BANNER_TIMEOUT_SECONDS` | `5`                                         | Wait time for Tangerine cookie banner handling |
+| `PW_HEADLESS` | `true`                                      | Playwright headless mode (`1/0`, `true/false`, `yes/no`, `on/off`) |
+| `AI_GEN_MODEL` | `gpt-4.1`                                   | Model used by the UI test generator |
+| `AI_GEN_BASE_URL` | `OPENAI_URL` value                          | OpenAI-compatible base URL used by generator |
+| `AI_GEN_MAX_DOM_CHARS` | `12000`                                     | Max DOM/element-tree size sent to the model |
+| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/ai/generated_playwright` | Default output folder for generated tests |
 
 Quick local check:
 
@@ -152,7 +152,7 @@ For `pytest_demo/tests/ui/tangerine_playwright`, Playwright records video per te
 
 ### AI-Generated UI Scripts (Python + Playwright + MCP + AI)
 
-Generated Playwright tests default to `pytest_demo/tests/AI/generated_playwright/`. For generation commands, examples, and configuration, see [AI-Generated UI Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp).
+Generated Playwright tests default to `pytest_demo/tests/ai/generated_playwright/`. For generation commands, examples, and configuration, see [AI-Generated UI Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp).
 
 ### Robot Framework
 
@@ -254,7 +254,7 @@ The system follows a 6-step end-to-end workflow:
 3. **Prompt Construction** - Context + goal are packaged into a structured prompt
 4. **AI Generation** - OpenAI-compatible model generates Python test code
 5. **Code Normalization** - Output is cleaned, validated, and formatted
-6. **File Output** - Runnable test file is written to `pytest_demo/tests/AI/generated_playwright/`
+6. **File Output** - Runnable test file is written to `pytest_demo/tests/ai/generated_playwright/`
 
 ### Prerequisites for AI Generation
 
@@ -283,13 +283,13 @@ python -m pytest_demo.ai_generation.cli `
   --url "https://www.tangerine.ca/en/personal" `
   --goal "Verify homepage loads and Sign In button is visible" `
   --test-name "test_tangerine_homepage" `
-  --output "pytest_demo/tests/AI/generated_playwright/test_tangerine_homepage.py"
+  --output "pytest_demo/tests/ai/generated_playwright/test_tangerine_homepage.py"
 ```
 
 **Step 3: Run the generated test**
 
 ```powershell
-pytest -q pytest_demo/tests/AI/generated_playwright/test_tangerine_homepage.py
+pytest -q pytest_demo/tests/ai/generated_playwright/test_tangerine_homepage.py
 ```
 
 ### CLI Reference
@@ -328,26 +328,26 @@ python -m pytest_demo.ai_generation.cli `
 
 **Run all generated tests:**
 ```powershell
-pytest -q pytest_demo/tests/AI/generated_playwright
+pytest -q pytest_demo/tests/ai/generated_playwright
 ```
 
 ### Configuration
 
 AI generation settings are read from `utils/config.py` and environment variables:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `AI_GEN_MODEL` | `gpt-4.1` | LLM model identifier |
-| `AI_GEN_BASE_URL` | OpenAI endpoint | API base URL (OpenAI-compatible) |
-| `AI_GEN_MAX_DOM_CHARS` | `12000` | Max DOM size sent to model |
-| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/AI/generated_playwright` | Default output folder |
+| Variable | Default                                     | Description |
+|----------|---------------------------------------------|-------------|
+| `AI_GEN_MODEL` | `gpt-4.1`                                   | LLM model identifier |
+| `AI_GEN_BASE_URL` | OpenAI endpoint                             | API base URL (OpenAI-compatible) |
+| `AI_GEN_MAX_DOM_CHARS` | `12000`                                     | Max DOM size sent to model |
+| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/ai/generated_playwright` | Default output folder |
 
 Override defaults via environment variables:
 
 ```powershell
 $env:AI_GEN_MODEL = "gpt-4.1-mini"
 $env:AI_GEN_BASE_URL = "https://api.deepseek.com"
-$env:AI_GEN_OUTPUT_DIR = "pytest_demo/tests/AI/my_generated_tests"
+$env:AI_GEN_OUTPUT_DIR = "pytest_demo/tests/ai/my_generated_tests"
 ```
 
 ### Modules & Architecture
@@ -405,7 +405,7 @@ Generated tests are plain pytest + Playwright files. They do not automatically w
 The generator and its configuration are covered by focused unit tests:
 
 ```powershell
-pytest -q pytest_demo/tests/AI/test_ai_generation.py pytest_demo/tests/unit/test_config.py
+pytest -q pytest_demo/tests/ai/test_ai_generation.py pytest_demo/tests/unit/test_config.py
 ```
 
 Tests validate:
@@ -475,7 +475,7 @@ python -m robot --outputdir temps robot_demos/
 
 ```
 sloth-python/
-├── algorithms/                  # Algorithms & Data Structures
+├── algorithms/                 # Algorithms & Data Structures
 │   ├── backtracking/           # Backtracking algorithms
 │   ├── divide_and_conquer/     # Divide & conquer patterns
 │   ├── machine_learning/       # ML implementations (KNN, SVM, Decision Trees, etc.)
@@ -486,8 +486,8 @@ sloth-python/
 │   ├── conversions/            # Number system conversions
 │   └── data_structures/        # Trees, heaps, queues, stacks, tries, etc.
 │
-├── pytest_demo/                 # Pytest Test Suite
-│   ├── ai_generation/           # AI + MCP context driven script generator
+├── pytest_demo/                # Pytest Test Suite
+│   ├── ai_generation/          # AI + MCP context driven script generator
 │   ├── tests/                  # Test cases
 │   │   ├── AI/                 # AI-generation tests and generated Playwright scripts
 │   │   │   └── generated_playwright/
@@ -500,16 +500,16 @@ sloth-python/
 │   ├── conftest.py             # Pytest fixtures & configuration
 │   └── ...
 │
-├── robot_demos/                 # Robot Framework Test Suites
+├── robot_demos/                # Robot Framework Test Suites
 │   ├── calculator/             # Calculator test suite
 │   └── tangerine_playwright/   # Tangerine UI suite (custom Playwright library)
 │
-├── fun_part/                    # Educational & Fun Examples
+├── fun_part/                   # Educational & Fun Examples
 │   ├── go_game/                # Game implementations
 │   ├── bilibili/               # API demo projects
 │   └── web_programming/        # Web examples
 │
-├── utils/                       # Shared Utilities
+├── utils/                      # Shared Utilities
 │   ├── config.py               # Configuration management
 │   ├── constants.py            # Application constants
 │   └── csv_reader.py           # CSV utilities

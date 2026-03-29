@@ -77,7 +77,7 @@ python -m pytest_demo.ai_generation.cli \
   --url      "https://www.tangerine.ca/en/personal" \
   --goal     "Verify that the Get Our App links for iOS and Android are visible" \
   --test-name "test_tangerine_get_our_app_links" \
-  --output   "pytest_demo/tests/AI/generated_playwright/test_tangerine_get_our_app_links.py"
+  --output   "pytest_demo/tests/ai/generated_playwright/test_tangerine_get_our_app_links.py"
 ```
 
 ### 2. Browser Context Collection (Playwright + MCP)
@@ -122,7 +122,7 @@ The AI returns raw Python code as text.
 1. Strips markdown code fences (` ```python … ``` `) if present
 2. Injects `@pytest.mark.ai` marker if missing
 3. Falls back to a minimal template when the model returns unusable output
-4. Writes the final `.py` file to `pytest_demo/tests/AI/generated_playwright/`
+4. Writes the final `.py` file to `pytest_demo/tests/ai/generated_playwright/`
 
 ### 6. Human Quality Gate
 
@@ -133,7 +133,7 @@ Always review before committing:
 - [ ] Test passes locally against the real site
 
 ```bash
-python -m pytest pytest_demo/tests/AI/generated_playwright/<your_file>.py -v -s
+python -m pytest pytest_demo/tests/ai/generated_playwright/<your_file>.py -v -s
 ```
 
 ---
@@ -159,7 +159,7 @@ AI API request  (OpenRouter / OpenAI-compatible)
 Generated Python test code (text)
         │
         ▼
-Normalisation & file save  →  pytest_demo/tests/AI/generated_playwright/
+Normalisation & file save  →  pytest_demo/tests/ai/generated_playwright/
         │
         ▼
 Manual validation  →  pytest -m ai -v
@@ -214,10 +214,10 @@ Cost depends on the model and token count. Keeping DOM context trimmed
 # Show all CLI options
 python -m pytest_demo.ai_generation.cli --help
 
-# Run only AI-generated tests
+# Run only ai-generated tests
 pytest -m ai -v
 
-# Run everything except AI-generated tests (CI default)
+# Run everything except ai-generated tests (CI default)
 pytest -m "not ai" -v
 
 # Run the demo (mock client, no API key needed)
@@ -270,7 +270,7 @@ python -m pytest_demo.ai_generation.cli `
   --url       "https://www.tangerine.ca/app#/login" `
   --goal      "verify the sign-in form has username and password fields and a submit button" `
   --test-name "test_tangerine_signin_form" `
-  --output    "pytest_demo/tests/AI/generated_playwright/test_tangerine_signin_form.py"
+  --output    "pytest_demo/tests/ai/generated_playwright/test_tangerine_signin_form.py"
 ```
 
 Playwright opens headless Chromium, captures page context, sends it to the AI, and writes
@@ -287,14 +287,14 @@ Open the file in your IDE and check:
 ### Step 5 — Run the Generated Test
 
 ```bash
-python -m pytest pytest_demo/tests/AI/generated_playwright/test_tangerine_signin_form.py -v -s
+python -m pytest pytest_demo/tests/ai/generated_playwright/test_tangerine_signin_form.py -v -s
 ```
 
 ### Step 6 — (Optional) Watch It in a Real Browser
 
 ```powershell
 $env:PW_HEADLESS = "false"
-python -m pytest pytest_demo/tests/AI/generated_playwright/test_tangerine_signin_form.py -v -s
+python -m pytest pytest_demo/tests/ai/generated_playwright/test_tangerine_signin_form.py -v -s
 ```
 
 ### Notes

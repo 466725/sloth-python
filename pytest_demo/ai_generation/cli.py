@@ -22,7 +22,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--goal",
         required=True,
-        help="Natural-language test goal for the AI generator.")
+        help="Natural-language test goal for the ai generator.")
     parser.add_argument(
         "--test-name",
         default="test_generated_ui_flow",
@@ -58,7 +58,7 @@ def main(argv: list[str] | None = None) -> int:
 
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
     if not api_key:
-        parser.error("OPENAI_API_KEY is required for AI generation.")
+        parser.error("OPENAI_API_KEY is required for ai generation.")
 
     from playwright.sync_api import sync_playwright
 

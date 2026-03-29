@@ -69,7 +69,7 @@ def test_real_ai_generation_without_cli_from_explicit_prompts():
     base_url = os.getenv("AI_GEN_BASE_URL", "").strip()
     model = os.getenv("AI_GEN_MODEL", "").strip()
     if not all([api_key, base_url, model]):
-        pytest.skip("Requires OPENAI_API_KEY, AI_GEN_BASE_URL and AI_GEN_MODEL for a real AI call.")
+        pytest.skip("Requires OPENAI_API_KEY, AI_GEN_BASE_URL and AI_GEN_MODEL for a real ai call.")
 
     dom = """
         <html>
@@ -107,7 +107,7 @@ def test_real_ai_generation_without_cli_from_explicit_prompts():
         network_events=network_events,
     )
 
-    # Explicit prompt variables for direct AI invocation without using CLI.
+    # Explicit prompt variables for direct ai invocation without using CLI.
     system_prompt = SYSTEM_PROMPT
     user_prompt = build_generation_prompt(snapshot=snapshot, goal=goal, test_name=test_name)
 
@@ -121,7 +121,7 @@ def test_real_ai_generation_without_cli_from_explicit_prompts():
     raw_code = client.generate(system_prompt=system_prompt, user_prompt=user_prompt)
     normalized_code = _normalize_generated_code(raw_code, test_name=test_name, url=snapshot.url)
 
-    output_path = resolve_output_path(f"pytest_demo/tests/AI/generated_playwright/{test_name}.py")
+    output_path = resolve_output_path(f"pytest_demo/tests/ai/generated_playwright/{test_name}.py")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(normalized_code, encoding="utf-8")
 

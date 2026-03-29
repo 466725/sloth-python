@@ -7,7 +7,7 @@ from typing import Any
 
 @dataclass(frozen=True)
 class BrowserSnapshot:
-    """Normalized browser context used by the AI script generator."""
+    """Normalized browser context used by the ai script generator."""
 
     url: str
     title: str
@@ -37,7 +37,7 @@ class BrowserSnapshot:
 
 
 class PlaywrightMCPContextCollector:
-    """Collect page context from Playwright and shape it for AI generation."""
+    """Collect page context from Playwright and shape it for ai generation."""
 
     def __init__(self, max_dom_chars: int = 12000):
         self.max_dom_chars = max_dom_chars
