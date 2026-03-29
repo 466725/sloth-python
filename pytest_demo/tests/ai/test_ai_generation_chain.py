@@ -57,7 +57,7 @@ def _build_reviewer_user_prompt(*, goal: str, plan: str, code: str) -> str:
     )
 
 
-@pytest.mark.unit
+@pytest.mark.ai
 def test_chain_prompts_flow_and_output_normalization(tmp_path: Path):
     goal = "verify login and signup links are visible"
     test_name = "test_chain_generated"
