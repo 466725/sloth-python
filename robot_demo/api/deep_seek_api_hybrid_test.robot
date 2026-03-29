@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    DeepSeek API demo test using Robot Framework.
-Library          robot_demos.api.deep_seek_keywords
+Library          robot_demo.api.deep_seek_keywords
 
 *** Test Cases ***
 DeepSeek Chat Completion Demo

@@ -5,7 +5,7 @@ Documentation     Example test cases using the keyword-driven testing approach.
 ...               ``CalculatorLibrary.py``. Creating new tests or editing
 ...               existing is easy even for people without programming skills.
 
-Library           robot_demos.calculator.calculator_library.CalculatorLibrary
+Library           robot_demo.calculator.calculator_library.CalculatorLibrary
 Library           DebugLibrary
 Test Setup        Maybe Debug Breakpoint
 

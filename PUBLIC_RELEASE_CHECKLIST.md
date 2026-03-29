@@ -178,7 +178,7 @@ cat CODE_OF_CONDUCT.md
 
 # Run test suite to ensure everything works
 pytest -m "unit or api"
-python -m robot robot_demos/calculator/
+python -m robot robot_demo/calculator/
 
 # Check for any secrets in git history
 git log --all -p | grep -i "password\|api.key\|secret" || echo "No secrets found"

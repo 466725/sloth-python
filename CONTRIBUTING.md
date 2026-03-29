@@ -119,7 +119,7 @@ All changes must include appropriate test coverage:
 # Run tests locally before submitting PR
 pytest -m "unit or api"              # Quick smoke test
 pytest --tb=short                    # Full pytest suite
-python -m robot robot_demos/calculator/  # Robot tests
+python -m robot robot_demo/calculator/  # Robot tests
 
 # For UI test changes
 pytest -m ui --tb=short
@@ -167,7 +167,7 @@ git commit -m "test(unit): add csv_reader test cases"
 2. **Run all tests locally**:
    ```bash
    pytest --tb=short
-   python -m robot robot_demos/
+   python -m robot robot_demo/
    ```
 
 3. **Format your code** (optional but recommended):
@@ -239,7 +239,7 @@ def insertion_sort(arr: list[int]) -> list[int]:
 
 ### Test Automation
 - Add new Playwright UI tests in `pytest_demo/tests/ui/`
-- Add Robot Framework test cases in `robot_demos/`
+- Add Robot Framework test cases in `robot_demo/`
 - Enhance test fixtures in `pytest_demo/conftest.py`
 - Document test patterns and best practices
 

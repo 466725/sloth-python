@@ -51,7 +51,7 @@ git log --all -p | grep -i "password\|api.key\|secret"
 
 # 3. Run tests
 pytest -m "unit or api"
-python -m robot robot_demos/calculator/
+python -m robot robot_demo/calculator/
 
 # 4. Verify git state
 git status

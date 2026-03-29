@@ -157,8 +157,8 @@ This project demonstrates three ways to test APIs. They target different needs a
 | Approach | Location                                                                           | Strengths | Trade-offs |
 |---|------------------------------------------------------------------------------------|---|---|
 | Pytest + pure Python (`requests` / SDK) | `pytest_demo/tests/api/deep_seek_api_test.py`                                      | Maximum flexibility, strongest Python debugging, easy fixture/parametrize patterns | Less business-readable for non-Python users |
-| Robot + Python keyword library | `robot_demos/api/deep_seek_api_hybrid_test.robot` + `robot_demos/api/deep_seek_keywords.py` | Readable Robot test flow with reusable Python logic for complex handling | Requires maintaining both `.robot` and `.py` layers |
-| Robot-only (`RequestsLibrary`) | `robot_demos/api/deep_seek_api_test.robot`                                         | Fully keyword-driven API checks, easy for Robot-focused contributors | Complex payload/assertion logic can become verbose in `.robot` |
+| Robot + Python keyword library | `robot_demo/api/deep_seek_api_hybrid_test.robot` + `robot_demo/api/deep_seek_keywords.py` | Readable Robot test flow with reusable Python logic for complex handling | Requires maintaining both `.robot` and `.py` layers |
+| Robot-only (`RequestsLibrary`) | `robot_demo/api/deep_seek_api_test.robot`                                         | Fully keyword-driven API checks, easy for Robot-focused contributors | Complex payload/assertion logic can become verbose in `.robot` |
 
 **When to use which:**
 - Use **Pytest + Python** when API logic is complex (custom retries, advanced validation, reusable helpers).
@@ -171,10 +171,10 @@ This project demonstrates three ways to test APIs. They target different needs a
 pytest -q pytest_demo/tests/api/deep_seek_api_test.py
 
 # Robot API demo (Robot + Python keyword library)
-python -m robot --outputdir temps/robot_api robot_demos/api/deep_seek_api_hybrid_test.robot
+python -m robot --outputdir temps/robot_api robot_demo/api/deep_seek_api_hybrid_test.robot
 
 # Robot API demo (Robot-only RequestsLibrary)
-python -m robot --outputdir temps/robot_api robot_demos/api/deep_seek_api_test.robot
+python -m robot --outputdir temps/robot_api robot_demo/api/deep_seek_api_test.robot
 ```
 
 All DeepSeek demos use `OPENAI_API_KEY`; `DEEP_SEEK_URL` is optional and defaults to `https://api.deepseek.com`.
@@ -185,11 +185,11 @@ Generated Playwright tests default to `pytest_demo/tests/ai/generated_playwright
 
 ### Robot Framework
 
-Robot Framework demos are located in `robot_demos/`.
+Robot Framework demos are located in `robot_demo/`.
 
 #### Tangerine Playwright Robot Suite
 
-The suite under `robot_demos/tangerine_playwright/` mirrors the Tangerine UI coverage from `pytest_demo/tests/ui/tangerine_playwright`.
+The suite under `robot_demo/tangerine_playwright/` mirrors the Tangerine UI coverage from `pytest_demo/tests/ui/tangerine_playwright`.
 
 **Included checks:**
 - Homepage title validation
@@ -207,18 +207,18 @@ The shared `Test Setup` always opens the Tangerine homepage and accepts the cook
 **Run All Demos:**
 ```bash
 # Output results under temps/robot_all
-python -m robot --outputdir temps/robot_all robot_demos/
+python -m robot --outputdir temps/robot_all robot_demo/
 ```
 
 **Run Specific Suite:**
 ```bash
-python -m robot --outputdir temps/robot_calculator robot_demos/calculator/
-python -m robot --outputdir temps/robot_tangerine_playwright robot_demos/tangerine_playwright/
+python -m robot --outputdir temps/robot_calculator robot_demo/calculator/
+python -m robot --outputdir temps/robot_tangerine_playwright robot_demo/tangerine_playwright/
 ```
 
 **Optional dry run (syntax and keyword wiring only):**
 ```bash
-python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_demos/tangerine_playwright/
+python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_demo/tangerine_playwright/
 ```
 
 **Reports:**
@@ -258,7 +258,7 @@ This project includes an advanced self-healing mechanism for Playwright-based UI
 
 ### Robot Tangerine Suite Scope
 
-The Robot suite in `robot_demos/tangerine_playwright/` uses the same self-healing locator store, but limits healing to these keys in the Playwright keywords:
+The Robot suite in `robot_demo/tangerine_playwright/` uses the same self-healing locator store, but limits healing to these keys in the Playwright keywords:
 
 - `tangerine.login`
 - `tangerine.signup`
@@ -492,12 +492,12 @@ Use these commands to mimic the core CI flow locally (see `Running Tests` for mo
 ```bash
 # Run smoke tests
 pytest -m "unit or api"
-python -m robot robot_demos/calculator/
+python -m robot robot_demo/calculator/
 
 # Run a nightly-like full pass
 playwright install
 pytest --tb=short --maxfail=5
-python -m robot --outputdir temps robot_demos/
+python -m robot --outputdir temps robot_demo/
 ```
 
 ## 📂 Project Structure
@@ -529,7 +529,7 @@ sloth-python/
 │   ├── conftest.py             # Pytest fixtures & configuration
 │   └── ...
 │
-├── robot_demos/                # Robot Framework demo suites (API/UI/keyword patterns)
+├── robot_demo/                 # Robot Framework demo suites (API/UI/keyword patterns)
 │   ├── api/                    # API demos (Robot-only RequestsLibrary and Robot + Python keywords)
 │   ├── calculator/             # Calculator test suite
 │   └── tangerine_playwright/   # Tangerine UI suite (custom Playwright library)
@@ -555,7 +555,7 @@ sloth-python/
 
 - **algorithms/** - Production-ready implementations for learning and reference
 - **pytest_demo/** - Complete test automation examples with best practices
-- **robot_demos/** - Robot demo suites for API and UI automation patterns
+- **robot_demo/** - Robot demo suites for API and UI automation patterns
 - **utils/** - Reusable components (config, constants, helpers)
 
 ---
@@ -692,7 +692,7 @@ pip install -r requirements.txt
 
 # Make your changes and test
 pytest
-python -m robot robot_demos/calculator/
+python -m robot robot_demo/calculator/
 
 # Commit and push
 git add .
@@ -737,7 +737,7 @@ With the conditions:
 - **[GitHub Issues](https://github.com/466725/sloth-python/issues)** - Report bugs and request features
 - **[GitHub Discussions](https://github.com/466725/sloth-python/discussions)** - Ask questions, share ideas, and discuss best practices
 - **Documentation** - Check `README.md` and inline code comments for implementation details
-- **Example Tests** - Review `pytest_demo/` and `robot_demos/` for working examples
+- **Example Tests** - Review `pytest_demo/` and `robot_demo/` for working examples
 
 ### Reporting Bugs
 

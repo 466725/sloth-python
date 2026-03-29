@@ -95,7 +95,7 @@ pytest -q
 pytest pytest_demo/tests/unit/test_csv_reader.py -q
 
 # Run Robot Framework tests (if applicable)
-python -m robot robot_demos/calculator/
+python -m robot robot_demo/calculator/
 ```
 
 ### 7. Commit Your Changes
