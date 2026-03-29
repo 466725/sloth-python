@@ -529,7 +529,8 @@ sloth-python/
 │   ├── conftest.py             # Pytest fixtures & configuration
 │   └── ...
 │
-├── robot_demos/                # Robot Framework Test Suites
+├── robot_demos/                # Robot Framework demo suites (API/UI/keyword patterns)
+│   ├── api/                    # API demos (Robot-only RequestsLibrary and Robot + Python keywords)
 │   ├── calculator/             # Calculator test suite
 │   └── tangerine_playwright/   # Tangerine UI suite (custom Playwright library)
 │
@@ -554,7 +555,7 @@ sloth-python/
 
 - **algorithms/** - Production-ready implementations for learning and reference
 - **pytest_demo/** - Complete test automation examples with best practices
-- **robot_demos/** - Keyword-driven test automation patterns
+- **robot_demos/** - Robot demo suites for API and UI automation patterns
 - **utils/** - Reusable components (config, constants, helpers)
 
 ---
