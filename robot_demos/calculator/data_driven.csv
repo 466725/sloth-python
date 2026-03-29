@@ -1,0 +1,9 @@
+*** Test Cases ***,${expression},${expected}
+Addition 1,12 + 2 + 2,16
+Addition 2,2 + -3,-1
+Subtraction 1,12 - 2 - 2,8
+Subtraction 2,2 - -3,5
+Multiplication 1,12 * 2 * 2,48
+Multiplication 2,2 * -3,-6
+Division 1,12 / 2 / 2,3
+Division 2,2 / -3,-1
