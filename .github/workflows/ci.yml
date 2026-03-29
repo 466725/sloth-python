@@ -27,7 +27,7 @@ jobs:
           python -m pytest -m "unit or api" --tb=short
       - name: Run Robot Framework smoke tests
         run: |
-          python -m robot robot_demos/calculator/
+          python -m robot robot_demo/calculator/
 
   regression-test:
     if: github.event_name == 'schedule'
