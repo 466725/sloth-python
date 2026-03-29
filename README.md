@@ -154,11 +154,11 @@ For `pytest_demo/tests/ui/tangerine_playwright`, Playwright records video per te
 
 This project demonstrates three ways to test APIs. They target different needs and can coexist in the same repo.
 
-| Approach | Location | Strengths | Trade-offs |
-|---|---|---|---|
-| Pytest + pure Python (`requests` / SDK) | `pytest_demo/tests/api/deep_seek_api_test.py` | Maximum flexibility, strongest Python debugging, easy fixture/parametrize patterns | Less business-readable for non-Python users |
-| Robot + Python keyword library | `robot_demos/api/deep_seek_api_test.robot` + `robot_demos/api/deep_seek_keywords.py` | Readable Robot test flow with reusable Python logic for complex handling | Requires maintaining both `.robot` and `.py` layers |
-| Robot-only (`RequestsLibrary`) | `robot_demos/api/deep_seek_requests_api_test.robot` | Fully keyword-driven API checks, easy for Robot-focused contributors | Complex payload/assertion logic can become verbose in `.robot` |
+| Approach | Location                                                                           | Strengths | Trade-offs |
+|---|------------------------------------------------------------------------------------|---|---|
+| Pytest + pure Python (`requests` / SDK) | `pytest_demo/tests/api/deep_seek_api_test.py`                                      | Maximum flexibility, strongest Python debugging, easy fixture/parametrize patterns | Less business-readable for non-Python users |
+| Robot + Python keyword library | `robot_demos/api/deep_seek_api_hybrid_test.robot` + `robot_demos/api/deep_seek_keywords.py` | Readable Robot test flow with reusable Python logic for complex handling | Requires maintaining both `.robot` and `.py` layers |
+| Robot-only (`RequestsLibrary`) | `robot_demos/api/deep_seek_api_test.robot`                                         | Fully keyword-driven API checks, easy for Robot-focused contributors | Complex payload/assertion logic can become verbose in `.robot` |
 
 **When to use which:**
 - Use **Pytest + Python** when API logic is complex (custom retries, advanced validation, reusable helpers).
@@ -171,10 +171,10 @@ This project demonstrates three ways to test APIs. They target different needs a
 pytest -q pytest_demo/tests/api/deep_seek_api_test.py
 
 # Robot API demo (Robot + Python keyword library)
-python -m robot --outputdir temps/robot_api robot_demos/api/deep_seek_api_test.robot
+python -m robot --outputdir temps/robot_api robot_demos/api/deep_seek_api_hybrid_test.robot
 
 # Robot API demo (Robot-only RequestsLibrary)
-python -m robot --outputdir temps/robot_api robot_demos/api/deep_seek_requests_api_test.robot
+python -m robot --outputdir temps/robot_api robot_demos/api/deep_seek_api_test.robot
 ```
 
 All DeepSeek demos use `OPENAI_API_KEY`; `DEEP_SEEK_URL` is optional and defaults to `https://api.deepseek.com`.
