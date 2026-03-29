@@ -11,6 +11,7 @@ mcp
 pyecharts
 robotframework~=7.4
 robotframework-debuglibrary
+robotframework-requests
 playwright
 pygame; python_version < "3.14"
 pytest
