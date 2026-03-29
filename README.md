@@ -150,6 +150,35 @@ pytest pytest_demo/tests/ui/tangerine_playwright
 
 For `pytest_demo/tests/ui/tangerine_playwright`, Playwright records video per test and keeps/attaches it only when a test fails. Videos are written under `temps/playwright-videos/tangerine_playwright/`.
 
+### API Testing Approaches (3 Styles)
+
+This project demonstrates three ways to test APIs. They target different needs and can coexist in the same repo.
+
+| Approach | Location | Strengths | Trade-offs |
+|---|---|---|---|
+| Pytest + pure Python (`requests` / SDK) | `pytest_demo/tests/api/deep_seek_api_test.py` | Maximum flexibility, strongest Python debugging, easy fixture/parametrize patterns | Less business-readable for non-Python users |
+| Robot + Python keyword library | `robot_demos/api/deep_seek_api_test.robot` + `robot_demos/api/deep_seek_keywords.py` | Readable Robot test flow with reusable Python logic for complex handling | Requires maintaining both `.robot` and `.py` layers |
+| Robot-only (`RequestsLibrary`) | `robot_demos/api/deep_seek_requests_api_test.robot` | Fully keyword-driven API checks, easy for Robot-focused contributors | Complex payload/assertion logic can become verbose in `.robot` |
+
+**When to use which:**
+- Use **Pytest + Python** when API logic is complex (custom retries, advanced validation, reusable helpers).
+- Use **Robot + Python keyword** when you want readable Robot scenarios but still need Python power behind keywords.
+- Use **Robot-only RequestsLibrary** for straightforward request/response checks and fully keyword-driven demos.
+
+**Run commands:**
+```bash
+# Pytest API demo
+pytest -q pytest_demo/tests/api/deep_seek_api_test.py
+
+# Robot API demo (Robot + Python keyword library)
+python -m robot --outputdir temps/robot_api robot_demos/api/deep_seek_api_test.robot
+
+# Robot API demo (Robot-only RequestsLibrary)
+python -m robot --outputdir temps/robot_api robot_demos/api/deep_seek_requests_api_test.robot
+```
+
+All DeepSeek demos use `OPENAI_API_KEY`; `DEEP_SEEK_URL` is optional and defaults to `https://api.deepseek.com`.
+
 ### AI-Generated UI Scripts (Python + Playwright + MCP + AI)
 
 Generated Playwright tests default to `pytest_demo/tests/ai/generated_playwright/`. For generation commands, examples, and configuration, see [AI-Generated UI Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp).
