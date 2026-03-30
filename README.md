@@ -112,164 +112,99 @@ python -m utils.config
 
 ## 🏃 Running Tests
 
-### Pytest (Unit, API, UI)
+Use the commands below for the most common local test workflows.
 
-The project uses `pytest` as the primary test runner. Configuration is handled in `pytest.ini`.
+### Pytest
 
-**Common Commands:**
+`pytest` is the main runner for unit, API, and Playwright UI tests.
+
 ```powershell
-# Run all tests
+# Full pytest run
 python -m pytest
 
-# Run only Unit and API tests (Fast)
+# Fast smoke run
 python -m pytest -m "unit or api"
 
-# Run UI tests
+# Only unit tests
+python -m pytest -m unit
+
+# Only UI tests
 python -m pytest -m ui
 
-# Generate Allure Report
+# One file / one test
+python -m pytest pytest_demo/tests/unit/test_csv_reader.py -q
+python -m pytest pytest_demo/tests/unit/test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
+
+# Tangerine Playwright suite
+python -m pytest pytest_demo/tests/ui/tangerine_playwright
+
+# Generate and view Allure results
 python -m pytest --alluredir=temps/allure-results --clean-alluredir
 allure serve temps/allure-results
 ```
 
-**Unit Test Examples:**
-```powershell
-# Run all unit tests
-python -m pytest -m unit
+For `pytest_demo/tests/ui/tangerine_playwright`, Playwright records per-test video and keeps/attaches it only for failed tests. Videos are written under `temps/playwright-videos/tangerine_playwright/`.
 
-# Run only csv reader unit tests
-python -m pytest pytest_demo/tests/unit/test_csv_reader.py -q
+### API Demos
 
-# Run one unit test case by node id
-python -m pytest pytest_demo/tests/unit/test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
-```
+The repo includes three API-testing styles:
 
-**Specific UI Suites:**
-```powershell
-# Tangerine (Playwright Only)
-python -m pytest pytest_demo/tests/ui/tangerine_playwright
-```
+| Approach | Best for | Run command |
+|---|---|---|
+| Pytest + Python | Flexible validation and reusable helpers | `python -m pytest -q pytest_demo/tests/api/test_deep_seek_api.py` |
+| Robot + Python keywords | Readable Robot flow with Python power | `python -m robot --outputdir temps/robot_api robot_demo/api/deep_seek_api_hybrid_test.robot` |
+| Robot-only `RequestsLibrary` | Simple keyword-driven API checks | `python -m robot --outputdir temps/robot_api robot_demo/api/deep_seek_api_test.robot` |
 
-For `pytest_demo/tests/ui/tangerine_playwright`, Playwright records video per test and keeps/attaches it only when a test fails. Videos are written under `temps/playwright-videos/tangerine_playwright/`.
+DeepSeek demos use `OPENAI_API_KEY`; `DEEP_SEEK_URL` is optional.
 
-### API Testing Approaches (3 Styles)
+### Playwright Recording & Debugging
 
-This project demonstrates three ways to test APIs. They target different needs and can coexist in the same repo.
-
-| Approach | Location                                     | Strengths | Trade-offs |
-|---|----------------------------------------------|---|---|
-| Pytest + pure Python (`requests` / SDK) | `test_deep_seek_api.py`                      | Maximum flexibility, strongest Python debugging, easy fixture/parametrize patterns | Less business-readable for non-Python users |
-| Robot + Python keyword library | `deep_seek_api_hybrid_test.robot` + `deep_seek_keywords.py` | Readable Robot test flow with reusable Python logic for complex handling | Requires maintaining both `.robot` and `.py` layers |
-| Robot-only (`RequestsLibrary`) | `deep_seek_api_test.robot`                   | Fully keyword-driven API checks, easy for Robot-focused contributors | Complex payload/assertion logic can become verbose in `.robot` |
-
-**When to use which:**
-- Use **Pytest + Python** when API logic is complex (custom retries, advanced validation, reusable helpers).
-- Use **Robot + Python keyword** when you want readable Robot scenarios but still need Python power behind keywords.
-- Use **Robot-only RequestsLibrary** for straightforward request/response checks and fully keyword-driven demos.
-
-**Run commands:**
-```powershell
-# Pytest API demo
-python -m pytest -q pytest_demo/tests/api/test_deep_seek_api.py
-
-# Robot API demo (Robot + Python keyword library)
-python -m robot --outputdir temps/robot_api robot_demo/api/deep_seek_api_hybrid_test.robot
-
-# Robot API demo (Robot-only RequestsLibrary)
-python -m robot --outputdir temps/robot_api robot_demo/api/deep_seek_api_test.robot
-```
-
-All DeepSeek demos use `OPENAI_API_KEY`; `DEEP_SEEK_URL` is optional and defaults to `https://api.deepseek.com`.
-
-### AI-Generated UI Scripts (Python + Playwright + MCP + AI)
-
-#### Playwright Recording & Execution Workflow
-
-Use this quick workflow to create and debug Tangerine UI tests.
-
-**1) Record interactions with Playwright Codegen**
-
-`codegen` opens a real browser and records your actions (clicking, typing, navigation). It is useful for discovering stable locators and generating starter snippets.
+Use Playwright Codegen to record actions and bootstrap UI tests:
 
 ```powershell
 python -m playwright codegen https://www.tangerine.ca/en/personal
 ```
 
-**What to expect:**
-- A browser opens at the target URL.
-- Playwright Inspector shows generated Python actions as you interact.
-- You can copy the generated steps into your pytest test, then improve locators/assertions before committing.
-
-**2) Run your pytest + Playwright test file**
-
-After creating or refining a test, run it in headed mode with slow motion for visual debugging.
+Run a Playwright test visibly for debugging:
 
 ```powershell
 python -m pytest pytest_demo/tests/ui/tangerine_playwright/test_codegen_demo.py --headed --slowmo 200
 ```
 
-**Option details:**
-- `--headed`: runs with visible browser UI (not headless)
-- `--slowmo 200`: adds ~200 ms delay between actions for easier observation
+- `--headed`: opens a visible browser
+- `--slowmo 200`: slows actions for easier observation
 
-**Typical use cases:**
-- Validate a new test created from Codegen output
-- Debug flaky UI interactions step by step
-- Demo test behavior to teammates
+> This project uses **Python pytest + Playwright**, so run tests with `python -m pytest ...`, not `npx playwright test`.
 
-> Note: This project uses **Python pytest + Playwright**. Use `python -m pytest ...` for execution (not `npx playwright test`).
-
-For generation commands, model configuration, and MCP context details, see [AI-Generated UI Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp).
+For AI-based test generation, see [AI-Generated UI Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp).
 
 ### Robot Framework
 
-Robot Framework demos are located in `robot_demo/`.
+Robot demos live under `robot_demo/`.
 
-#### Tangerine Playwright Robot Suite
-
-The suite under `robot_demo/tangerine_playwright/` mirrors the Tangerine UI coverage from `pytest_demo/tests/ui/tangerine_playwright`.
-
-**Included checks:**
-- Homepage title validation
-- Sign-in navigation title validation
-- Sign-up navigation title validation
-
-**Suite lifecycle:**
-- `Suite Setup`: `Open Browser Session`
-- `Test Setup`: `Open Tangerine Homepage`
-- `Test Teardown`: `Capture Failure Artifacts`
-- `Suite Teardown`: `Close Browser Session`
-
-The shared `Test Setup` always opens the Tangerine homepage and accepts the cookie banner when it is present.
-
-**Run All Demos:**
 ```powershell
-# Output results under temps/robot_all
+# All Robot demos
 python -m robot --outputdir temps/robot_all robot_demo/
-```
 
-**Run Specific Suite:**
-```powershell
+# Calculator demo
 python -m robot --outputdir temps/robot_calculator robot_demo/calculator/
-python -m robot --outputdir temps/robot_tangerine_playwright robot_demo/tangerine_playwright/
-```
 
-**Optional dry run (syntax and keyword wiring only):**
-```powershell
+# Tangerine Playwright suite
+python -m robot --outputdir temps/robot_tangerine_playwright robot_demo/tangerine_playwright/
+
+# Dry run (syntax and keyword wiring only)
 python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_demo/tangerine_playwright/
 ```
 
-**Reports:**
-Robot generates `output.xml`, `log.html`, and `report.html` in the selected output directory under `temps/`.
+Robot writes `output.xml`, `log.html`, and `report.html` to the selected directory under `temps/`.
 
-**Artifact behavior (Tangerine suite):**
-- For `temps/robot_tangerine_playwright/`, failure screenshots are saved under `artifacts/playwright/screenshots/`
-- For `temps/robot_tangerine_playwright/`, failure videos are saved under `artifacts/playwright/videos/`
-- Screenshot and video links are logged into Robot `log.html` / `report.html`
-- Passed-test videos are deleted to reduce artifact size
+For `robot_demo/tangerine_playwright/`:
+- failure screenshots are saved under `artifacts/playwright/screenshots/`
+- failure videos are saved under `artifacts/playwright/videos/`
+- screenshot/video links appear in Robot `log.html` and `report.html`
+- passed-test videos are deleted to keep artifacts small
 
-**Import path note:**
-The Tangerine Robot keyword libraries self-bootstrap the project root import path, so running with `-P` is optional for normal local usage.
+The Tangerine Robot keyword libraries also bootstrap the project root import path automatically, so `-P` is typically not needed.
 
 ## 🤖 Self-Healing Framework (Playwright)
 
