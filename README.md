@@ -181,7 +181,43 @@ All DeepSeek demos use `OPENAI_API_KEY`; `DEEP_SEEK_URL` is optional and default
 
 ### AI-Generated UI Scripts (Python + Playwright + MCP + AI)
 
-Generated Playwright tests default to `pytest_demo/tests/ai/generated_playwright/`. For generation commands, examples, and configuration, see [AI-Generated UI Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp).
+#### Playwright Recording & Execution Workflow
+
+Use this quick workflow to create and debug Tangerine UI tests.
+
+**1) Record interactions with Playwright Codegen**
+
+`codegen` opens a real browser and records your actions (clicking, typing, navigation). It is useful for discovering stable locators and generating starter snippets.
+
+```powershell
+python -m playwright codegen https://www.tangerine.ca/en/personal
+```
+
+**What to expect:**
+- A browser opens at the target URL.
+- Playwright Inspector shows generated Python actions as you interact.
+- You can copy the generated steps into your pytest test, then improve locators/assertions before committing.
+
+**2) Run your pytest + Playwright test file**
+
+After creating or refining a test, run it in headed mode with slow motion for visual debugging.
+
+```powershell
+python -m pytest pytest_demo/tests/ui/tangerine_playwright/codegen_demo_test.py --headed --slowmo 200
+```
+
+**Option details:**
+- `--headed`: runs with visible browser UI (not headless)
+- `--slowmo 200`: adds ~200 ms delay between actions for easier observation
+
+**Typical use cases:**
+- Validate a new test created from Codegen output
+- Debug flaky UI interactions step by step
+- Demo test behavior to teammates
+
+> Note: This project uses **Python pytest + Playwright**. Use `python -m pytest ...` for execution (not `npx playwright test`).
+
+For generation commands, model configuration, and MCP context details, see [AI-Generated UI Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp).
 
 ### Robot Framework
 
