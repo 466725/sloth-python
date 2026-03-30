@@ -158,7 +158,7 @@ This project demonstrates three ways to test APIs. They target different needs a
 
 | Approach | Location                                     | Strengths | Trade-offs |
 |---|----------------------------------------------|---|---|
-| Pytest + pure Python (`requests` / SDK) | `deep_seek_api_test.py`                      | Maximum flexibility, strongest Python debugging, easy fixture/parametrize patterns | Less business-readable for non-Python users |
+| Pytest + pure Python (`requests` / SDK) | `test_deep_seek_api.py`                      | Maximum flexibility, strongest Python debugging, easy fixture/parametrize patterns | Less business-readable for non-Python users |
 | Robot + Python keyword library | `deep_seek_api_hybrid_test.robot` + `deep_seek_keywords.py` | Readable Robot test flow with reusable Python logic for complex handling | Requires maintaining both `.robot` and `.py` layers |
 | Robot-only (`RequestsLibrary`) | `deep_seek_api_test.robot`                   | Fully keyword-driven API checks, easy for Robot-focused contributors | Complex payload/assertion logic can become verbose in `.robot` |
 
@@ -170,7 +170,7 @@ This project demonstrates three ways to test APIs. They target different needs a
 **Run commands:**
 ```powershell
 # Pytest API demo
-python -m pytest -q pytest_demo/tests/api/deep_seek_api_test.py
+python -m pytest -q pytest_demo/tests/api/test_deep_seek_api.py
 
 # Robot API demo (Robot + Python keyword library)
 python -m robot --outputdir temps/robot_api robot_demo/api/deep_seek_api_hybrid_test.robot
@@ -205,7 +205,7 @@ python -m playwright codegen https://www.tangerine.ca/en/personal
 After creating or refining a test, run it in headed mode with slow motion for visual debugging.
 
 ```powershell
-python -m pytest pytest_demo/tests/ui/tangerine_playwright/codegen_demo_test.py --headed --slowmo 200
+python -m pytest pytest_demo/tests/ui/tangerine_playwright/test_codegen_demo.py --headed --slowmo 200
 ```
 
 **Option details:**
