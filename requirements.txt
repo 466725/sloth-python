@@ -1,26 +1,33 @@
-matplotlib
-numpy
-scikit-learn
+# Direct dependencies.
+# Policy: keep most packages flexible, but use tested lower bounds plus
+# major-version ceilings for high-impact libraries that affect security,
+# API compatibility, or broad numerical behavior.
+
+# Core libraries and demos
 beautifulsoup4
 lxml
+matplotlib
+mcp
+mysql-connector-python
+numpy>=2.4.4,<3
+openai>=2.30.0,<3
+pyecharts
 python-nmap
+requests>=2.33.1,<3
+scikit-learn
 scipy
 wxpython; sys_platform == "win32"
-openai>=1.0.0
-mcp
-pyecharts
-robotframework~=7.4
-robotframework-debuglibrary
-robotframework-requests
-robotframework-datadriver
+
+# Test automation and reporting
+allure-pytest
+allure-python-commons
 playwright
 pygame; python_version < "3.14"
 pytest
 pytest-html
 pytest-rerunfailures
-allure-pytest
 pytest-result-log
-requests
-mysql-connector-python
-
-allure-python-commons
+robotframework~=7.4
+robotframework-datadriver
+robotframework-debuglibrary
+robotframework-requests
