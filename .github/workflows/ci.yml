@@ -53,7 +53,7 @@ jobs:
       - name: Run all Robot Framework tests
         run: |
           mkdir -p temps
-          python -m robot --outputdir temps robot_demos/
+          python -m robot --outputdir temps robot_demo/
       - name: Install Allure CLI
         run: |
           wget https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
