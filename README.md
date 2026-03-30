@@ -55,7 +55,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 **Want to contribute?** Start with the [Contributing Guide](CONTRIBUTING.md).
 
 1. **Clone the repository:**
-   ```bash
+   ```powershell
    git clone https://github.com/466725/sloth-python.git
    cd sloth-python
    ```
@@ -63,24 +63,26 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 ## 🛠️ Installation
 
 2. **Create and activate a virtual environment:**
-   ```bash
-   # Windows
+   **Windows (PowerShell):**
+   ```powershell
    py -3.14 -m venv .venv
    .\.venv\Scripts\activate
+   ```
 
-   # Linux/Mac
+   **Linux/macOS (bash/zsh):**
+   ```bash
    python3 -m venv .venv
    source .venv/bin/activate
    ```
 
 3. **Install dependencies:**
-   ```bash
+   ```powershell
    pip install -r requirements.txt
    ```
    *Note: This installs the packages used by Robot Framework, pytest, Playwright, and the supporting demo utilities.*
 
 4. **Install Playwright Browsers:**
-   ```bash
+   ```powershell
    playwright install
    ```
 
@@ -104,7 +106,7 @@ Runtime settings are centralized in `utils/config.py` and read from environment 
 
 Quick local check:
 
-```bash
+```powershell
 python -m utils.config
 ```
 
@@ -115,37 +117,37 @@ python -m utils.config
 The project uses `pytest` as the primary test runner. Configuration is handled in `pytest.ini`.
 
 **Common Commands:**
-```bash
+```powershell
 # Run all tests
-pytest
+python -m pytest
 
 # Run only Unit and API tests (Fast)
-pytest -m "unit or api"
+python -m pytest -m "unit or api"
 
 # Run UI tests
-pytest -m ui
+python -m pytest -m ui
 
 # Generate Allure Report
-pytest --alluredir=temps/allure-results --clean-alluredir
+python -m pytest --alluredir=temps/allure-results --clean-alluredir
 allure serve temps/allure-results
 ```
 
 **Unit Test Examples:**
-```bash
+```powershell
 # Run all unit tests
-pytest -m unit
+python -m pytest -m unit
 
 # Run only csv reader unit tests
-pytest pytest_demo/tests/unit/test_csv_reader.py -q
+python -m pytest pytest_demo/tests/unit/test_csv_reader.py -q
 
 # Run one unit test case by node id
-pytest pytest_demo/tests/unit/test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
+python -m pytest pytest_demo/tests/unit/test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
 ```
 
 **Specific UI Suites:**
-```bash
+```powershell
 # Tangerine (Playwright Only)
-pytest pytest_demo/tests/ui/tangerine_playwright
+python -m pytest pytest_demo/tests/ui/tangerine_playwright
 ```
 
 For `pytest_demo/tests/ui/tangerine_playwright`, Playwright records video per test and keeps/attaches it only when a test fails. Videos are written under `temps/playwright-videos/tangerine_playwright/`.
@@ -166,9 +168,9 @@ This project demonstrates three ways to test APIs. They target different needs a
 - Use **Robot-only RequestsLibrary** for straightforward request/response checks and fully keyword-driven demos.
 
 **Run commands:**
-```bash
+```powershell
 # Pytest API demo
-pytest -q pytest_demo/tests/api/deep_seek_api_test.py
+python -m pytest -q pytest_demo/tests/api/deep_seek_api_test.py
 
 # Robot API demo (Robot + Python keyword library)
 python -m robot --outputdir temps/robot_api robot_demo/api/deep_seek_api_hybrid_test.robot
@@ -241,19 +243,19 @@ The suite under `robot_demo/tangerine_playwright/` mirrors the Tangerine UI cove
 The shared `Test Setup` always opens the Tangerine homepage and accepts the cookie banner when it is present.
 
 **Run All Demos:**
-```bash
+```powershell
 # Output results under temps/robot_all
 python -m robot --outputdir temps/robot_all robot_demo/
 ```
 
 **Run Specific Suite:**
-```bash
+```powershell
 python -m robot --outputdir temps/robot_calculator robot_demo/calculator/
 python -m robot --outputdir temps/robot_tangerine_playwright robot_demo/tangerine_playwright/
 ```
 
 **Optional dry run (syntax and keyword wiring only):**
-```bash
+```powershell
 python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_demo/tangerine_playwright/
 ```
 
@@ -354,7 +356,7 @@ python -m pytest_demo.ai_generation.cli `
 **Step 3: Run the generated test**
 
 ```powershell
-pytest -q pytest_demo/tests/ai/generated_playwright/test_tangerine_homepage.py
+python -m pytest -q pytest_demo/tests/ai/generated_playwright/test_tangerine_homepage.py
 ```
 
 ### CLI Reference
@@ -393,7 +395,7 @@ python -m pytest_demo.ai_generation.cli `
 
 **Run all generated tests:**
 ```powershell
-pytest -q pytest_demo/tests/ai/generated_playwright
+python -m pytest -q pytest_demo/tests/ai/generated_playwright
 ```
 
 ### Configuration
@@ -470,7 +472,7 @@ Generated tests are plain pytest + Playwright files. They do not automatically w
 The generator and its configuration are covered by focused unit tests:
 
 ```powershell
-pytest -q pytest_demo/tests/ai/test_ai_generation.py pytest_demo/tests/unit/test_config.py
+python -m pytest -q pytest_demo/tests/ai/test_ai_generation.py pytest_demo/tests/unit/test_config.py
 ```
 
 Tests validate:
@@ -525,14 +527,14 @@ The workflow uploads generated reports when available in the run's **Artifacts**
 
 Use these commands to mimic the core CI flow locally (see `Running Tests` for more command variants):
 
-```bash
+```powershell
 # Run smoke tests
-pytest -m "unit or api"
+python -m pytest -m "unit or api"
 python -m robot robot_demo/calculator/
 
 # Run a nightly-like full pass
 playwright install
-pytest --tb=short --maxfail=5
+python -m pytest --tb=short --maxfail=5
 python -m robot --outputdir temps robot_demo/
 ```
 
@@ -624,17 +626,23 @@ This project demonstrates industry best practices:
 ### Common Issues
 
 **Issue: "ModuleNotFoundError" when running tests**
+**Windows (PowerShell):**
+```powershell
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+**Linux/macOS (bash/zsh):**
 ```bash
-# Solution: Ensure virtual environment is activated and dependencies installed
-source .venv/bin/activate  # or .\.venv\Scripts\activate on Windows
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
 **Issue: Playwright tests timeout**
-```bash
+```powershell
 # Solution: Install browsers and retry a focused UI suite first
 playwright install
-pytest pytest_demo/tests/ui/tangerine_playwright -q
+python -m pytest pytest_demo/tests/ui/tangerine_playwright -q
 ```
 
 **Issue: Locator selector not found in Playwright**
@@ -681,7 +689,7 @@ Contributions are welcome and appreciated! Whether you're fixing bugs, adding fe
 
 1. **Fork the repository** on GitHub
 2. **Create a feature branch** with a descriptive name:
-   ```bash
+   ```powershell
    git checkout -b feature/add-new-algorithm
    git checkout -b fix/self-healing-bug
    git checkout -b docs/improve-readme
@@ -692,12 +700,12 @@ Contributions are welcome and appreciated! Whether you're fixing bugs, adding fe
    - Include **docstrings** and comments
    - Write **unit tests** for new functionality
 4. **Test your changes** locally:
-   ```bash
-   pytest -m "unit or api"  # Quick smoke test
-   pytest --tb=short        # Full test suite
+   ```powershell
+   python -m pytest -m "unit or api"  # Quick smoke test
+   python -m pytest --tb=short          # Full test suite
    ```
 5. **Commit with clear messages**:
-   ```bash
+   ```powershell
    git commit -m "feat: add new sorting algorithm"
    git commit -m "fix: correct self-healing locator logic"
    ```
@@ -717,7 +725,7 @@ Contributions are welcome and appreciated! Whether you're fixing bugs, adding fe
 
 ### Development Workflow
 
-```bash
+```powershell
 # Complete initial setup first (see Installation), then:
 
 # Create and switch to feature branch
@@ -727,7 +735,7 @@ git checkout -b feature/your-feature-name
 pip install -r requirements.txt
 
 # Make your changes and test
-pytest
+python -m pytest
 python -m robot robot_demo/calculator/
 
 # Commit and push
