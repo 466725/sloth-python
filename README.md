@@ -2,7 +2,7 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI Status](https://github.com/yourusername/sloth-python/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/sloth-python/actions)
+[![CI Status](https://github.com/466725/sloth-python/actions/workflows/ci.yml/badge.svg)](https://github.com/466725/sloth-python/actions/workflows/ci.yml)
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/466725)
 
 A comprehensive automation and algorithms reference project demonstrating modern testing patterns and best practices.
@@ -156,11 +156,11 @@ For `pytest_demo/tests/ui/tangerine_playwright`, Playwright records video per te
 
 This project demonstrates three ways to test APIs. They target different needs and can coexist in the same repo.
 
-| Approach | Location                                                                           | Strengths | Trade-offs |
-|---|------------------------------------------------------------------------------------|---|---|
-| Pytest + pure Python (`requests` / SDK) | `pytest_demo/tests/api/deep_seek_api_test.py`                                      | Maximum flexibility, strongest Python debugging, easy fixture/parametrize patterns | Less business-readable for non-Python users |
-| Robot + Python keyword library | `robot_demo/api/deep_seek_api_hybrid_test.robot` + `robot_demo/api/deep_seek_keywords.py` | Readable Robot test flow with reusable Python logic for complex handling | Requires maintaining both `.robot` and `.py` layers |
-| Robot-only (`RequestsLibrary`) | `robot_demo/api/deep_seek_api_test.robot`                                         | Fully keyword-driven API checks, easy for Robot-focused contributors | Complex payload/assertion logic can become verbose in `.robot` |
+| Approach | Location                                     | Strengths | Trade-offs |
+|---|----------------------------------------------|---|---|
+| Pytest + pure Python (`requests` / SDK) | `deep_seek_api_test.py`                      | Maximum flexibility, strongest Python debugging, easy fixture/parametrize patterns | Less business-readable for non-Python users |
+| Robot + Python keyword library | `deep_seek_api_hybrid_test.robot` + `deep_seek_keywords.py` | Readable Robot test flow with reusable Python logic for complex handling | Requires maintaining both `.robot` and `.py` layers |
+| Robot-only (`RequestsLibrary`) | `deep_seek_api_test.robot`                   | Fully keyword-driven API checks, easy for Robot-focused contributors | Complex payload/assertion logic can become verbose in `.robot` |
 
 **When to use which:**
 - Use **Pytest + Python** when API logic is complex (custom retries, advanced validation, reusable helpers).
