@@ -1,5 +1,12 @@
 name: CI
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [ main, master ]
@@ -7,44 +14,65 @@ on:
     branches: [ main, master ]
   schedule:
     - cron: '0 2 * * *'  # Run nightly at 2 AM UTC
+  workflow_dispatch:
 
 jobs:
   smoke-test:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.14'
+          cache: 'pip'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install -r requirements.txt
       - name: Run smoke tests (unit + api, excluding ai generated)
         run: |
           python -m pytest -m "unit or api" --tb=short
       - name: Run Robot Framework smoke tests
         run: |
-          python -m robot robot_demo/calculator/
+          mkdir -p temps/robot_smoke
+          python -m robot --outputdir temps/robot_smoke robot_demo/calculator/
+      - name: Upload smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-results-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            temps/allure-results/
+            temps/robot_smoke/
+          if-no-files-found: warn
+          retention-days: 14
 
   regression-test:
-    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.14'
+          cache: 'pip'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install -r requirements.txt
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
       - name: Install Playwright browsers
         run: |
-          playwright install --with-deps
+          python -m playwright install --with-deps
       - name: Run all pytest tests (excluding ai generated)
         run: |
           python -m pytest -m "not ai" --tb=short --maxfail=5
@@ -56,10 +84,10 @@ jobs:
           python -m robot --outputdir temps robot_demo/
       - name: Install Allure CLI
         run: |
-          wget https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
-          tar -zxvf allure-2.27.0.tgz
+          curl -fsSL -o allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
+          tar -zxf allure.tgz
           sudo mv allure-2.27.0 /opt/allure
-          sudo ln -s /opt/allure/bin/allure /usr/bin/allure
+          sudo ln -sf /opt/allure/bin/allure /usr/bin/allure
       - name: Generate Allure report
         if: always()
         run: |
@@ -69,9 +97,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ github.run_id }}
+          name: regression-results-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
+            temps/allure-results/
             allure-report/
             temps/log.html
             temps/report.html
             temps/output.xml
+          if-no-files-found: warn
+          retention-days: 21
