@@ -1,6 +1,3 @@
-# Created by sarathkaul on 14/11/19
-
-
 def remove_duplicates(sentence: str) -> str:
     """
     Reomove duplicates from sentence
