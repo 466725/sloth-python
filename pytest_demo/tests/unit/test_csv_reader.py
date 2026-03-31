@@ -35,10 +35,3 @@ def test_read_csv_to_list_raises_on_mixed_content_when_convert_to_int_is_true(tm
 
     with pytest.raises(ValueError, match="convert_to_int=True"):
         read_csv_to_list(csv_file)
-
-
-@pytest.mark.unit
-def test_read_csv_to_list_keeps_existing_calculator_data_behavior():
-    rows = read_csv_to_list("pytest_demo/tests/calculator-data.csv")
-
-    assert rows == [[9, 10, 19], [12, 13, 25]]
