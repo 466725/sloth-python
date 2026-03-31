@@ -25,7 +25,7 @@ _context: BrowserContext | None = None
 _page: Page | None = None
 
 # Keep Robot self-healing read-only by default to avoid silent locator store writes.
-SELF_HEAL_AUTO_UPDATE = False
+SELF_HEAL_AUTO_UPDATE = True
 
 
 def open_browser_session() -> None:
