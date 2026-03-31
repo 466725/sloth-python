@@ -1,6 +1,3 @@
-# Created by sarathkaul on 18/11/19
-
-
 def reverse_words(input_str: str) -> str:
     """
     Reverses words in a given string
