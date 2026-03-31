@@ -18,31 +18,50 @@ def test_real_ai_generation_without_cli_from_explicit_prompts():
         pytest.skip("Requires OPENAI_API_KEY, AI_GEN_BASE_URL and AI_GEN_MODEL for a real ai call.")
 
     dom = """
-        <html>
-            <body>
-                <form id='login-form'>
-                  <input id='username' name='username' type='text' />
-                  <input id='password' name='password' type='password' />
-                  <button type='submit'>Sign in</button>
-                </form>
-            </body>
-        </html>
+        <div class="container responsivegrid">
+           <div id="search-actions" class="cmp-container">
+              <div class="button cmp-button--icon">
+                 <button type="button" id="search-btn" class="cmp-button" aria-label="Search, opens dialogue" title="Search, opens dialogue" data-cmp-clickable="" data-cmp-data-layer="{&quot;search-btn&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2023-12-07T18:42:24Z&quot;}}">
+                 </button>
+              </div>
+              <div class="button cmp-button--primary-inverse-outline cmp-all-showVisitor">
+                 <a id="login" class="cmp-button" data-cmp-clickable="" data-cmp-data-layer="{&quot;login&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-01-16T14:39:17Z&quot;,&quot;dc:title&quot;:&quot;Log In&quot;,&quot;xdm:linkURL&quot;:&quot;/app/#/login/login-id?locale=en_CA&quot;}}" href="/app/#/login/login-id?locale=en_CA">
+                 <span class="cmp-button__text">Log In</span>
+                 </a>
+              </div>
+              <div class="button cmp-button--primary-inverse-outline cmp-all-showClient cmp-all-showBusiness">
+                 <button type="button" id="logout" class="cmp-button" data-cmp-clickable="" data-cmp-data-layer="{&quot;logout&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-01-19T21:51:21Z&quot;,&quot;dc:title&quot;:&quot;Log Out&quot;}}">
+                 <span class="cmp-button__text">Log Out</span>
+                 </button>
+              </div>
+              <div class="button cmp-all-showVisitor cmp-button--header-primary-visitor">
+                 <a id="get-started" class="cmp-button" data-cmp-clickable="" data-cmp-data-layer="{&quot;get-started&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-03-11T17:48:16Z&quot;,&quot;dc:title&quot;:&quot;Become a Client&quot;,&quot;xdm:linkURL&quot;:&quot;/app/#/visitor-enroll/instructions?locale=en_CA&amp;products=4000&quot;}}" href="/app/#/visitor-enroll/instructions?locale=en_CA&amp;products=4000">
+                 <span class="cmp-button__text">Become a Client</span>
+                 </a>
+              </div>
+              <div class="button cmp-all-showClient cmp-button--header-primary-client">
+                 <a id="mytangerine" class="cmp-button" data-cmp-clickable="" data-cmp-data-layer="{&quot;mytangerine&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-03-11T17:48:36Z&quot;,&quot;dc:title&quot;:&quot;My Tangerine&quot;,&quot;xdm:linkURL&quot;:&quot;/app/#/accounts?locale=en_CA&quot;}}" href="/app/#/accounts?locale=en_CA">
+                 <span class="cmp-button__text">My Tangerine</span>
+                 </a>
+              </div>
+              <div class="button cmp-all-showBusiness cmp-button--header-primary-business">
+                 <a id="mytangerinebiz" class="cmp-button" data-cmp-clickable="" data-cmp-data-layer="{&quot;mytangerinebiz&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-03-11T17:49:06Z&quot;,&quot;dc:title&quot;:&quot;My Tangerine&quot;,&quot;xdm:linkURL&quot;:&quot;/app/#/accounts?locale=en_CA&quot;}}" href="/app/#/accounts?locale=en_CA">
+                 <span class="cmp-button__text">My Tangerine</span>
+                 </a>
+              </div>
+              <div class="button cmp-button--icon">
+                 <button type="button" id="hamburger-menu" class="cmp-button" aria-label="Menu opens dialog" title="Menu opens dialog" data-cmp-clickable="" data-cmp-data-layer="{&quot;hamburger-menu&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2023-10-18T16:11:34Z&quot;}}">
+                 <span class="cmp-button__icon cmp-button__icon--menu-light" aria-hidden="true"></span>
+                 </button>
+              </div>
+           </div>
+        </div>
     """
-    element_tree = """
-    <body>
-        <form id='login-form'>
-            <input id='username'/>
-            <input id='password'/>
-            <button>Sign in</button>
-        </form>
-    </body>
-    """
+    element_tree = dom
     screenshot_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAUA"
-    network_events = [
-        {"method": "GET", "url": "https://www.tangerine.ca/app#/login", "status": "200"},
-    ]
-    goal = "verify the sign-in form has username and password fields and a submit button"
-    test_name = "test_tangerine_signin_form"
+    network_events = []
+    goal = "verify the Log In and the Become a Client buttons are visible"
+    test_name = "test_tangerine_homepage"
 
     snapshot = BrowserSnapshot(
         url="https://www.tangerine.ca/en/personal",

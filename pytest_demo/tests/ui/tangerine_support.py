@@ -7,10 +7,7 @@ from utils.config import settings
 
 logger = logging.getLogger(__name__)
 
-COOKIE_ACCEPT_BUTTON_ID = "onetrust-accept-btn-handler"
-COOKIE_ACCEPT_BUTTON_SELECTOR = f"#{COOKIE_ACCEPT_BUTTON_ID}"
-COOKIE_BANNER_TIMEOUT_SECONDS = settings.ui.cookie_banner_timeout_seconds
-COOKIE_BANNER_TIMEOUT_MS = COOKIE_BANNER_TIMEOUT_SECONDS * 1000
+COOKIE_BANNER_TIMEOUT_MS = settings.ui.cookie_banner_timeout_seconds * 1000
 
 
 def open_tangerine_homepage_playwright(page: Any) -> None:
@@ -22,8 +19,9 @@ def open_tangerine_homepage_playwright(page: Any) -> None:
 
 def accept_tangerine_cookies_playwright(page: Any) -> None:
     """Accept the OneTrust cookie banner for Playwright sessions when it appears."""
-    button = page.locator(COOKIE_ACCEPT_BUTTON_SELECTOR).first
-
+    # button = page.locator("#onetrust-accept-btn-handler") # CSS locator
+    # button = page.locator('//button[@id="onetrust-accept-btn-handler"]') # xpath
+    button = page.get_by_role("button", name="Accept All")  # builtin
     try:
         button.wait_for(state="visible", timeout=COOKIE_BANNER_TIMEOUT_MS)
     except Exception:
@@ -35,5 +33,3 @@ def accept_tangerine_cookies_playwright(page: Any) -> None:
         logger.info("Accepted Tangerine cookie banner in Playwright")
     except Exception as exc:
         logger.warning("Unable to accept Tangerine cookie banner in Playwright: %s", exc)
-
-
