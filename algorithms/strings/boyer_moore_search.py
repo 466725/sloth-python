@@ -11,7 +11,7 @@ If the mismatched character does not occur to the left in Pattern,
 a shift is proposed that moves the entirety of Pattern past
 the point of mismatch in the text.
 
-If there no mismatch then the pattern matches with text block.
+If there is no mismatch then the pattern matches with text block.
 
 Time Complexity : O(n/m)
     n=length of main string
