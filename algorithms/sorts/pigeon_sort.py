@@ -1,5 +1,5 @@
 """
-This is an implementation of Pigeon Hole Sort.
+This is an implementation of Pigeonhole Sort.
 For doctests run following command:
 
 python3 -m doctest -v pigeon_sort.py
@@ -13,7 +13,7 @@ python pigeon_sort.py
 
 def pigeon_sort(array):
     """
-    Implementation of pigeon hole sort algorithm
+    Implementation of pigeonhole sort algorithm
     :param array: Collection of comparable items
     :return: Collection sorted in ascending order
     >>> pigeon_sort([0, 5, 3, 2, 2])
