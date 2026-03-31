@@ -490,7 +490,6 @@ python -m pytest pytest_demo/tests/ui/tangerine_playwright -q
 - [Contributing Guide](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security Policy](SECURITY.md)
-- [Issues & Pull Request Guide](ISSUES_AND_PULL_REQUESTS.md)
 - [Changelog](CHANGELOG.md)
 
 ### Test Frameworks
@@ -660,7 +659,6 @@ We actively monitor both Issues and Discussions—your feedback helps improve th
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Detailed guidelines for contributing code, algorithms, or documentation
 - **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** - Community standards and expectations for respectful interaction
 - **[SECURITY.md](SECURITY.md)** - How to responsibly report security vulnerabilities
-- **[ISSUES_AND_PULL_REQUESTS.md](ISSUES_AND_PULL_REQUESTS.md)** - Templates and guidelines for issues and PRs
 
 ### GitHub Issue Templates
 
