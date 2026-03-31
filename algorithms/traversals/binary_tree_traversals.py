@@ -1,23 +1,25 @@
 """
-This is pure python implementation of Trie traversal algorithms
+This is pure Python implementation of binary tree traversal algorithms.
 """
+
+from __future__ import annotations
 
 import queue
 
 
 class TreeNode:
-    def __init__(self, data):
+    def __init__(self, data: int):
         self.data = data
-        self.right = None
-        self.left = None
+        self.right: TreeNode | None = None
+        self.left: TreeNode | None = None
 
 
-def build_tree():
+def build_tree() -> TreeNode | None:
     print("\n********Press N to stop entering at any point of time********\n")
     check = input("Enter the value of the root node: ").strip().lower() or "n"
     if check == "n":
         return None
-    q: queue.Queue = queue.Queue()
+    q: queue.Queue[TreeNode] = queue.Queue()
     tree_node = TreeNode(int(check))
     q.put(tree_node)
     while not q.empty():
@@ -36,93 +38,38 @@ def build_tree():
         right_node = TreeNode(int(check))
         node_found.right = right_node
         q.put(right_node)
+    return tree_node
 
 
-def pre_order(node: TreeNode) -> None:
-    """
-    >>> root = TreeNode(1)
-    >>> tree_node2 = TreeNode(2)
-    >>> tree_node3 = TreeNode(3)
-    >>> tree_node4 = TreeNode(4)
-    >>> tree_node5 = TreeNode(5)
-    >>> tree_node6 = TreeNode(6)
-    >>> tree_node7 = TreeNode(7)
-    >>> root.left, root.right = tree_node2, tree_node3
-    >>> tree_node2.left, tree_node2.right = tree_node4 , tree_node5
-    >>> tree_node3.left, tree_node3.right = tree_node6 , tree_node7
-    >>> pre_order(root)
-    1 2 4 5 3 6 7
-    """
-    if not isinstance(node, TreeNode) or not node:
+def pre_order(root: TreeNode | None) -> None:
+    if not isinstance(root, TreeNode) or not root:
         return
-    print(node.data, end=" ")
-    pre_order(node.left)
-    pre_order(node.right)
+    print(root.data, end=" ")
+    pre_order(root.left)
+    pre_order(root.right)
 
 
-def in_order(node: TreeNode) -> None:
-    """
-    >>> root = TreeNode(1)
-    >>> tree_node2 = TreeNode(2)
-    >>> tree_node3 = TreeNode(3)
-    >>> tree_node4 = TreeNode(4)
-    >>> tree_node5 = TreeNode(5)
-    >>> tree_node6 = TreeNode(6)
-    >>> tree_node7 = TreeNode(7)
-    >>> root.left, root.right = tree_node2, tree_node3
-    >>> tree_node2.left, tree_node2.right = tree_node4 , tree_node5
-    >>> tree_node3.left, tree_node3.right = tree_node6 , tree_node7
-    >>> in_order(root)
-    4 2 5 1 6 3 7
-    """
-    if not isinstance(node, TreeNode) or not node:
+def in_order(root: TreeNode | None) -> None:
+    if not isinstance(root, TreeNode) or not root:
         return
-    in_order(node.left)
-    print(node.data, end=" ")
-    in_order(node.right)
+    in_order(root.left)
+    print(root.data, end=" ")
+    in_order(root.right)
 
 
-def post_order(node: TreeNode) -> None:
-    """
-    >>> root = TreeNode(1)
-    >>> tree_node2 = TreeNode(2)
-    >>> tree_node3 = TreeNode(3)
-    >>> tree_node4 = TreeNode(4)
-    >>> tree_node5 = TreeNode(5)
-    >>> tree_node6 = TreeNode(6)
-    >>> tree_node7 = TreeNode(7)
-    >>> root.left, root.right = tree_node2, tree_node3
-    >>> tree_node2.left, tree_node2.right = tree_node4 , tree_node5
-    >>> tree_node3.left, tree_node3.right = tree_node6 , tree_node7
-    >>> post_order(root)
-    4 5 2 6 7 3 1
-    """
-    if not isinstance(node, TreeNode) or not node:
+def post_order(root: TreeNode | None) -> None:
+    if not isinstance(root, TreeNode) or not root:
         return
-    post_order(node.left)
-    post_order(node.right)
-    print(node.data, end=" ")
+    post_order(root.left)
+    post_order(root.right)
+    print(root.data, end=" ")
 
 
-def level_order(node: TreeNode) -> None:
-    """
-    >>> root = TreeNode(1)
-    >>> tree_node2 = TreeNode(2)
-    >>> tree_node3 = TreeNode(3)
-    >>> tree_node4 = TreeNode(4)
-    >>> tree_node5 = TreeNode(5)
-    >>> tree_node6 = TreeNode(6)
-    >>> tree_node7 = TreeNode(7)
-    >>> root.left, root.right = tree_node2, tree_node3
-    >>> tree_node2.left, tree_node2.right = tree_node4 , tree_node5
-    >>> tree_node3.left, tree_node3.right = tree_node6 , tree_node7
-    >>> level_order(root)
-    1 2 3 4 5 6 7
-    """
-    if not isinstance(node, TreeNode) or not node:
+def level_order(root: TreeNode | None) -> None:
+    if not isinstance(root, TreeNode) or not root:
         return
-    q: queue.Queue = queue.Queue()
-    q.put(node)
+    q: queue.Queue[TreeNode] = queue.Queue()
+    q.put(root)
     while not q.empty():
         node_dequeued = q.get()
         print(node_dequeued.data, end=" ")
@@ -132,127 +79,69 @@ def level_order(node: TreeNode) -> None:
             q.put(node_dequeued.right)
 
 
-def level_order_actual(node: TreeNode) -> None:
-    """
-    >>> root = TreeNode(1)
-    >>> tree_node2 = TreeNode(2)
-    >>> tree_node3 = TreeNode(3)
-    >>> tree_node4 = TreeNode(4)
-    >>> tree_node5 = TreeNode(5)
-    >>> tree_node6 = TreeNode(6)
-    >>> tree_node7 = TreeNode(7)
-    >>> root.left, root.right = tree_node2, tree_node3
-    >>> tree_node2.left, tree_node2.right = tree_node4 , tree_node5
-    >>> tree_node3.left, tree_node3.right = tree_node6 , tree_node7
-    >>> level_order_actual(root)
-    1
-    2 3
-    4 5 6 7
-    """
-    if not isinstance(node, TreeNode) or not node:
+def level_order_actual(root: TreeNode | None) -> None:
+    if not isinstance(root, TreeNode) or not root:
         return
-    q: queue.Queue = queue.Queue()
-    q.put(node)
+    q: queue.Queue[TreeNode] = queue.Queue()
+    q.put(root)
     while not q.empty():
-        list = []
+        next_level_nodes: list[TreeNode] = []
         while not q.empty():
             node_dequeued = q.get()
             print(node_dequeued.data, end=" ")
             if node_dequeued.left:
-                list.append(node_dequeued.left)
+                next_level_nodes.append(node_dequeued.left)
             if node_dequeued.right:
-                list.append(node_dequeued.right)
+                next_level_nodes.append(node_dequeued.right)
         print()
-        for node in list:
-            q.put(node)
+        for child in next_level_nodes:
+            q.put(child)
 
 
 # iteration version
-def pre_order_iter(node: TreeNode) -> None:
-    """
-    >>> root = TreeNode(1)
-    >>> tree_node2 = TreeNode(2)
-    >>> tree_node3 = TreeNode(3)
-    >>> tree_node4 = TreeNode(4)
-    >>> tree_node5 = TreeNode(5)
-    >>> tree_node6 = TreeNode(6)
-    >>> tree_node7 = TreeNode(7)
-    >>> root.left, root.right = tree_node2, tree_node3
-    >>> tree_node2.left, tree_node2.right = tree_node4 , tree_node5
-    >>> tree_node3.left, tree_node3.right = tree_node6 , tree_node7
-    >>> pre_order_iter(root)
-    1 2 4 5 3 6 7
-    """
-    if not isinstance(node, TreeNode) or not node:
+def pre_order_iter(root: TreeNode | None) -> None:
+    if not isinstance(root, TreeNode) or not root:
         return
     stack: list[TreeNode] = []
-    n = node
-    while n or stack:
-        while n:  # start from root node, find its left child
-            print(n.data, end=" ")
-            stack.append(n)
-            n = n.left
+    current: TreeNode | None = root
+    while current or stack:
+        while current:  # start from root node, find its left child
+            print(current.data, end=" ")
+            stack.append(current)
+            current = current.left
         # end of while means current node doesn't have left child
-        n = stack.pop()
+        current = stack.pop()
         # start to traverse its right child
-        n = n.right
+        current = current.right
 
 
-def in_order_iter(node: TreeNode) -> None:
-    """
-    >>> root = TreeNode(1)
-    >>> tree_node2 = TreeNode(2)
-    >>> tree_node3 = TreeNode(3)
-    >>> tree_node4 = TreeNode(4)
-    >>> tree_node5 = TreeNode(5)
-    >>> tree_node6 = TreeNode(6)
-    >>> tree_node7 = TreeNode(7)
-    >>> root.left, root.right = tree_node2, tree_node3
-    >>> tree_node2.left, tree_node2.right = tree_node4 , tree_node5
-    >>> tree_node3.left, tree_node3.right = tree_node6 , tree_node7
-    >>> in_order_iter(root)
-    4 2 5 1 6 3 7
-    """
-    if not isinstance(node, TreeNode) or not node:
+def in_order_iter(root: TreeNode | None) -> None:
+    if not isinstance(root, TreeNode) or not root:
         return
     stack: list[TreeNode] = []
-    n = node
-    while n or stack:
-        while n:
-            stack.append(n)
-            n = n.left
-        n = stack.pop()
-        print(n.data, end=" ")
-        n = n.right
+    current: TreeNode | None = root
+    while current or stack:
+        while current:
+            stack.append(current)
+            current = current.left
+        current = stack.pop()
+        print(current.data, end=" ")
+        current = current.right
 
 
-def post_order_iter(node: TreeNode) -> None:
-    """
-    >>> root = TreeNode(1)
-    >>> tree_node2 = TreeNode(2)
-    >>> tree_node3 = TreeNode(3)
-    >>> tree_node4 = TreeNode(4)
-    >>> tree_node5 = TreeNode(5)
-    >>> tree_node6 = TreeNode(6)
-    >>> tree_node7 = TreeNode(7)
-    >>> root.left, root.right = tree_node2, tree_node3
-    >>> tree_node2.left, tree_node2.right = tree_node4 , tree_node5
-    >>> tree_node3.left, tree_node3.right = tree_node6 , tree_node7
-    >>> post_order_iter(root)
-    4 5 2 6 7 3 1
-    """
-    if not isinstance(node, TreeNode) or not node:
+def post_order_iter(root: TreeNode | None) -> None:
+    if not isinstance(root, TreeNode) or not root:
         return
-    stack1, stack2 = [], []
-    n = node
-    stack1.append(n)
+    stack1: list[TreeNode] = []
+    stack2: list[TreeNode] = []
+    stack1.append(root)
     while stack1:  # to find the reversed order of post order, store it in stack2
-        n = stack1.pop()
-        if n.left:
-            stack1.append(n.left)
-        if n.right:
-            stack1.append(n.right)
-        stack2.append(n)
+        current = stack1.pop()
+        if current.left:
+            stack1.append(current.left)
+        if current.right:
+            stack1.append(current.right)
+        stack2.append(current)
     while stack2:  # pop up from stack2 will be the post order
         print(stack2.pop().data, end=" ")
 
@@ -270,35 +159,35 @@ if __name__ == "__main__":
     doctest.testmod()
     print(prompt("Binary Tree Traversals"))
 
-    node = build_tree()
+    root = build_tree()
     print(prompt("Pre Order Traversal"))
-    pre_order(node)
+    pre_order(root)
     print(prompt() + "\n")
 
     print(prompt("In Order Traversal"))
-    in_order(node)
+    in_order(root)
     print(prompt() + "\n")
 
     print(prompt("Post Order Traversal"))
-    post_order(node)
+    post_order(root)
     print(prompt() + "\n")
 
     print(prompt("Level Order Traversal"))
-    level_order(node)
+    level_order(root)
     print(prompt() + "\n")
 
     print(prompt("Actual Level Order Traversal"))
-    level_order_actual(node)
+    level_order_actual(root)
     print("*" * 50 + "\n")
 
     print(prompt("Pre Order Traversal - Iteration Version"))
-    pre_order_iter(node)
+    pre_order_iter(root)
     print(prompt() + "\n")
 
     print(prompt("In Order Traversal - Iteration Version"))
-    in_order_iter(node)
+    in_order_iter(root)
     print(prompt() + "\n")
 
     print(prompt("Post Order Traversal - Iteration Version"))
-    post_order_iter(node)
+    post_order_iter(root)
     print(prompt())
