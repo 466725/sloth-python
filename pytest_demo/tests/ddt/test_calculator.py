@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 @allure.story("STORY-1")
 @allure.title("Test with Allure annotations")
 @allure.severity(severity_level=2)
+@pytest.mark.ddt
 @pytest.mark.unit
 @pytest.mark.parametrize("a,b,expected", [(1, 2, 3), (2, 3, 5)])
 def test_add(a, b, expected):
@@ -23,6 +24,6 @@ def test_add(a, b, expected):
 
 @pytest.mark.ddt
 @pytest.mark.unit
-@pytest.mark.parametrize("a,b,expected", read_csv_to_list("pytest_demo/tests/calculator-data.csv"))
+@pytest.mark.parametrize("a,b,expected", read_csv_to_list("pytest_demo/tests/ddt/calculator-data.csv"))
 def test_ddt(a, b, expected):
     assert a + b == expected
