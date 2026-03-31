@@ -1,8 +1,5 @@
-# Created by sarathkaul on 12/11/19
-
-
 def check_panagram(
-    input_str: str = "The quick brown fox jumps over the lazy dog",
+        input_str: str = "The quick brown fox jumps over the lazy dog",
 ) -> bool:
     """
     A Panagram String contains all the alphabets at least once.
