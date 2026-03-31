@@ -91,7 +91,7 @@ def load_settings() -> Settings:
 	)
 
 	playwright = PlaywrightSettings(
-		headless=_env_bool("PW_HEADLESS", True),
+		headless=_env_bool("PW_HEADLESS", False),
 	)
 	ai_generation = AIGenerationSettings(
 		model=_env_str("AI_GEN_MODEL", "gpt-4.1"),

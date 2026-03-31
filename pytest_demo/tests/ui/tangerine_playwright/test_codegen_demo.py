@@ -1,14 +1,11 @@
-import re
 import pytest
-from playwright.sync_api import Page, expect
 
 
 @pytest.mark.ui
 @pytest.mark.playwright
-def test_example(page: Page) -> None:
-    page.goto("https://www.tangerine.ca/en/personal")
-    expect(page.get_by_role("region", name="Cookie banner")).to_be_visible()
-    page.get_by_role("button", name="Accept All").click()
+def test_example(tangerine_homepage) -> None:
+    """Codegen-recorded flow: navigate Log In, Sign Me Up, back to Home."""
+    page = tangerine_homepage
 
     page.get_by_role("link", name="Log In").click()
     page.get_by_role("link", name="Sign Me Up").click()
