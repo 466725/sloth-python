@@ -485,6 +485,14 @@ python -m pytest pytest_demo/tests/ui/tangerine_playwright -q
 
 ## 📖 Documentation & Resources
 
+### Project Docs (Recommended)
+- [Getting Started for Contributors](GETTING_STARTED.md)
+- [Contributing Guide](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security Policy](SECURITY.md)
+- [Issues & Pull Request Guide](ISSUES_AND_PULL_REQUESTS.md)
+- [Changelog](CHANGELOG.md)
+
 ### Test Frameworks
 - [Pytest Documentation](https://docs.pytest.org/)
 - [Robot Framework User Guide](https://robotframework.org/robotframework/#introduction)
