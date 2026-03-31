@@ -1,23 +1,14 @@
-# Created by sarathkaul on 17/11/19
 from collections import defaultdict
 
 
-def word_occurence(sentence: str) -> dict:
-    """
-    >>> from collections import Counter
-    >>> SENTENCE = "a b A b c b d b d e f e g e h e i e j e 0"
-    >>> occurence_dict = word_occurence(SENTENCE)
-    >>> all(occurence_dict[word] == count for word, count
-    ...     in Counter(SENTENCE.split()).items())
-    True
-    """
+def word_occurrence(sentence: str) -> dict:
     occurrence = defaultdict(int)
     # Creating a dictionary containing count of each word
-    for word in sentence.split(" "):
-        occurrence[word] += 1
+    for token in sentence.split(" "):
+        occurrence[token] += 1
     return occurrence
 
 
 if __name__ == "__main__":
-    for word, count in word_occurence("INPUT STRING").items():
-        print(f"{word}: {count}")
+    for term, count in word_occurrence("How frequently a word occurs!").items():
+        print(f"{term}: {count}")
