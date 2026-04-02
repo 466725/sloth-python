@@ -82,6 +82,8 @@ jobs:
         run: |
           mkdir -p temps
           python -m robot --outputdir temps robot_demo/
+        env:
+          PW_HEADLESS: 1
       - name: Install Allure CLI
         run: |
           curl -fsSL -o allure.tgz https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz

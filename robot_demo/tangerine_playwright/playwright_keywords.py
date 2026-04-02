@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import sys
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -34,7 +35,11 @@ def open_browser_session() -> None:
         return
 
     _pw = sync_playwright().start()
-    _browser = _pw.chromium.launch(headless=settings.playwright.headless)
+    headless = settings.playwright.headless
+    # GitHub-hosted Linux runners typically do not provide a display server.
+    if os.getenv("GITHUB_ACTIONS", "").strip().lower() == "true":
+        headless = True
+    _browser = _pw.chromium.launch(headless=headless)
 
 
 def close_browser_session() -> None:
