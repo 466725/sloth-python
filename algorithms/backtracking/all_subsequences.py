@@ -12,12 +12,6 @@ def generate_all_subsequences(sequence):
 
 
 def create_state_space_tree(sequence, current_subsequence, index):
-    """
-    Creates a state space Trie to iterate through each branch using DFS.
-    We know that each state has exactly two children.
-    It terminates when it reaches the end of the given sequence.
-    """
-
     if index == len(sequence):
         print(current_subsequence)
         return
@@ -27,13 +21,6 @@ def create_state_space_tree(sequence, current_subsequence, index):
     create_state_space_tree(sequence, current_subsequence, index + 1)
     current_subsequence.pop()
 
-
-"""
-remove the comment to take an input from the user
-
-print("Enter the elements")
-sequence = list(map(int, input().split()))
-"""
 
 sequence = [3, 1, 2, 4]
 generate_all_subsequences(sequence)
