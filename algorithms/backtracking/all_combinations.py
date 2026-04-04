@@ -9,26 +9,17 @@ def create_all_state(
         increment: int,
         total_number: int,
         level: int,
-        current_list: list[int],
+        path: list[int],
         result_list: list[list[int]],
 ) -> None:
-    """Build combinations recursively using backtracking.
-
-    Args:
-        increment: Next candidate value to consider.
-        total_number: Upper bound of the source range [1.n].
-        level: Number of remaining values needed to complete a combination.
-        current_list: Current in-progress combination.
-        result_list: Collector for all completed combinations.
-    """
     if level == 0:
-        result_list.append(current_list[:])
+        result_list.append(path[:])
         return
 
     for i in range(increment, total_number - level + 2):
-        current_list.append(i)
-        create_all_state(i + 1, total_number, level - 1, current_list, result_list)
-        current_list.pop()
+        path.append(i)
+        create_all_state(i + 1, total_number, level - 1, path, result_list)
+        path.pop()
 
 
 def generate_all_combinations(n: int, k: int) -> list[list[int]]:
@@ -41,7 +32,7 @@ def generate_all_combinations(n: int, k: int) -> list[list[int]]:
         increment=1,
         total_number=n,
         level=k,
-        current_list=[],
+        path=[],
         result_list=combinations,
     )
     return combinations
