@@ -10,24 +10,27 @@ from typing import Any
 def generate_all_permutations(sequence: Sequence[Any]) -> None:
     """Entry point that initializes backtracking state."""
     used = [False] * len(sequence)
-    _backtrack(sequence=sequence, path=[], depth=0, used=used)
+    backtrack(sequence, [], 0, used)
 
 
-def _backtrack(
-    sequence: Sequence[Any], path: list[Any], depth: int, used: list[bool]
+def backtrack(
+        sequence: Sequence[Any],
+        path: list[Any],
+        depth: int,
+        used: list[bool],
 ) -> None:
     if depth == len(sequence):
         print(path)
         return
 
-    for index, value in enumerate(sequence):
-        if used[index]:
+    for i, value in enumerate(sequence):
+        if used[i]:
             continue
 
         path.append(value)
-        used[index] = True
-        _backtrack(sequence=sequence, path=path, depth=depth + 1, used=used)
-        used[index] = False
+        used[i] = True
+        backtrack(sequence, path, depth + 1, used)
+        used[i] = False
         path.pop()
 
 
