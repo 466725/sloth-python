@@ -45,5 +45,5 @@ def print_all_state(print_list: list[list[int]]) -> None:
 
 
 if __name__ == "__main__":
-    total_list = generate_all_combinations(4, 2)
+    total_list = generate_all_combinations(5, 3)
     print_all_state(total_list)
