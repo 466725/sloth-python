@@ -5,7 +5,7 @@ Time complexity: O(C(n,k)) which is O(n choose k) = O((n!/(k! * (n - k)!)))
 """
 
 
-def create_all_state(
+def backtrack(
         increment: int,
         total_number: int,
         level: int,
@@ -18,7 +18,7 @@ def create_all_state(
 
     for i in range(increment, total_number - level + 2):
         path.append(i)
-        create_all_state(i + 1, total_number, level - 1, path, result_list)
+        backtrack(i + 1, total_number, level - 1, path, result_list)
         path.pop()
 
 
@@ -28,7 +28,7 @@ def generate_all_combinations(n: int, k: int) -> list[list[int]]:
     [[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
     """
     combinations: list[list[int]] = []
-    create_all_state(
+    backtrack(
         increment=1,
         total_number=n,
         level=k,

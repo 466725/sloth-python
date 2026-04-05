@@ -8,17 +8,17 @@ where n denotes the length of the given sequence.
 
 
 def generate_all_subsequences(sequence):
-    create_state_space_tree(sequence, [], 0)
+    backtrack(sequence, [], 0)
 
 
-def create_state_space_tree(sequence, path, index):
+def backtrack(sequence, path, index):
     if index == len(sequence):
         print(path)
         return
 
-    create_state_space_tree(sequence, path, index + 1)
+    backtrack(sequence, path, index + 1)
     path.append(sequence[index])
-    create_state_space_tree(sequence, path, index + 1)
+    backtrack(sequence, path, index + 1)
     path.pop()
 
 
