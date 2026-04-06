@@ -1,7 +1,5 @@
 from .stack import Stack
 
-__author__ = "Omkar Pathak"
-
 
 def balanced_parentheses(parentheses):
     """Use a stack to check if a string of parentheses is balanced."""

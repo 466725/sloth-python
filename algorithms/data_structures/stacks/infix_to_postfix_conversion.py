@@ -2,8 +2,6 @@ import string
 
 from .stack import Stack
 
-__author__ = "Omkar Pathak"
-
 
 def is_operand(char):
     return char in string.ascii_letters or char in string.digits
