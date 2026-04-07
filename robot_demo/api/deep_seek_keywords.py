@@ -3,8 +3,10 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
+from typing import cast
 
 from openai import OpenAI
+from openai.types.chat import ChatCompletionMessageParam
 from robot.libraries.BuiltIn import BuiltIn
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -25,9 +27,15 @@ def call_deepseek_chat_completion_demo() -> str:
             base_url=settings.urls.deep_seek,
         )
 
+        # Keep strict typing happy for OpenAI message params while still using a custom model name.
+        messages: list[ChatCompletionMessageParam] = [
+            cast(ChatCompletionMessageParam, {"role": "user", "content": "Hello"})
+        ]
+        model_name = cast(str, os.getenv("DEEPSEEK_MODEL", "deepseek-chat"))
+
         response = client.chat.completions.create(
-            model="deepseek-chat",
-            messages=[{"role": "user", "content": "Hello"}],
+            model=model_name,
+            messages=messages,
             stream=False,
         )
         BuiltIn().log(f"DeepSeek call succeeded with id: {response.id}")
@@ -38,4 +46,3 @@ def call_deepseek_chat_completion_demo() -> str:
     except Exception as exc:  # pragma: no cover - external API/network behavior
         BuiltIn().log(f"DeepSeek call failed but treated as demo pass: {exc}", level="WARN")
         return "error"
-
