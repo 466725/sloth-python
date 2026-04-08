@@ -10,16 +10,11 @@ url = "https://www.weather.com.cn/weather1d/101010100.shtml"
 """
 response = requests.get(url)
 response.encoding = 'utf-8'
-# print(response.text)
 
 location = re.findall('<span class="name">([\u4e00-\u9fa5]*)</span>', response.text)
 weather = re.findall('<span class="weather">([\u4e00-\u9fa5]*)</span>', response.text)
 temperature = re.findall('<span class="wd">(.*)</span>', response.text)
 outdoor_wellbeing = re.findall('<span class="zs">([\u4e00-\u9fa5]*)</span>', response.text)
-# print(location)
-# print(weather)
-# print(temperature)
-# print(outdoor_wellbeing)
 
 zip_list = []
 for a, b, c, d in zip(location, weather, temperature, outdoor_wellbeing):
