@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation     Basic Robot Framework examples: Log, list variables, and dictionary variables.
+Documentation     Basic Robot Framework examples: Log, list and dictionary variables.
 
 *** Variables ***
 ${APP_NAME}        Sloth Python
