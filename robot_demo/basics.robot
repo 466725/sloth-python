@@ -43,3 +43,13 @@ If Else If Example
         Log    Running checks for another env: ${env}
     END
     Should Be Equal    ${env}    stage
+
+
+Simple While Loop Example
+    ${counter}=    Set Variable    1
+
+    WHILE    ${counter} <= 5
+        Log    Counter value is ${counter}
+        ${counter}=    Evaluate    ${counter} + 1
+    END
+
