@@ -7,6 +7,14 @@ Time complexity : O(n log n)
 Ref : INTRODUCTION TO ALGORITHMS THIRD EDITION
 (section : 4, subsection : 4.1, page : 70)
 
+Best solution for this problem is: Kadane’s Algorithm
+def max_subarray_sum(nums):
+    current = max_sum = nums[0]
+    for num in nums[1:]:
+        current = max(num, current + num)
+        max_sum = max(max_sum, current)
+    return max_sum
+Below code is to demonstrate divide and conquer logic
 """
 
 
