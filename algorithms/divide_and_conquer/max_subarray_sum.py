@@ -1,11 +1,11 @@
 """
-Given a array of length n, max_subarray_sum() finds
+Given an array of length n, max_subarray_sum() finds
 the maximum of sum of contiguous sub-array using divide and conquer method.
 
 Time complexity : O(n log n)
 
 Ref : INTRODUCTION TO ALGORITHMS THIRD EDITION
-(section : 4, sub-section : 4.1, page : 70)
+(section : 4, subsection : 4.1, page : 70)
 
 """
 
@@ -40,8 +40,8 @@ def max_cross_array_sum(array, left, mid, right):
 
     """
 
-    max_sum_of_left = max_sum_from_start(array[left : mid + 1][::-1])
-    max_sum_of_right = max_sum_from_start(array[mid + 1 : right + 1])
+    max_sum_of_left = max_sum_from_start(array[left: mid + 1][::-1])
+    max_sum_of_right = max_sum_from_start(array[mid + 1: right + 1])
     return max_sum_of_left + max_sum_of_right
 
 
