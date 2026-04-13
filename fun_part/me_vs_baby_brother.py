@@ -1,5 +1,5 @@
-andySpeed = int(input("Choose Andys speed"))
-babyBrotherSpeed = int(input("Choose babys speed"))
+andySpeed = int(input("Choose Andy's speed"))
+babyBrotherSpeed = int(input("Choose baby's speed"))
 if babyBrotherSpeed > andySpeed:
     print("Andy could never catch his brother")
 print(
