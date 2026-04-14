@@ -1,3 +1,9 @@
+"""
+1, Grab a screenshot
+2, Save it as a PNG file
+3, Upload to FTP server
+"""
+
 import ftplib
 from pathlib import Path
 
