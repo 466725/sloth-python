@@ -21,7 +21,7 @@ def resolve_ip(host: str) -> str:
     return ip
 
 
-def get_ip_location(ip: str) -> Dict[str, str]:
+def get_ip_geolocation(ip: str) -> Dict[str, str]:
     response = requests.get(
         IPINFO_URL.format(ip=ip),
         timeout=REQUEST_TIMEOUT,
@@ -42,7 +42,7 @@ def main() -> None:
         ip = resolve_ip(host)
         print("#" * 96)
         print("#" * 96)
-        location = get_ip_location(ip)
+        location = get_ip_geolocation(ip)
 
         print("\nIP Location Info:")
         print(f"City: {location.get('city', 'N/A')}")
