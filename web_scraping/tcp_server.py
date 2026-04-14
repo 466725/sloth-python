@@ -1,18 +1,45 @@
+"""
+✅ How to run (PyCharm workflow)
+
+Run tcp_server.py first
+
+Right‑click → Run
+Leave it running
+
+Run tcp_client.py
+
+Right‑click → Run
+You’ll see the message printed
+"""
+
 import socket
 
-host = socket.gethostname()
-port = 9337
+HOST = socket.gethostname()  # Or "127.0.0.1"
+PORT = 9337
+BUFFER_SIZE = 1024
 
-sock_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock_.bind((host, port))
-sock_.listen(1)
 
-print("\nServer started...\n")
+def start_server() -> None:
+    """Start a simple TCP server."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+        server_socket.bind((HOST, PORT))
+        server_socket.listen()
 
-conn, addr = sock_.accept()
+        print(f"\n[SERVER] Listening on {HOST}:{PORT}\n")
 
-print("Connection established with: ", str(addr))
+        while True:
+            conn, addr = server_socket.accept()
+            with conn:
+                print(f"[SERVER] Connection established with {addr}")
 
-message = "\nThank you for connecting " + str(addr)
-conn.send(message.encode("ascii"))
-conn.close()
+                message = f"Thank you for connecting from {addr}"
+                conn.sendall(message.encode("utf-8"))
+
+                print(f"[SERVER] Message sent to {addr}\n")
+
+
+if __name__ == "__main__":
+    try:
+        start_server()
+    except KeyboardInterrupt:
+        print("\n[SERVER] Shutting down gracefully.")
