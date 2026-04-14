@@ -4,7 +4,7 @@
 # API compatibility, or broad numerical behavior.
 
 # Core libraries and demos
-beautifulsoup4
+beautifulsoup4>=4.12,<5
 lxml
 matplotlib
 mcp
