@@ -58,8 +58,8 @@ def _resolve_file_for_key(key: str, override: Path | None = None) -> Path:
     if override is not None:
         return override
 
-    if mapped := KEY_TO_FILE.get(key):
-        return mapped
+    if mapped_path := KEY_TO_FILE.get(key):
+        return mapped_path
 
     for path in _existing_locator_files():
         if key in _read_json(path):
