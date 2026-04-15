@@ -7,7 +7,7 @@ from typing import Any
 
 from pytest_demo.ai_generation.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
 from pytest_demo.ai_generation.generator import TestScriptCreator, ScriptClient
-from pytest_demo.ai_generation.mcp_context import PlaywrightMCPContextCollector
+from pytest_demo.ai_generation.mcp_context import ContextCollector
 from pytest_demo.ai_generation.paths import resolve_output_path
 from utils.config import settings
 
@@ -63,7 +63,7 @@ def main(argv: list[str] | None = None) -> int:
     from playwright.sync_api import sync_playwright
 
     ai_config: Any = settings.ai_generation
-    collector = PlaywrightMCPContextCollector(max_dom_chars=ai_config.max_dom_chars)
+    collector = ContextCollector(max_dom_chars=ai_config.max_dom_chars)
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=args.headless == "true")

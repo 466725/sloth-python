@@ -36,7 +36,7 @@ class BrowserSnapshot:
         }
 
 
-class PlaywrightMCPContextCollector:
+class ContextCollector:
     """Collect page context from Playwright and shape it for ai generation."""
 
     def __init__(self, max_dom_chars: int = 12000):
