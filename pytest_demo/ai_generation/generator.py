@@ -15,30 +15,30 @@ class ScriptClient(Protocol):
 
 
 @dataclass
-class GenerationResult:
+class CreationResult:
     output_path: Path
     code: str
 
 
-class PlaywrightTestScriptGenerator:
+class TestScriptCreator:
     def __init__(self, client: ScriptClient):
         self.client = client
 
-    def generate(
-        self,
-        *,
-        snapshot: BrowserSnapshot,
-        goal: str,
-        test_name: str,
-        output_path: Path,
-    ) -> GenerationResult:
+    def create(
+            self,
+            *,
+            snapshot: BrowserSnapshot,
+            goal: str,
+            test_name: str,
+            output_path: Path,
+    ) -> CreationResult:
         prompt = build_generation_prompt(snapshot=snapshot, goal=goal, test_name=test_name)
         raw_code = self.client.generate(system_prompt=SYSTEM_PROMPT, user_prompt=prompt)
         code = _normalize_generated_code(raw_code, test_name=test_name, url=snapshot.url)
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(code, encoding="utf-8")
-        return GenerationResult(output_path=output_path, code=code)
+        return CreationResult(output_path=output_path, code=code)
 
 
 def _normalize_generated_code(raw: str, *, test_name: str, url: str) -> str:
@@ -70,4 +70,3 @@ def _fallback_template(*, test_name: str, url: str) -> str:
         f"    page.goto(\"{url}\", wait_until=\"domcontentloaded\")\n"
         "    assert page.title()\n"
     )
-

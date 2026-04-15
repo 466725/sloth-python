@@ -6,14 +6,14 @@ from pathlib import Path
 from typing import Any
 
 from pytest_demo.ai_generation.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
-from pytest_demo.ai_generation.generator import PlaywrightTestScriptGenerator, ScriptClient
+from pytest_demo.ai_generation.generator import TestScriptCreator, ScriptClient
 from pytest_demo.ai_generation.mcp_context import PlaywrightMCPContextCollector
 from pytest_demo.ai_generation.paths import resolve_output_path
 from utils.config import settings
 
 
 def _parser() -> argparse.ArgumentParser:
-    ai_cfg: Any = settings.ai_generation
+    ai_config: Any = settings.ai_generation
     parser = argparse.ArgumentParser(description="Generate pytest + Playwright UI tests from live page context.")
     parser.add_argument(
         "--url",
@@ -30,17 +30,17 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--output",
-        default=str(Path(ai_cfg.output_dir) / "test_generated_ui_flow.py"),
+        default=str(Path(ai_config.output_dir) / "test_generated_ui_flow.py"),
         help="Output file path for generated test script.",
     )
     parser.add_argument(
         "--model",
-        default=ai_cfg.model,
+        default=ai_config.model,
         help="LLM model name (e.g., gpt-4.1).",
     )
     parser.add_argument(
         "--base-url",
-        default=ai_cfg.base_url,
+        default=ai_config.base_url,
         help="OpenAI-compatible base URL.",
     )
     parser.add_argument(
@@ -62,8 +62,8 @@ def main(argv: list[str] | None = None) -> int:
 
     from playwright.sync_api import sync_playwright
 
-    ai_cfg: Any = settings.ai_generation
-    collector = PlaywrightMCPContextCollector(max_dom_chars=ai_cfg.max_dom_chars)
+    ai_config: Any = settings.ai_generation
+    collector = PlaywrightMCPContextCollector(max_dom_chars=ai_config.max_dom_chars)
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=args.headless == "true")
@@ -84,10 +84,10 @@ def main(argv: list[str] | None = None) -> int:
             base_url=(args.base_url or None),
         )
     )
-    generator = PlaywrightTestScriptGenerator(client)
+    creator = TestScriptCreator(client)
 
     output_path = resolve_output_path(args.output)
-    result = generator.generate(
+    result = creator.create(
         snapshot=snapshot,
         goal=args.goal,
         test_name=args.test_name,
@@ -100,4 +100,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
