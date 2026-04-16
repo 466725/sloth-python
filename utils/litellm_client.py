@@ -27,6 +27,12 @@ class LitellmClient:
             Send a chat completion request.
 
             :param messages: List of messages [{"role": "...", "content": "..."}]
+            messages example: [
+                {"role": "system", "content": "You are a helpful assistant"},
+                {"role": "user", "content": "Hello"},
+                {"role": "assistant", "content": "Hi! How can I help?"},
+                {"role": "user", "content": "Tell me a joke"}
+            ]
             :param model: Optional override model
             :param kwargs: Additional LiteLLM parameters (temperature, max_tokens, etc.)
             :return: Response text
