@@ -17,6 +17,7 @@ requests>=2.33.1,<3
 scikit-learn
 scipy
 litellm>=1.80.10,<1.82.7
+tiktoken>=0.8.0,<0.12.0
 
 # Test automation and reporting
 allure-pytest
