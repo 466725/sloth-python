@@ -66,6 +66,7 @@ class AIGenerationSettings:
 	base_url: str
 	max_dom_chars: int
 	output_dir: str
+	temperature: float = 0.7
 
 
 @dataclass(frozen=True)
@@ -123,6 +124,7 @@ def print_configured_settings() -> None:
 	print(f"ai_generation.base_url={settings.ai_generation.base_url}")
 	print(f"ai_generation.max_dom_chars={settings.ai_generation.max_dom_chars}")
 	print(f"ai_generation.output_dir={settings.ai_generation.output_dir}")
+	print(f"ai_generation.temperature={settings.ai_generation.temperature}")
 
 
 if __name__ == "__main__":

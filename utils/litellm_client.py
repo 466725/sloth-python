@@ -2,6 +2,7 @@ import os
 from typing import List, Dict, Any, Optional
 from litellm import completion
 from tik_token import TokenUtils
+from config import settings
 
 
 class LitellmClient:
@@ -64,13 +65,7 @@ if __name__ == "__main__":
     response = aiclient.simple_chat("How are you?")
     print(response)
 
-    response = aiclient.chat(messages=[{"role": "user", "content": "How are you?"}])
-    print(response)
-
-    response = aiclient.chat(messages=[{"role": "user", "content": "Tell me a joke"}], temperature=0.7)
-    print(response)
-
-    response = aiclient.chat(messages=[{"role": "user", "content": "What is AI?"}])
+    response = aiclient.chat(messages=[{"role": "user", "content": "Tell me a joke"}], temperature=settings.ai_generation.temperature)
     print(response)
     token_utils = TokenUtils()
     token_count = token_utils.count_tokens(response)
