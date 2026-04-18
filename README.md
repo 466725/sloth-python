@@ -90,22 +90,22 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 Runtime settings are centralized in `utils/config.py` and read from environment variables with safe defaults.
 
-| Variable | Default                                     | Description |
-|---|---------------------------------------------|---|
-| `TANGERINE_URL` | `https://www.tangerine.ca/en/personal`      | Base URL for Tangerine UI tests |
-| `DEEP_SEEK_URL` | `https://api.deepseek.com`                  | Base URL for DeepSeek-compatible API calls |
-| `OPENAI_URL` | `https://api.openai.com`                    | Base URL for OpenAI API calls |
-| `UI_LOCALE` | `en-US`                                     | Browser locale used by Playwright-based UI tests |
-| `SLEEP_TIME` | `1`                                         | Generic sleep duration used in selected fixtures |
-| `COOKIE_BANNER_TIMEOUT_SECONDS` | `5`                                         | Wait time for Tangerine cookie banner handling |
-| `PW_HEADLESS` | `true`                                      | Playwright headless mode (`1/0`, `true/false`, `yes/no`, `on/off`) |
-| `AI_GEN_MODEL` | `gpt-4.1`                                   | Model used by the UI test generator |
-| `AI_GEN_BASE_URL` | `OPENAI_URL` value                          | OpenAI-compatible base URL used by generator |
-| `AI_GEN_MAX_DOM_CHARS` | `12000`                                     | Max DOM/element-tree size sent to the model |
-| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/ai/generated_playwright` | Default output folder for generated tests |
-| `QTEST_BASE_URL` | `https://yourcompany.qtestnet.com`          | Base URL for qTest API integration |
-| `QTEST_PROJECT_ID` | `123456`                                    | qTest project id used for test run reporting |
-| `QTEST_API_TOKEN` | `your_token_here`                           | API token used to authenticate with qTest |
+| Variable | Default                                | Description                                                       |
+|---|----------------------------------------|-------------------------------------------------------------------|
+| `TANGERINE_URL` | `https://www.tangerine.ca/en/personal` | Base URL for Tangerine UI tests                                   |
+| `DEEP_SEEK_URL` | `https://api.deepseek.com`             | Base URL for DeepSeek-compatible API calls                        |
+| `OPENAI_URL` | `https://api.openai.com`               | Base URL for OpenAI API calls                                     |
+| `UI_LOCALE` | `en-US`                                | Browser locale used by Playwright-based UI tests                  |
+| `SLEEP_TIME` | `1`                                    | Generic sleep duration used in selected fixtures                  |
+| `COOKIE_BANNER_TIMEOUT_SECONDS` | `5`                                    | Wait time for Tangerine cookie banner handling                    |
+| `PW_HEADLESS` | `true`                                 | Playwright headless mode (`1/0`, `true/false`, `yes/no`, `on/off`) |
+| `AI_GEN_MODEL` | `gpt-4.1`                              | LLM model identifier                                              |
+| `AI_GEN_BASE_URL` | `OPENAI_URL`                           | API base URL                                     |
+| `AI_GEN_MAX_DOM_CHARS` | `12000`                                | Max DOM/element-tree size sent to the model                       |
+| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/ai/generated_playwright` | Default output folder                      |
+| `QTEST_BASE_URL` | `https://yourcompany.qtestnet.com`     | Base URL for qTest API integration                                |
+| `QTEST_PROJECT_ID` | `123456`                               | qTest project id used for test run reporting                      |
+| `QTEST_API_TOKEN` | `your_token_here`                      | API token used to authenticate with qTest                         |
 
 Quick local check:
 
@@ -307,17 +307,6 @@ python -m pytest_demo.ai_generation.cli `
 # Run all generated tests
 python -m pytest -q pytest_demo/tests/ai/generated_playwright
 ```
-
-### Configuration
-
-Key environment variables (see [Configuration](#configuration) for full list):
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `AI_GEN_MODEL` | `gpt-4.1` | LLM model identifier |
-| `AI_GEN_BASE_URL` | OpenAI endpoint | API base URL |
-| `AI_GEN_MAX_DOM_CHARS` | `12000` | Max DOM size sent to the model |
-| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/ai/generated_playwright` | Output folder |
 
 ### Notes
 
