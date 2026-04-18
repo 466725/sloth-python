@@ -103,6 +103,9 @@ Runtime settings are centralized in `utils/config.py` and read from environment 
 | `AI_GEN_BASE_URL` | `OPENAI_URL` value                          | OpenAI-compatible base URL used by generator |
 | `AI_GEN_MAX_DOM_CHARS` | `12000`                                     | Max DOM/element-tree size sent to the model |
 | `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/ai/generated_playwright` | Default output folder for generated tests |
+| `QTEST_BASE_URL` | `https://yourcompany.qtestnet.com`          | Base URL for qTest API integration |
+| `QTEST_PROJECT_ID` | `123456`                                    | qTest project id used for test run reporting |
+| `QTEST_API_TOKEN` | `your_token_here`                           | API token used to authenticate with qTest |
 
 Quick local check:
 
