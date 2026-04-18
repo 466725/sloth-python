@@ -404,8 +404,11 @@ sloth-python/
 │
 ├── utils/                      # Shared Utilities
 │   ├── config.py               # Configuration management
-│   ├── constants.py            # Application constants
-│   └── csv_reader.py           # CSV utilities
+│   ├── csv_reader.py           # CSV utilities
+│   ├── database_client.py      # Database client helpers
+│   ├── litellm_client.py       # LiteLLM client wrapper
+│   ├── qtest_client.py         # qTest API client
+│   └── tik_token.py            # Token counting helpers
 │
 ├── .github/workflows/          # GitHub Actions CI/CD definitions
 ├── requirements.txt            # Python dependencies
