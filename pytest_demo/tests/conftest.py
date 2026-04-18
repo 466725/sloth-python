@@ -17,13 +17,28 @@ QTEST_API_TOKEN=your_token_here
 """
 
 
+def _build_qtest_client():
+    base_url = os.getenv("QTEST_BASE_URL")
+    project_id = os.getenv("QTEST_PROJECT_ID")
+    token = os.getenv("QTEST_API_TOKEN")
+
+    if not all([base_url, project_id, token]):
+        return None
+
+    return QTestClient(
+        base_url=base_url,
+        project_id=int(project_id),
+        token=token,
+    )
+
+
 @pytest.fixture(scope="session")
 def qtest():
-    return QTestClient(
-        base_url=os.getenv("QTEST_BASE_URL"),
-        project_id=int(os.getenv("QTEST_PROJECT_ID")),
-        token=os.getenv("QTEST_API_TOKEN"),
-    )
+    client = _build_qtest_client()
+    if client is None:
+        pytest.skip("qTest is not configured. Set QTEST_BASE_URL, QTEST_PROJECT_ID, and QTEST_API_TOKEN.")
+
+    return client
 
 
 @pytest.hookimpl(hookwrapper=True)
@@ -35,11 +50,13 @@ def pytest_runtest_makereport(item, call):
     if report.when != "call":
         return
 
-    qtest_client = item.session._qtest_client
-
     # get test case id from marker
     marker = item.get_closest_marker("qtest_id")
     if not marker:
+        return
+
+    qtest_client = getattr(item.session, "_qtest_client", None)
+    if qtest_client is None:
         return
 
     test_case_id = marker.args[0]
@@ -54,8 +71,4 @@ def pytest_runtest_makereport(item, call):
 
 def pytest_sessionstart(session):
     # attach client to session (simple global access)
-    session._qtest_client = QTestClient(
-        base_url=os.getenv("QTEST_BASE_URL"),
-        project_id=int(os.getenv("QTEST_PROJECT_ID")),
-        token=os.getenv("QTEST_API_TOKEN"),
-    )
+    session._qtest_client = _build_qtest_client()
