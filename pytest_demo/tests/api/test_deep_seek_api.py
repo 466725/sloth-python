@@ -2,12 +2,12 @@ import logging
 import os
 
 import pytest
-import requests
 from openai import OpenAI
 
 from utils.config import settings
 
 logger = logging.getLogger(__name__)
+
 
 @pytest.mark.api
 def test_openai_api_key():
@@ -29,3 +29,15 @@ def test_openai_api_key():
         assert True
     finally:
         assert True
+
+
+"""
+Simple passing test that demonstrates qTest hook integration
+@pytest.mark.api
+@pytest.mark.qtest_id(123456)
+def test_qtest_hook_demo():
+    response = requests.Response()
+    response.status_code = 200
+
+    assert response.status_code == 200
+"""
