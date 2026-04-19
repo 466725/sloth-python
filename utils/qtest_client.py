@@ -1,7 +1,7 @@
 import requests
 from typing import Optional
 
-
+# Need to verify with qTest system in the future.
 class QTestClient:
     def __init__(self, base_url: str, project_id: int, token: str):
         self.base_url = base_url.rstrip("/")
