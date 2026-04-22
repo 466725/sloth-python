@@ -125,12 +125,6 @@ Use the commands below for the most common local test workflows.
 # Full pytest run
 python -m pytest
 
-# Fast smoke run
-python -m pytest -m "unit or api"
-
-# Only unit tests
-python -m pytest -m unit
-
 # Only UI tests
 python -m pytest -m ui
 
@@ -297,12 +291,6 @@ python -m pytest_demo.ai_generation.cli `
   --url "https://www.tangerine.ca/app/#/login" `
   --goal "Verify username/password fields and submit button are present" `
   --test-name "test_tangerine_signin"
-
-# Sign-up page
-python -m pytest_demo.ai_generation.cli `
-  --url "https://www.tangerine.ca/app/#/signup" `
-  --goal "Verify sign-up form is visible and required fields are present" `
-  --test-name "test_tangerine_signup"
 
 # Run all generated tests
 python -m pytest -q pytest_demo/tests/ai/generated_playwright
