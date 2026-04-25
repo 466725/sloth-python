@@ -5,6 +5,25 @@ class MCPPlaywrightHelper:
     """
     Small utility class to demonstrate how Playwright tests
     can call MCP tools for AI-assisted UI testing.
+
+    Example Usage in a Playwright Test
+    @pytest.mark.asyncio
+    async def test_login_flow(page, mcp_client):
+        helper = MCPPlaywrightHelper(mcp_client)
+
+        await page.goto("https://example.com")
+
+        # Ask MCP to suggest a locator
+        login_button_locator = await helper.suggest_locator(
+            page,
+            description="the login button"
+        )
+
+        await page.click(login_button_locator)
+
+        # Ask MCP to analyze the page after login
+        analysis = await helper.analyze_page(page)
+        print("AI Page Analysis:", analysis)
     """
 
     def __init__(self, mcp_client):
