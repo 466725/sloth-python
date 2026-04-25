@@ -6,6 +6,7 @@ class GoogleAnalyticsTracker:
     Utility class to capture and validate Google Analytics (GA4) events
     from Playwright network logs.
 
+
     Usage:
     import pytest
     from utils.google_analytics import GoogleAnalyticsTracker
@@ -16,6 +17,7 @@ class GoogleAnalyticsTracker:
         tracker = GoogleAnalyticsTracker()
         tracker.attach_listener(page)
         return tracker
+
 
     Use in a test
     def test_ga_event_on_login(page, ga_tracker):
