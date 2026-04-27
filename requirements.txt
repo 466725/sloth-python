@@ -34,7 +34,7 @@ robotframework-debuglibrary
 robotframework-requests
 
 # Mobile automation (Appium Python client)
-Appium-Python-Client>=3.1.0
+Appium-Python-Client>=5.3.1
 
 # Web scraping / HTTP utilities / Stock Data Fetcher
 fake-useragent>=1.5.1
