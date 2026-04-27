@@ -37,5 +37,5 @@ robotframework-requests
 Appium-Python-Client>=3.1.0
 
 # Web scraping / HTTP utilities / Stock Data Fetcher
-fake-useragent>=1.5.1
+fake-useragent>=2.2.0
 yfinance==1.3.0
