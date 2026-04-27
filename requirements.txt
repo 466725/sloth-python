@@ -10,7 +10,7 @@ matplotlib
 mcp
 mysql-connector-python
 numpy>=2.4.4,<3
-openai>=2.30.0,<3
+openai>=2.32.0,<3
 pyecharts
 python-nmap
 requests>=2.33.1,<3
