@@ -45,7 +45,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 ## 📦 Prerequisites
 
-- **Python 3.12+** (Tested with Python 3.14)
+- **Python 3.11+**
 - **Git**
 
 ## 🚀 Quick Start
@@ -65,7 +65,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 2. **Create and activate a virtual environment:**
    **Windows (PowerShell):**
    ```powershell
-   py -3.14 -m venv .venv
+   py -3.11 -m venv .venv
    .\.venv\Scripts\activate
    ```
 
@@ -124,12 +124,6 @@ Use the commands below for the most common local test workflows.
 ```powershell
 # Full pytest run
 python -m pytest
-
-# Fast smoke run
-python -m pytest -m "unit or api"
-
-# Only unit tests
-python -m pytest -m unit
 
 # Only UI tests
 python -m pytest -m ui
@@ -297,12 +291,6 @@ python -m pytest_demo.ai_generation.cli `
   --url "https://www.tangerine.ca/app/#/login" `
   --goal "Verify username/password fields and submit button are present" `
   --test-name "test_tangerine_signin"
-
-# Sign-up page
-python -m pytest_demo.ai_generation.cli `
-  --url "https://www.tangerine.ca/app/#/signup" `
-  --goal "Verify sign-up form is visible and required fields are present" `
-  --test-name "test_tangerine_signup"
 
 # Run all generated tests
 python -m pytest -q pytest_demo/tests/ai/generated_playwright
