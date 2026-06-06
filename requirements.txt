@@ -11,12 +11,14 @@ mcp
 mysql-connector-python
 numpy>=2.4.4,<3
 openai>=2.30.0,<3
+anthropic
+voyageai
 pyecharts
 python-nmap
 requests>=2.33.1,<3
 scikit-learn
 scipy
-litellm>=1.80.10,<1.82.7
+litellm>=1.80.10,<1.83.10
 tiktoken>=0.8.0,<0.12.0
 
 # Test automation and reporting
@@ -37,5 +39,6 @@ robotframework-requests
 Appium-Python-Client>=3.1.0
 
 # Web scraping / HTTP utilities / Stock Data Fetcher
-fake-useragent>=2.2.0
+fake-useragent>=1.5.1
 yfinance==1.3.0
+python-dotenv
