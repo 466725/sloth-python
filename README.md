@@ -45,7 +45,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 ## 📦 Prerequisites
 
-- **Python 3.12+** (Tested with Python 3.14)
+- **Python 3.11+**
 - **Git**
 
 ## 🚀 Quick Start
@@ -65,7 +65,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 2. **Create and activate a virtual environment:**
    **Windows (PowerShell):**
    ```powershell
-   py -3.14 -m venv .venv
+   py -3.11 -m venv .venv
    .\.venv\Scripts\activate
    ```
 
