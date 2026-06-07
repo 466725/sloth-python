@@ -1,9 +1,7 @@
 ### Python / Virtualenv ###
 .venv311/
 .venv/
-venv/
-ENV/
-env/
+.env/
 *.pyc
 __pycache__/
 

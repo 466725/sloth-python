@@ -5,7 +5,7 @@ A Python package implementing a variety of document-related tools for converting
 ## Setup
 
 ```bash
-# Create a virtual env and activate it
+# Create a virtual .env and activate it
 uv venv
 source .venv/bin/activate
 

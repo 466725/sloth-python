@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/.env python
 
 """Illustrate how to implement bucket sort algorithm."""
 
