@@ -1,7 +1,11 @@
 ### Python / Virtualenv ###
 .venv311/
 .venv/
-.env/
+.env/*
+!.env/
+!.env/README.md
+!.env/*.example
+!.env/*_example.py
 *.pyc
 __pycache__/
 
