@@ -1,11 +1,17 @@
 ### Python / Virtualenv ###
+# Ignore real virtual environments
 .venv311/
 .venv/
-.env/*
-!.env/
+
+### Environment Variables ###
+# Ignore all real .env files, but allow templates and documentation
+.env
+.env.*
+!.env.example
+!.env.*.example
 !.env/README.md
-!.env/*.example
-!.env/*_example.py
+
+### Python Artifacts ###
 *.pyc
 __pycache__/
 
