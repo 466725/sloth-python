@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCP Protocol Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: #0a0a0a;
+        color: #e0e0e0;
+        padding: 2rem;
+        padding-bottom: 100px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      .header h1 {
+        font-size: 3rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+      }
+
+      .header p {
+        color: #888;
+        font-size: 1.2rem;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .card {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .card h2 {
+        color: #fff;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .step-number {
+        background: #667eea;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+
+      .info-box {
+        background: rgba(102, 126, 234, 0.1);
+        border: 1px solid #667eea;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .info-box h4 {
+        color: #667eea;
+        margin-bottom: 0.5rem;
+      }
+
+      .info-box p {
+        color: #ccc;
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-top: 1.5rem;
+      }
+
+      .column {
+        background: #0f0f0f;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 1.5rem;
+      }
+
+      .column-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        color: #fff;
+        font-weight: 600;
+      }
+
+      .method-badge {
+        background: #667eea;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      .code-block {
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 1rem;
+        overflow-x: auto;
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+      }
+
+      .code-block pre {
+        margin: 0;
+        white-space: pre-wrap;
+      }
+
+      .headers-list {
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 1rem;
+      }
+
+      .header-item {
+        display: flex;
+        gap: 1rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #222;
+      }
+
+      .header-item:last-child {
+        border-bottom: none;
+      }
+
+      .header-key {
+        color: #667eea;
+        font-weight: 600;
+        min-width: 150px;
+        font-family: monospace;
+      }
+
+      .header-value {
+        color: #e0e0e0;
+        font-family: monospace;
+        word-break: break-all;
+      }
+
+      .session-id-highlight {
+        background: rgba(102, 126, 234, 0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        border: 1px solid #667eea;
+      }
+
+      .action-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .action-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .action-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-left: 1rem;
+      }
+
+      .status-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+      }
+
+      .status-success {
+        background: rgba(76, 175, 80, 0.2);
+        color: #4caf50;
+      }
+
+      .status-error {
+        background: rgba(244, 67, 54, 0.2);
+        color: #f44336;
+      }
+
+      .sse-stream {
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 1rem;
+        max-height: 300px;
+        overflow-y: auto;
+        font-family: monospace;
+        font-size: 0.8rem;
+      }
+
+      .sse-event {
+        padding: 0.5rem;
+        border-bottom: 1px solid #222;
+        animation: slideIn 0.3s ease;
+      }
+
+      .sse-event:last-child {
+        border-bottom: none;
+      }
+
+      .sse-event-type {
+        color: #667eea;
+        font-weight: bold;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .sse-panel {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 400px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        max-height: 500px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sse-panel h3 {
+        color: #fff;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .sse-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #f44336;
+        transition: all 0.3s ease;
+      }
+
+      .sse-indicator.active {
+        background: #4caf50;
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+      }
+
+      .sse-messages {
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 1rem;
+        overflow-y: auto;
+        flex: 1;
+        font-family: monospace;
+        font-size: 0.8rem;
+      }
+
+      .sse-message {
+        padding: 0.5rem;
+        border-bottom: 1px solid #222;
+        animation: slideIn 0.3s ease;
+      }
+
+      .sse-message:last-child {
+        border-bottom: none;
+      }
+
+      .sse-controls {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .sse-button {
+        flex: 1;
+        padding: 0.5rem;
+        border: 1px solid #667eea;
+        background: transparent;
+        color: #667eea;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+      }
+
+      .sse-button:hover:not(:disabled) {
+        background: #667eea;
+        color: white;
+      }
+
+      .sse-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .empty-response {
+        color: #666;
+        font-style: italic;
+        padding: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>MCP Protocol Demo</h1>
+      <p>Model Context Protocol - Streamable HTTP Transport</p>
+    </div>
+
+    <div class="container">
+      <!-- Card 1: Initialize Request -->
+      <div class="card" id="card-1">
+        <h2>
+          <span class="step-number">1</span>
+          Initialize Request
+        </h2>
+
+        <div class="columns">
+          <div class="column">
+            <div class="column-header">
+              <span class="method-badge">POST</span>
+              <span>Request</span>
+            </div>
+            <div class="code-block">
+              <pre id="init-request-body">
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {
+      "roots": {
+        "listChanged": true
+      }
+    },
+    "clientInfo": {
+      "name": "MCP Demo Client",
+      "version": "1.0.0"
+    }
+  }
+}</pre
+              >
+            </div>
+            <div class="headers-list">
+              <div class="header-item">
+                <span class="header-key">Content-Type:</span>
+                <span class="header-value">application/json</span>
+              </div>
+              <div class="header-item">
+                <span class="header-key">Accept:</span>
+                <span class="header-value"
+                  >application/json, text/event-stream</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="column">
+            <div class="column-header">
+              <span>Response</span>
+              <span
+                class="status-indicator status-pending"
+                id="init-status"
+                style="display: none"
+              >
+                <span class="loading"></span>
+                Sending...
+              </span>
+            </div>
+            <div id="init-response-content">
+              <div class="empty-response">
+                No response yet. Click the button to send request.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="action-button" onclick="sendInitialize()">
+          Send Initialize Request
+        </button>
+      </div>
+
+      <!-- Card 2: Initialized Notification -->
+      <div class="card" id="card-2">
+        <h2>
+          <span class="step-number">2</span>
+          Initialized Notification
+        </h2>
+
+        <div class="columns">
+          <div class="column">
+            <div class="column-header">
+              <span class="method-badge">POST</span>
+              <span>Request</span>
+            </div>
+            <div class="code-block">
+              <pre id="initialized-request-body">
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/initialized",
+  "params": {}
+}</pre
+              >
+            </div>
+            <div class="headers-list">
+              <div class="header-item">
+                <span class="header-key">Content-Type:</span>
+                <span class="header-value">application/json</span>
+              </div>
+              <div class="header-item">
+                <span class="header-key">Accept:</span>
+                <span class="header-value"
+                  >application/json, text/event-stream</span
+                >
+              </div>
+              <div class="header-item">
+                <span class="header-key">mcp-session-id:</span>
+                <span
+                  class="header-value session-id-highlight"
+                  id="initialized-session-id"
+                  >Not yet available</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="column">
+            <div class="column-header">
+              <span>Response</span>
+              <span
+                class="status-indicator status-pending"
+                id="initialized-status"
+                style="display: none"
+              >
+                <span class="loading"></span>
+                Sending...
+              </span>
+            </div>
+            <div id="initialized-response-content">
+              <div class="empty-response">
+                No response yet. Initialize first, then send notification.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button
+          class="action-button"
+          onclick="sendInitialized()"
+          id="initialized-button"
+          disabled
+        >
+          Send Initialized Notification
+        </button>
+      </div>
+
+      <!-- Card 3: Tool Call -->
+      <div class="card" id="card-3">
+        <h2>
+          <span class="step-number">3</span>
+          Tool Call - Add Function
+        </h2>
+
+        <div class="columns">
+          <div class="column">
+            <div class="column-header">
+              <span class="method-badge">POST</span>
+              <span>Request</span>
+            </div>
+            <div class="code-block">
+              <pre id="tool-request-body">
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "add",
+    "arguments": {
+      "a": 5,
+      "b": 3
+    }
+  }
+}</pre
+              >
+            </div>
+            <div class="headers-list">
+              <div class="header-item">
+                <span class="header-key">Content-Type:</span>
+                <span class="header-value">application/json</span>
+              </div>
+              <div class="header-item">
+                <span class="header-key">Accept:</span>
+                <span class="header-value"
+                  >application/json, text/event-stream</span
+                >
+              </div>
+              <div class="header-item">
+                <span class="header-key">mcp-session-id:</span>
+                <span
+                  class="header-value session-id-highlight"
+                  id="tool-session-id"
+                  >Not yet available</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="column">
+            <div class="column-header">
+              <span>Response</span>
+              <span
+                class="status-indicator status-pending"
+                id="tool-status"
+                style="display: none"
+              >
+                <span class="loading"></span>
+                Sending...
+              </span>
+            </div>
+            <div id="tool-response-content">
+              <div class="empty-response">
+                No response yet. Initialize first, then call tool.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="action-button" onclick="sendToolCall()" id="tool-button">
+          Call Add Tool
+        </button>
+      </div>
+
+      <!-- Card 4: Custom Request -->
+      <div class="card" id="card-4" style="display: none">
+        <h2>
+          <span class="step-number">4</span>
+          Custom Request Example
+        </h2>
+
+        <div class="info-box">
+          <h4>Try Your Own Request</h4>
+          <p>
+            Experiment with other MCP methods like tools/list, resources/list,
+            or prompts/list.
+          </p>
+        </div>
+
+        <div class="columns">
+          <div class="column">
+            <div class="column-header">
+              <span class="method-badge">POST</span>
+              <span>Request</span>
+            </div>
+            <div
+              class="code-block"
+              contenteditable="true"
+              id="custom-request-body"
+              style="outline: none"
+            >
+              { "jsonrpc": "2.0", "id": 4, "method": "tools/list", "params": {}
+              }
+            </div>
+            <div class="headers-list">
+              <div class="header-item">
+                <span class="header-key">Content-Type:</span>
+                <span class="header-value">application/json</span>
+              </div>
+              <div class="header-item">
+                <span class="header-key">Accept:</span>
+                <span class="header-value"
+                  >application/json, text/event-stream</span
+                >
+              </div>
+              <div class="header-item">
+                <span class="header-key">mcp-session-id:</span>
+                <span
+                  class="header-value session-id-highlight"
+                  id="custom-session-id"
+                  >Not yet available</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="column">
+            <div class="column-header">
+              <span>Response</span>
+              <span
+                class="status-indicator status-pending"
+                id="custom-status"
+                style="display: none"
+              >
+                <span class="loading"></span>
+                Sending...
+              </span>
+            </div>
+            <div id="custom-response-content">
+              <div class="empty-response">
+                No response yet. Initialize first, then send request.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button
+          class="action-button"
+          onclick="sendCustomRequest()"
+          id="custom-button"
+        >
+          Send Custom Request
+        </button>
+      </div>
+    </div>
+
+    <!-- SSE Panel for GET requests -->
+    <div class="sse-panel">
+      <h3>
+        Server-Initiated Events (GET SSE)
+        <span class="sse-indicator" id="sse-indicator"></span>
+      </h3>
+      <div class="sse-messages" id="sse-messages">
+        <div style="color: #666; text-align: center; padding: 2rem">
+          No GET SSE connection active. Click "Start GET SSE" to begin
+          monitoring server-initiated events.
+        </div>
+      </div>
+      <div class="sse-controls">
+        <button
+          class="sse-button"
+          onclick="startSSE()"
+          id="sse-start-button"
+          disabled
+        >
+          Start GET SSE
+        </button>
+        <button
+          class="sse-button"
+          onclick="stopSSE()"
+          id="sse-stop-button"
+          disabled
+        >
+          Stop SSE
+        </button>
+        <button class="sse-button" onclick="clearSSE()">Clear</button>
+      </div>
+    </div>
+
+    <script>
+      let sessionId = null;
+      let sseSource = null;
+      const serverUrl = "http://localhost:8000/mcp/";
+
+      // Update session ID in all cards
+      function updateSessionId(id) {
+        sessionId = id;
+        document.getElementById("initialized-session-id").textContent =
+          id || "Not yet available";
+        document.getElementById("tool-session-id").textContent =
+          id || "Not yet available";
+        document.getElementById("custom-session-id").textContent =
+          id || "Not yet available";
+
+        // Enable buttons after initialization
+        // if (id) {
+        document.getElementById("initialized-button").disabled = false;
+        document.getElementById("tool-button").disabled = false;
+        document.getElementById("custom-button").disabled = false;
+        // document.getElementById("sse-start-button").disabled = false;
+        // }
+      }
+
+      // Add SSE message to panel (for GET SSE)
+      function addSSEMessage(message) {
+        const container = document.getElementById("sse-messages");
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "sse-message";
+        messageDiv.textContent = message;
+        container.appendChild(messageDiv);
+        container.scrollTop = container.scrollHeight;
+      }
+
+      // Display response with headers and body/stream
+      function displayResponse(cardId, headers, body, isSSE = false) {
+        const contentDiv = document.getElementById(
+          `${cardId}-response-content`
+        );
+
+        // Filter out date-related headers
+        const filteredHeaders = {};
+        for (const [key, value] of headers.entries()) {
+          if (!key.toLowerCase().includes("date")) {
+            filteredHeaders[key] = value;
+          }
+        }
+
+        // Build response HTML
+        let html = '<div class="headers-list">';
+        for (const [key, value] of Object.entries(filteredHeaders)) {
+          const isSessionId = key.toLowerCase() === "mcp-session-id";
+          html += `
+                    <div class="header-item">
+                        <span class="header-key">${key}:</span>
+                        <span class="header-value ${
+                          isSessionId ? "session-id-highlight" : ""
+                        }">${value}</span>
+                    </div>
+                `;
+        }
+        html += "</div>";
+
+        if (isSSE) {
+          html +=
+            '<div class="sse-stream" id="' + cardId + '-sse-stream"></div>';
+        } else {
+          html += '<div class="code-block"><pre>' + body + "</pre></div>";
+        }
+
+        contentDiv.innerHTML = html;
+      }
+
+      // Add SSE event to response stream display
+      function addSSEEvent(cardId, eventType, data) {
+        const streamDiv = document.getElementById(`${cardId}-sse-stream`);
+        if (streamDiv) {
+          const eventDiv = document.createElement("div");
+          eventDiv.className = "sse-event";
+          eventDiv.innerHTML = `<span class="sse-event-type">${eventType}:</span> ${data}`;
+          streamDiv.appendChild(eventDiv);
+          streamDiv.scrollTop = streamDiv.scrollHeight;
+        }
+      }
+
+      // Handle SSE Response from POST requests
+      async function handleSSEResponse(cardId, response) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        addSSEEvent(cardId, "stream", "SSE connection established");
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+
+            // Keep the last incomplete line in the buffer
+            buffer = lines.pop() || "";
+
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                const data = line.substring(6);
+                if (data) {
+                  addSSEEvent(cardId, "data", data);
+                }
+              } else if (line.startsWith("event: ")) {
+                const eventType = line.substring(7);
+                addSSEEvent(cardId, "event", eventType);
+              } else if (line === "") {
+                // Empty line signals end of an event
+              }
+            }
+          }
+          addSSEEvent(cardId, "stream", "SSE connection closed");
+        } catch (error) {
+          addSSEEvent(cardId, "error", error.message);
+        }
+      }
+
+      // Send Initialize Request
+      async function sendInitialize() {
+        const statusEl = document.getElementById("init-status");
+        statusEl.style.display = "inline-flex";
+        statusEl.className = "status-indicator status-pending";
+        statusEl.innerHTML = '<span class="loading"></span> Sending...';
+
+        try {
+          const response = await fetch(serverUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json, text/event-stream",
+            },
+            body: JSON.stringify({
+              jsonrpc: "2.0",
+              id: 1,
+              method: "initialize",
+              params: {
+                protocolVersion: "2024-11-05",
+                capabilities: {
+                  roots: {
+                    listChanged: true,
+                  },
+                },
+                clientInfo: {
+                  name: "MCP Demo Client",
+                  version: "1.0.0",
+                },
+              },
+            }),
+          });
+
+          // Get session ID from response headers
+          const responseSessionId = response.headers.get("mcp-session-id");
+          updateSessionId(responseSessionId);
+          // if (responseSessionId) {
+
+          // }
+
+          // Handle response based on content type
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("text/event-stream")) {
+            displayResponse("init", response.headers, "", true);
+            handleSSEResponse("init", response);
+          } else {
+            const data = await response.json();
+            displayResponse(
+              "init",
+              response.headers,
+              JSON.stringify(data, null, 2)
+            );
+          }
+
+          statusEl.className = "status-indicator status-success";
+          statusEl.innerHTML = "✓ Success";
+        } catch (error) {
+          statusEl.className = "status-indicator status-error";
+          statusEl.innerHTML = "✗ Error";
+          displayResponse("init", new Headers(), "Error: " + error.message);
+        }
+      }
+
+      // Send Initialized Notification
+      async function sendInitialized() {
+        const statusEl = document.getElementById("initialized-status");
+        statusEl.style.display = "inline-flex";
+        statusEl.className = "status-indicator status-pending";
+        statusEl.innerHTML = '<span class="loading"></span> Sending...';
+
+        try {
+          const headers = {
+            "Content-Type": "application/json",
+            Accept: "application/json, text/event-stream",
+          };
+          if (sessionId) {
+            headers["mcp-session-id"] = sessionId;
+          }
+
+          const response = await fetch(serverUrl, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify({
+              jsonrpc: "2.0",
+              method: "notifications/initialized",
+              params: {},
+            }),
+          });
+
+          if (response.status === 202) {
+            displayResponse(
+              "initialized",
+              response.headers,
+              "HTTP 202 Accepted - Notification acknowledged"
+            );
+          } else {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("text/event-stream")) {
+              displayResponse("initialized", response.headers, "", true);
+              handleSSEResponse("initialized", response);
+            } else {
+              const data = await response.text();
+              displayResponse(
+                "initialized",
+                response.headers,
+                data || "Empty response"
+              );
+            }
+          }
+
+          statusEl.className = "status-indicator status-success";
+          statusEl.innerHTML = "✓ Success";
+        } catch (error) {
+          statusEl.className = "status-indicator status-error";
+          statusEl.innerHTML = "✗ Error";
+          displayResponse(
+            "initialized",
+            new Headers(),
+            "Error: " + error.message
+          );
+        }
+      }
+
+      // Send Tool Call
+      async function sendToolCall() {
+        const statusEl = document.getElementById("tool-status");
+        statusEl.style.display = "inline-flex";
+        statusEl.className = "status-indicator status-pending";
+        statusEl.innerHTML = '<span class="loading"></span> Sending...';
+
+        try {
+          const headers = {
+            "Content-Type": "application/json",
+            Accept: "application/json, text/event-stream",
+          };
+          if (sessionId) {
+            headers["mcp-session-id"] = sessionId;
+          }
+
+          const response = await fetch(serverUrl, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify({
+              jsonrpc: "2.0",
+              id: 3,
+              method: "tools/call",
+              params: {
+                _meta: {
+                  progressToken: "abc",
+                },
+                name: "add",
+                arguments: {
+                  a: 5,
+                  b: 3,
+                },
+              },
+            }),
+          });
+
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("text/event-stream")) {
+            displayResponse("tool", response.headers, "", true);
+            handleSSEResponse("tool", response);
+          } else {
+            const data = await response.json();
+            displayResponse(
+              "tool",
+              response.headers,
+              JSON.stringify(data, null, 2)
+            );
+          }
+
+          statusEl.className = "status-indicator status-success";
+          statusEl.innerHTML = "✓ Success";
+        } catch (error) {
+          statusEl.className = "status-indicator status-error";
+          statusEl.innerHTML = "✗ Error";
+          displayResponse("tool", new Headers(), "Error: " + error.message);
+        }
+      }
+
+      // Send Custom Request
+      async function sendCustomRequest() {
+        const statusEl = document.getElementById("custom-status");
+        statusEl.style.display = "inline-flex";
+        statusEl.className = "status-indicator status-pending";
+        statusEl.innerHTML = '<span class="loading"></span> Sending...';
+
+        try {
+          const requestBody = document.getElementById(
+            "custom-request-body"
+          ).textContent;
+          const headers = {
+            "Content-Type": "application/json",
+            Accept: "application/json, text/event-stream",
+          };
+          if (sessionId) {
+            headers["mcp-session-id"] = sessionId;
+          }
+
+          const response = await fetch(serverUrl, {
+            method: "POST",
+            headers: headers,
+            body: requestBody,
+          });
+
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("text/event-stream")) {
+            displayResponse("custom", response.headers, "", true);
+            handleSSEResponse("custom", response);
+          } else {
+            const data = await response.json();
+            displayResponse(
+              "custom",
+              response.headers,
+              JSON.stringify(data, null, 2)
+            );
+          }
+
+          statusEl.className = "status-indicator status-success";
+          statusEl.innerHTML = "✓ Success";
+        } catch (error) {
+          statusEl.className = "status-indicator status-error";
+          statusEl.innerHTML = "✗ Error";
+          displayResponse("custom", new Headers(), "Error: " + error.message);
+        }
+      }
+
+      let sseReader = null;
+      let sseAbortController = null;
+
+      // Start GET SSE Connection
+      async function startSSE() {
+        if (sseAbortController) {
+          sseAbortController.abort();
+        }
+
+        document.getElementById("sse-messages").innerHTML = "";
+
+        sseAbortController = new AbortController();
+
+        const headers = {
+          Accept: "text/event-stream",
+        };
+        if (sessionId) {
+          headers["mcp-session-id"] = sessionId;
+        }
+
+        document.getElementById("sse-indicator").classList.add("active");
+        document.getElementById("sse-start-button").disabled = true;
+        document.getElementById("sse-stop-button").disabled = false;
+
+        addSSEMessage("GET SSE connection established");
+
+        try {
+          const response = await fetch(serverUrl, {
+            method: "GET",
+            headers: headers,
+            signal: sseAbortController.signal,
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+
+          sseReader = reader;
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+
+            // Keep the last incomplete line in the buffer
+            buffer = lines.pop() || "";
+
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                const data = line.substring(6);
+                if (data) {
+                  try {
+                    const parsed = JSON.parse(data);
+                    if (parsed.method) {
+                      if (parsed.method.includes("notification")) {
+                        addSSEMessage("Server Notification: " + data);
+                      } else {
+                        addSSEMessage("Server Request: " + data);
+                      }
+                    } else {
+                      addSSEMessage("Message: " + data);
+                    }
+                  } catch {
+                    addSSEMessage("Message: " + data);
+                  }
+                }
+              } else if (line.startsWith("event: ")) {
+                const eventType = line.substring(7);
+                addSSEMessage("Event Type: " + eventType);
+              } else if (line === "") {
+                // Empty line signals end of an event
+              }
+            }
+          }
+
+          addSSEMessage("GET SSE connection closed normally");
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            addSSEMessage("Connection error: " + error.message);
+          }
+        } finally {
+          stopSSE();
+        }
+      }
+
+      // Stop SSE Connection
+      function stopSSE() {
+        if (sseAbortController) {
+          sseAbortController.abort();
+          sseAbortController = null;
+        }
+        if (sseReader) {
+          sseReader.cancel();
+          sseReader = null;
+        }
+        document.getElementById("sse-indicator").classList.remove("active");
+        document.getElementById("sse-start-button").disabled = sessionId
+          ? false
+          : true;
+        document.getElementById("sse-stop-button").disabled = true;
+        addSSEMessage("GET SSE connection closed");
+      }
+    </script>
+  </body>
+</html>
