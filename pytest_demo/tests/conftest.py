@@ -1,5 +1,9 @@
 import os
+import sqlite3
+
 import pytest
+
+from utils.data_base import connect_mysql, connection_scope
 from utils.qtest_client import QTestClient
 
 # map pytest outcome → qTest status
@@ -39,6 +43,33 @@ def qtest():
         pytest.skip("qTest is not configured. Set QTEST_BASE_URL, QTEST_PROJECT_ID, and QTEST_API_TOKEN.")
 
     return client
+
+
+@pytest.fixture
+def db_conn():
+    """Provide a managed database connection for tests.
+
+    Defaults to an in-memory SQLite database so unit tests run without external
+    services. Set SLOTH_PYTEST_DB_BACKEND=mysql to use the MySQL settings from
+    utils.data_base.DatabaseConfig.from_env().
+    """
+
+    backend = os.getenv("SLOTH_PYTEST_DB_BACKEND", "sqlite").strip().lower()
+
+    if backend == "sqlite":
+        sqlite_path = os.getenv("SLOTH_PYTEST_SQLITE_PATH", ":memory:")
+        connection_factory = lambda: sqlite3.connect(sqlite_path)
+    elif backend == "mysql":
+        connection_factory = connect_mysql
+    else:
+        pytest.fail("SLOTH_PYTEST_DB_BACKEND must be either 'sqlite' or 'mysql'.")
+
+    with connection_scope(connection_factory) as connection:
+        try:
+            yield connection
+        finally:
+            if hasattr(connection, "rollback"):
+                connection.rollback()
 
 
 @pytest.hookimpl(hookwrapper=True)
