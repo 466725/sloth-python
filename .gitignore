@@ -9,7 +9,6 @@
 .env.*
 !.env.example
 !.env.*.example
-!.env/README.md
 
 ### Python Artifacts ###
 *.pyc
