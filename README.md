@@ -62,7 +62,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 ## 🛠️ Installation
 
-2. **Create and activate a virtual environment:**
+1. **Create and activate a virtual environment:**
    **Windows (PowerShell):**
    ```powershell
    py -3.11 -m venv .venv
@@ -75,7 +75,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
    source .venv/bin/activate
    ```
 
-3. **Install dependencies:**
+2. **Install dependencies:**
    **Using pip:**
    ```powershell
    pip install -r requirements.txt
@@ -97,7 +97,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
    *Note: This installs the packages used by Robot Framework, pytest, Playwright, and the supporting demo utilities.*
 
-4. **Install Playwright Browsers:**
+3. **Install Playwright Browsers:**
    ```powershell
    playwright install
    ```
