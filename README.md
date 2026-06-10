@@ -76,9 +76,25 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
    ```
 
 3. **Install dependencies:**
+   **Using pip:**
    ```powershell
    pip install -r requirements.txt
    ```
+
+   **Using uv:**
+   ```powershell
+   uv venv .venv --python 3.11
+   .\.venv\Scripts\activate
+   uv pip install -r requirements.txt
+   ```
+
+   **Linux/macOS with uv:**
+   ```bash
+   uv venv .venv --python 3.11
+   source .venv/bin/activate
+   uv pip install -r requirements.txt
+   ```
+
    *Note: This installs the packages used by Robot Framework, pytest, Playwright, and the supporting demo utilities.*
 
 4. **Install Playwright Browsers:**
