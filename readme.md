@@ -483,7 +483,6 @@ python -m pytest pytest_demo/tests/ui/tangerine_playwright -q
 
 ### Project Docs (Recommended)
 - [Contributing Guide](CONTRIBUTING.md)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security Policy](SECURITY.md)
 
 ### Test Frameworks
