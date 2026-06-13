@@ -6,6 +6,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+from self_healing.self_healing import click
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     # Ensure local imports resolve when Robot runs this suite directly.
@@ -15,7 +17,6 @@ from robot.libraries.BuiltIn import BuiltIn
 from playwright.sync_api import Browser, BrowserContext, Page, Playwright, sync_playwright
 
 from self_healing.locator_store import get_locator
-from self_healing import click as self_healing_click
 from utils.config import settings
 
 ROBOT_LIBRARY_SCOPE = "GLOBAL"
@@ -143,7 +144,7 @@ def _require_page() -> Page:
 def _click_with_self_healing(locator_key: str) -> None:
     page = _require_page()
     locator = get_locator(locator_key)
-    self_healing_click(
+    click(
         page,
         key=locator_key,
         locator=locator,
