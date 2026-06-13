@@ -10,7 +10,7 @@ matplotlib
 mcp
 mysql-connector-python
 numpy>=2.4.4,<3
-openai>=2.41.0,<3
+openai
 anthropic
 voyageai
 pyecharts
