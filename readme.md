@@ -368,62 +368,116 @@ python -m robot --outputdir temps robot_demo/
 
 ```
 sloth-python/
-├── algorithms/                 # Algorithms & Data Structures
+├── ai_gen/                     # AI + MCP prompt-to-test generation package
+│   ├── ai_client.py            # OpenAI-compatible LLM client
+│   ├── cli.py                  # CLI entry point for generated Playwright tests
+│   ├── generator.py            # Test generation orchestration
+│   ├── mcp_context.py          # Page/context capture helpers
+│   ├── paths.py                # Output path utilities
+│   └── prompt_builder.py       # Prompt construction
+│
+├── ai_monitor_stock/           # Stock monitoring experiments
+│   └── data_fetcher/           # Market data fetchers
+│
+├── algorithms/                 # Algorithms and data structures
 │   ├── backtracking/           # Backtracking algorithms
-│   ├── divide_and_conquer/     # Divide & conquer patterns
-│   ├── machine_learning/       # ML implementations (KNN, SVM, Decision Trees, etc.)
-│   ├── maths/                  # Mathematical algorithms
-│   ├── searches/               # Search algorithms (binary, linear, etc.)
-│   ├── sorts/                  # Sorting algorithms
-│   ├── strings/                # String manipulation algorithms
 │   ├── conversions/            # Number system conversions
-│   └── data_structures/        # Trees, heaps, queues, stacks, tries, etc.
+│   ├── data_structures/        # Trees, heaps, queues, stacks, tries, etc.
+│   ├── divide_and_conquer/     # Divide and conquer patterns
+│   ├── dynamic_programming/    # Dynamic programming examples
+│   ├── greedy/                 # Greedy algorithms
+│   ├── machine_learning/       # ML implementations
+│   ├── maths/                  # Mathematical algorithms
+│   ├── searches/               # Search algorithms
+│   ├── sliding_window/         # Sliding-window patterns
+│   ├── sorts/                  # Sorting algorithms
+│   ├── strings/                # String algorithms
+│   ├── traversals/             # Traversal algorithms
+│   └── two_pointers/           # Two-pointer patterns
 │
-├── pytest_demo/                # Pytest Test Suite
-│   ├── ai_generation/          # AI + MCP context driven script generator
-│   ├── tests/                  # Test cases
-│   │   ├── AI/                 # AI-generation tests and generated Playwright scripts
-│   │   │   └── generated_playwright/
-│   │   ├── unit/               # Unit tests
-│   │   ├── api/                # API tests (Requests)
-│   │   └── ui/                 # UI tests
-│   │       └── tangerine_playwright/
-│   ├── self_healing/           # Self-healing Playwright framework
-│   ├── locators/               # Locator repository (signinpage.json, signuppage.json)
-│   ├── conftest.py             # Pytest fixtures & configuration
-│   └── ...
-│
-├── robot_demo/                 # Robot Framework demo suites (API/UI/keyword patterns)
-│   ├── api/                    # API demos (Robot-only RequestsLibrary and Robot + Python keywords)
-│   ├── calculator/             # Calculator test suite
-│   └── tangerine_playwright/   # Tangerine UI suite (custom Playwright library)
+├── claude_code/                # Claude/Anthropic notebooks and MCP examples
+│   ├── app_starter/            # MCP app starter project
+│   ├── cli_project/            # CLI/MCP client-server demo
+│   ├── data/                   # Course PDFs, sample files, and assets
+│   ├── notifications/          # Notification server/client example
+│   ├── queries/                # Claude hooks and query examples
+│   ├── roots/                  # MCP roots examples
+│   ├── sampling/               # MCP sampling examples
+│   ├── transport-http/         # HTTP transport example
+│   └── *.ipynb                 # Claude API, tools, evals, RAG, and web-search notebooks
 │
 ├── fun_part/                   # Educational & Fun Examples
-│   ├── go_game/                # Game implementations
 │   ├── bilibili/               # API demo projects
-│   └── web_programming/        # Web examples
+│   ├── education_management/   # Education management examples
+│   ├── go_game/                # Game implementations
+│   └── py_echart/              # Charting examples
+│
+├── pytest_demo/                # Pytest test suite
+│   ├── locators/               # Locator repository
+│   ├── tests/                  # Test cases
+│   │   ├── ai/                 # AI-generation tests and generated Playwright scripts
+│   │   ├── api/                # API tests
+│   │   ├── ddt/                # Data-driven tests
+│   │   ├── ui/                 # UI tests
+│   │   └── unit/               # Unit tests
+│   └── theatre-data.csv        # Test data fixture
+│
+├── robot_demo/                 # Robot Framework demo suites
+│   ├── api/                    # API demos
+│   ├── calculator/             # Calculator test suite
+│   ├── ddt/                    # Data-driven Robot examples
+│   ├── tangerine_playwright/   # Tangerine UI suite
+│   └── unit/                   # Basic/unit Robot examples
+│
+├── self_healing/               # Shared self-healing Playwright framework
+│   ├── dom_similarity.py       # DOM similarity scoring
+│   ├── driver_manager.py       # Browser driver helpers
+│   ├── element_finder.py       # Resilient element lookup
+│   ├── locator_store.py        # Locator persistence
+│   └── self_healing.py         # Self-healing workflow
 │
 ├── utils/                      # Shared Utilities
 │   ├── config.py               # Configuration management
 │   ├── csv_reader.py           # CSV utilities
-│   ├── database_client.py      # Database client helpers
+│   ├── decorators.py           # Decorator examples/utilities
+│   ├── google_analytics.py     # Google Analytics helpers
 │   ├── litellm_client.py       # LiteLLM client wrapper
+│   ├── playwright_mcp_helper.py # Playwright MCP helpers
 │   ├── qtest_client.py         # qTest API client
 │   └── tik_token.py            # Token counting helpers
 │
+├── web_scraping/               # Web scraping and networking examples
+│   ├── hostname_ip_info_lookup.py
+│   ├── scrape_douban.py
+│   ├── scrape_google.py
+│   ├── scrape_weather_com_cn.py
+│   ├── scrape_yahoo_stock_price.py
+│   ├── screenshot_grabber.py
+│   ├── tcp_client.py
+│   └── tcp_server.py
+│
 ├── .github/workflows/          # GitHub Actions CI/CD definitions
-├── requirements.txt            # Python dependencies
+├── .env.example                # Example local environment variables
+├── .env.test.example           # Example test environment variables
+├── contributing.md             # Contribution guide
+├── pyproject.toml              # Tooling configuration
 ├── pytest.ini                  # Pytest configuration
-├── pyproject.toml              # Project metadata
-└── README.md                   # This file
+├── readme.md                   # This file
+├── requirements.txt            # Python dependencies
+├── security.md                 # Security policy
+└── uv.lock                     # uv lock file
 ```
 
 ### Key Directories Explained
 
+- **ai_gen/** - AI-assisted Playwright test generation using page context and LLM prompts
 - **algorithms/** - Production-ready implementations for learning and reference
-- **pytest_demo/** - Complete test automation examples with best practices
-- **robot_demo/** - Robot demo suites for API and UI automation patterns
-- **utils/** - Reusable components (config, constants, helpers)
+- **claude_code/** - Claude API, MCP, tools, evals, RAG, and course-example notebooks/projects
+- **pytest_demo/** - Complete pytest examples for unit, API, DDT, AI, and UI testing
+- **robot_demo/** - Robot Framework suites for API, calculator, DDT, unit, and Playwright UI workflows
+- **self_healing/** - Shared self-healing locator framework for Playwright-based automation
+- **utils/** - Reusable components for config, CSV, analytics, LLM, qTest, and token helpers
+- **web_scraping/** - Web scraping, screenshot, stock-price, and TCP networking examples
 
 ---
 
