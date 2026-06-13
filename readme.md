@@ -49,7 +49,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 ## 🚀 Quick Start
 
-**Want to contribute?** Start with the [Contributing Guide](CONTRIBUTING.md).
+**Want to contribute?** Start with the [Contributing Guide](contributing.md).
 
 1. **Clone the repository:**
    ```powershell
@@ -482,7 +482,7 @@ python -m pytest pytest_demo/tests/ui/tangerine_playwright -q
 ## 📖 Documentation & Resources
 
 ### Project Docs (Recommended)
-- [Contributing Guide](CONTRIBUTING.md)
+- [Contributing Guide](contributing.md)
 - [Security Policy](SECURITY.md)
 
 ### Test Frameworks
@@ -649,7 +649,7 @@ We actively monitor both Issues and Discussions—your feedback helps improve th
 
 ### Community & Contribution Resources
 
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Detailed guidelines for contributing code, algorithms, or documentation
+- **[CONTRIBUTING.md](contributing.md)** - Detailed guidelines for contributing code, algorithms, or documentation
 - **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** - Community standards and expectations for respectful interaction
 - **[SECURITY.md](SECURITY.md)** - How to responsibly report security vulnerabilities
 
