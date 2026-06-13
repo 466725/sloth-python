@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
-from pytest_demo.ai_generation.mcp_context import BrowserSnapshot
-from pytest_demo.ai_generation.prompt_builder import SYSTEM_PROMPT, build_generation_prompt
+from ai_generation.mcp_context import BrowserSnapshot
+from ai_generation.prompt_builder import SYSTEM_PROMPT, build_generation_prompt
 
 
 class ScriptClient(Protocol):

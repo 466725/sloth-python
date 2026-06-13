@@ -2,11 +2,11 @@ import os
 
 import pytest
 
-from pytest_demo.ai_generation.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
-from pytest_demo.ai_generation.generator import _normalize_generated_code
-from pytest_demo.ai_generation.mcp_context import BrowserSnapshot
-from pytest_demo.ai_generation.paths import resolve_output_path
-from pytest_demo.ai_generation.prompt_builder import SYSTEM_PROMPT, build_generation_prompt
+from ai_generation.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
+from ai_generation.generator import _normalize_generated_code
+from ai_generation.mcp_context import BrowserSnapshot
+from ai_generation.paths import resolve_output_path
+from ai_generation.prompt_builder import SYSTEM_PROMPT, build_generation_prompt
 
 
 @pytest.mark.ai
