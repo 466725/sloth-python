@@ -5,10 +5,10 @@ import os
 from pathlib import Path
 from typing import Any
 
-from ai_generation.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
-from ai_generation.generator import TestScriptCreator, ScriptClient
-from ai_generation.mcp_context import ContextCollector
-from ai_generation.paths import resolve_output_path
+from ai_gen.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
+from ai_gen.generator import TestScriptCreator, ScriptClient
+from ai_gen.mcp_context import ContextCollector
+from ai_gen.paths import resolve_output_path
 from utils.config import settings
 
 

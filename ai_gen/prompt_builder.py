@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from textwrap import dedent
 
-from ai_generation.mcp_context import BrowserSnapshot
+from ai_gen.mcp_context import BrowserSnapshot
 
 SYSTEM_PROMPT = (
     "You are a senior QA automation engineer. Generate robust Python pytest + Playwright tests only. "
