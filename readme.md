@@ -20,7 +20,6 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 - [Quick Start](#-quick-start)
 - [Installation](#️-installation)
-- [Getting Started as a Contributor](GETTING_STARTED.md)
 - [Configuration](#configuration)
 - [Running Tests](#-running-tests)
 - [Self-Healing Framework](#-self-healing-framework-playwright)
@@ -49,8 +48,6 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 - **Git**
 
 ## 🚀 Quick Start
-
-**New to open source?** Check out [GETTING_STARTED.md](GETTING_STARTED.md) for a beginner-friendly guide.
 
 **Want to contribute?** Start with the [Contributing Guide](CONTRIBUTING.md).
 
@@ -485,7 +482,6 @@ python -m pytest pytest_demo/tests/ui/tangerine_playwright -q
 ## 📖 Documentation & Resources
 
 ### Project Docs (Recommended)
-- [Getting Started for Contributors](GETTING_STARTED.md)
 - [Contributing Guide](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security Policy](SECURITY.md)
