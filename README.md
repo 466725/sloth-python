@@ -489,7 +489,6 @@ python -m pytest pytest_demo/tests/ui/tangerine_playwright -q
 - [Contributing Guide](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security Policy](SECURITY.md)
-- [Changelog](CHANGELOG.md)
 
 ### Test Frameworks
 - [Pytest Documentation](https://docs.pytest.org/)
