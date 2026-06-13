@@ -483,7 +483,7 @@ python -m pytest pytest_demo/tests/ui/tangerine_playwright -q
 
 ### Project Docs (Recommended)
 - [Contributing Guide](contributing.md)
-- [Security Policy](SECURITY.md)
+- [Security Policy](security.md)
 
 ### Test Frameworks
 - [Pytest Documentation](https://docs.pytest.org/)
@@ -651,7 +651,7 @@ We actively monitor both Issues and Discussions—your feedback helps improve th
 
 - **[CONTRIBUTING.md](contributing.md)** - Detailed guidelines for contributing code, algorithms, or documentation
 - **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** - Community standards and expectations for respectful interaction
-- **[SECURITY.md](SECURITY.md)** - How to responsibly report security vulnerabilities
+- **[SECURITY.md](security.md)** - How to responsibly report security vulnerabilities
 
 ### GitHub Issue Templates
 
