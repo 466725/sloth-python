@@ -3,12 +3,12 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from pytest_demo.self_healing.dom_similarity import (
+from self_healing.dom_similarity import (
     find_similar_element,
     suggest_locator_from_candidate,
 )
-from pytest_demo.self_healing.element_finder import build_locator, find_element_with_fallback
-from pytest_demo.self_healing.locator_store import update_primary_locator
+from self_healing.element_finder import build_locator, find_element_with_fallback
+from self_healing.locator_store import update_primary_locator
 
 logger = logging.getLogger(__name__)
 

@@ -2,8 +2,8 @@ import logging
 
 import pytest
 
-from pytest_demo.self_healing.locator_store import get_locator
-from pytest_demo.self_healing.self_healing import find_element
+from self_healing.locator_store import get_locator
+from self_healing import find_element
 
 logger = logging.getLogger(__name__)
 
