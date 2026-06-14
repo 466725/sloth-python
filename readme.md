@@ -24,6 +24,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 - [Running Tests](#-running-tests)
 - [Self-Healing Framework](#-self-healing-framework-playwright)
 - [AI-Generated Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp)
+- [Claude Code Examples](#-claude-code-examples)
 - [CI/CD Pipeline](#️-cicd-pipeline--automation)
 - [Project Structure](#-project-structure)
 - [Best Practices](#-best-practices--patterns)
@@ -316,6 +317,47 @@ python -m pytest -q pytest_demo/tests/ai/generated_playwright
 - **Large pages** — DOM is truncated at `AI_GEN_MAX_DOM_CHARS`; increase if needed
 - **Self-healing** — Generated tests are plain pytest files; wrap with self-healing helpers manually if needed
 - **Validate with:** `python -m pytest -q pytest_demo/tests/ai/test_ai_generation.py`
+
+## 🧠 Claude Code Examples
+
+The `claude_code/` package is a hands-on collection of Claude API and MCP examples. It is useful for learning prompt design, tool use, retrieval, streaming, and building small MCP clients/servers around Claude.
+
+### Notebook Tutorials
+
+The top-level notebooks are short, runnable lessons:
+
+| Notebook | Focus |
+|---|---|
+| `001_prompting.ipynb`, `002_prompting.ipynb` | Prompting patterns and prompt iteration |
+| `001_thinking.ipynb` | Claude thinking/reasoning examples |
+| `001_tools_009.ipynb` | Multi-tool calling with datetime and reminder tools |
+| `001_prompt_grader_evals.ipynb` | Prompt evaluation datasets, grading, and scoring |
+| `001_chunking.ipynb` | Text chunking for retrieval workflows |
+| `002_citations.ipynb` | Citation-aware responses |
+| `002_embeddings.ipynb` | Embeddings and semantic retrieval |
+| `003_vectordb.ipynb`, `004_bm25.ipynb`, `005_hybrid.ipynb` | Vector search, keyword search, and hybrid retrieval |
+| `003_caching.ipynb` | Prompt caching examples |
+| `003_tool_streaming.ipynb` | Streaming tool-use flows |
+| `005_code_execution.ipynb` | Code execution tool examples |
+| `005_text_editor_tool.ipynb` | Text editor tool usage |
+| `006_web_search.ipynb` | Web search examples |
+
+### MCP Projects
+
+The subdirectories contain runnable MCP examples and mini-projects:
+
+| Directory | Purpose |
+|---|---|
+| `app_starter/` | Document-processing MCP server with test fixtures |
+| `cli_project/` | Interactive Claude CLI with MCP client/server pieces, document retrieval, and tool integrations |
+| `notifications/` | MCP logging, progress, and notification demo |
+| `roots/` | MCP chat with controlled file-system roots and video/document operations |
+| `sampling/` | MCP sampling demo with a Claude-backed client |
+| `transport-http/` | HTTP transport example for MCP servers |
+| `queries/` | Claude hooks and query-related examples |
+| `data/` | PDFs, CSVs, images, and other assets used by notebooks and demos |
+
+Most runnable subprojects include their own `README.md`. In general, set `ANTHROPIC_API_KEY`, install dependencies with `uv sync` or `uv pip install -e .`, then run the project-specific command such as `uv run main.py` or `uv run client.py`.
 
 ## 🔄 CI/CD Pipeline & Automation
 
