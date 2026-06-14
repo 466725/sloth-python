@@ -30,7 +30,6 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 - [Best Practices](#-best-practices--patterns)
 - [Troubleshooting](#-troubleshooting)
 - [Documentation](#-documentation--resources)
-- [Contributing](#-contributing)
 - [License](#-license)
 - [Support & Feedback](#-support--feedback)
 
@@ -49,8 +48,6 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 - **Git**
 
 ## 🚀 Quick Start
-
-**Want to contribute?** Start with the [Contributing Guide](contributing.md).
 
 1. **Clone the repository:**
    ```powershell
@@ -501,7 +498,6 @@ sloth-python/
 ├── .github/workflows/          # GitHub Actions CI/CD definitions
 ├── .env.example                # Example local environment variables
 ├── .env.test.example           # Example test environment variables
-├── contributing.md             # Contribution guide
 ├── pyproject.toml              # Tooling configuration
 ├── pytest.ini                  # Pytest configuration
 ├── readme.md                   # This file
@@ -578,7 +574,6 @@ python -m pytest pytest_demo/tests/ui/tangerine_playwright -q
 ## 📖 Documentation & Resources
 
 ### Project Docs (Recommended)
-- [Contributing Guide](contributing.md)
 - [Security Policy](security.md)
 
 ### Test Frameworks
@@ -745,8 +740,6 @@ We actively monitor both Issues and Discussions—your feedback helps improve th
 
 ### Community & Contribution Resources
 
-- **[CONTRIBUTING.md](contributing.md)** - Detailed guidelines for contributing code, algorithms, or documentation
-- **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** - Community standards and expectations for respectful interaction
 - **[SECURITY.md](security.md)** - How to responsibly report security vulnerabilities
 
 ### GitHub Issue Templates
