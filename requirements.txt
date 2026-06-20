@@ -35,6 +35,7 @@ robotframework~=7.4
 robotframework-datadriver
 robotframework-debuglibrary
 robotframework-requests
+PyYAML>=6.0.2,<7
 
 # Mobile automation (Appium Python client)
 Appium-Python-Client>=5.3.1
