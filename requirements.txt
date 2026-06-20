@@ -1,32 +1,65 @@
-# Direct dependencies.
-# Policy: keep most packages flexible, but use tested lower bounds plus
-# major-version ceilings for high-impact libraries that affect security,
-# API compatibility, or broad numerical behavior.
+# Project dependencies.
+#
+# Version policy:
+# - Keep lightweight/demo packages flexible unless the project depends on a
+#   specific API or behavior.
+# - Use lower bounds for tested minimum versions.
+# - Use major-version ceilings for libraries where breaking changes would have
+#   broad impact, such as HTTP, parsing, AI SDK, or numerical packages.
+# - Keep this file grouped by project area so new dependencies have an obvious
+#   home and reviews can spot accidental dependency creep.
 
-# Core libraries and demos
-beautifulsoup4>=4.15.0,<5
-lxml
-matplotlib
-mcp
-mysql-connector-python
-numpy>=2.4.4,<3
-openai
+# Configuration And Serialization
+# Environment variable loading plus YAML parsing for strategy/config files.
+python-dotenv
+PyYAML>=6.0.2,<7
+
+# AI, LLM, And Tokenization
+# Provider SDKs, routing layers, MCP support, embeddings, and token counting.
 anthropic
+litellm>=1.83.9,<1.83.10
+mcp
+openai
+tiktoken
 voyageai
+
+# Data Science, Analysis, And Visualization
+# Numerical computing, machine learning, scientific utilities, and charts.
+matplotlib
+numpy>=2.4.4,<3
 pyecharts
-python-nmap
-requests>=2.33.1,<3
 scikit-learn
 scipy
-litellm>=1.83.9,<1.83.10
-tiktoken
+
+# Documents And Content Conversion
+# Markdown/document conversion used by document demos and utilities.
 markitdown[docx,pdf]>=0.1.1,<0.2.0
 
-# Test automation and reporting
-allure-pytest
-allure-python-commons
+# Database
+# MySQL connectivity helpers.
+mysql-connector-python
+
+# HTTP, Web Scraping, And Stock Data
+# HTTP clients, HTML/XML parsing, user-agent helpers, and market data fetchers.
+beautifulsoup4>=4.15.0,<5
+fake-useragent>=2.2.0
+lxml
+requests>=2.33.1,<3
+yfinance==1.4.1
+
+# Security And Network Utilities
+# Network scanning examples and related utility scripts.
+python-nmap
+
+# Browser, UI, And Game Automation
+# Browser automation and demo/game runtime dependencies.
 playwright
 pygame; python_version < "3.14"
+
+# Test Automation And Reporting
+# Pytest plugins, Allure reporting, and Robot Framework support.
+allure-pytest
+allure-python-commons
 pytest
 pytest-html
 pytest-rerunfailures
@@ -35,12 +68,7 @@ robotframework~=7.4
 robotframework-datadriver
 robotframework-debuglibrary
 robotframework-requests
-PyYAML>=6.0.2,<7
 
-# Mobile automation (Appium Python client)
+# Mobile Automation
+# Appium Python client for mobile UI automation demos.
 Appium-Python-Client>=5.3.1
-
-# Web scraping / HTTP utilities / Stock Data Fetcher
-fake-useragent>=2.2.0
-yfinance==1.4.1
-python-dotenv
