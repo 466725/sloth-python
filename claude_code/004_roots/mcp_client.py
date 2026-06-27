@@ -38,7 +38,7 @@ class MCPClient:
     async def _handle_list_roots(
         self, context: RequestContext["ClientSession", None]
     ) -> ListRootsResult | ErrorData:
-        """Callback for when server requests roots."""
+        """Callback for when server requests 004_roots."""
         return ListRootsResult(roots=self._roots)
 
     async def connect(self):

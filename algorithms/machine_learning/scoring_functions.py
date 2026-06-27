@@ -9,7 +9,7 @@ import numpy as np
     Metrics are slightly differentiated. Sometimes squared, rooted,
     even log is used.
 
-    Using log and roots can be perceived as tools for penalizing big
+    Using log and 004_roots can be perceived as tools for penalizing big
     errors. However, using appropriate metrics depends on the situations,
     and types of metadata
 """

@@ -64,7 +64,7 @@ async def read_dir(
     *,
     ctx: Context,
 ):
-    """Read directory contents. Path must be within one of the client's roots."""
+    """Read directory contents. Path must be within one of the client's 004_roots."""
     requested_path = Path(path).resolve()
 
     if not await is_path_allowed(requested_path, ctx):

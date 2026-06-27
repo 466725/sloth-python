@@ -148,7 +148,7 @@ class BinomialHeap:
             self.min_node = other.min_node
         # Merge
 
-        # Order roots by left_subtree_size
+        # Order 004_roots by left_subtree_size
         combined_roots_list = []
         i, j = self.bottom_root, other.bottom_root
         while i or j:
@@ -163,7 +163,7 @@ class BinomialHeap:
             if combined_roots_list[i][1] != combined_roots_list[i + 1][1]:
                 combined_roots_list[i][0].parent = combined_roots_list[i + 1][0]
                 combined_roots_list[i + 1][0].left = combined_roots_list[i][0]
-        # Consecutively merge roots with same left_tree_size
+        # Consecutively merge 004_roots with same left_tree_size
         i = combined_roots_list[0][0]
         while i.parent:
             if ((i.left_tree_size == i.parent.left_tree_size) and (not i.parent.parent)) or (
@@ -222,7 +222,7 @@ class BinomialHeap:
             new_node.parent = self.bottom_root
             self.bottom_root = new_node
 
-            # Consecutively merge roots with same left_tree_size
+            # Consecutively merge 004_roots with same left_tree_size
             while (
                 self.bottom_root.parent
                 and self.bottom_root.left_tree_size == self.bottom_root.parent.left_tree_size

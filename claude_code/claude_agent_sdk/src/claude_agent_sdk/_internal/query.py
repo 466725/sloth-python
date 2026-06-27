@@ -700,7 +700,7 @@ class Query:
                         "result": response_data,
                     }
 
-            elif method == "notifications/initialized":
+            elif method == "003_notifications/initialized":
                 # Handle initialized notification - just acknowledge it
                 return {"jsonrpc": "2.0", "result": {}}
 
