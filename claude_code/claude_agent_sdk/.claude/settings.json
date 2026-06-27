@@ -23,6 +23,8 @@
     ]
   },
   "python.analysis.extraPaths": [
-      "./claude_code"
+      "./claude_code",
+      "./claude_code/claude_agent_sdk",
+      "./claude_code/claude_agent_sdk/src"
   ]
 }
