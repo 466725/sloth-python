@@ -7,6 +7,7 @@ screen = pygame.display.set_mode((1300, 600), pygame.RESIZABLE)
 clock = pygame.time.Clock()
 
 move_num = 1
+moves = [(-100, -100)]
 click_x, click_y = -1000, -1000
 
 board = []
@@ -52,6 +53,16 @@ while True:
         elif event.type == pygame.VIDEORESIZE:
             screen = pygame.display.set_mode((max(300, event.w), max(300, event.h)), pygame.RESIZABLE)
 
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                if len(moves) > 1:
+                    remove = moves.pop()
+                    board[remove[0]][remove[1]] = "none"
+                    for cell in remove[2]:
+                        board[cell[0]][cell[1]] = "black" if move_num % 2 == 1 else "white"
+                    click_x, click_y = moves[-1][:2]
+                    move_num -= 1
+
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 legal = False
@@ -59,7 +70,7 @@ while True:
                 if board[temp_x][temp_y] == "none":
                     board[temp_x][temp_y] = "black" if move_num % 2 == 1 else "white"
 
-
+                    captured = []
                     for i in ((-1, 0), (1, 0), (0, -1), (0, 1)):
                         alive = True
                         dead_cells = set()
@@ -70,6 +81,7 @@ while True:
                                 legal = True
                                 for cell in dead_cells:
                                     board[cell[0]][cell[1]] = "none"
+                                    captured.append(cell)
 
                     if not legal:
                         if check_liberties("black" if move_num % 2 == 1 else "white", temp_x, temp_y)[0]:
@@ -79,6 +91,7 @@ while True:
 
                     if legal:
                         click_x, click_y = temp_x, temp_y
+                        moves.append((click_x, click_y, captured))
                         pygame.mixer.music.load("Move.WAV")
                         pygame.mixer.music.play(1)
                         move_num += 1
@@ -88,15 +101,15 @@ while True:
 
     for i in range(19):
         pygame.draw.rect(screen, (0, 0, 0), (board_x,
-                                             board_y + i * (board_width / 18),
-                                             board_width, 2))
-        pygame.draw.rect(screen, (0, 0, 0), (board_x + i * (board_width / 18),
+                                             board_y + i * (board_width / 18) - (board_width / 600),
+                                             board_width, board_width / 300))
+        pygame.draw.rect(screen, (0, 0, 0), (board_x + i * (board_width / 18) - (board_width / 600),
                                              board_y,
-                                             2, board_width))
+                                             board_width / 300, board_width))
     for i in [3, 9, 15]:
         for j in [3, 9, 15]:
             pygame.draw.circle(screen, (0, 0, 0), (board_x + i * (board_width / 18),
-                                             board_y + j * (board_width / 18)), 5)
+                                             board_y + j * (board_width / 18)), board_width / 150)
 
     ghost_colour = (0, 0, 0, 100) if move_num % 2 == 1 else (255, 255, 255, 100)
     pygame.draw.circle(screen, ghost_colour,
