@@ -356,6 +356,36 @@ The subdirectories contain runnable MCP examples and mini-projects:
 
 Most runnable subprojects include their own `README.md`. In general, set `ANTHROPIC_API_KEY`, install dependencies with `uv sync` or `uv pip install -e .`, then run the project-specific command such as `uv run main.py` or `uv run client.py`.
 
+### IDE Setup For `claude_code/` Subprojects
+
+Some learning subprojects live under `claude_code/` instead of the repository root. IDEs may need an explicit source-root hint so imports resolve correctly while you study or run those examples.
+
+**PyCharm**
+
+1. Open the `sloth-python` project.
+2. Right-click the `claude_code/` folder.
+3. Select **Mark Directory As** → **Sources Root**.
+
+**VS Code**
+
+This is the VS Code equivalent of PyCharm's **Sources Root** setting.
+
+1. Open the `sloth-python` project folder.
+2. Create or edit `.vscode/settings.json`.
+3. Add:
+
+```json
+{
+   "python.analysis.extraPaths": [
+      "./claude_code"
+   ]
+}
+```
+
+This improves editor import resolution for subprojects stored under `claude_code/`.
+
+Note: this only helps IDE analysis and autocomplete. It does not make invalid Python package names importable in normal Python syntax. For example, folders starting with digits such as `001_starter/` still cannot be imported as `claude_code.001_starter...` in a standard `from ... import ...` statement.
+
 ## 🔄 CI/CD Pipeline & Automation
 
 Automated testing is orchestrated through GitHub Actions workflows to ensure code quality and early defect detection.

@@ -21,5 +21,8 @@
         "matcher": "Edit|Write|MultiEdit"
       }
     ]
-  }
+  },
+  "python.analysis.extraPaths": [
+      "./claude_code"
+  ]
 }
