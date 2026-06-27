@@ -71,7 +71,7 @@ def _entry_text_blocks(entry: dict[str, Any]) -> list[str]:
 def _fold_first_prompt(data: dict[str, Any], entry: dict[str, Any]) -> None:
     """Replicate ``_extract_first_prompt_from_head`` for a single parsed entry.
 
-    Mutates ``data`` in place: sets ``first_prompt`` + ``first_prompt_locked``
+    Mutates ``metadata`` in place: sets ``first_prompt`` + ``first_prompt_locked``
     on a real match, or stashes a ``command_fallback`` for slash-command
     messages. Skips tool_result, isMeta, isCompactSummary, and auto-generated
     patterns.
@@ -125,7 +125,7 @@ def fold_session_summary(
     not contribute to the main session's summary. Guard with
     ``if key.get("subpath") is None:`` before calling.
 
-    All derived state lives in the opaque ``data`` dict; stores persist it
+    All derived state lives in the opaque ``metadata`` dict; stores persist it
     verbatim and do not interpret it.
 
     ``mtime`` is NOT touched by the fold — it is the sidecar's storage
@@ -148,11 +148,11 @@ def fold_session_summary(
         summary: SessionSummaryEntry = {
             "session_id": prev["session_id"],
             "mtime": prev["mtime"],
-            "data": dict(prev["data"]),
+            "metadata": dict(prev["metadata"]),
         }
     else:
-        summary = {"session_id": key["session_id"], "mtime": 0, "data": {}}
-    data = summary["data"]
+        summary = {"session_id": key["session_id"], "mtime": 0, "metadata": {}}
+    data = summary["metadata"]
 
     for raw in entries:
         # SessionStoreEntry is a permissive TypedDict; widen to a plain dict
@@ -197,7 +197,7 @@ def summary_entry_to_sdk_info(
     Returns ``None`` for sidechain sessions or sessions with no extractable
     summary, matching ``_parse_session_info_from_lite``'s filtering.
     """
-    data = entry["data"]
+    data = entry["metadata"]
     if data.get("is_sidechain"):
         return None
 

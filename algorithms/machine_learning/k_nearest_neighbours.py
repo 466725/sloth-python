@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 
 data = datasets.load_iris()
 
-X = np.array(data["data"])
+X = np.array(data["metadata"])
 y = np.array(data["target"])
 classes = data["target_names"]
 
@@ -32,7 +32,7 @@ def classifier(train_data, train_target, classes, point, k=5):
     :train_data: Set of points that are classified into two or more classes
     :train_target: List of classes in the order of train_data points
     :classes: Labels of the classes
-    :point: The data point that needs to be classifed
+    :point: The metadata point that needs to be classifed
 
     >>> X_train = [[0, 0], [1, 0], [0, 1], [0.5, 0.5], [3, 3], [2, 3], [3, 2]]
     >>> y_train = [0, 0, 0, 0, 1, 1, 1]

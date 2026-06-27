@@ -728,7 +728,7 @@ class TestMessageParser:
         assert matched
 
     def test_task_message_backward_compat_base_fields(self):
-        """Backward-compat: subtype and data fields on typed task messages are populated."""
+        """Backward-compat: subtype and metadata fields on typed task messages are populated."""
         data = {
             "type": "system",
             "subtype": "task_started",
@@ -857,10 +857,10 @@ class TestMessageParser:
         assert message.rate_limit_info.utilization == 0.91
 
     def test_parse_invalid_data_type(self):
-        """Test that non-dict data raises MessageParseError."""
+        """Test that non-dict metadata raises MessageParseError."""
         with pytest.raises(MessageParseError) as exc_info:
             parse_message("not a dict")  # type: ignore
-        assert "Invalid message data type" in str(exc_info.value)
+        assert "Invalid message metadata type" in str(exc_info.value)
         assert "expected dict, got str" in str(exc_info.value)
 
     def test_parse_missing_type_field(self):
@@ -915,7 +915,7 @@ class TestMessageParser:
         assert "Missing required field in result message" in str(exc_info.value)
 
     def test_message_parse_error_contains_data(self):
-        """Test that MessageParseError contains the original data."""
+        """Test that MessageParseError contains the original metadata."""
         # Use a malformed known type (missing required fields) to trigger error
         data = {"type": "assistant"}
         with pytest.raises(MessageParseError) as exc_info:
@@ -938,7 +938,7 @@ class TestMessageParser:
     def test_parse_assistant_message_with_authentication_error(self):
         """Test parsing assistant message with authentication_failed error.
 
-        The error field is at the top level of the data, not inside message.
+        The error field is at the top level of the metadata, not inside message.
         This matches the actual CLI output format.
         """
         data = {

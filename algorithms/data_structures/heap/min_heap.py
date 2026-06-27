@@ -1,4 +1,4 @@
-# Min head data structure
+# Min head metadata structure
 # with decrease key functionality - in O(log(n)) time
 
 

@@ -1268,9 +1268,9 @@ class TestSpawnFailureCleanup:
             yield {
                 "type": "system",
                 "subtype": "init",
-                "data": {"session_id": SESSION_ID},
+                "metadata": {"session_id": SESSION_ID},
             }
-            yield {"type": "system", "subtype": "noop", "data": {}}
+            yield {"type": "system", "subtype": "noop", "metadata": {}}
 
         mock_transport.read_messages = mock_receive
 

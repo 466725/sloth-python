@@ -13,7 +13,7 @@ pointer (end) and move them intelligently:
   - sum == target → found the pair
 
 Time complexity:  O(n)   — single pass
-Space complexity: O(1)   — no extra data structure
+Space complexity: O(1)   — no extra metadata structure
 
 Example:
     numbers = [2, 7, 11, 15], target = 9
