@@ -319,19 +319,36 @@ python -m pytest -q pytest_demo/tests/ai/generated_playwright
 
 The `claude_code/` package is a hands-on collection of Claude API and MCP examples. It is useful for learning prompt design, tool use, retrieval, streaming, and building small MCP clients/servers around Claude.
 
+### Learning Tracks
+
+The main subprojects are organized by numbered learning tracks:
+
+| Directory | Purpose |
+|---|---|
+| `000_Architect_Foundations_Certification_Exam/` | Community practice exam for Claude Certified Architect (77 scenario-based questions) |
+| `001_starter/` | Starter MCP server for document-processing tools |
+| `002_cli/` | Interactive Claude CLI with MCP client/server and document retrieval patterns |
+| `003_notifications/` | MCP logging, progress, and notification demo |
+| `004_roots/` | MCP chat with controlled filesystem roots and video conversion helpers |
+| `005_sampling/` | MCP sampling demo with Claude-backed client flow |
+| `006_transport_http/` | MCP transport-over-HTTP server example |
+| `007_note_book/` | Notebook-based tutorials for prompting, tools, retrieval, evals, and web/search workflows |
+| `claude_agent_sdk/` | Local copy of Claude Agent SDK for Python with examples and docs |
+
 ### Notebook Tutorials
 
-The top-level notebooks are short, runnable lessons:
+Notebook tutorials live under `claude_code/007_note_book/`:
 
 | Notebook | Focus |
 |---|---|
 | `001_prompting.ipynb`, `002_prompting.ipynb` | Prompting patterns and prompt iteration |
 | `001_thinking.ipynb` | Claude thinking/reasoning examples |
-| `001_tools_009.ipynb` | Multi-tool calling with datetime and reminder tools |
+| `001_tools.ipynb` | Multi-tool calling basics |
 | `001_prompt_grader_evals.ipynb` | Prompt evaluation datasets, grading, and scoring |
 | `001_chunking.ipynb` | Text chunking for retrieval workflows |
 | `002_citations.ipynb` | Citation-aware responses |
 | `002_embeddings.ipynb` | Embeddings and semantic retrieval |
+| `002_images.ipynb` | Image input and multimodal usage patterns |
 | `003_vectordb.ipynb`, `004_bm25.ipynb`, `005_hybrid.ipynb` | Vector search, keyword search, and hybrid retrieval |
 | `003_caching.ipynb` | Prompt caching examples |
 | `003_tool_streaming.ipynb` | Streaming tool-use flows |
@@ -341,20 +358,23 @@ The top-level notebooks are short, runnable lessons:
 
 ### MCP Projects
 
-The subdirectories contain runnable MCP examples and mini-projects:
+The runnable MCP examples and mini-projects are:
 
 | Directory | Purpose |
 |---|---|
-| `app_starter/` | Document-processing MCP server with test fixtures |
-| `cli_project/` | Interactive Claude CLI with MCP client/server pieces, document retrieval, and tool integrations |
-| `notifications/` | MCP logging, progress, and notification demo |
-| `roots/` | MCP chat with controlled file-system roots and video/document operations |
-| `sampling/` | MCP sampling demo with a Claude-backed client |
-| `transport-http/` | HTTP transport example for MCP servers |
-| `queries/` | Claude hooks and query-related examples |
-| `data/` | PDFs, CSVs, images, and other assets used by notebooks and demos |
+| `001_starter/` | Document-processing MCP starter server |
+| `002_cli/` | Interactive MCP chat CLI project |
+| `003_notifications/` | Logging/progress and notification flow |
+| `004_roots/` | Root-restricted filesystem operations + video conversion |
+| `005_sampling/` | Sampling patterns and response flow control |
+| `006_transport_http/` | HTTP transport setup for MCP server communication |
 
 Most runnable subprojects include their own `README.md`. In general, set `ANTHROPIC_API_KEY`, install dependencies with `uv sync` or `uv pip install -e .`, then run the project-specific command such as `uv run main.py` or `uv run client.py`.
+
+Additional reference files:
+
+- `claude_code/anthropic_academy_courses.md`: curated course/content notes
+- `claude_code/report.md`: local notes and summary output for Claude experiments
 
 ### IDE Setup For `claude_code/` Subprojects
 
