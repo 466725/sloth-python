@@ -54,25 +54,34 @@ while True:
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
+                legal = False
 
                 if board[temp_x][temp_y] == "none":
-                    click_x, click_y = temp_x, temp_y
-                    board[click_x][click_y] = "black" if move_num % 2 == 1 else "white"
-                    pygame.mixer.music.load("Move.WAV")
-                    pygame.mixer.music.play(1)
+                    board[temp_x][temp_y] = "black" if move_num % 2 == 1 else "white"
+
 
                     for i in ((-1, 0), (1, 0), (0, -1), (0, 1)):
                         alive = True
                         dead_cells = set()
                         opp_colour = "white" if move_num % 2 == 1 else "black"
-                        if board[click_x + i[0]][click_y + i[1]] == opp_colour:
-                            alive, dead_cells = check_liberties(opp_colour, click_x + i[0], click_y + i[1])
+                        if board[temp_x + i[0]][temp_y + i[1]] == opp_colour:
+                            alive, dead_cells = check_liberties(opp_colour, temp_x + i[0], temp_y + i[1])
                             if not alive:
+                                legal = True
                                 for cell in dead_cells:
                                     board[cell[0]][cell[1]] = "none"
 
-                    move_num += 1
+                    if not legal:
+                        if check_liberties("black" if move_num % 2 == 1 else "white", temp_x, temp_y)[0]:
+                            legal = True
+                        else:
+                            board[temp_x][temp_y] = "none"
 
+                    if legal:
+                        click_x, click_y = temp_x, temp_y
+                        pygame.mixer.music.load("Move.WAV")
+                        pygame.mixer.music.play(1)
+                        move_num += 1
 
 
     #draw board
