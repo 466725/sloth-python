@@ -1,858 +1,351 @@
-# Sloth Python
+﻿# Sloth Python
 
-[![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org)
+[![Python Version](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI Status](https://github.com/466725/sloth-python/actions/workflows/ci.yml/badge.svg)](https://github.com/466725/sloth-python/actions/workflows/ci.yml)
-[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/466725)
+[![Sponsor](https://img.shields.io/badge/Sponsor-❤-pink?logo=github)](https://github.com/sponsors/466725)
 
-A comprehensive automation and algorithms reference project demonstrating modern testing patterns and best practices.
+A practical Python reference repository for test automation, AI-assisted testing workflows, and algorithm implementations.
 
-**Sloth Python** is an educational and professional-grade project combining:
-- 🧪 **Advanced test automation frameworks** (Robot Framework, pytest, Playwright)
-- 🤖 **AI-powered self-healing test locators** that automatically repair broken selectors
-- 🏗️ **Comprehensive algorithm library** (data structures, ML, divide & conquer, and more)
-- ⚙️ **Production-ready CI/CD workflows** using GitHub Actions
-- 🔧 **AI-driven test script generation** from natural-language goals using MCP
+## Table of Contents
 
-Perfect for learning modern test automation, exploring algorithms, or as a reference for professional test frameworks.
-
-## 📚 Table of Contents
-
-- [Quick Start](#-quick-start)
-- [Installation](#️-installation)
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
 - [Configuration](#configuration)
-- [Running Tests](#-running-tests)
-- [Self-Healing Framework](#-self-healing-framework-playwright)
-- [AI-Generated Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp)
-- [Claude Code Examples](#-claude-code-examples)
-- [CI/CD Pipeline](#️-cicd-pipeline--automation)
-- [Project Structure](#-project-structure)
-- [Best Practices](#-best-practices--patterns)
-- [Troubleshooting](#-troubleshooting)
-- [Documentation](#-documentation--resources)
-- [License](#-license)
-- [Support & Feedback](#-support--feedback)
+- [Running Tests](#running-tests)
+- [Self-Healing Playwright Framework](#self-healing-playwright-framework)
+- [AI-Generated UI Tests (MCP + Playwright)](#ai-generated-ui-tests-mcp--playwright)
+- [Claude Code Learning Projects](#claude-code-learning-projects)
+- [CI/CD](#cicd)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [Troubleshooting](#troubleshooting)
+- [Security](#security)
+- [License](#license)
+- [Support](#support)
 
-## 📌 Key Highlights
+## Overview
 
-- **Advanced Test Automation:** Robot Framework and pytest examples for unit, API, and Playwright-based UI testing
-- **Self-Healing Locators:** AI-assisted Playwright framework that automatically detects and repairs broken element selectors
-- **AI Test Script Generation:** MCP-aware Playwright workflow that generates runnable pytest UI tests from natural-language goals
-- **Algorithm Library:** Curated implementations of algorithms, data structures, and machine learning concepts
-- **Production-Ready CI/CD:** GitHub Actions workflows for automated smoke tests and nightly regression suites
-- **Comprehensive Examples:** Real-world test scenarios and automation patterns
+This repository combines several learning and production-style tracks:
 
-## 📦 Prerequisites
+- Test automation with pytest, Playwright, and Robot Framework
+- AI-assisted UI test generation with MCP context collection
+- Self-healing locator strategies for UI reliability
+- Algorithms and data structure implementations
+- Claude/MCP demos and notebooks
+- CI workflows for smoke and nightly regression coverage
 
-- **Python 3.11+**
-- **Git**
+## Prerequisites
 
-## 🚀 Quick Start
+- Python 3.11+
+- Git
+- Node/Playwright browser dependencies (installed via `playwright install`)
 
-1. **Clone the repository:**
-   ```powershell
-   git clone https://github.com/466725/sloth-python.git
-   cd sloth-python
-   ```
+## Quick Start
 
-## 🛠️ Installation
+1. Clone the repository:
 
-1. **Create and activate a virtual environment:**
-   **Windows (PowerShell):**
-   ```powershell
-   py -3.11 -m venv .venv
-   .\.venv\Scripts\activate
-   ```
+```powershell
+git clone https://github.com/466725/sloth-python.git
+cd sloth-python
+```
 
-   **Linux/macOS (bash/zsh):**
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
+2. Create and activate a virtual environment.
 
-2. **Install dependencies:**
-   **Using pip:**
-   ```powershell
-   pip install -r requirements.txt
-   ```
+Windows (PowerShell):
 
-   **Using uv:**
-   ```powershell
-   uv venv .venv --python 3.11
-   .\.venv\Scripts\activate
-   uv pip install -r requirements.txt
-   ```
+```powershell
+py -3.11 -m venv .venv311
+.\.venv311\Scripts\activate
+```
 
-   **Linux/macOS with uv:**
-   ```bash
-   uv venv .venv --python 3.11
-   source .venv/bin/activate
-   uv pip install -r requirements.txt
-   ```
+Linux/macOS:
 
-   *Note: This installs the packages used by Robot Framework, pytest, Playwright, and the supporting demo utilities.*
+```bash
+python3 -m venv .venv311
+source .venv311/bin/activate
+```
 
-3. **Install Playwright Browsers:**
-   ```powershell
-   playwright install
-   ```
+3. Install dependencies:
+
+```powershell
+pip install -r requirements.txt
+```
+
+Optional with uv:
+
+```powershell
+uv venv .venv311 --python 3.11
+.\.venv311\Scripts\activate
+uv pip install -r requirements.txt
+```
+
+4. Install Playwright browsers:
+
+```powershell
+python -m playwright install
+```
 
 ## Configuration
 
-Runtime settings are centralized in `utils/config.py` and read from environment variables with safe defaults.
+Shared runtime settings are defined in `utils/config.py` and read from environment variables.
 
-| Variable | Default                                | Description                                                       |
-|---|----------------------------------------|-------------------------------------------------------------------|
-| `TANGERINE_URL` | `https://www.tangerine.ca/en/personal` | Base URL for Tangerine UI tests                                   |
-| `DEEP_SEEK_URL` | `https://api.deepseek.com`             | Base URL for DeepSeek-compatible API calls                        |
-| `OPENAI_URL` | `https://api.openai.com`               | Base URL for OpenAI API calls                                     |
-| `UI_LOCALE` | `en-US`                                | Browser locale used by Playwright-based UI tests                  |
-| `SLEEP_TIME` | `1`                                    | Generic sleep duration used in selected fixtures                  |
-| `COOKIE_BANNER_TIMEOUT_SECONDS` | `5`                                    | Wait time for Tangerine cookie banner handling                    |
-| `PW_HEADLESS` | `true`                                 | Playwright headless mode (`1/0`, `true/false`, `yes/no`, `on/off`) |
-| `AI_GEN_MODEL` | `gpt-4.1`                              | LLM model identifier                                              |
-| `AI_GEN_BASE_URL` | `OPENAI_URL`                           | API base URL                                     |
-| `AI_GEN_MAX_DOM_CHARS` | `12000`                                | Max DOM/element-tree size sent to the model                       |
-| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/ai/generated_playwright` | Default output folder                      |
-| `QTEST_BASE_URL` | `https://yourcompany.qtestnet.com`     | Base URL for qTest API integration                                |
-| `QTEST_PROJECT_ID` | `123456`                               | qTest project id used for test run reporting                      |
-| `QTEST_API_TOKEN` | `your_token_here`                      | API token used to authenticate with qTest                         |
+| Variable | Default | Description |
+|---|---|---|
+| `TANGERINE_URL` | `https://www.tangerine.ca/en/personal` | Base URL for Tangerine UI examples |
+| `DEEP_SEEK_URL` | `https://api.deepseek.com` | DeepSeek-compatible base URL |
+| `OPENAI_URL` | `https://api.openai.com/v1` | OpenAI-compatible base URL |
+| `UI_LOCALE` | `en-US` | Browser locale for Playwright contexts |
+| `SLEEP_TIME` | `1` | Generic sleep duration used by selected demos |
+| `COOKIE_BANNER_TIMEOUT_SECONDS` | `5` | Cookie banner wait timeout |
+| `PW_HEADLESS` | `false` | Playwright headless mode |
+| `AI_GEN_MODEL` | `gpt-4.1` | Model used by AI generation flow |
+| `AI_GEN_BASE_URL` | `OPENAI_URL` | AI generation API base URL |
+| `AI_GEN_MAX_DOM_CHARS` | `12000` | DOM size cap sent to model |
+| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/ai/generated_playwright` | Default generated-test output path |
 
-Quick local check:
+Print resolved settings locally:
 
 ```powershell
 python -m utils.config
 ```
 
-## 🏃 Running Tests
-
-Use the commands below for the most common local test workflows.
+## Running Tests
 
 ### Pytest
 
-`pytest` is the main runner for unit, API, and Playwright UI tests.
-
 ```powershell
-# Full pytest run
+# Full run
 python -m pytest
 
-# Only UI tests
+# Common subsets
+python -m pytest -m "unit or api"
 python -m pytest -m ui
+python -m pytest -m "not ai"
 
-# One file / one test
+# Targeted file/test
 python -m pytest pytest_demo/tests/unit/test_csv_reader.py -q
 python -m pytest pytest_demo/tests/unit/test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
-
-# Tangerine Playwright suite
-python -m pytest pytest_demo/tests/ui/tangerine_playwright
-
-# Generate and view Allure results
-python -m pytest --alluredir=temps/allure-results --clean-alluredir
-allure serve temps/allure-results
 ```
-
-For `pytest_demo/tests/ui/tangerine_playwright`, Playwright records per-test video and keeps/attaches it only for failed tests. Videos are written under `temps/playwright-videos/tangerine_playwright/`.
-
-### API Demos
-
-The repo includes three API-testing styles:
-
-| Approach | Best for | Run command |
-|---|---|---|
-| Pytest + Python | Flexible validation and reusable helpers | `python -m pytest -q pytest_demo/tests/api/test_deep_seek_api.py` |
-| Robot + Python keywords | Readable Robot flow with Python power | `python -m robot --outputdir temps/robot_api robot_demo/api/deep_seek_api_hybrid_test.robot` |
-| Robot-only `RequestsLibrary` | Simple keyword-driven API checks | `python -m robot --outputdir temps/robot_api robot_demo/api/deep_seek_api_test.robot` |
-
-DeepSeek demos use `OPENAI_API_KEY`; `DEEP_SEEK_URL` is optional.
-
-### Playwright Recording & Debugging
-
-Use Playwright Codegen to record actions and bootstrap UI tests:
-
-```powershell
-python -m playwright codegen https://www.tangerine.ca/en/personal
-```
-
-Run a Playwright test visibly for debugging:
-
-```powershell
-python -m pytest pytest_demo/tests/ui/tangerine_playwright/test_codegen_demo.py --headed --slowmo 200
-```
-
-- `--headed`: opens a visible browser
-- `--slowmo 200`: slows actions for easier observation
-
-> This project uses **Python pytest + Playwright**, so run tests with `python -m pytest ...`, not `npx playwright test`.
-
-For AI-based test generation, see [AI-Generated UI Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp).
 
 ### Robot Framework
 
-Robot demos live under `robot_demo/`.
-
 ```powershell
-# All Robot demos
+# All robot suites
 python -m robot --outputdir temps/robot_all robot_demo/
 
-# Calculator demo
+# Smoke-like calculator suite
 python -m robot --outputdir temps/robot_calculator robot_demo/calculator/
 
-# Tangerine Playwright suite
+# Tangerine UI suite
 python -m robot --outputdir temps/robot_tangerine_playwright robot_demo/tangerine_playwright/
 
-# Dry run (syntax and keyword wiring only)
+# Dry run
 python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_demo/tangerine_playwright/
 ```
 
-Robot writes `output.xml`, `log.html`, and `report.html` to the selected directory under `temps/`.
+### API Demo Flows
 
-For `robot_demo/tangerine_playwright/`:
-- failure screenshots are saved under `artifacts/playwright/screenshots/`
-- failure videos are saved under `artifacts/playwright/videos/`
-- screenshot/video links appear in Robot `log.html` and `report.html`
-- passed-test videos are deleted to keep artifacts small
+| Approach | Run command |
+|---|---|
+| Pytest API tests | `python -m pytest -q pytest_demo/tests/api/test_deep_seek_api.py` |
+| Robot + Python keywords | `python -m robot --outputdir temps/robot_api robot_demo/api/deep_seek_api_hybrid_test.robot` |
+| Robot RequestsLibrary only | `python -m robot --outputdir temps/robot_api robot_demo/api/deep_seek_api_test.robot` |
 
-The Tangerine Robot keyword libraries also bootstrap the project root import path automatically, so `-P` is typically not needed.
-
-## 🤖 Self-Healing Framework (Playwright)
-
-This project includes an advanced self-healing mechanism for Playwright-based UI tests that automatically detects and repairs broken locators.
-
-**Location:** `pytest_demo/self_healing/`
-**Locator Store:**
-- `pytest_demo/locators/signinpage.json`
-- `pytest_demo/locators/signuppage.json`
-
-### How It Works
-
-1. **Primary Locator Failure** → Framework attempts primary locator
-2. **Backup Locators** → Tries backup selectors from locator store
-3. **DOM Scanning** → Scans page DOM for similar elements using fuzzy matching
-4. **Auto-Update** → If a match is found, test passes and the page-specific locator file is automatically updated
-5. **Resilience** → Subsequent test runs use the updated selector
-
-### Benefits
-
-- **Reduced Maintenance:** Eliminates manual locator fixes after UI changes
-- **Improved Stability:** Tests are more resilient to minor DOM alterations
-- **Smart Learning:** System learns from failures and improves over time
-
-### Robot Tangerine Suite Scope
-
-The Robot suite in `robot_demo/tangerine_playwright/` uses the same self-healing locator store, but limits healing to these keys in the Playwright keywords:
-
-- `tangerine.login`
-- `tangerine.signup`
-
-Locator definitions are shared from:
-
-- `pytest_demo/locators/signinpage.json`
-- `pytest_demo/locators/signuppage.json`
-
-Robot mode currently runs with read-only healing (`auto_update=False`) so it can recover using stored locator strategies without silently rewriting the locator files.
-
-## 🤖 AI-Generated UI Test Scripts (Python + Playwright + MCP)
-
-An AI-powered pipeline that generates runnable pytest + Playwright test scripts from natural-language goals and live page context.
-
-**How it works:** Playwright captures the page (DOM, screenshot, network events) → context is packaged into a structured prompt → an OpenAI-compatible model generates Python test code → the file is written to `pytest_demo/tests/ai/generated_playwright/`.
-
-**Location:** `pytest_demo/ai_generation/` — modules: `mcp_context.py`, `prompt_builder.py`, `ai_client.py`, `generator.py`, `cli.py`
-
-### Prerequisites
-
-- `OPENAI_API_KEY` set (supports OpenAI, DeepSeek, Azure, OpenRouter, or any OpenAI-compatible endpoint)
-- Dependencies installed: `pip install -r requirements.txt`
-- Playwright browsers installed: `playwright install`
-
-### Quick Start
+### Playwright Debugging
 
 ```powershell
-# 1. Set your API key
+# Record actions
+python -m playwright codegen https://www.tangerine.ca/en/personal
+
+# Run one test headed
+python -m pytest pytest_demo/tests/ui/tangerine_playwright/test_codegen_demo.py --headed --slowmo 200
+```
+
+## Self-Healing Playwright Framework
+
+The self-healing engine lives in `self_healing/` and is used by UI workflows to recover from selector drift.
+
+Primary locator stores:
+
+- `pytest_demo/locators/signinpage.json`
+- `pytest_demo/locators/signuppage.json`
+
+High-level flow:
+
+1. Try primary locator.
+2. Try backup locators.
+3. Scan DOM with similarity heuristics.
+4. Reuse recovered strategy (and optionally persist where enabled).
+
+Robot Tangerine suites use the same locator store with controlled update behavior.
+
+## AI-Generated UI Tests (MCP + Playwright)
+
+The generator is implemented in `ai_gen/` and produces pytest + Playwright tests from live page context.
+
+How it works:
+
+1. Capture page context (DOM, screenshot metadata, network events).
+2. Build a structured prompt from context and natural-language goal.
+3. Generate runnable Python test code through an OpenAI-compatible API.
+4. Save to `pytest_demo/tests/ai/generated_playwright/`.
+
+Prerequisites:
+
+- `OPENAI_API_KEY` in environment
+- Dependencies installed
+- Playwright browsers installed
+
+Example:
+
+```powershell
 $env:OPENAI_API_KEY = "<your-api-key>"
 
-# 2. Generate a test from a live page
-python -m pytest_demo.ai_generation.cli `
-  --url  "https://www.tangerine.ca/en/personal" `
+python -m ai_gen.cli `
+  --url "https://www.tangerine.ca/en/personal" `
   --goal "Verify homepage loads and Sign In button is visible" `
   --test-name "test_tangerine_homepage" `
   --output "pytest_demo/tests/ai/generated_playwright/test_tangerine_homepage.py"
 
-# 3. Run the generated test
 python -m pytest -q pytest_demo/tests/ai/generated_playwright/test_tangerine_homepage.py
 ```
 
-### CLI Reference
+CLI options:
 
 | Option | Default | Description |
-|--------|---------|-------------|
-| `--url` | *(required)* | Target page URL |
-| `--goal` | *(required)* | Natural-language test goal |
+|---|---|---|
+| `--url` | required | Target URL |
+| `--goal` | required | Natural-language test goal |
 | `--test-name` | `test_generated_ui_flow` | Generated function name |
-| `--output` | `AI_GEN_OUTPUT_DIR` | Output file path |
-| `--model` | `gpt-4.1` | LLM model name |
-| `--base-url` | `OPENAI_URL` | OpenAI-compatible endpoint |
-| `--headless` | `true` | Run Playwright headless (`true`/`false`) |
+| `--output` | `AI_GEN_OUTPUT_DIR` + filename | Output file path |
+| `--model` | `AI_GEN_MODEL` | Model name |
+| `--base-url` | `AI_GEN_BASE_URL` | OpenAI-compatible endpoint |
+| `--headless` | `true` or `false` from config | Headless browser for context capture |
 
-### More Examples
+## Claude Code Learning Projects
 
-```powershell
-# Sign-in page
-python -m pytest_demo.ai_generation.cli `
-  --url "https://www.tangerine.ca/app/#/login" `
-  --goal "Verify username/password fields and submit button are present" `
-  --test-name "test_tangerine_signin"
-
-# Run all generated tests
-python -m pytest -q pytest_demo/tests/ai/generated_playwright
-```
-
-### Notes
-
-- **Review before committing** — AI output is a strong starting point, not production-ready by default
-- **Model choice** — `gpt-4.1` for best quality; `gpt-4.1-mini` for cost savings
-- **Large pages** — DOM is truncated at `AI_GEN_MAX_DOM_CHARS`; increase if needed
-- **Self-healing** — Generated tests are plain pytest files; wrap with self-healing helpers manually if needed
-- **Validate with:** `python -m pytest -q pytest_demo/tests/ai/test_ai_generation.py`
-
-## 🧠 Claude Code Examples
-
-The `claude_code/` package is a hands-on collection of Claude API and MCP examples. It is useful for learning prompt design, tool use, retrieval, streaming, and building small MCP clients/servers around Claude.
-
-### Learning Tracks
-
-The main subprojects are organized by numbered learning tracks:
+`claude_code/` contains Claude and MCP learning tracks:
 
 | Directory | Purpose |
 |---|---|
-| `000_Architect_Foundations_Certification_Exam/` | Community practice exam for Claude Certified Architect (77 scenario-based questions) |
-| `001_starter/` | Starter MCP server for document-processing tools |
-| `002_cli/` | Interactive Claude CLI with MCP client/server and document retrieval patterns |
-| `003_notifications/` | MCP logging, progress, and notification demo |
-| `004_roots/` | MCP chat with controlled filesystem roots and video conversion helpers |
-| `005_sampling/` | MCP sampling demo with Claude-backed client flow |
-| `006_transport_http/` | MCP transport-over-HTTP server example |
-| `007_note_book/` | Notebook-based tutorials for prompting, tools, retrieval, evals, and web/search workflows |
-| `claude_agent_sdk/` | Local copy of Claude Agent SDK for Python with examples and docs |
+| `000_Architect_Foundations_Certification_Exam/` | Practice exam resources for Claude Architect Foundations |
+| `001_starter/` | MCP starter project |
+| `002_cli/` | CLI-based MCP chat project |
+| `003_notifications/` | Logging and notifications demo |
+| `004_roots/` | Root-scoped filesystem and media operations |
+| `005_sampling/` | Sampling and response-flow demo |
+| `006_transport_http/` | MCP HTTP transport example |
+| `007_note_book/` | Notebook tutorials (prompting, tools, RAG, search, evals) |
+| `claude_agent_sdk/` | Claude Agent SDK source and examples |
 
-### Notebook Tutorials
+IDE tip for VS Code: configure workspace extra paths in `.vscode/settings.json` so imports resolve cleanly for subprojects under `claude_code/`.
 
-Notebook tutorials live under `claude_code/007_note_book/`:
+## CI/CD
 
-| Notebook | Focus |
-|---|---|
-| `001_prompting.ipynb`, `002_prompting.ipynb` | Prompting patterns and prompt iteration |
-| `001_thinking.ipynb` | Claude thinking/reasoning examples |
-| `001_tools.ipynb` | Multi-tool calling basics |
-| `001_prompt_grader_evals.ipynb` | Prompt evaluation datasets, grading, and scoring |
-| `001_chunking.ipynb` | Text chunking for retrieval workflows |
-| `002_citations.ipynb` | Citation-aware responses |
-| `002_embeddings.ipynb` | Embeddings and semantic retrieval |
-| `002_images.ipynb` | Image input and multimodal usage patterns |
-| `003_vectordb.ipynb`, `004_bm25.ipynb`, `005_hybrid.ipynb` | Vector search, keyword search, and hybrid retrieval |
-| `003_caching.ipynb` | Prompt caching examples |
-| `003_tool_streaming.ipynb` | Streaming tool-use flows |
-| `005_code_execution.ipynb` | Code execution tool examples |
-| `005_text_editor_tool.ipynb` | Text editor tool usage |
-| `006_web_search.ipynb` | Web search examples |
+GitHub Actions workflow: `.github/workflows/ci.yml`
 
-### MCP Projects
+- Smoke job on pushes and pull requests
+- Nightly regression job (`0 2 * * *`) and manual `workflow_dispatch`
+- Artifacts include Robot output and Allure assets when available
 
-The runnable MCP examples and mini-projects are:
-
-| Directory | Purpose |
-|---|---|
-| `001_starter/` | Document-processing MCP starter server |
-| `002_cli/` | Interactive MCP chat CLI project |
-| `003_notifications/` | Logging/progress and notification flow |
-| `004_roots/` | Root-restricted filesystem operations + video conversion |
-| `005_sampling/` | Sampling patterns and response flow control |
-| `006_transport_http/` | HTTP transport setup for MCP server communication |
-
-Most runnable subprojects include their own `README.md`. In general, set `ANTHROPIC_API_KEY`, install dependencies with `uv sync` or `uv pip install -e .`, then run the project-specific command such as `uv run main.py` or `uv run client.py`.
-
-Additional reference files:
-
-- `claude_code/anthropic_academy_courses.md`: curated course/content notes
-- `claude_code/report.md`: local notes and summary output for Claude experiments
-
-### IDE Setup For `claude_code/` Subprojects
-
-Some learning subprojects live under `claude_code/` instead of the repository root. If your IDE cannot resolve imports (for example, unresolved imports in `claude_agent_sdk` examples), use the setup below.
-
-**PyCharm**
-
-1. Open the `sloth-python` project.
-2. Right-click `claude_code/`.
-3. Select **Mark Directory As** → **Sources Root**.
-
-**VS Code (recommended workspace settings)**
-
-This is the VS Code equivalent of PyCharm's **Sources Root** behavior.
-
-1. Open the `sloth-python` project folder in VS Code.
-2. Create or edit `.vscode/settings.json`.
-3. Add/update the settings below:
-
-```jsonc
-{
-   "python.defaultInterpreterPath": "${workspaceFolder}/.venv311/Scripts/python.exe",
-   "python.analysis.extraPaths": [
-      "./claude_code/claude_agent_sdk/src",
-      "./claude_code/claude_agent_sdk",
-      "./claude_code"
-   ]
-}
-```
-
-4. Reload VS Code window: **Developer: Reload Window**.
-
-**Why these paths?**
-
-- `./claude_code/claude_agent_sdk/src`: resolves imports for `src`-layout packages in SDK examples
-- `./claude_code/claude_agent_sdk`: resolves local package references in that subproject
-- `./claude_code`: resolves imports from other learning folders under `claude_code/`
-
-**Quick verification checklist**
-
-1. Open a Python file under `claude_code/` with previous import warnings.
-2. Confirm unresolved import diagnostics disappear.
-3. In the VS Code command palette, run **Python: Select Interpreter** and verify it points to `.venv311` (or your chosen project venv).
-
-Note: `python.analysis.extraPaths` improves IDE analysis and autocomplete. It does not make invalid Python identifiers importable at runtime. For example, folders starting with digits such as `001_starter/` still cannot be imported as `claude_code.001_starter...` in a standard `from ... import ...` statement.
-
-## 🔄 CI/CD Pipeline & Automation
-
-Automated testing is orchestrated through GitHub Actions workflows to ensure code quality and early defect detection.
-
-### Workflow Overview
-
-**Smoke Tests (Push + Pull Request)**
-- Run on pushes to `main` / `master`
-- Run on pull requests targeting `main` / `master` while the PR is open
-- Include pytest `unit` + `api` coverage and the Robot calculator suite
-- Provide fast feedback on core regressions
-
-**Nightly Regression Suite (2 AM UTC)**
-- Runs from the scheduled workflow at `0 2 * * *`
-- Installs Playwright browsers with dependencies
-- Executes the full pytest suite and all Robot suites
-- Attempts Allure report generation after the test run
-
-### Test Artifacts
-
-The workflow uploads generated reports when available in the run's **Artifacts** section, including:
-- `allure-report/`
-- `temps/log.html`
-- `temps/report.html`
-- `temps/output.xml`
-
-### Viewing Reports
-
-1. Navigate to the workflow run on GitHub
-2. Download the artifacts zip file
-3. Extract and open `report.html` in your browser
-
-### Local CI/CD Simulation
-
-Use these commands to mimic the core CI flow locally (see `Running Tests` for more command variants):
+Local CI-style simulation:
 
 ```powershell
-# Run smoke tests
-python -m pytest -m "unit or api"
-python -m robot robot_demo/calculator/
+# Smoke-like
+python -m pytest -m "unit or api" --tb=short
+python -m robot --outputdir temps/robot_smoke robot_demo/calculator/
 
-# Run a nightly-like full pass
-playwright install
-python -m pytest --tb=short --maxfail=5
+# Regression-like
+python -m playwright install
+python -m pytest -m "not ai" --tb=short --maxfail=5
 python -m robot --outputdir temps robot_demo/
 ```
 
-## 📂 Project Structure
+## Project Structure
 
-```
+```text
 sloth-python/
-├── ai_gen/                     # AI + MCP prompt-to-test generation package
-│   ├── ai_client.py            # OpenAI-compatible LLM client
-│   ├── cli.py                  # CLI entry point for generated Playwright tests
-│   ├── generator.py            # Test generation orchestration
-│   ├── mcp_context.py          # Page/context capture helpers
-│   ├── paths.py                # Output path utilities
-│   └── prompt_builder.py       # Prompt construction
-│
-├── ai_stock/                   # AI stock analysis and reporting experiments
-│   ├── engine/                 # Core stock analysis engine
-│   ├── llm/                    # LLM integrations/prompts
-│   ├── report/                 # Report generation utilities
-│   ├── stock_data/             # Market data models/loaders
-│   ├── stock_news/             # News ingestion and processing
-│   ├── strategies/             # Strategy implementations
-│   └── utils/                  # Shared helpers for ai_stock
-│
+├── ai_gen/                     # AI test generation pipeline (MCP context -> code)
+├── ai_stock/                   # Stock analysis, strategy, and report experiments
 ├── algorithms/                 # Algorithms and data structures
-│   ├── backtracking/           # Backtracking algorithms
-│   ├── conversions/            # Number system conversions
-│   ├── data_structures/        # Trees, heaps, queues, stacks, tries, etc.
-│   ├── divide_and_conquer/     # Divide and conquer patterns
-│   ├── dynamic_programming/    # Dynamic programming examples
-│   ├── greedy/                 # Greedy algorithms
-│   ├── machine_learning/       # ML implementations
-│   ├── maths/                  # Mathematical algorithms
-│   ├── searches/               # Search algorithms
-│   ├── sliding_window/         # Sliding-window patterns
-│   ├── sorts/                  # Sorting algorithms
-│   ├── strings/                # String algorithms
-│   ├── traversals/             # Traversal algorithms
-│   └── two_pointers/           # Two-pointer patterns
-│
-├── claude_code/                # Claude/Anthropic notebooks and MCP examples
-│   ├── 000_Architect_Foundations_Certification_Exam/ # Architect foundations practice exam
-│   ├── 001_starter/            # MCP starter project
-│   ├── 002_cli/                # CLI/MCP client-server demo
-│   ├── 003_notifications/      # Notification server/client example
-│   ├── 004_roots/              # MCP roots examples
-│   ├── 005_sampling/           # MCP sampling examples
-│   ├── 006_transport_http/     # HTTP transport example
-│   ├── 007_note_book/          # Claude API/tutorial notebooks
-│   ├── claude_agent_sdk/       # Claude Agent SDK local source/examples
-│   ├── anthropic_academy_courses.md
-│   └── report.md
-│
-├── fun_part/                   # Educational & Fun Examples
-│   ├── bilibili/               # API demo projects
-│   ├── education_management/   # Education management examples
-│   ├── go_game/                # Game implementations
-│   └── py_echart/              # Charting examples
-│
-├── load_test_demo/             # JMeter and Postman load/API test assets
-│   ├── *.jmx                   # JMeter test plans
-│   └── *.postman_environment.json / *.postman_collection.json
-│
-├── pytest_demo/                # Pytest test suite
-│   ├── locators/               # Locator repository
-│   ├── tests/                  # Test cases
-│   │   ├── ai/                 # AI-generation tests and generated Playwright scripts
-│   │   ├── api/                # API tests
-│   │   ├── ddt/                # Data-driven tests
-│   │   ├── ui/                 # UI tests
-│   │   └── unit/               # Unit tests
-│   └── theatre-data.csv        # Test data fixture
-│
-├── robot_demo/                 # Robot Framework demo suites
-│   ├── api/                    # API demos
-│   ├── calculator/             # Calculator test suite
-│   ├── ddt/                    # Data-driven Robot examples
-│   ├── tangerine_playwright/   # Tangerine UI suite
-│   └── unit/                   # Basic/unit Robot examples
-│
-├── self_healing/               # Shared self-healing Playwright framework
-│   ├── dom_similarity.py       # DOM similarity scoring
-│   ├── driver_manager.py       # Browser driver helpers
-│   ├── element_finder.py       # Resilient element lookup
-│   ├── locator_store.py        # Locator persistence
-│   └── self_healing.py         # Self-healing workflow
-│
-├── utils/                      # Shared Utilities
-│   ├── config.py               # Configuration management
-│   ├── csv_reader.py           # CSV utilities
-│   ├── data_base/              # Database helpers
-│   ├── decorators.py           # Decorator examples/utilities
-│   ├── google_analytics.py     # Google Analytics helpers
-│   ├── litellm_client.py       # LiteLLM client wrapper
-│   ├── playwright_mcp.py       # Playwright MCP helpers
-│   ├── qtest_client.py         # qTest API client
-│   └── tik_token.py            # Token counting helpers
-│
-├── web_scraping/               # Web scraping and networking examples
-│   ├── hostname_ip_info_lookup.py
-│   ├── scrape_douban.py
-│   ├── scrape_google.py
-│   ├── scrape_weather_com_cn.py
-│   ├── scrape_yahoo_stock_price.py
-│   ├── screenshot_grabber.py
-│   ├── tcp_client.py
-│   └── tcp_server.py
-│
-├── .github/workflows/          # GitHub Actions CI/CD definitions
+├── claude_code/                # Claude/MCP learning tracks and SDK examples
+├── fun_part/                   # Educational and exploratory scripts
+├── load_test_demo/             # JMeter and Postman load/API assets
+├── pytest_demo/                # Pytest suites, locators, and generated test outputs
+├── robot_demo/                 # Robot Framework suites (API, unit, calculator, UI)
+├── self_healing/               # Shared self-healing locator framework
+├── temps/                      # Local test/report artifacts
+├── utils/                      # Shared project utilities
+├── web_scraping/               # Scraping and networking examples
+├── .github/workflows/          # CI workflows
 ├── .vscode/settings.json       # Workspace Python/Pylance settings
-├── .env.example                # Example local environment variables
-├── pyproject.toml              # Tooling configuration
-├── pytest.ini                  # Pytest configuration
-├── readme.md                   # This file
-├── requirements.txt            # Python dependencies
-├── security.md                 # Security policy
-└── uv.lock                     # uv lock file
+├── pyproject.toml              # Tool formatting/linting configuration
+├── pytest.ini                  # Pytest settings and markers
+├── requirements.txt            # Runtime dependencies
+└── security.md                 # Security policy
 ```
 
-### Key Directories Explained
+## Contributing
 
-- **ai_gen/** - AI-assisted Playwright test generation using page context and LLM prompts
-- **ai_stock/** - AI-driven stock analysis, news ingestion, strategy logic, and report generation
-- **algorithms/** - Production-ready implementations for learning and reference
-- **claude_code/** - Claude learning tracks: MCP mini-projects, notebooks, and local Agent SDK examples
-- **load_test_demo/** - Load/performance assets for JMeter and Postman-based API testing
-- **pytest_demo/** - Complete pytest examples for unit, API, DDT, AI, and UI testing
-- **robot_demo/** - Robot Framework suites for API, calculator, DDT, unit, and Playwright UI workflows
-- **self_healing/** - Shared self-healing locator framework for Playwright-based automation
-- **utils/** - Reusable helpers for config, CSV, analytics, MCP/LLM integrations, qTest, and tokens
-- **web_scraping/** - Web scraping, screenshot, stock-price, and TCP networking examples
+Contributions are welcome for code, tests, and documentation.
 
----
+Recommended workflow:
 
-## 🎓 Best Practices & Patterns
+1. Create a branch.
+2. Make focused changes.
+3. Run local checks.
+4. Open a pull request with a clear description.
 
-This project demonstrates industry best practices:
+Example checks:
 
-### Test Automation Patterns
-- **Page Object Model (POM)** - Maintainable UI test structure
-- **Fixtures & Dependency Injection** - Pytest fixtures for test setup/teardown
-- **Marker-Based Organization** - Categorize tests with markers such as `unit`, `api`, `ui`, and `playwright`
-- **Parameterization** - Run same test with multiple data sets
-- **Self-Healing** - AI-powered locator recovery mechanism
-
-### Code Quality
-- **Type Hints** - Type annotations for better IDE support and documentation
-- **Docstrings** - Comprehensive module and function documentation
-- **Error Handling** - Proper exception handling and logging
-- **Configuration Management** - Externalized config for different environments
-- **DRY Principle** - Reusable utilities and helper functions
-
-### CI/CD & DevOps
-- **Automated Testing** - Smoke tests on PRs, full regression nightly
-- **Report Generation** - HTML and Allure reports for test visibility
-- **Artifact Management** - Uploaded for debugging and report review
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Issue: "ModuleNotFoundError" when running tests**
-**Windows (PowerShell):**
 ```powershell
-.\.venv\Scripts\activate
+python -m pytest -m "unit or api" --tb=short
+python -m robot --outputdir temps/robot_smoke robot_demo/calculator/
+```
+
+## Troubleshooting
+
+### Module import errors
+
+```powershell
+.\.venv311\Scripts\activate
 pip install -r requirements.txt
 ```
 
-**Linux/macOS (bash/zsh):**
-```bash
-source .venv/bin/activate
-pip install -r requirements.txt
-```
+### Playwright browser errors/timeouts
 
-**Issue: Playwright tests timeout**
 ```powershell
-# Solution: Install browsers and retry a focused UI suite first
-playwright install
+python -m playwright install
 python -m pytest pytest_demo/tests/ui/tangerine_playwright -q
 ```
 
-**Issue: Locator selector not found in Playwright**
-- If the test uses the self-healing helpers, the framework may recover automatically
-- Check `pytest_demo/locators/signinpage.json` and `pytest_demo/locators/signuppage.json` for updated selectors
-- Manual fix: Update the JSON or run with `-v` flag for detailed logs
+### Claude subproject imports unresolved in VS Code
 
-## 📖 Documentation & Resources
+Set workspace interpreter and analysis paths in `.vscode/settings.json`:
 
-### Project Docs (Recommended)
-- [Security Policy](security.md)
-
-### Test Frameworks
-- [Pytest Documentation](https://docs.pytest.org/)
-- [Robot Framework User Guide](https://robotframework.org/robotframework/#introduction)
-- [Playwright Python API](https://playwright.dev/python/)
-
-### Technologies
-- [Python Official Documentation](https://docs.python.org/)
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-
-### Related Tools
-- [Allure Report Framework](https://docs.qameta.io/allure/)
-- [Pytest HTML Plugin](https://pytest-html.readthedocs.io/)
-
-## ❤️ Support This Project
-
-If you find **Sloth Python** useful — whether for learning, professional automation, or as a reference — please consider sponsoring!
-
-Your support helps fund:
-- 🛠️ Ongoing maintenance and new features
-- 🤖 AI/Playwright tooling improvements
-- 📚 More algorithm and test examples
-- ⏱️ Faster responses to issues and PRs
-
-[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github&style=for-the-badge)](https://github.com/sponsors/466725)
-
-Even a small monthly contribution makes a big difference. Thank you! 🙏
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome and appreciated! Whether you're fixing bugs, adding features, improving documentation, or sharing new algorithm implementations, we'd love your help.
-
-### How to Contribute
-
-1. **Fork the repository** on GitHub
-2. **Create a feature branch** with a descriptive name:
-   ```powershell
-   git checkout -b feature/add-new-algorithm
-   git checkout -b fix/self-healing-bug
-   git checkout -b docs/improve-readme
-   ```
-3. **Make your changes** and ensure code quality:
-   - Follow **PEP 8** style guidelines
-   - Add **type hints** for new functions
-   - Include **docstrings** and comments
-   - Write **unit tests** for new functionality
-4. **Test your changes** locally:
-   ```powershell
-   python -m pytest -m "unit or api"  # Quick smoke test
-   python -m pytest --tb=short          # Full test suite
-   ```
-5. **Commit with clear messages**:
-   ```powershell
-   git commit -m "feat: add new sorting algorithm"
-   git commit -m "fix: correct self-healing locator logic"
-   ```
-6. **Push your branch** and **create a Pull Request** on GitHub with:
-   - Clear title and description
-   - Reference to any related issues (e.g., `Fixes #42`)
-   - Explanation of changes and why they're needed
-
-### Areas for Contribution
-
-- **Algorithms** - New algorithm implementations in `algorithms/` (with tests)
-- **Test Automation** - Enhanced Robot Framework keywords, new UI test examples
-- **Self-Healing** - Improvements to the locator recovery mechanism
-- **AI Generation** - Enhancements to the MCP-driven test generator
-- **Documentation** - README updates, code examples, tutorials
-- **CI/CD** - Workflow improvements, additional test coverage
-
-### Development Workflow
-
-```powershell
-# Complete initial setup first (see Installation), then:
-
-# Create and switch to feature branch
-git checkout -b feature/your-feature-name
-
-# Install dependencies (if adding new packages)
-pip install -r requirements.txt
-
-# Make your changes and test
-python -m pytest
-python -m robot robot_demo/calculator/
-
-# Commit and push
-git add .
-git commit -m "feat: describe your changes"
-git push origin feature/your-feature-name
-
-# Create Pull Request on GitHub
+```jsonc
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv311/Scripts/python.exe",
+  "python.analysis.extraPaths": [
+    "./claude_code/claude_agent_sdk/src",
+    "./claude_code/claude_agent_sdk",
+    "./claude_code"
+  ]
+}
 ```
 
-### Code Standards
+## Security
 
-- **Python** - PEP 8, type hints, docstrings
-- **Tests** - Pytest or Robot Framework with clear naming
-- **Documentation** - Updated README.md or inline comments for complex logic
-- **Commit Messages** - Clear, concise, use conventional commits (feat:, fix:, docs:, etc.)
+Report vulnerabilities according to `security.md`.
 
-### Questions or Need Help?
+## License
 
-- **GitHub Discussions** - Ask questions and share ideas
-- **GitHub Issues** - Report bugs or request features
-- **Check existing issues** - Your question might already be answered
+Licensed under the MIT License.
 
-Thank you for contributing! 🙌
+## Support
 
-## 📝 License
-
-This project is licensed under the **MIT License**.
-
-The MIT License permits:
-- ✅ Commercial use
-- ✅ Modification
-- ✅ Distribution
-- ✅ Private use
-
-With the conditions:
-- ⚠️ License and copyright notice must be included
-
-## 📧 Support & Feedback
-
-### Getting Help
-
-- **[GitHub Issues](https://github.com/466725/sloth-python/issues)** - Report bugs and request features
-- **[GitHub Discussions](https://github.com/466725/sloth-python/discussions)** - Ask questions, share ideas, and discuss best practices
-- **Documentation** - Check `README.md` and inline code comments for implementation details
-- **Example Tests** - Review `pytest_demo/` and `robot_demo/` for working examples
-
-### Reporting Bugs
-
-Found a bug? Please open an issue with:
-1. **Python version** and **OS** (e.g., Python 3.14 on Windows 11)
-2. **Steps to reproduce** the issue
-3. **Expected vs actual behavior**
-4. **Error message** and stack trace (if applicable)
-5. **Environment details** (e.g., Playwright version, headless/headed mode)
-
-### Feature Requests
-
-Have an idea for improvement? Open an issue with:
-1. **Clear description** of the feature or problem
-2. **Proposed solution** or use case
-3. **Alternative approaches** you've considered (if any)
-4. **Examples** or code snippets showing the idea
-
-### Discussions
-
-Have questions or want to discuss testing strategies? Use **GitHub Discussions** to:
-- Share test automation patterns and best practices
-- Get advice on test framework choices
-- Discuss algorithm implementations
-- Connect with other contributors
-
-We actively monitor both Issues and Discussions—your feedback helps improve this project!
-
----
-
-## 📋 Project Governance
-
-### Community & Contribution Resources
-
-- **[SECURITY.md](security.md)** - How to responsibly report security vulnerabilities
-
-### GitHub Issue Templates
-
-We provide issue templates to streamline reporting:
-- **Bug Reports** - For issues and problems
-- **Feature Requests** - For new functionality ideas
-- **Documentation** - For improvements to docs
-- **Questions** - For general inquiries (consider using Discussions instead)
-
----
-
-## ⭐ Acknowledgments
-
-### Built With
-
-- [Python](https://www.python.org/) - Programming language
-- [Pytest](https://docs.pytest.org/) - Testing framework
-- [Playwright](https://playwright.dev/python/) - Modern browser automation
-- [Robot Framework](https://robotframework.org/) - Keyword-driven testing
-- [OpenAI API](https://openai.com/api/) - AI-powered test generation
-
-### Inspiration & References
-
-This project draws on industry best practices from:
-- Test automation communities
-- Software engineering principles
-- Algorithm research and implementations
-
-### Community
-
-We welcome feedback, contributions, and ideas from the community. If you find this project useful, please consider:
-- ⭐ Starring the repository
-- 🔗 Sharing it with others
-- 🤝 Contributing improvements
-- 💬 Providing feedback via Issues or Discussions
+- Issues: https://github.com/466725/sloth-python/issues
+- Discussions: https://github.com/466725/sloth-python/discussions
+- Sponsor: https://github.com/sponsors/466725
