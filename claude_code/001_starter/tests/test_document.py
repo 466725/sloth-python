@@ -1,5 +1,5 @@
 import os
-from claude_code.app_starter.tools.document import binary_document_to_markdown
+from tools.document import binary_document_to_markdown
 
 
 class TestBinaryDocumentToMarkdown:
