@@ -480,8 +480,14 @@ sloth-python/
 │   ├── paths.py                # Output path utilities
 │   └── prompt_builder.py       # Prompt construction
 │
-├── ai_monitor_stock/           # Stock monitoring experiments
-│   └── data_fetcher/           # Market data fetchers
+├── ai_stock/                   # AI stock analysis and reporting experiments
+│   ├── engine/                 # Core stock analysis engine
+│   ├── llm/                    # LLM integrations/prompts
+│   ├── report/                 # Report generation utilities
+│   ├── stock_data/             # Market data models/loaders
+│   ├── stock_news/             # News ingestion and processing
+│   ├── strategies/             # Strategy implementations
+│   └── utils/                  # Shared helpers for ai_stock
 │
 ├── algorithms/                 # Algorithms and data structures
 │   ├── backtracking/           # Backtracking algorithms
@@ -500,21 +506,27 @@ sloth-python/
 │   └── two_pointers/           # Two-pointer patterns
 │
 ├── claude_code/                # Claude/Anthropic notebooks and MCP examples
-│   ├── app_starter/            # MCP app starter project
-│   ├── cli_project/            # CLI/MCP client-server demo
-│   ├── data/                   # Course PDFs, sample files, and assets
-│   ├── notifications/          # Notification server/client example
-│   ├── queries/                # Claude hooks and query examples
-│   ├── roots/                  # MCP roots examples
-│   ├── sampling/               # MCP sampling examples
-│   ├── transport-http/         # HTTP transport example
-│   └── *.ipynb                 # Claude API, tools, evals, RAG, and web-search notebooks
+│   ├── 000_Architect_Foundations_Certification_Exam/ # Architect foundations practice exam
+│   ├── 001_starter/            # MCP starter project
+│   ├── 002_cli/                # CLI/MCP client-server demo
+│   ├── 003_notifications/      # Notification server/client example
+│   ├── 004_roots/              # MCP roots examples
+│   ├── 005_sampling/           # MCP sampling examples
+│   ├── 006_transport_http/     # HTTP transport example
+│   ├── 007_note_book/          # Claude API/tutorial notebooks
+│   ├── claude_agent_sdk/       # Claude Agent SDK local source/examples
+│   ├── anthropic_academy_courses.md
+│   └── report.md
 │
 ├── fun_part/                   # Educational & Fun Examples
 │   ├── bilibili/               # API demo projects
 │   ├── education_management/   # Education management examples
 │   ├── go_game/                # Game implementations
 │   └── py_echart/              # Charting examples
+│
+├── load_test_demo/             # JMeter and Postman load/API test assets
+│   ├── *.jmx                   # JMeter test plans
+│   └── *.postman_environment.json / *.postman_collection.json
 │
 ├── pytest_demo/                # Pytest test suite
 │   ├── locators/               # Locator repository
@@ -543,10 +555,11 @@ sloth-python/
 ├── utils/                      # Shared Utilities
 │   ├── config.py               # Configuration management
 │   ├── csv_reader.py           # CSV utilities
+│   ├── data_base/              # Database helpers
 │   ├── decorators.py           # Decorator examples/utilities
 │   ├── google_analytics.py     # Google Analytics helpers
 │   ├── litellm_client.py       # LiteLLM client wrapper
-│   ├── playwright_mcp_helper.py # Playwright MCP helpers
+│   ├── playwright_mcp.py       # Playwright MCP helpers
 │   ├── qtest_client.py         # qTest API client
 │   └── tik_token.py            # Token counting helpers
 │
@@ -561,8 +574,8 @@ sloth-python/
 │   └── tcp_server.py
 │
 ├── .github/workflows/          # GitHub Actions CI/CD definitions
+├── .vscode/settings.json       # Workspace Python/Pylance settings
 ├── .env.example                # Example local environment variables
-├── .env.test.example           # Example test environment variables
 ├── pyproject.toml              # Tooling configuration
 ├── pytest.ini                  # Pytest configuration
 ├── readme.md                   # This file
@@ -574,12 +587,14 @@ sloth-python/
 ### Key Directories Explained
 
 - **ai_gen/** - AI-assisted Playwright test generation using page context and LLM prompts
+- **ai_stock/** - AI-driven stock analysis, news ingestion, strategy logic, and report generation
 - **algorithms/** - Production-ready implementations for learning and reference
-- **claude_code/** - Claude API, MCP, tools, evals, RAG, and course-example notebooks/projects
+- **claude_code/** - Claude learning tracks: MCP mini-projects, notebooks, and local Agent SDK examples
+- **load_test_demo/** - Load/performance assets for JMeter and Postman-based API testing
 - **pytest_demo/** - Complete pytest examples for unit, API, DDT, AI, and UI testing
 - **robot_demo/** - Robot Framework suites for API, calculator, DDT, unit, and Playwright UI workflows
 - **self_healing/** - Shared self-healing locator framework for Playwright-based automation
-- **utils/** - Reusable components for config, CSV, analytics, LLM, qTest, and token helpers
+- **utils/** - Reusable helpers for config, CSV, analytics, MCP/LLM integrations, qTest, and tokens
 - **web_scraping/** - Web scraping, screenshot, stock-price, and TCP networking examples
 
 ---
