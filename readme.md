@@ -358,33 +358,48 @@ Most runnable subprojects include their own `README.md`. In general, set `ANTHRO
 
 ### IDE Setup For `claude_code/` Subprojects
 
-Some learning subprojects live under `claude_code/` instead of the repository root. IDEs may need an explicit source-root hint so imports resolve correctly while you study or run those examples.
+Some learning subprojects live under `claude_code/` instead of the repository root. If your IDE cannot resolve imports (for example, unresolved imports in `claude_agent_sdk` examples), use the setup below.
 
 **PyCharm**
 
 1. Open the `sloth-python` project.
-2. Right-click the `claude_code/` folder.
+2. Right-click `claude_code/`.
 3. Select **Mark Directory As** → **Sources Root**.
 
-**VS Code**
+**VS Code (recommended workspace settings)**
 
-This is the VS Code equivalent of PyCharm's **Sources Root** setting.
+This is the VS Code equivalent of PyCharm's **Sources Root** behavior.
 
-1. Open the `sloth-python` project folder.
+1. Open the `sloth-python` project folder in VS Code.
 2. Create or edit `.vscode/settings.json`.
-3. Add:
+3. Add/update the settings below:
 
-```json
+```jsonc
 {
+   "python.defaultInterpreterPath": "${workspaceFolder}/.venv311/Scripts/python.exe",
    "python.analysis.extraPaths": [
+      "./claude_code/claude_agent_sdk/src",
+      "./claude_code/claude_agent_sdk",
       "./claude_code"
    ]
 }
 ```
 
-This improves editor import resolution for subprojects stored under `claude_code/`.
+4. Reload VS Code window: **Developer: Reload Window**.
 
-Note: this only helps IDE analysis and autocomplete. It does not make invalid Python package names importable in normal Python syntax. For example, folders starting with digits such as `001_starter/` still cannot be imported as `claude_code.001_starter...` in a standard `from ... import ...` statement.
+**Why these paths?**
+
+- `./claude_code/claude_agent_sdk/src`: resolves imports for `src`-layout packages in SDK examples
+- `./claude_code/claude_agent_sdk`: resolves local package references in that subproject
+- `./claude_code`: resolves imports from other learning folders under `claude_code/`
+
+**Quick verification checklist**
+
+1. Open a Python file under `claude_code/` with previous import warnings.
+2. Confirm unresolved import diagnostics disappear.
+3. In the VS Code command palette, run **Python: Select Interpreter** and verify it points to `.venv311` (or your chosen project venv).
+
+Note: `python.analysis.extraPaths` improves IDE analysis and autocomplete. It does not make invalid Python identifiers importable at runtime. For example, folders starting with digits such as `001_starter/` still cannot be imported as `claude_code.001_starter...` in a standard `from ... import ...` statement.
 
 ## 🔄 CI/CD Pipeline & Automation
 
