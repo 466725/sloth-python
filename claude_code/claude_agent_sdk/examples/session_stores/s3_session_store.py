@@ -14,7 +14,7 @@ lexical key order == chronological order. A per-instance monotonic millisecond
 counter orders same-instance same-ms appends; the random hex suffix
 disambiguates concurrent instances.
 
-Requires ``boto3`` (not a dependency of ``claude-agent-sdk`` — install it
+Requires ``boto3`` (not a dependency of ``claude_agent_sdk`` — install it
 yourself)::
 
     pip install boto3

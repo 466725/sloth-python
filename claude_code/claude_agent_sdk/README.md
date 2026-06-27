@@ -5,7 +5,7 @@ Python SDK for Claude Agent. See the [Claude Agent SDK documentation](https://pl
 ## Installation
 
 ```bash
-pip install claude-agent-sdk
+pip install claude_agent_sdk
 ```
 
 **Prerequisites:**

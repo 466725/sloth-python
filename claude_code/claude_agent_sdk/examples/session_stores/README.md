@@ -105,7 +105,7 @@ them.
 `boto3` is **not** a dependency of `claude-agent-sdk` — install it yourself:
 
 ```bash
-pip install claude-agent-sdk boto3
+pip install claude_agent_sdk boto3
 ```
 
 ### Usage
@@ -207,7 +207,7 @@ client.
 ### Installation
 
 ```bash
-pip install claude-agent-sdk redis
+pip install claude_agent_sdk redis
 ```
 
 ### Usage
@@ -308,7 +308,7 @@ asyncio Postgres driver.
 ### Installation
 
 ```bash
-pip install claude-agent-sdk asyncpg
+pip install claude_agent_sdk asyncpg
 ```
 
 ### Usage

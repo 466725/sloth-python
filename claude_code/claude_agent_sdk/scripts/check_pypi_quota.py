@@ -25,7 +25,7 @@ def fetch_project_files(package: str) -> list[dict]:
         f"https://pypi.org/simple/{package}/",
         headers={
             "Accept": "application/vnd.pypi.simple.v1+json",
-            "User-Agent": "claude-agent-sdk-quota-check",
+            "User-Agent": "claude_agent_sdk-quota-check",
         },
     )
     with urllib.request.urlopen(req, timeout=30) as resp:
@@ -43,7 +43,7 @@ def human(n: int) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--package", default="claude-agent-sdk")
+    parser.add_argument("--package", default="claude_agent_sdk")
     parser.add_argument(
         "--project-limit",
         type=int,
