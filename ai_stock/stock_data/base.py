@@ -1932,7 +1932,7 @@ class DataFetcherManager:
         """Return True when Longbridge keys are configured and available.
 
         When True, non-A-share routing (US & HK) uses Longbridge as the
-        primary data source with Yfinance/AkShare as fallback.
+        primary metadata source with Yfinance/AkShare as fallback.
         """
         return self._get_fetcher_by_name(
             "LongbridgeFetcher",
@@ -1995,7 +1995,7 @@ class DataFetcherManager:
         return None
 
     def _supplement_quote(self, stock_code: str, primary_quote, fetcher_name: str, **kw):
-        """Supplement *primary_quote* with data from *fetcher_name*.
+        """Supplement *primary_quote* with metadata from *fetcher_name*.
 
         If *primary_quote* is None, try *fetcher_name* as the sole source.
         Returns the (potentially enriched) quote, or None.
@@ -2600,7 +2600,7 @@ class DataFetcherManager:
             "coverage": {"status": status},
             "source_chain": source_chain or [],
             "errors": errors or [],
-            "data": payload or {},
+            "metadata": payload or {},
         }
 
     @staticmethod
@@ -2662,7 +2662,7 @@ class DataFetcherManager:
             "boards",
         ):
             payload = context.get(block, {})
-            if isinstance(payload, dict) and DataFetcherManager._has_meaningful_payload(payload.get("data")):
+            if isinstance(payload, dict) and DataFetcherManager._has_meaningful_payload(payload.get("metadata")):
                 return True
         return False
 
@@ -2854,7 +2854,7 @@ class DataFetcherManager:
         )
 
         # institution / capital_flow / dragon_tiger / boards: keep as not_supported
-        # for offshore markets — no equivalent data feed today.
+        # for offshore markets — no equivalent metadata feed today.
         for block in ("institution", "capital_flow", "dragon_tiger", "boards"):
             result_ctx[block] = self._build_fundamental_block(
                 "not_supported",

@@ -3,7 +3,7 @@
 AkShare fundamental adapter (fail-open).
 
 This adapter intentionally uses capability probing against multiple AkShare
-endpoint candidates. It should never raise to caller; partial data is allowed.
+endpoint candidates. It should never raise to caller; partial metadata is allowed.
 """
 
 from __future__ import annotations

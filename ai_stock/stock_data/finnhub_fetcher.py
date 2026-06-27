@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-FinnhubFetcher — US market data source (Priority 2)
+FinnhubFetcher — US market metadata source (Priority 2)
 
 Data source: Finnhub.io REST API
 Rate limit: 60 calls/min (free tier)
@@ -66,7 +66,7 @@ class FinnhubFetcher(BaseFetcher):
             raise DataFetchError(f"[Finnhub] HTTP request failed for {symbol}: {e}") from e
 
         if data.get('s') != 'ok' or not data.get('c'):
-            raise DataFetchError(f"[Finnhub] No data returned for {symbol}")
+            raise DataFetchError(f"[Finnhub] No metadata returned for {symbol}")
 
         return pd.DataFrame({
             'c': data['c'],

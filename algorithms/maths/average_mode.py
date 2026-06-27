@@ -3,7 +3,7 @@ import statistics
 
 def mode(input_list):  # Defining function "mode."
     """This function returns the mode(Mode as in the measures of
-    central tendency) of the input data.
+    central tendency) of the input metadata.
 
     The input list may contain any Datastructure or any Datatype.
 

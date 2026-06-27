@@ -177,7 +177,7 @@ class SmoSVM:
             2:sample[index] is bound,Use predicted value deduct true value: g(xi) - yi
 
         """
-        # get from error data
+        # get from error metadata
         if self._is_unbound(index):
             return self._error[index]
         # get by g(xi) - yi
@@ -352,7 +352,7 @@ class SmoSVM:
 
         return a1_new, a2_new
 
-    # Normalise data using min_max way
+    # Normalise metadata using min_max way
     def _norm(self, data):
         if self._init:
             self._min = np.min(data, axis=0)
@@ -449,13 +449,13 @@ def test_cancel_data():
 
     data = pd.read_csv(r"cancel_data.csv", header=None)
 
-    # 1: pre-processing data
+    # 1: pre-processing metadata
     del data[data.columns.tolist()[0]]
     data = data.dropna(axis=0)
     data = data.replace({"M": np.float64(1), "B": np.float64(-1)})
     samples = np.array(data)[:, :]
 
-    # 2: dividing data into train_data data and test_data data
+    # 2: dividing metadata into train_data metadata and test_data metadata
     train_data, test_data = samples[:328, :], samples[328:, :]
     test_tags, test_samples = test_data[:, 0], test_data[:, 1:]
 

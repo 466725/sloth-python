@@ -23,7 +23,7 @@ _MAX_KLINE_BARS = 800
 
 
 class TencentFetcher(BaseFetcher):
-    """Fetch qfq daily K-line data from Tencent's direct quote endpoint."""
+    """Fetch qfq daily K-line metadata from Tencent's direct quote endpoint."""
 
     name = "TencentFetcher"
     priority = 0
@@ -180,7 +180,7 @@ def _lots_to_shares(volume: Any) -> Any:
 
 
 def _extract_kline_rows(payload: dict[str, Any], *, symbol: str) -> list[dict[str, Any]]:
-    data = payload.get("data") if isinstance(payload, dict) else None
+    data = payload.get("metadata") if isinstance(payload, dict) else None
     item = data.get(symbol) if isinstance(data, dict) else None
     if not isinstance(item, dict):
         return []

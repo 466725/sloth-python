@@ -1,6 +1,6 @@
 class Node:  # create a Node
     def __init__(self, data):
-        self.data = data  # given data
+        self.data = data  # given metadata
         self.next = None  # given next to None
 
     def __repr__(self):  # string representation of a Node
@@ -26,7 +26,7 @@ class LinkedList:
             new_node.next = self.head  # link new_node to head
         self.head = new_node  # make NewNode as head
 
-    def print_list(self) -> None:  # print every node data
+    def print_list(self) -> None:  # print every node metadata
         temp = self.head
         while temp:
             print(temp.data)
@@ -95,7 +95,7 @@ class LinkedList:
             current = current.next
         return current
 
-    # Used to change the data of a particular node
+    # Used to change the metadata of a particular node
     def __setitem__(self, index, data):
         current = self.head
         # If list is empty
@@ -130,7 +130,7 @@ def main():
     A.print_list()
     print("\nString representation of linked list:")
     print(A)
-    print("\nReading/changing Node data using indexing:")
+    print("\nReading/changing Node metadata using indexing:")
     print(f"Element at Position 1: {A[1]}")
     A[1] = input("Enter New Value: ").strip()
     print("New list:")

@@ -10,10 +10,10 @@ import random
 
 def _partition(data: list, pivot) -> tuple:
     """
-    Three way partition the data into smaller, equal and greater lists,
+    Three way partition the metadata into smaller, equal and greater lists,
     in relationship to the pivot
-    :param data: The data to be sorted (a list)
-    :param pivot: The value to partition the data on
+    :param data: The metadata to be sorted (a list)
+    :param pivot: The value to partition the metadata on
     :return: Three list: smaller, equal and greater
     """
     less, equal, greater = [], [], []

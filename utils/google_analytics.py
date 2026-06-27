@@ -50,7 +50,7 @@ class GoogleAnalyticsTracker:
 
     def _capture_request(self, request):
         """
-        Internal: capture GA requests and extract event data.
+        Internal: capture GA requests and extract event metadata.
         """
         url = request.url
 
@@ -59,7 +59,7 @@ class GoogleAnalyticsTracker:
 
         payload = {}
 
-        # GA4 sends data via query params OR POST body
+        # GA4 sends metadata via query params OR POST body
         if request.method == "GET":
             payload = request.url.split("?")[-1]
             payload = dict(item.split("=") for item in payload.split("&") if "=" in item)

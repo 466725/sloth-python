@@ -258,7 +258,7 @@ async def example_decision_fields() -> None:
         # Test 1: Try to write to a file with "important" in the name (should be blocked)
         print("Test 1: Trying to write to important_config.txt (should be blocked)...")
         print("User: Write 'test' to important_config.txt")
-        await client.query("Write the text 'test data' to a file called important_config.txt")
+        await client.query("Write the text 'test metadata' to a file called important_config.txt")
 
         async for msg in client.receive_response():
             display_message(msg)
@@ -268,7 +268,7 @@ async def example_decision_fields() -> None:
         # Test 2: Write to a regular file (should be approved)
         print("Test 2: Trying to write to regular_file.txt (should be approved)...")
         print("User: Write 'test' to regular_file.txt")
-        await client.query("Write the text 'test data' to a file called regular_file.txt")
+        await client.query("Write the text 'test metadata' to a file called regular_file.txt")
 
         async for msg in client.receive_response():
             display_message(msg)

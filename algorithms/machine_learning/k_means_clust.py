@@ -54,10 +54,10 @@ TAG = "K-MEANS-CLUST/ "
 
 
 def get_initial_centroids(data, k, seed=None):
-    """Randomly choose k data points as initial centroids"""
+    """Randomly choose k metadata points as initial centroids"""
     if seed is not None:  # useful for obtaining consistent results
         np.random.seed(seed)
-    n = data.shape[0]  # number of data points
+    n = data.shape[0]  # number of metadata points
 
     # Pick K indices from range [0, N).
     rand_indices = np.random.randint(0, n, k)
@@ -75,11 +75,11 @@ def centroid_pairwise_dist(X, centroids):
 
 
 def assign_clusters(data, centroids):
-    # Compute distances between each data point and the set of centroids:
+    # Compute distances between each metadata point and the set of centroids:
     # Fill in the blank (RHS only)
     distances_from_centroids = centroid_pairwise_dist(data, centroids)
 
-    # Compute cluster assignments for each data point:
+    # Compute cluster assignments for each metadata point:
     # Fill in the blank (RHS only)
     cluster_assignment = np.argmin(distances_from_centroids, axis=1)
 
@@ -89,9 +89,9 @@ def assign_clusters(data, centroids):
 def revise_centroids(data, k, cluster_assignment):
     new_centroids = []
     for i in range(k):
-        # Select all data points that belong to cluster i. Fill in the blank (RHS only)
+        # Select all metadata points that belong to cluster i. Fill in the blank (RHS only)
         member_data_points = data[cluster_assignment == i]
-        # Compute the mean of the data points. Fill in the blank (RHS only)
+        # Compute the mean of the metadata points. Fill in the blank (RHS only)
         centroid = member_data_points.mean(axis=0)
         new_centroids.append(centroid)
     new_centroids = np.array(new_centroids)
@@ -102,11 +102,11 @@ def revise_centroids(data, k, cluster_assignment):
 def compute_heterogeneity(data, k, centroids, cluster_assignment):
     heterogeneity = 0.0
     for i in range(k):
-        # Select all data points that belong to cluster i. Fill in the blank (RHS only)
+        # Select all metadata points that belong to cluster i. Fill in the blank (RHS only)
         member_data_points = data[cluster_assignment == i, :]
 
         if member_data_points.shape[0] > 0:  # check if i-th cluster is non-empty
-            # Compute distances from centroid to data points (RHS only)
+            # Compute distances from centroid to metadata points (RHS only)
             distances = pairwise_distances(member_data_points, [centroids[i]], metric="euclidean")
             squared_distances = distances**2
             heterogeneity += np.sum(squared_distances)
@@ -128,11 +128,11 @@ def plot_heterogeneity(heterogeneity, k):
 
 
 def kmeans(data, k, initial_centroids, maxiter=500, record_heterogeneity=None, verbose=False):
-    """This function runs k-means on given data and initial set of centroids.
+    """This function runs k-means on given metadata and initial set of centroids.
     maxiter: maximum number of iterations to run.(default=500)
     record_heterogeneity: (optional) a list, to store the history of heterogeneity as function of iterations
                           if None, do not store the history.
-    verbose: if True, print how many data points changed their cluster labels in each iteration"""
+    verbose: if True, print how many metadata points changed their cluster labels in each iteration"""
     centroids = initial_centroids[:]
     prev_cluster_assignment = None
 
@@ -143,7 +143,7 @@ def kmeans(data, k, initial_centroids, maxiter=500, record_heterogeneity=None, v
         # 1. Make cluster assignments using nearest centroids
         cluster_assignment = assign_clusters(data, centroids)
 
-        # 2. Compute a new centroid for each of the k clusters, averaging all data points assigned to that cluster.
+        # 2. Compute a new centroid for each of the k clusters, averaging all metadata points assigned to that cluster.
         centroids = revise_centroids(data, k, cluster_assignment)
 
         # Check for convergence: if none of the assignments changed, stop
@@ -177,9 +177,9 @@ if False:  # change to true to run this test case.
     dataset = ds.load_iris()
     k = 3
     heterogeneity = []
-    initial_centroids = get_initial_centroids(dataset["data"], k, seed=0)
+    initial_centroids = get_initial_centroids(dataset["metadata"], k, seed=0)
     centroids, cluster_assignment = kmeans(
-        dataset["data"],
+        dataset["metadata"],
         k,
         initial_centroids,
         maxiter=400,

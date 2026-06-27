@@ -478,7 +478,7 @@ def create_sdk_mcp_server(
                         content.append(
                             ImageContent(
                                 type="image",
-                                data=item["data"],
+                                data=item["metadata"],
                                 mimeType=item["mimeType"],
                             )
                         )

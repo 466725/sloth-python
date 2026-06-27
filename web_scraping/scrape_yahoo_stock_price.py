@@ -45,8 +45,8 @@ def fetch_stock_price(session: Session, symbol: str) -> Optional[str]:
     price_tag = soup.find(
         "fin-streamer",
         {
-            "data-symbol": symbol.upper(),
-            "data-field": "regularMarketPrice",
+            "metadata-symbol": symbol.upper(),
+            "metadata-field": "regularMarketPrice",
         },
     )
 

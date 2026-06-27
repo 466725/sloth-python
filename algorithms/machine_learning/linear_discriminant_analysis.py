@@ -10,10 +10,10 @@ Assumptions About Data :
 
 
 Learning The Model :
-    The LDA model requires the estimation of statistics from the training data :
+    The LDA model requires the estimation of statistics from the training metadata :
         1. Mean of each input value for each class.
         2. Probability of an instance belong to each class.
-        3. Covariance for the input data for each class
+        3. Covariance for the input metadata for each class
 
     Calculate the class means :
         mean(x) = 1/n ( for i = 1 to i = n --> sum(xi))
@@ -72,9 +72,9 @@ def gaussian_distribution(mean: float, std_dev: float, instance_count: int) -> l
 def y_generator(class_count: int, instance_count: list) -> list:
     """
     Generate y values for corresponding classes
-    :param class_count: Number of classes(data groupings) in dataset
+    :param class_count: Number of classes(metadata groupings) in dataset
     :param instance_count: number of instances in class
-    :return: corresponding values for data groupings in dataset
+    :return: corresponding values for metadata groupings in dataset
 
     >>> y_generator(1, [10])
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -93,7 +93,7 @@ def calculate_mean(instance_count: int, items: list) -> float:
     """
     Calculate given class mean
     :param instance_count: Number of instances in class
-    :param items: items that related to specific class(data grouping)
+    :param items: items that related to specific class(metadata grouping)
     :return: calculated actual mean of considered class
 
     >>> items = gaussian_distribution(5.0, 1.0, 20)
@@ -152,7 +152,7 @@ def calculate_variance(items: list, means: list, total_count: int) -> float:
 
 # Making predictions
 def predict_y_values(x_items: list, means: list, variance: float, probabilities: list) -> list:
-    """This function predicts new indexes(groups for our data)
+    """This function predicts new indexes(groups for our metadata)
     :param x_items: a list containing all items(gaussian distribution of all classes)
     :param means: a list containing real mean values of each class
     :param variance: calculated value of variance by calculate_variance function
@@ -239,7 +239,7 @@ def accuracy(actual_y: list, predicted_y: list) -> float:
     # prediction is correct if actual Y value equals to predicted Y value
     correct = sum(1 for i, j in zip(actual_y, predicted_y) if i == j)
     # percentage of accuracy equals to number of correct predictions divided by number
-    # of all data and multiplied by 100
+    # of all metadata and multiplied by 100
     return (correct / len(actual_y)) * 100
 
 

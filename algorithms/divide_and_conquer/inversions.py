@@ -1,5 +1,5 @@
 """
-Given an array-like data structure A[1..n], how many pairs
+Given an array-like metadata structure A[1..n], how many pairs
 (i, j) for all 1 <= i < j <= n such that A[i] > A[j]? These pairs are
 called inversions. Counting the number of such inversions in an array-like
 object is the important. Among other things, counting inversions  can help

@@ -10,7 +10,7 @@ print(f"Target names: \n {iris.target_names} ")
 print(f"\n Features: \n {iris.feature_names}")
 
 # Train set e Test set
-X_train, X_test, y_train, y_test = train_test_split(iris["data"], iris["target"], random_state=4)
+X_train, X_test, y_train, y_test = train_test_split(iris["metadata"], iris["target"], random_state=4)
 
 # KNN
 

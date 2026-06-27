@@ -88,7 +88,7 @@ class TestSubprocessBuffering:
 
         async def _test() -> None:
             json_obj1 = {"type": "message", "content": "Line 1\nLine 2\nLine 3"}
-            json_obj2 = {"type": "result", "data": "Some\nMultiline\nContent"}
+            json_obj2 = {"type": "result", "metadata": "Some\nMultiline\nContent"}
 
             buffered_line = json.dumps(json_obj1) + "\n" + json.dumps(json_obj2)
 
@@ -107,7 +107,7 @@ class TestSubprocessBuffering:
 
             assert len(messages) == 2
             assert messages[0]["content"] == "Line 1\nLine 2\nLine 3"
-            assert messages[1]["data"] == "Some\nMultiline\nContent"
+            assert messages[1]["metadata"] == "Some\nMultiline\nContent"
 
         anyio.run(_test)
 
@@ -187,7 +187,7 @@ class TestSubprocessBuffering:
         """Test parsing a large minified JSON (simulating the reported issue)."""
 
         async def _test() -> None:
-            large_data = {"data": [{"id": i, "value": "x" * 100} for i in range(1000)]}
+            large_data = {"metadata": [{"id": i, "value": "x" * 100} for i in range(1000)]}
             json_obj = {
                 "type": "user",
                 "message": {
@@ -236,7 +236,7 @@ class TestSubprocessBuffering:
         """Test that exceeding buffer size raises an appropriate error."""
 
         async def _test() -> None:
-            huge_incomplete = '{"data": "' + "x" * (_DEFAULT_MAX_BUFFER_SIZE + 1000)
+            huge_incomplete = '{"metadata": "' + "x" * (_DEFAULT_MAX_BUFFER_SIZE + 1000)
 
             transport = SubprocessCLITransport(prompt="test", options=make_options())
 
@@ -262,7 +262,7 @@ class TestSubprocessBuffering:
 
         async def _test() -> None:
             custom_limit = 512
-            huge_incomplete = '{"data": "' + "x" * (custom_limit + 10)
+            huge_incomplete = '{"metadata": "' + "x" * (custom_limit + 10)
 
             transport = SubprocessCLITransport(
                 prompt="test",

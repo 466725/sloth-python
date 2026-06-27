@@ -241,9 +241,9 @@ async def test_server_creation():
 
 @pytest.mark.anyio
 async def test_image_content_support():
-    """Test that tools can return image content with base64 data."""
+    """Test that tools can return image content with base64 metadata."""
 
-    # Create sample base64 image data (a simple 1x1 pixel PNG)
+    # Create sample base64 image metadata (a simple 1x1 pixel PNG)
     png_data = base64.b64encode(
         b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
         b"\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\tpHYs\x00\x00\x0b\x13"
@@ -265,7 +265,7 @@ async def test_image_content_support():
                 {"type": "text", "text": f"Generated chart: {args['title']}"},
                 {
                     "type": "image",
-                    "data": png_data,
+                    "metadata": png_data,
                     "mimeType": "image/png",
                 },
             ]
@@ -315,7 +315,7 @@ async def test_tool_annotations():
 
     @tool(
         "read_data",
-        "Read data from source",
+        "Read metadata from source",
         {"source": str},
         annotations=ToolAnnotations(readOnlyHint=True),
     )
@@ -616,7 +616,7 @@ async def test_unknown_content_type_skipped_with_warning(
     async def get_unknown(args: dict[str, Any]) -> dict[str, Any]:
         return {
             "content": [
-                {"type": "custom_widget", "data": "some data"},
+                {"type": "custom_widget", "metadata": "some metadata"},
             ]
         }
 
@@ -647,7 +647,7 @@ async def test_mixed_content_types_with_resource_link():
         return {
             "content": [
                 {"type": "text", "text": "Here is the document:"},
-                {"type": "image", "data": png_data, "mimeType": "image/png"},
+                {"type": "image", "metadata": png_data, "mimeType": "image/png"},
                 {
                     "type": "resource_link",
                     "name": "Report",

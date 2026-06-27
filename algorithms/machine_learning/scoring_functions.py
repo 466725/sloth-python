@@ -11,7 +11,7 @@ import numpy as np
 
     Using log and roots can be perceived as tools for penalizing big
     errors. However, using appropriate metrics depends on the situations,
-    and types of data
+    and types of metadata
 """
 
 

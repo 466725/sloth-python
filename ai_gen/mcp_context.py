@@ -17,7 +17,7 @@ class BrowserSnapshot:
     network_events: list[dict[str, str]]
 
     def to_mcp_payload(self) -> dict[str, Any]:
-        """Expose snapshot data in an MCP-friendly resources/tools envelope."""
+        """Expose snapshot metadata in an MCP-friendly resources/tools envelope."""
         return {
             "resources": {
                 "page.url": self.url,

@@ -26,7 +26,7 @@ from claude_agent_sdk import (
 
 
 def extract_agents(msg: SystemMessage) -> list[str]:
-    """Extract agent names from system message init data."""
+    """Extract agent names from system message init metadata."""
     if msg.subtype == "init":
         agents = msg.data.get("agents", [])
         # Agents can be either strings or dicts with a 'name' field

@@ -137,7 +137,7 @@ def _validate_input(points):
 
     Exception
     ---------
-    ValueError: if points is empty or None, or if a wrong data structure like a scalar is passed
+    ValueError: if points is empty or None, or if a wrong metadata structure like a scalar is passed
 
     TypeError: if an iterable but non-indexable object (eg. dictionary) is passed.
                 The exception to this a set which we'll convert to a list before using

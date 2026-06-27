@@ -424,7 +424,7 @@ class TestHookCallbacks:
             "request": {
                 "subtype": "hook_callback",
                 "callback_id": callback_id,
-                "input": {"test": "data"},
+                "input": {"test": "metadata"},
                 "tool_use_id": "tool-123",
             },
         }
@@ -433,7 +433,7 @@ class TestHookCallbacks:
 
         # Check hook was called
         assert len(hook_calls) == 1
-        assert hook_calls[0]["input"] == {"test": "data"}
+        assert hook_calls[0]["input"] == {"test": "metadata"}
         assert hook_calls[0]["tool_use_id"] == "tool-123"
 
         # Check response
@@ -487,7 +487,7 @@ class TestHookCallbacks:
             "request": {
                 "subtype": "hook_callback",
                 "callback_id": callback_id,
-                "input": {"test": "data"},
+                "input": {"test": "metadata"},
                 "tool_use_id": "tool-456",
             },
         }
@@ -607,7 +607,7 @@ class TestHookCallbacks:
             "request": {
                 "subtype": "hook_callback",
                 "callback_id": callback_id,
-                "input": {"test": "data"},
+                "input": {"test": "metadata"},
                 "tool_use_id": None,
             },
         }

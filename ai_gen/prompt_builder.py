@@ -15,7 +15,7 @@ SYSTEM_PROMPT = (
     "page.get_by_placeholder() to locate an input by placeholder. "
     "page.get_by_alt_text() to locate an element, usually image, by its text alternative. "
     "page.get_by_title() to locate an element by its title attribute. "
-    "page.get_by_test_id() to locate an element based on its data-testid attribute (other attributes can be configured). "
+    "page.get_by_test_id() to locate an element based on its metadata-testid attribute (other attributes can be configured). "
     "Keep assertions meaningful, and return code only. "
 )
 
@@ -39,7 +39,7 @@ def build_generation_prompt(snapshot: BrowserSnapshot, goal: str, test_name: str
         - Include imports required by the generated test.
         - Navigate to `{snapshot.url}`.
         - Verify the page with at least one meaningful assertion.
-        - Prefer locator strategies (id, data-testid, text) that are likely stable.
+        - Prefer locator strategies (id, metadata-testid, text) that are likely stable.
         - Do not include explanations, markdown, or prose. Return code only.
 
         Page context:

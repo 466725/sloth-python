@@ -22,7 +22,7 @@ without changing downstream consumers. Adds HK/US-specific fields:
   pipeline derives it from AkShare 板块名单, this is the HK/US analogue.
 
 This adapter intentionally treats every yfinance call as best-effort and never
-raises to caller. Partial data is allowed; downstream `_infer_block_status` will
+raises to caller. Partial metadata is allowed; downstream `_infer_block_status` will
 mark the block as ``partial`` when only some fields are populated.
 """
 from __future__ import annotations

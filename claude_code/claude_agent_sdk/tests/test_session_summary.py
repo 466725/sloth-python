@@ -57,7 +57,7 @@ def _user(
 class TestFoldSessionSummary:
     def test_init_from_none(self) -> None:
         s = fold_session_summary(None, KEY, [])
-        assert s == {"session_id": KEY["session_id"], "mtime": 0, "data": {}}
+        assert s == {"session_id": KEY["session_id"], "mtime": 0, "metadata": {}}
 
     def test_set_once_fields_freeze(self) -> None:
         s = fold_session_summary(
@@ -73,9 +73,9 @@ class TestFoldSessionSummary:
                 {"type": "x", "timestamp": "2024-01-01T00:00:05.000Z", "cwd": "/b"},
             ],
         )
-        assert s["data"]["created_at"] == 1704067200000
-        assert s["data"]["cwd"] == "/a"
-        assert s["data"]["is_sidechain"] is False
+        assert s["metadata"]["created_at"] == 1704067200000
+        assert s["metadata"]["cwd"] == "/a"
+        assert s["metadata"]["is_sidechain"] is False
         # Second append must not overwrite set-once fields.
         s2 = fold_session_summary(
             s,
@@ -89,9 +89,9 @@ class TestFoldSessionSummary:
                 }
             ],
         )
-        assert s2["data"]["created_at"] == 1704067200000
-        assert s2["data"]["cwd"] == "/a"
-        assert s2["data"]["is_sidechain"] is False
+        assert s2["metadata"]["created_at"] == 1704067200000
+        assert s2["metadata"]["cwd"] == "/a"
+        assert s2["metadata"]["is_sidechain"] is False
 
     def test_last_wins_overwrite(self) -> None:
         s = fold_session_summary(
@@ -107,8 +107,8 @@ class TestFoldSessionSummary:
                 {"type": "x", "timestamp": "2024-01-01T00:00:01Z", "customTitle": "t2"},
             ],
         )
-        assert s["data"]["custom_title"] == "t2"
-        assert s["data"]["git_branch"] == "main"
+        assert s["metadata"]["custom_title"] == "t2"
+        assert s["metadata"]["git_branch"] == "main"
         s2 = fold_session_summary(
             s,
             KEY,
@@ -122,11 +122,11 @@ class TestFoldSessionSummary:
                 }
             ],
         )
-        assert s2["data"]["custom_title"] == "t2"
-        assert s2["data"]["ai_title"] == "ai"
-        assert s2["data"]["last_prompt"] == "lp"
-        assert s2["data"]["summary_hint"] == "sm"
-        assert s2["data"]["git_branch"] == "dev"
+        assert s2["metadata"]["custom_title"] == "t2"
+        assert s2["metadata"]["ai_title"] == "ai"
+        assert s2["metadata"]["last_prompt"] == "lp"
+        assert s2["metadata"]["summary_hint"] == "sm"
+        assert s2["metadata"]["git_branch"] == "dev"
 
     def test_mtime_not_derived_from_entries(self) -> None:
         """The fold must not touch mtime — it is the sidecar's storage write
@@ -150,7 +150,7 @@ class TestFoldSessionSummary:
         prev: SessionSummaryEntry = {
             "session_id": KEY["session_id"],
             "mtime": 42,
-            "data": {},
+            "metadata": {},
         }
         s2 = fold_session_summary(
             prev, KEY, [{"type": "x", "timestamp": "2024-01-01T00:00:10.000Z"}]
@@ -159,12 +159,12 @@ class TestFoldSessionSummary:
 
     def test_tag_set_and_clear(self) -> None:
         s = fold_session_summary(None, KEY, [{"type": "tag", "tag": "wip"}])
-        assert s["data"]["tag"] == "wip"
+        assert s["metadata"]["tag"] == "wip"
         s2 = fold_session_summary(s, KEY, [{"type": "tag", "tag": ""}])
-        assert "tag" not in s2["data"]
+        assert "tag" not in s2["metadata"]
         # Non-tag entries with a "tag" key (e.g. tool_use input) are ignored.
         s3 = fold_session_summary(s, KEY, [{"type": "user", "tag": "ignored"}])
-        assert s3["data"]["tag"] == "wip"
+        assert s3["metadata"]["tag"] == "wip"
 
     def test_sidechain_from_first_entry(self) -> None:
         s = fold_session_summary(
@@ -172,7 +172,7 @@ class TestFoldSessionSummary:
             KEY,
             [{"type": "x", "timestamp": "2024-01-01T00:00:00Z", "isSidechain": True}],
         )
-        assert s["data"]["is_sidechain"] is True
+        assert s["metadata"]["is_sidechain"] is True
 
     def test_sidechain_latched_when_first_entry_lacks_timestamp(self) -> None:
         """Regression: is_sidechain must latch on entry 0 even if its timestamp
@@ -185,9 +185,9 @@ class TestFoldSessionSummary:
                 {"type": "x", "timestamp": "2024-01-01T00:00:00Z"},
             ],
         )
-        assert s["data"]["is_sidechain"] is True
+        assert s["metadata"]["is_sidechain"] is True
         # created_at still picks up the first parseable timestamp.
-        assert s["data"]["created_at"] == 1704067200000
+        assert s["metadata"]["created_at"] == 1704067200000
 
     def test_first_prompt_skips_meta_tool_result_and_compact(self) -> None:
         s = fold_session_summary(
@@ -201,8 +201,8 @@ class TestFoldSessionSummary:
                 _user("not me"),
             ],
         )
-        assert s["data"]["first_prompt"] == "real first"
-        assert s["data"]["first_prompt_locked"] is True
+        assert s["metadata"]["first_prompt"] == "real first"
+        assert s["metadata"]["first_prompt_locked"] is True
 
     def test_first_prompt_command_fallback(self) -> None:
         s = fold_session_summary(
@@ -213,12 +213,12 @@ class TestFoldSessionSummary:
                 _user("<command-name>/second</command-name>"),
             ],
         )
-        assert s["data"].get("first_prompt_locked") is not True
-        assert s["data"]["command_fallback"] == "/init"
+        assert s["metadata"].get("first_prompt_locked") is not True
+        assert s["metadata"]["command_fallback"] == "/init"
         # A later real prompt locks it.
         s2 = fold_session_summary(s, KEY, [_user("now real")])
-        assert s2["data"]["first_prompt"] == "now real"
-        assert s2["data"]["first_prompt_locked"] is True
+        assert s2["metadata"]["first_prompt"] == "now real"
+        assert s2["metadata"]["first_prompt_locked"] is True
 
     def test_first_prompt_skip_pattern(self) -> None:
         s = fold_session_summary(
@@ -226,17 +226,17 @@ class TestFoldSessionSummary:
             KEY,
             [_user("<local-command-stdout> some output"), _user("hello")],
         )
-        assert s["data"]["first_prompt"] == "hello"
+        assert s["metadata"]["first_prompt"] == "hello"
 
     def test_first_prompt_truncated(self) -> None:
         s = fold_session_summary(None, KEY, [_user("x" * 300)])
-        assert len(s["data"]["first_prompt"]) <= 201
-        assert s["data"]["first_prompt"].endswith("\u2026")
+        assert len(s["metadata"]["first_prompt"]) <= 201
+        assert s["metadata"]["first_prompt"].endswith("\u2026")
 
     def test_prev_is_not_mutated(self) -> None:
-        prev: SessionSummaryEntry = {"session_id": "a", "mtime": 5, "data": {}}
+        prev: SessionSummaryEntry = {"session_id": "a", "mtime": 5, "metadata": {}}
         fold_session_summary(prev, KEY, [{"type": "x", "customTitle": "t"}])
-        assert prev == {"session_id": "a", "mtime": 5, "data": {}}
+        assert prev == {"session_id": "a", "mtime": 5, "metadata": {}}
 
 
 # ---------------------------------------------------------------------------
@@ -251,7 +251,7 @@ class TestSummaryEntryToSdkInfo:
                 {
                     "session_id": "s",
                     "mtime": 1,
-                    "data": {"is_sidechain": True, "custom_title": "t"},
+                    "metadata": {"is_sidechain": True, "custom_title": "t"},
                 },
                 None,
             )
@@ -260,7 +260,7 @@ class TestSummaryEntryToSdkInfo:
 
     def test_empty_summary_returns_none(self) -> None:
         assert (
-            summary_entry_to_sdk_info({"session_id": "s", "mtime": 1, "data": {}}, None)
+            summary_entry_to_sdk_info({"session_id": "s", "mtime": 1, "metadata": {}}, None)
             is None
         )
 
@@ -274,7 +274,7 @@ class TestSummaryEntryToSdkInfo:
             "ai_title": "ai",
             "custom_title": "ct",
         }
-        base: SessionSummaryEntry = {"session_id": "s", "mtime": 1, "data": data}
+        base: SessionSummaryEntry = {"session_id": "s", "mtime": 1, "metadata": data}
         info = summary_entry_to_sdk_info(base, None)
         assert info is not None and info.summary == "ct" and info.custom_title == "ct"
 
@@ -302,14 +302,14 @@ class TestSummaryEntryToSdkInfo:
 
     def test_cwd_fallback_to_project_path(self) -> None:
         info = summary_entry_to_sdk_info(
-            {"session_id": "s", "mtime": 1, "data": {"custom_title": "t"}}, "/proj"
+            {"session_id": "s", "mtime": 1, "metadata": {"custom_title": "t"}}, "/proj"
         )
         assert info is not None and info.cwd == "/proj"
         info2 = summary_entry_to_sdk_info(
             {
                 "session_id": "s",
                 "mtime": 1,
-                "data": {"custom_title": "t", "cwd": "/own"},
+                "metadata": {"custom_title": "t", "cwd": "/own"},
             },
             "/proj",
         )
@@ -320,7 +320,7 @@ class TestSummaryEntryToSdkInfo:
             {
                 "session_id": "s",
                 "mtime": 99,
-                "data": {
+                "metadata": {
                     "custom_title": "t",
                     "git_branch": "main",
                     "tag": "wip",
@@ -357,9 +357,9 @@ class TestInMemoryListSessionSummaries:
             s["session_id"]: s for s in await store.list_session_summaries(PROJECT_KEY)
         }
         assert set(summaries) == {"a", "b"}
-        assert summaries["a"]["data"]["custom_title"] == "Title A"
-        assert summaries["a"]["data"]["first_prompt"] == "hello a"
-        assert summaries["b"]["data"]["first_prompt"] == "hello b"
+        assert summaries["a"]["metadata"]["custom_title"] == "Title A"
+        assert summaries["a"]["metadata"]["first_prompt"] == "hello a"
+        assert summaries["b"]["metadata"]["first_prompt"] == "hello b"
 
     async def test_subpath_appends_ignored(self) -> None:
         store = InMemorySessionStore()
@@ -375,8 +375,8 @@ class TestInMemoryListSessionSummaries:
         )
         summaries = await store.list_session_summaries(PROJECT_KEY)
         assert len(summaries) == 1
-        assert summaries[0]["data"]["first_prompt"] == "main prompt"
-        assert "custom_title" not in summaries[0]["data"]
+        assert summaries[0]["metadata"]["first_prompt"] == "main prompt"
+        assert "custom_title" not in summaries[0]["metadata"]
 
     async def test_delete_drops_summary(self) -> None:
         store = InMemorySessionStore()
@@ -631,7 +631,7 @@ class TestListSessionsFromStoreFastPath:
                     {
                         "session_id": sid,
                         "mtime": stale_mtime,
-                        "data": {
+                        "metadata": {
                             "custom_title": "old",
                             "first_prompt": "old prompt",
                             "first_prompt_locked": True,
@@ -710,7 +710,7 @@ class TestListSessionsFromStoreFastPath:
                 # Sidecar mtime is also T2 (same clock).
                 full = await super().list_session_summaries(project_key)
                 return [
-                    {"session_id": s["session_id"], "mtime": t2, "data": s["data"]}
+                    {"session_id": s["session_id"], "mtime": t2, "metadata": s["metadata"]}
                     for s in full
                 ]
 

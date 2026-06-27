@@ -21,36 +21,36 @@ def test_real_ai_generation_without_cli_from_explicit_prompts():
         <div class="container responsivegrid">
            <div id="search-actions" class="cmp-container">
               <div class="button cmp-button--icon">
-                 <button type="button" id="search-btn" class="cmp-button" aria-label="Search, opens dialogue" title="Search, opens dialogue" data-cmp-clickable="" data-cmp-data-layer="{&quot;search-btn&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2023-12-07T18:42:24Z&quot;}}">
+                 <button type="button" id="search-btn" class="cmp-button" aria-label="Search, opens dialogue" title="Search, opens dialogue" metadata-cmp-clickable="" metadata-cmp-metadata-layer="{&quot;search-btn&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2023-12-07T18:42:24Z&quot;}}">
                  </button>
               </div>
               <div class="button cmp-button--primary-inverse-outline cmp-all-showVisitor">
-                 <a id="login" class="cmp-button" data-cmp-clickable="" data-cmp-data-layer="{&quot;login&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-01-16T14:39:17Z&quot;,&quot;dc:title&quot;:&quot;Log In&quot;,&quot;xdm:linkURL&quot;:&quot;/app/#/login/login-id?locale=en_CA&quot;}}" href="/app/#/login/login-id?locale=en_CA">
+                 <a id="login" class="cmp-button" metadata-cmp-clickable="" metadata-cmp-metadata-layer="{&quot;login&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-01-16T14:39:17Z&quot;,&quot;dc:title&quot;:&quot;Log In&quot;,&quot;xdm:linkURL&quot;:&quot;/app/#/login/login-id?locale=en_CA&quot;}}" href="/app/#/login/login-id?locale=en_CA">
                  <span class="cmp-button__text">Log In</span>
                  </a>
               </div>
               <div class="button cmp-button--primary-inverse-outline cmp-all-showClient cmp-all-showBusiness">
-                 <button type="button" id="logout" class="cmp-button" data-cmp-clickable="" data-cmp-data-layer="{&quot;logout&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-01-19T21:51:21Z&quot;,&quot;dc:title&quot;:&quot;Log Out&quot;}}">
+                 <button type="button" id="logout" class="cmp-button" metadata-cmp-clickable="" metadata-cmp-metadata-layer="{&quot;logout&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-01-19T21:51:21Z&quot;,&quot;dc:title&quot;:&quot;Log Out&quot;}}">
                  <span class="cmp-button__text">Log Out</span>
                  </button>
               </div>
               <div class="button cmp-all-showVisitor cmp-button--header-primary-visitor">
-                 <a id="get-started" class="cmp-button" data-cmp-clickable="" data-cmp-data-layer="{&quot;get-started&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-03-11T17:48:16Z&quot;,&quot;dc:title&quot;:&quot;Become a Client&quot;,&quot;xdm:linkURL&quot;:&quot;/app/#/visitor-enroll/instructions?locale=en_CA&amp;products=4000&quot;}}" href="/app/#/visitor-enroll/instructions?locale=en_CA&amp;products=4000">
+                 <a id="get-started" class="cmp-button" metadata-cmp-clickable="" metadata-cmp-metadata-layer="{&quot;get-started&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-03-11T17:48:16Z&quot;,&quot;dc:title&quot;:&quot;Become a Client&quot;,&quot;xdm:linkURL&quot;:&quot;/app/#/visitor-enroll/instructions?locale=en_CA&amp;products=4000&quot;}}" href="/app/#/visitor-enroll/instructions?locale=en_CA&amp;products=4000">
                  <span class="cmp-button__text">Become a Client</span>
                  </a>
               </div>
               <div class="button cmp-all-showClient cmp-button--header-primary-client">
-                 <a id="mytangerine" class="cmp-button" data-cmp-clickable="" data-cmp-data-layer="{&quot;mytangerine&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-03-11T17:48:36Z&quot;,&quot;dc:title&quot;:&quot;My Tangerine&quot;,&quot;xdm:linkURL&quot;:&quot;/app/#/accounts?locale=en_CA&quot;}}" href="/app/#/accounts?locale=en_CA">
+                 <a id="mytangerine" class="cmp-button" metadata-cmp-clickable="" metadata-cmp-metadata-layer="{&quot;mytangerine&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-03-11T17:48:36Z&quot;,&quot;dc:title&quot;:&quot;My Tangerine&quot;,&quot;xdm:linkURL&quot;:&quot;/app/#/accounts?locale=en_CA&quot;}}" href="/app/#/accounts?locale=en_CA">
                  <span class="cmp-button__text">My Tangerine</span>
                  </a>
               </div>
               <div class="button cmp-all-showBusiness cmp-button--header-primary-business">
-                 <a id="mytangerinebiz" class="cmp-button" data-cmp-clickable="" data-cmp-data-layer="{&quot;mytangerinebiz&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-03-11T17:49:06Z&quot;,&quot;dc:title&quot;:&quot;My Tangerine&quot;,&quot;xdm:linkURL&quot;:&quot;/app/#/accounts?locale=en_CA&quot;}}" href="/app/#/accounts?locale=en_CA">
+                 <a id="mytangerinebiz" class="cmp-button" metadata-cmp-clickable="" metadata-cmp-metadata-layer="{&quot;mytangerinebiz&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2024-03-11T17:49:06Z&quot;,&quot;dc:title&quot;:&quot;My Tangerine&quot;,&quot;xdm:linkURL&quot;:&quot;/app/#/accounts?locale=en_CA&quot;}}" href="/app/#/accounts?locale=en_CA">
                  <span class="cmp-button__text">My Tangerine</span>
                  </a>
               </div>
               <div class="button cmp-button--icon">
-                 <button type="button" id="hamburger-menu" class="cmp-button" aria-label="Menu opens dialog" title="Menu opens dialog" data-cmp-clickable="" data-cmp-data-layer="{&quot;hamburger-menu&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2023-10-18T16:11:34Z&quot;}}">
+                 <button type="button" id="hamburger-menu" class="cmp-button" aria-label="Menu opens dialog" title="Menu opens dialog" metadata-cmp-clickable="" metadata-cmp-metadata-layer="{&quot;hamburger-menu&quot;:{&quot;@type&quot;:&quot;tangerine/components/button&quot;,&quot;repo:modifyDate&quot;:&quot;2023-10-18T16:11:34Z&quot;}}">
                  <span class="cmp-button__icon cmp-button__icon--menu-light" aria-hidden="true"></span>
                  </button>
               </div>

@@ -653,7 +653,7 @@ class Query:
                             content.append(
                                 {
                                     "type": "image",
-                                    "data": getattr(item, "data", ""),
+                                    "metadata": getattr(item, "metadata", ""),
                                     "mimeType": getattr(item, "mimeType", ""),
                                 }
                             )

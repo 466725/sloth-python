@@ -44,7 +44,7 @@ page.get_by_text("Welcome")
 
 ```python
 page.locator("#login")                          # Stable: IDs rarely change
-page.locator("[data-testid='submit-btn']")      # Stable: test IDs are intentional
+page.locator("[metadata-testid='submit-btn']")      # Stable: test IDs are intentional
 page.locator("[aria-label='Close']")            # Stable: accessibility attributes
 ```
 

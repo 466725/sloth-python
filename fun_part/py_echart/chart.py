@@ -3,7 +3,7 @@ import json
 from record import Record
 
 
-# Read data from file and analize, then display in chart
+# Read metadata from file and analize, then display in chart
 class FileReader:
     def readData(self) -> list[Record]:
         pass

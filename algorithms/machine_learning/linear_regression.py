@@ -35,7 +35,7 @@ def collect_dataset():
 def run_steep_gradient_descent(data_x, data_y, len_data, alpha, theta):
     """Run steep gradient descent and updates the Feature vector accordingly_
     :param data_x   : contains the dataset
-    :param data_y   : contains the output associated with each data-entry
+    :param data_y   : contains the output associated with each metadata-entry
     :param len_data : length of the data_
     :param alpha    : Learning rate of the model
     :param theta    : Feature vector (weight's for our model)

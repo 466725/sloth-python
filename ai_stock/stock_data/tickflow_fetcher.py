@@ -10,7 +10,7 @@ This fetcher intentionally implements a narrow P0 surface:
 1. Main A-share indices quotes
 2. A-share market breadth statistics
 
-It does not participate in the general daily-data or per-stock realtime
+It does not participate in the general daily-metadata or per-stock realtime
 pipelines and should only be called explicitly by DataFetcherManager.
 """
 

@@ -506,7 +506,7 @@ class ClaudeSDKClient:
     async def get_context_usage(self) -> ContextUsageResponse:
         """Get a breakdown of current context window usage by category.
 
-        Returns the same data shown by the `/context` command in the CLI,
+        Returns the same metadata shown by the `/context` command in the CLI,
         including token counts per category, total usage, and detailed
         breakdowns of MCP tools, memory files, and agents.
 

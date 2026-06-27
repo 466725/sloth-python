@@ -3,7 +3,7 @@ from io import BytesIO
 
 
 def binary_document_to_markdown(binary_data: bytes, file_type: str) -> str:
-    """Converts binary document data to markdown-formatted text."""
+    """Converts binary document metadata to markdown-formatted text."""
     md = MarkItDown()
     file_obj = BytesIO(binary_data)
     stream_info = StreamInfo(extension=file_type)

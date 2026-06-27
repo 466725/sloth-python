@@ -84,21 +84,21 @@ class TestTryAppend:
     def test_missing_file_returns_false(self, tmp_path: Path):
         """ENOENT returns False (not an error)."""
         f = tmp_path / "nonexistent.jsonl"
-        result = _try_append(f, "data\n")
+        result = _try_append(f, "metadata\n")
         assert result is False
         assert not f.exists()  # did NOT create the file
 
     def test_missing_parent_dir_returns_false(self, tmp_path: Path):
         """ENOTDIR/ENOENT on parent dir returns False."""
         f = tmp_path / "nonexistent" / "file.jsonl"
-        result = _try_append(f, "data\n")
+        result = _try_append(f, "metadata\n")
         assert result is False
 
     def test_zero_byte_file_returns_false(self, tmp_path: Path):
         """0-byte stub returns False (keep searching)."""
         f = tmp_path / "stub.jsonl"
         f.write_text("")
-        result = _try_append(f, "data\n")
+        result = _try_append(f, "metadata\n")
         assert result is False
         assert f.read_text() == ""  # not modified
 

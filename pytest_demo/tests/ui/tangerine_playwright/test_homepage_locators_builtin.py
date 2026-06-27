@@ -69,7 +69,7 @@ def test_tangerine_homepage_locator_test_id_hard_coded(tangerine_homepage):
             if (!personalLink) {
                 throw new Error('Unable to find Personal link for test id locator demo');
             }
-            personalLink.setAttribute('data-testid', 'nav-personal-link');
+            personalLink.setAttribute('metadata-testid', 'nav-personal-link');
         }
         """
     )

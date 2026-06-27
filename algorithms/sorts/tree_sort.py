@@ -6,7 +6,7 @@ Build a BST and in order traverse.
 
 
 class node:
-    # BST data structure
+    # BST metadata structure
     def __init__(self, val):
         self.val = val
         self.left = None

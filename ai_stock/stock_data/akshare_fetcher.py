@@ -82,14 +82,14 @@ USER_AGENTS = [
 # - 实时性要求：股票分析不需要秒级实时数据，20 分钟延迟可接受
 # - 防封禁：减少 API 调用频率
 _realtime_cache: Dict[str, Any] = {
-    'data': None,
+    'metadata': None,
     'timestamp': 0,
     'ttl': 1200  # 20分钟缓存有效期
 }
 
 # ETF 实时行情缓存
 _etf_realtime_cache: Dict[str, Any] = {
-    'data': None,
+    'metadata': None,
     'timestamp': 0,
     'ttl': 1200  # 20分钟缓存有效期
 }
@@ -964,9 +964,9 @@ class AkshareFetcher(BaseFetcher):
         try:
             # 检查缓存
             current_time = time.time()
-            if (_realtime_cache['data'] is not None and 
+            if (_realtime_cache['metadata'] is not None and
                 current_time - _realtime_cache['timestamp'] < _realtime_cache['ttl']):
-                df = _realtime_cache['data']
+                df = _realtime_cache['metadata']
                 cache_age = int(current_time - _realtime_cache['timestamp'])
                 logger.debug(f"[缓存命中] A股实时行情(东财) - 缓存年龄 {cache_age}s/{_realtime_cache['ttl']}s")
             else:
@@ -1000,7 +1000,7 @@ class AkshareFetcher(BaseFetcher):
                     logger.info(f"[API错误] ak.stock_zh_a_spot_em 最终失败: {last_error}")
                     circuit_breaker.record_failure(source_key, str(last_error))
                     df = pd.DataFrame()
-                _realtime_cache['data'] = df
+                _realtime_cache['metadata'] = df
                 _realtime_cache['timestamp'] = current_time
                 logger.info(f"[缓存更新] A股实时行情(东财) 缓存已刷新，TTL={_realtime_cache['ttl']}s")
 
@@ -1374,9 +1374,9 @@ class AkshareFetcher(BaseFetcher):
         try:
             # 检查缓存
             current_time = time.time()
-            if (_etf_realtime_cache['data'] is not None and 
+            if (_etf_realtime_cache['metadata'] is not None and
                 current_time - _etf_realtime_cache['timestamp'] < _etf_realtime_cache['ttl']):
-                df = _etf_realtime_cache['data']
+                df = _etf_realtime_cache['metadata']
                 logger.debug(f"[缓存命中] 使用缓存的ETF实时行情数据")
             else:
                 last_error: Optional[Exception] = None
@@ -1406,7 +1406,7 @@ class AkshareFetcher(BaseFetcher):
                     logger.info(f"[API错误] ak.fund_etf_spot_em 最终失败: {last_error}")
                     circuit_breaker.record_failure(source_key, str(last_error))
                     df = pd.DataFrame()
-                _etf_realtime_cache['data'] = df
+                _etf_realtime_cache['metadata'] = df
                 _etf_realtime_cache['timestamp'] = current_time
 
             if df is None or df.empty:

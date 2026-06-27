@@ -29,10 +29,10 @@ class Transport(ABC):
 
     @abstractmethod
     async def write(self, data: str) -> None:
-        """Write raw data to the transport.
+        """Write raw metadata to the transport.
 
         Args:
-            data: Raw string data to write (typically JSON + newline)
+            data: Raw string metadata to write (typically JSON + newline)
         """
         pass
 

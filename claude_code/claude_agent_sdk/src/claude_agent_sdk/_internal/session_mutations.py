@@ -626,7 +626,7 @@ def _append_to_session(
     data: str,
     directory: str | None,
 ) -> None:
-    """Append data to an existing session file.
+    """Append metadata to an existing session file.
 
     Searches candidate paths and tries the append directly — no existence
     check. Uses O_WRONLY | O_APPEND (without O_CREAT) so the open fails with
@@ -895,7 +895,7 @@ async def fork_session_via_store(
     transform directly over the objects returned by ``session_store.load()`` —
     no JSONL round-trip. A storage-layer copy (e.g. S3 CopyObject) is NOT
     sufficient: the transform remaps every UUID, rewrites ``sessionId`` on
-    each entry, and stamps ``forkedFrom``, so the data must pass through
+    each entry, and stamps ``forkedFrom``, so the metadata must pass through
     this process once.
 
     Args:

@@ -185,7 +185,7 @@ def del_node(root, data):
             root = root.getright()
     elif root.getdata() > data:
         if root.getleft() is None:
-            print("No such data")
+            print("No such metadata")
             return root
         else:
             root.setleft(del_node(root.getleft(), data))

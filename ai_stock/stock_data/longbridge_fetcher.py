@@ -849,7 +849,7 @@ class LongbridgeFetcher(BaseFetcher):
         return quote
 
     # ------------------------------------------------------------------
-    # BaseFetcher abstract methods (historical daily data)
+    # BaseFetcher abstract methods (historical daily metadata)
     # ------------------------------------------------------------------
 
     def _fetch_raw_data(

@@ -40,7 +40,7 @@ markitdown[docx,pdf]>=0.1.1,<0.2.0
 mysql-connector-python
 
 # HTTP, Web Scraping, And Stock Data
-# HTTP clients, HTML/XML parsing, user-agent helpers, and market data fetchers.
+# HTTP clients, HTML/XML parsing, user-agent helpers, and market metadata fetchers.
 beautifulsoup4>=4.15.0,<5
 fake-useragent>=2.2.0
 lxml

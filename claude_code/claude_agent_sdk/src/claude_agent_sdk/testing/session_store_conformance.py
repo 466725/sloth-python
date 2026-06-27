@@ -169,7 +169,7 @@ async def run_session_store_conformance(
     if has_list_summaries:
         # 14. list_session_summaries returns persisted fold output that
         # round-trips through fold_session_summary again. Stores must NOT
-        # interpret ``data`` — only persist it verbatim.
+        # interpret ``metadata`` — only persist it verbatim.
         from .._internal.session_summary import fold_session_summary
 
         store = await fresh()
@@ -207,8 +207,8 @@ async def run_session_store_conformance(
                 e["session_id"]: e["mtime"] for e in await store.list_sessions("proj")
             }
             assert summ["mtime"] >= ls_by_id["summ-sess"]
-        # data is opaque; the contract is that it round-trips into the fold.
-        assert isinstance(summ["data"], dict)
+        # metadata is opaque; the contract is that it round-trips into the fold.
+        assert isinstance(summ["metadata"], dict)
         refolded = fold_session_summary(
             summ, key, [_e({"timestamp": "2024-01-01T00:00:03.000Z"})]
         )
@@ -224,7 +224,7 @@ async def run_session_store_conformance(
         after_sub = {
             s["session_id"]: s for s in await store.list_session_summaries("proj")
         }
-        assert after_sub["summ-sess"]["data"] == summ["data"]
+        assert after_sub["summ-sess"]["metadata"] == summ["metadata"]
         assert await store.list_session_summaries("never-appended-project") == []
         if has_delete:
             await store.delete(key)

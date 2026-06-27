@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-AlphaVantageFetcher — US market data source (Priority 3)
+AlphaVantageFetcher — US market metadata source (Priority 3)
 
 Data source: AlphaVantage REST API
 Rate limit: 25 calls/day, 5 calls/min (free tier)
@@ -67,7 +67,7 @@ class AlphaVantageFetcher(BaseFetcher):
 
         ts_key = 'Time Series (Daily)'
         if ts_key not in data or not data[ts_key]:
-            raise DataFetchError(f"[AlphaVantage] No time series data for {symbol}")
+            raise DataFetchError(f"[AlphaVantage] No time series metadata for {symbol}")
 
         rows = []
         start = datetime.strptime(start_date, '%Y-%m-%d').date()
@@ -85,7 +85,7 @@ class AlphaVantageFetcher(BaseFetcher):
                 })
 
         if not rows:
-            raise DataFetchError(f"[AlphaVantage] No data in date range for {symbol}")
+            raise DataFetchError(f"[AlphaVantage] No metadata in date range for {symbol}")
 
         df = pd.DataFrame(rows)
         df.index = pd.to_datetime(df['date'])

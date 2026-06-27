@@ -4,7 +4,7 @@
 
 class Node:
     def __init__(self, data):
-        self.data = data  # Assign data
+        self.data = data  # Assign metadata
         self.next = None  # Initialize next as null
         self.prev = None  # Initialize prev as null
 

@@ -7,7 +7,7 @@ class YFinanceHelper:
     """
     Utility class to demonstrate common yfinance usage:
     - Fetch ticker info
-    - Download historical OHLCV data
+    - Download historical OHLCV metadata
     - Get dividends & splits
     - Retrieve options chain
     """
@@ -34,7 +34,7 @@ class YFinanceHelper:
             end: Optional[str] = None,
     ):
         """
-        Fetch OHLCV historical data.
+        Fetch OHLCV historical metadata.
         period examples: '1d', '5d', '1mo', '6mo', '1y', '5y', 'max'
         interval examples: '1m', '5m', '1h', '1d', '1wk'
         """
@@ -72,5 +72,5 @@ class YFinanceHelper:
     # ---------------------------------------------------------
     @staticmethod
     def download_multiple(symbols: List[str], period="1mo"):
-        """Download OHLCV data for multiple tickers."""
+        """Download OHLCV metadata for multiple tickers."""
         return yf.download(symbols, period=period)

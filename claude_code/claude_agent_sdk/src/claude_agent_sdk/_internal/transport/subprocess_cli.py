@@ -600,7 +600,7 @@ class SubprocessCLITransport(Transport):
         self._exit_error = None
 
     async def write(self, data: str) -> None:
-        """Write raw data to the transport."""
+        """Write raw metadata to the transport."""
         async with self._write_lock:
             # All checks inside lock to prevent TOCTOU races with close()/end_input()
             if not self._ready or not self._stdin_stream:

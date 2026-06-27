@@ -95,7 +95,7 @@ class _TushareHttpClient:
         if result.get("code") != 0:
             raise Exception(result.get("msg") or f"Tushare API error code {result.get('code')}")
 
-        data = result.get("data") or {}
+        data = result.get("metadata") or {}
         columns = data.get("fields") or []
         items = data.get("items") or []
         return pd.DataFrame(items, columns=columns)

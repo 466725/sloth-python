@@ -47,7 +47,7 @@ def parse_message(data: dict[str, Any]) -> Message | None:
     """
     if not isinstance(data, dict):
         raise MessageParseError(
-            f"Invalid message data type (expected dict, got {type(data).__name__})",
+            f"Invalid message metadata type (expected dict, got {type(data).__name__})",
             data,
         )
 

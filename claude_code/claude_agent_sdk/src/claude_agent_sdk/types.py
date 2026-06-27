@@ -306,7 +306,7 @@ class _SubagentContextMixin(TypedDict, total=False):
 
 
 class PreToolUseHookInput(BaseHookInput, _SubagentContextMixin):
-    """Input data for PreToolUse hook events."""
+    """Input metadata for PreToolUse hook events."""
 
     hook_event_name: Literal["PreToolUse"]
     tool_name: str
@@ -315,7 +315,7 @@ class PreToolUseHookInput(BaseHookInput, _SubagentContextMixin):
 
 
 class PostToolUseHookInput(BaseHookInput, _SubagentContextMixin):
-    """Input data for PostToolUse hook events."""
+    """Input metadata for PostToolUse hook events."""
 
     hook_event_name: Literal["PostToolUse"]
     tool_name: str
@@ -325,7 +325,7 @@ class PostToolUseHookInput(BaseHookInput, _SubagentContextMixin):
 
 
 class PostToolUseFailureHookInput(BaseHookInput, _SubagentContextMixin):
-    """Input data for PostToolUseFailure hook events."""
+    """Input metadata for PostToolUseFailure hook events."""
 
     hook_event_name: Literal["PostToolUseFailure"]
     tool_name: str
@@ -336,21 +336,21 @@ class PostToolUseFailureHookInput(BaseHookInput, _SubagentContextMixin):
 
 
 class UserPromptSubmitHookInput(BaseHookInput):
-    """Input data for UserPromptSubmit hook events."""
+    """Input metadata for UserPromptSubmit hook events."""
 
     hook_event_name: Literal["UserPromptSubmit"]
     prompt: str
 
 
 class StopHookInput(BaseHookInput):
-    """Input data for Stop hook events."""
+    """Input metadata for Stop hook events."""
 
     hook_event_name: Literal["Stop"]
     stop_hook_active: bool
 
 
 class SubagentStopHookInput(BaseHookInput):
-    """Input data for SubagentStop hook events."""
+    """Input metadata for SubagentStop hook events."""
 
     hook_event_name: Literal["SubagentStop"]
     stop_hook_active: bool
@@ -360,7 +360,7 @@ class SubagentStopHookInput(BaseHookInput):
 
 
 class PreCompactHookInput(BaseHookInput):
-    """Input data for PreCompact hook events."""
+    """Input metadata for PreCompact hook events."""
 
     hook_event_name: Literal["PreCompact"]
     trigger: Literal["manual", "auto"]
@@ -368,7 +368,7 @@ class PreCompactHookInput(BaseHookInput):
 
 
 class NotificationHookInput(BaseHookInput):
-    """Input data for Notification hook events."""
+    """Input metadata for Notification hook events."""
 
     hook_event_name: Literal["Notification"]
     message: str
@@ -377,7 +377,7 @@ class NotificationHookInput(BaseHookInput):
 
 
 class SubagentStartHookInput(BaseHookInput):
-    """Input data for SubagentStart hook events."""
+    """Input metadata for SubagentStart hook events."""
 
     hook_event_name: Literal["SubagentStart"]
     agent_id: str
@@ -385,7 +385,7 @@ class SubagentStartHookInput(BaseHookInput):
 
 
 class PermissionRequestHookInput(BaseHookInput, _SubagentContextMixin):
-    """Input data for PermissionRequest hook events."""
+    """Input metadata for PermissionRequest hook events."""
 
     hook_event_name: Literal["PermissionRequest"]
     tool_name: str
@@ -760,7 +760,7 @@ class ContextUsageResponse(TypedDict):
     """Response from `ClaudeSDKClient.get_context_usage()`.
 
     Provides a breakdown of current context window usage by category,
-    matching the data shown by the `/context` command in the CLI.
+    matching the metadata shown by the `/context` command in the CLI.
     """
 
     categories: list[ContextUsageCategory]
@@ -1082,7 +1082,7 @@ class TaskStartedMessage(SystemMessage):
 
     Subclass of SystemMessage: existing ``isinstance(msg, SystemMessage)`` and
     ``case SystemMessage()`` checks continue to match. The base ``subtype``
-    and ``data`` fields remain populated with the raw payload.
+    and ``metadata`` fields remain populated with the raw payload.
     """
 
     task_id: str
@@ -1099,7 +1099,7 @@ class TaskProgressMessage(SystemMessage):
 
     Subclass of SystemMessage: existing ``isinstance(msg, SystemMessage)`` and
     ``case SystemMessage()`` checks continue to match. The base ``subtype``
-    and ``data`` fields remain populated with the raw payload.
+    and ``metadata`` fields remain populated with the raw payload.
     """
 
     task_id: str
@@ -1123,7 +1123,7 @@ class TaskNotificationMessage(SystemMessage):
 
     Subclass of SystemMessage: existing ``isinstance(msg, SystemMessage)`` and
     ``case SystemMessage()`` checks continue to match. The base ``subtype``
-    and ``data`` fields remain populated with the raw payload.
+    and ``metadata`` fields remain populated with the raw payload.
     """
 
     task_id: str
@@ -1155,7 +1155,7 @@ class TaskUpdatedMessage(SystemMessage):
 
     Subclass of SystemMessage: existing ``isinstance(msg, SystemMessage)`` and
     ``case SystemMessage()`` checks continue to match. The base ``subtype`` and
-    ``data`` fields remain populated with the raw payload.
+    ``metadata`` fields remain populated with the raw payload.
     """
 
     task_id: str
@@ -1175,7 +1175,7 @@ class MirrorErrorMessage(SystemMessage):
 
     Subclass of SystemMessage: existing ``isinstance(msg, SystemMessage)`` and
     ``case SystemMessage()`` checks continue to match. The base ``subtype``
-    field is ``"mirror_error"`` and ``data`` carries the raw payload.
+    field is ``"mirror_error"`` and ``metadata`` carries the raw payload.
     """
 
     key: "SessionKey | None" = None
@@ -1286,20 +1286,20 @@ class HookEventMessage(SystemMessage):
     When ``ClaudeAgentOptions.include_hook_events`` is ``True``, the CLI emits
     hook lifecycle events (PreToolUse, PostToolUse, Stop, etc.) into the
     message stream. Each event is identified by ``hook_event_name`` and the
-    full raw payload is available in ``data``.
+    full raw payload is available in ``metadata``.
 
     These arrive on the wire as ``{"type": "system", "subtype":
     "hook_started" | "hook_response", "hook_event": "PreToolUse", ...}``.
 
     Subclass of SystemMessage: existing ``isinstance(msg, SystemMessage)`` and
     ``case SystemMessage()`` checks continue to match. The base ``subtype``
-    and ``data`` fields remain populated with the raw payload.
+    and ``metadata`` fields remain populated with the raw payload.
 
     Attributes:
         subtype: Lifecycle phase — ``"hook_started"`` when a hook begins
             executing, ``"hook_response"`` when it completes (the latter
             carries ``output``, ``exit_code``, and ``outcome`` keys in
-            ``data``).
+            ``metadata``).
         hook_event_name: Name of the hook event (e.g. ``"PreToolUse"``,
             ``"PostToolUse"``, ``"Stop"``).
         data: Full raw event dict from the CLI, including any
@@ -1380,7 +1380,7 @@ class SessionSummaryEntry(TypedDict):
 
     Stores obtain this from :func:`fold_session_summary` inside
     :meth:`SessionStore.append` and persist it verbatim; they return the
-    full set from :meth:`SessionStore.list_session_summaries`. The ``data``
+    full set from :meth:`SessionStore.list_session_summaries`. The ``metadata``
     field is opaque SDK-owned state — stores MUST NOT interpret it.
     """
 
@@ -1534,7 +1534,7 @@ class SessionStore(Protocol):
     async def list_subkeys(self, key: SessionListSubkeysKey) -> list[str]:
         """List all subpath keys under a session (e.g. subagent transcripts).
 
-        Used during resume to discover and materialize all subagent data.
+        Used during resume to discover and materialize all subagent metadata.
 
         Optional — if unimplemented, resume only materializes the main
         transcript.
@@ -1551,7 +1551,7 @@ class SessionStore(Protocol):
 class SDKSessionInfo:
     """Session metadata returned by ``list_sessions()``.
 
-    Contains only data extractable from stat + head/tail reads — no full
+    Contains only metadata extractable from stat + head/tail reads — no full
     JSONL parsing required.
 
     Attributes:
@@ -1588,7 +1588,7 @@ class SessionMessage:
     """A user or assistant message from a session transcript.
 
     Returned by ``get_session_messages()`` for reading historical session
-    data. Fields match the SDK wire protocol types (SDKUserMessage /
+    metadata. Fields match the SDK wire protocol types (SDKUserMessage /
     SDKAssistantMessage).
 
     Attributes:
@@ -1944,7 +1944,7 @@ class ClaudeAgentOptions:
     output_format: dict[str, Any] | None = None
     """Output format configuration for structured responses.
 
-    When specified, the agent returns structured data matching the schema.
+    When specified, the agent returns structured metadata matching the schema.
     Matches the Messages API structure, e.g.
     ``{"type": "json_schema", "schema": {"type": "object", "properties": {...}}}``.
     """

@@ -1,7 +1,7 @@
 def quick_sort(data: list) -> list:
     """
-    >>> for data in ([2, 1, 0], [2.2, 1.1, 0], "quick_sort"):
-    ...     quick_sort(data) == sorted(data)
+    >>> for metadata in ([2, 1, 0], [2.2, 1.1, 0], "quick_sort"):
+    ...     quick_sort(metadata) == sorted(metadata)
     True
     True
     True

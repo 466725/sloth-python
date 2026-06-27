@@ -45,7 +45,7 @@ def read_csv_to_list(
 
 if __name__ == "__main__":
     # Demo usage (only runs when executing this file directly)
-    csv_path = "pytest_demo/theatre-data.csv"
+    csv_path = "pytest_demo/theatre-metadata.csv"
     print(read_csv_to_list(csv_path, convert_to_int=False)[1:3])
     for row in read_csv(csv_path):
         print(row)

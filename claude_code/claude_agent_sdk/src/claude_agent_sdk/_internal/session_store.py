@@ -37,7 +37,7 @@ class InMemorySessionStore(SessionStore):
 
     Stores entries in a ``dict`` keyed by a composite ``project_key/session_id``
     string (with an optional ``/subpath`` suffix). Not suitable for production —
-    data is lost when the process exits.
+    metadata is lost when the process exits.
     """
 
     def __init__(self) -> None:
@@ -139,7 +139,7 @@ class InMemorySessionStore(SessionStore):
         return count
 
     def clear(self) -> None:
-        """Test helper — clear all stored data."""
+        """Test helper — clear all stored metadata."""
         self._store.clear()
         self._mtimes.clear()
         self._summaries.clear()

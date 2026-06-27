@@ -56,8 +56,8 @@ def suggest_locator_from_candidate(candidate: Any) -> dict[str, str]:
 
     if attrs.get("id"):
         return {"by": "id", "value": str(attrs["id"])}
-    if attrs.get("data-testid"):
-        return {"by": "css", "value": f"[data-testid='{attrs['data-testid']}']"}
+    if attrs.get("metadata-testid"):
+        return {"by": "css", "value": f"[metadata-testid='{attrs['metadata-testid']}']"}
     if attrs.get("name"):
         return {"by": "css", "value": f"[name='{attrs['name']}']"}
     if attrs.get("class"):

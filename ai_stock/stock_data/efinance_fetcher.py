@@ -133,14 +133,14 @@ USER_AGENTS = [
 # 缓存实时行情数据（避免重复请求）
 # TTL 设为 10 分钟 (600秒)：批量分析场景下避免重复拉取
 _realtime_cache: Dict[str, Any] = {
-    'data': None,
+    'metadata': None,
     'timestamp': 0,
     'ttl': 600  # 10分钟缓存有效期
 }
 
 # ETF 实时行情缓存（与股票分开缓存）
 _etf_realtime_cache: Dict[str, Any] = {
-    'data': None,
+    'metadata': None,
     'timestamp': 0,
     'ttl': 600  # 10分钟缓存有效期
 }
@@ -477,12 +477,12 @@ class EfinanceFetcher(BaseFetcher):
         """
         获取 ETF 基金历史数据
 
-        Exchange-traded ETFs have OHLCV data just like regular stocks, so we use
+        Exchange-traded ETFs have OHLCV metadata just like regular stocks, so we use
         ef.stock.get_quote_history (the stock K-line API) which returns full
-        open/high/low/close/volume data.
+        open/high/low/close/volume metadata.
 
         Previously this method used ef.fund.get_quote_history which only returns
-        NAV data (单位净值/累计净值) without volume or OHLC, causing:
+        NAV metadata (单位净值/累计净值) without volume or OHLC, causing:
         - Issue #541: 'got an unexpected keyword argument beg'
         - Issue #527: ETF volume/turnover always showing 0
 
@@ -515,7 +515,7 @@ class EfinanceFetcher(BaseFetcher):
 
         api_start = time.time()
         try:
-            # ETFs are exchange-traded securities; use the stock API to get full OHLCV data
+            # ETFs are exchange-traded securities; use the stock API to get full OHLCV metadata
             df = _ef_call_with_timeout(
                 ef.stock.get_quote_history,
                 stock_codes=secid,
@@ -596,7 +596,7 @@ class EfinanceFetcher(BaseFetcher):
         # 重命名列
         df = df.rename(columns=column_mapping)
         
-        # Fallback: if OHLC columns are missing (e.g. very old data path), fill from close
+        # Fallback: if OHLC columns are missing (e.g. very old metadata path), fill from close
         if 'close' in df.columns and 'open' not in df.columns:
             df['open'] = df['close']
             df['high'] = df['close']
@@ -649,9 +649,9 @@ class EfinanceFetcher(BaseFetcher):
         try:
             # 检查缓存
             current_time = time.time()
-            if (_realtime_cache['data'] is not None and 
+            if (_realtime_cache['metadata'] is not None and
                 current_time - _realtime_cache['timestamp'] < _realtime_cache['ttl']):
-                df = _realtime_cache['data']
+                df = _realtime_cache['metadata']
                 cache_age = int(current_time - _realtime_cache['timestamp'])
                 logger.debug(f"[缓存命中] 实时行情(efinance) - 缓存年龄 {cache_age}s/{_realtime_cache['ttl']}s")
             else:
@@ -673,7 +673,7 @@ class EfinanceFetcher(BaseFetcher):
                 circuit_breaker.record_success(source_key)
                 
                 # 更新缓存
-                _realtime_cache['data'] = df
+                _realtime_cache['metadata'] = df
                 _realtime_cache['timestamp'] = current_time
                 logger.info(f"[缓存更新] 实时行情(efinance) 缓存已刷新，TTL={_realtime_cache['ttl']}s")
             
@@ -756,10 +756,10 @@ class EfinanceFetcher(BaseFetcher):
         try:
             current_time = time.time()
             if (
-                _etf_realtime_cache['data'] is not None and
+                _etf_realtime_cache['metadata'] is not None and
                 current_time - _etf_realtime_cache['timestamp'] < _etf_realtime_cache['ttl']
             ):
-                df = _etf_realtime_cache['data']
+                df = _etf_realtime_cache['metadata']
                 cache_age = int(current_time - _etf_realtime_cache['timestamp'])
                 logger.debug(f"[缓存命中] ETF实时行情(efinance) - 缓存年龄 {cache_age}s/{_etf_realtime_cache['ttl']}s")
             else:
@@ -779,7 +779,7 @@ class EfinanceFetcher(BaseFetcher):
                     logger.info(f"[API返回] ETF 实时行情为空, 耗时 {api_elapsed:.2f}s")
                     df = pd.DataFrame()
 
-                _etf_realtime_cache['data'] = df
+                _etf_realtime_cache['metadata'] = df
                 _etf_realtime_cache['timestamp'] = current_time
 
             if df is None or df.empty:
@@ -930,10 +930,10 @@ class EfinanceFetcher(BaseFetcher):
 
             current_time = time.time()
             if (
-                _realtime_cache['data'] is not None and
+                _realtime_cache['metadata'] is not None and
                 current_time - _realtime_cache['timestamp'] < _realtime_cache['ttl']
             ):
-                df = _realtime_cache['data']
+                df = _realtime_cache['metadata']
                 logger.info(
                     "[MarketStats] component=market_stats provider=EfinanceFetcher "
                     "api=ef.stock.get_realtime_quotes action=cache_hit cache_age=%.0fs",
@@ -952,7 +952,7 @@ class EfinanceFetcher(BaseFetcher):
                     "api=ef.stock.get_realtime_quotes action=request_complete elapsed=%.2fs",
                     elapsed,
                 )
-                _realtime_cache['data'] = df
+                _realtime_cache['metadata'] = df
                 _realtime_cache['timestamp'] = current_time
 
             if df is None or df.empty:

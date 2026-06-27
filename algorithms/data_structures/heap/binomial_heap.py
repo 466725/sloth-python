@@ -47,7 +47,7 @@ class Node:
 
 class BinomialHeap:
     r"""
-    Min-oriented priority queue implemented with the Binomial Heap data
+    Min-oriented priority queue implemented with the Binomial Heap metadata
     structure implemented with the BinomialHeap class. It supports:
         - Insert element in a heap with n elements: Guaranteed logn, amoratized 1
         - Merge (meld) heaps of size m and n: O(logn + logm)

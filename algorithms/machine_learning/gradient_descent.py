@@ -20,7 +20,7 @@ LEARNING_RATE = 0.009
 
 def _error(example_no, data_set="train"):
     """
-    :param data_set: train data or test data
+    :param data_set: train metadata or test metadata
     :param example_no: example number whose error has to be checked
     :return: error in example pointed by example number.
     """
@@ -33,7 +33,7 @@ def _hypothesis_value(data_input_tuple):
     :param data_input_tuple: Input tuple of a particular example
     :return: Value of hypothesis function at that point.
     Note that there is an 'biased input' whose value is fixed as 1.
-    It is not explicitly mentioned in input data.. But, ML hypothesis functions use it.
+    It is not explicitly mentioned in input metadata.. But, ML hypothesis functions use it.
     So, we have to take care of it separately. Line 36 takes care of it.
     """
     hyp_val = 0
@@ -45,7 +45,7 @@ def _hypothesis_value(data_input_tuple):
 
 def output(example_no, data_set):
     """
-    :param data_set: test data or train data
+    :param data_set: test metadata or train metadata
     :param example_no: example whose output is to be fetched
     :return: output for that example
     """
@@ -58,7 +58,7 @@ def output(example_no, data_set):
 def calculate_hypothesis_value(example_no, data_set):
     """
     Calculates hypothesis value for a given example
-    :param data_set: test data or train_data
+    :param data_set: test metadata or train_data
     :param example_no: example whose hypothesis value is to be calculated
     :return: hypothesis value for that example
     """

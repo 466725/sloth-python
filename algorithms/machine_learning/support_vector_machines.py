@@ -42,7 +42,7 @@ def test(X_new):
     iris = load_iris()
     # splitting the dataset to test and train
     train_x, test_x, train_y, test_y = train_test_split(
-        iris["data"], iris["target"], random_state=4
+        iris["metadata"], iris["target"], random_state=4
     )
     # any of the 3 types of SVM can be used
     # current_model=SVC(train_x, train_y)

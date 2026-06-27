@@ -179,7 +179,7 @@ To run the live e2e suite against a real S3-compatible backend, set the
 MinIO:
 
 ```bash
-docker run -d -p 9000:9000 minio/minio server /data
+docker run -d -p 9000:9000 minio/minio server /metadata
 # create the bucket once:
 docker run --rm --network host minio/mc \
     sh -c 'mc alias set local http://localhost:9000 minioadmin minioadmin && mc mb local/test'

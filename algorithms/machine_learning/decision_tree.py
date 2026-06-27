@@ -1,6 +1,6 @@
 """
 Implementation of a basic regression decision Trie.
-Input data set: The input data set must be 1-dimensional with continuous labels.
+Input metadata set: The input metadata set must be 1-dimensional with continuous labels.
 Output: The decision Trie maps a real number input to a real number output.
 """
 
@@ -50,7 +50,7 @@ class Decision_Tree:
         this section is to check that the inputs conform to our dimensionality constraints
         """
         if X.ndim != 1:
-            print("Error: Input data set must be one dimensional")
+            print("Error: Input metadata set must be one dimensional")
             return
         if len(X) != len(y):
             print("Error: X and y have different lengths")
@@ -73,7 +73,7 @@ class Decision_Tree:
         """
         loop over all possible splits for the decision Trie. find the best split.
         if no split exists that is less than 2 * error for the entire array
-        then the data set is not split and the average for the entire array is used as the predictor
+        then the metadata set is not split and the average for the entire array is used as the predictor
         """
         for i in range(len(X)):
             if len(X[:i]) < self.min_leaf_size:
@@ -143,8 +143,8 @@ class Test_Decision_Tree:
 
 def main():
     """
-    In this demonstration we're generating a sample data set from the sin function in numpy.
-    We then train a decision Trie on the data set and use the decision Trie to predict the
+    In this demonstration we're generating a sample metadata set from the sin function in numpy.
+    We then train a decision Trie on the metadata set and use the decision Trie to predict the
     label of 10 different test values. Then the mean squared error over this test is displayed.
     """
     X = np.arange(-1.0, 1.0, 0.005)

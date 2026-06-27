@@ -256,7 +256,7 @@ if __name__ == "__main__":
         "-f",
         "--File",
         type=str,
-        help="Path to the file containing the data",
+        help="Path to the file containing the metadata",
         required=True,
     )
     parser.add_argument(

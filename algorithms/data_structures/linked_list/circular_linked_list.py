@@ -6,7 +6,7 @@ class Node:
     Class to represent a single node.
 
     Each node has following attributes
-    * data
+    * metadata
     * next_ptr
     """
 
@@ -49,7 +49,7 @@ class CircularLinkedList:
         >>> cll.append(1)
         >>> cll.append(2)
         >>> print(cll)
-        <Node data=1> => <Node data=2>
+        <Node metadata=1> => <Node metadata=2>
         """
         current_node = self.head
         if not current_node:
@@ -62,18 +62,18 @@ class CircularLinkedList:
             results.append(current_node.data)
             current_node = current_node.next_ptr
 
-        return " => ".join(f"<Node data={result}>" for result in results)
+        return " => ".join(f"<Node metadata={result}>" for result in results)
 
     def append(self, data: Any) -> None:
         """
-        Adds a node with given data to the end of the CircularLinkedList
+        Adds a node with given metadata to the end of the CircularLinkedList
         >>> cll = CircularLinkedList()
         >>> cll.append(1)
         >>> print(f"{len(cll)}: {cll}")
-        1: <Node data=1>
+        1: <Node metadata=1>
         >>> cll.append(2)
         >>> print(f"{len(cll)}: {cll}")
-        2: <Node data=1> => <Node data=2>
+        2: <Node metadata=1> => <Node metadata=2>
         """
         current_node = self.head
 
@@ -93,12 +93,12 @@ class CircularLinkedList:
 
     def prepend(self, data: Any) -> None:
         """
-        Adds a ndoe with given data to the front of the CircularLinkedList
+        Adds a ndoe with given metadata to the front of the CircularLinkedList
         >>> cll = CircularLinkedList()
         >>> cll.prepend(1)
         >>> cll.prepend(2)
         >>> print(f"{len(cll)}: {cll}")
-        2: <Node data=2> => <Node data=1>
+        2: <Node metadata=2> => <Node metadata=1>
         """
         current_node = self.head
 
@@ -126,10 +126,10 @@ class CircularLinkedList:
         >>> cll.append(1)
         >>> cll.append(2)
         >>> print(f"{len(cll)}: {cll}")
-        2: <Node data=1> => <Node data=2>
+        2: <Node metadata=1> => <Node metadata=2>
         >>> cll.delete_front()
         >>> print(f"{len(cll)}: {cll}")
-        1: <Node data=2>
+        1: <Node metadata=2>
         """
         if not self.head:
             raise IndexError("Deleting from an empty list")
@@ -158,10 +158,10 @@ class CircularLinkedList:
         >>> cll.append(1)
         >>> cll.append(2)
         >>> print(f"{len(cll)}: {cll}")
-        2: <Node data=1> => <Node data=2>
+        2: <Node metadata=1> => <Node metadata=2>
         >>> cll.delete_rear()
         >>> print(f"{len(cll)}: {cll}")
-        1: <Node data=1>
+        1: <Node metadata=1>
         """
         if not self.head:
             raise IndexError("Deleting from an empty list")
