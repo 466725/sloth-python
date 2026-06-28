@@ -1,186 +1,149 @@
-# Anthropic Academy Courses
+# Claude Code Learning Index
 
-## Claude Code AI Architect Foundation Level Certificate
+## Overview
+This folder collects practice projects, notebook-based exercises, and the Claude Certified Architect Foundations practice exam materials used to study Claude Code and related MCP workflows.
 
-### 📚 Course Overview
-This document tracks progress through the **Claude Code AI Architect Foundation Level** certification program offered by Anthropic Academy.
+Goal: build fluency with Claude Code, MCP tool use, transport options, roots/file access, sampling, and exam-style reasoning.
 
-Here is the hyperlink of it: https://anthropic.skilljar.com/
-
-**Goal**: Develop expertise in building applications with Claude AI and understanding the principles of effective AI architecture.
+Reference: https://anthropic.skilljar.com/
 
 ---
 
-## 📋 Learning Path
+## Practice Projects
 
-### Module 1: Foundations of Claude AI
-- [ ] Introduction to Claude models and capabilities
-- [ ] Understanding different Claude model versions
-- [ ] API fundamentals and authentication
-- [ ] Basic prompt engineering principles
-- **Notes**: 
-- **Completed**: 
+### 001_starter
+An introductory MCP project focused on document tools.
 
-### Module 2: Prompt Engineering & Design
-- [ ] Prompt structure and best practices
-- [ ] Few-shot and chain-of-thought prompting
-- [ ] System prompts and persona design
-- [ ] Testing and iteration strategies
-- **Notes**: 
-- **Completed**: 
+Key files:
+- [README.md](001_starter/README.md)
+- [main.py](001_starter/main.py)
+- [tools/document.py](001_starter/tools/document.py)
+- [tools/math.py](001_starter/tools/math.py)
+- [tests/test_document.py](001_starter/tests/test_document.py)
 
-### Module 3: Building with Claude API
-- [ ] Making API requests
-- [ ] Handling responses and errors
-- [ ] Token counting and cost optimization
-- [ ] Rate limiting and best practices
-- **Notes**: 
-- **Completed**: 
+### 002_cli
+A command-line chat application built on Anthropic and MCP.
 
-### Module 4: Advanced Features
-- [ ] Vision capabilities (image analysis)
-- [ ] Tool use and function calling
-- [ ] Document processing and file handling
-- [ ] Batch processing API
-- **Notes**: 
-- **Completed**: 
+Key files:
+- [README.md](002_cli/README.md)
+- [main.py](002_cli/main.py)
+- [mcp_client.py](002_cli/mcp_client.py)
+- [mcp_server.py](002_cli/mcp_server.py)
+- [core/cli.py](002_cli/core/cli.py)
 
-### Module 5: Application Architecture
-- [ ] Designing scalable AI applications
-- [ ] Multi-turn conversations and context management
-- [ ] Error handling and fallback strategies
-- [ ] Security and data privacy
-- **Notes**: 
-- **Completed**: 
+### 003_notifications
+A stdio-based MCP demo for notifications and progress updates.
 
-### Module 6: Real-World Applications
-- [ ] Building chatbots and conversational agents
-- [ ] Content generation systems
-- [ ] Code analysis and generation tools
-- [ ] Document processing pipelines
-- **Notes**: 
-- **Completed**: 
+Key files:
+- [README.md](003_notifications/README.md)
+- [client.py](003_notifications/client.py)
+- [server.py](003_notifications/server.py)
 
-### Module 7: Assessment & Certification
-- [ ] Practice exam
-- [ ] Final project submission
-- [ ] Certification exam
-- **Notes**: 
-- **Completed**: 
+### 004_roots
+A file-system-aware chat demo that uses MCP roots for controlled access.
 
----
+Key files:
+- [README.md](004_roots/README.md)
+- [main.py](004_roots/main.py)
+- [mcp_client.py](004_roots/mcp_client.py)
+- [mcp_server.py](004_roots/mcp_server.py)
+- [core/cli_chat.py](004_roots/core/cli_chat.py)
+- [core/video_converter.py](004_roots/core/video_converter.py)
 
-## 🔧 Key Projects & Implementations
+### 005_sampling
+A sampling demo showing an MCP client/server flow for model sampling.
 
-### Project 1: Text Editor Tool (005_text_editor_tool.ipynb)
-**Description**: Building an AI-powered text editor using Claude
-**Status**: In Progress
-**Key Topics**: 
-- Text manipulation with Claude
-- User interface design
-- Integration patterns
+Key files:
+- [README.md](005_sampling/README.md)
+- [client.py](005_sampling/client.py)
+- [server.py](005_sampling/server.py)
 
-**Files**:
-- `005_text_editor_tool.ipynb` - Main implementation
+### 006_transport_http
+An HTTP transport demo for MCP interactions.
 
----
+Key files:
+- [README.md](006_transport_http/README.md)
+- [main.py](006_transport_http/main.py)
+- [index.html](006_transport_http/index.html)
 
-## 📝 Key Concepts to Master
+### 007_note_book
+A notebook-based study area covering Claude concepts and hands-on exercises.
 
-### Prompt Engineering
-- [ ] System prompts
-- [ ] Few-shot examples
-- [ ] Chain-of-thought reasoning
-- [ ] Role-based prompting
-- [ ] Structured output formats
+Notebook topics:
+- prompting
+- thinking
+- tools
+- prompt grader evals
+- chunking
+- caching
+- vectordb
+- hybrid retrieval
+- BM25
+- embeddings
+- images
+- citations
+- code execution
+- text editor tool
+- web search
 
-### API Usage
-- [ ] Request/response format
-- [ ] Parameters and options
-- [ ] Error codes and handling
-- [ ] Rate limits and quotas
-
-### Architecture Patterns
-- [ ] Agentic workflows
-- [ ] Retrieval-augmented generation (RAG)
-- [ ] Multi-step reasoning
-- [ ] Context window optimization
-
-### Best Practices
-- [ ] Security and authentication
-- [ ] Cost optimization
-- [ ] Performance tuning
-- [ ] Testing and evaluation
+Supporting files:
+- [report.md](007_note_book/report.md)
+- [metadata/Claude_Certified_Architect_Foundations_Certification_Exam_Guide.pdf](007_note_book/metadata/Claude_Certified_Architect_Foundations_Certification_Exam_Guide.pdf)
 
 ---
 
-## 📚 Resources
+## Practice Exam Materials
 
-- **Official Docs**: https://docs.anthropic.com
-- **API Reference**: https://docs.anthropic.com/en/api/getting-started
-- **Cookbook**: https://github.com/anthropics/anthropic-cookbook
-- **Community**: https://discuss.anthropic.com
+### 000_Architect_Foundations_Certification_Exam
+Community-built practice exam material for Claude Certified Architect Foundations.
 
----
+Key files:
+- [README.md](000_Architect_Foundations_Certification_Exam/README.md)
+- [Claude Certification Exam.md](000_Architect_Foundations_Certification_Exam/Claude%20Certification%20Exam.md)
+- [cert-exam.skill](000_Architect_Foundations_Certification_Exam/cert-exam.skill)
 
-## 📊 Progress Tracking
-
-| Module | Status | Completion % | Notes |
-|--------|--------|-------------|-------|
-| Foundations of Claude AI | ⬜ Not Started | 0% | |
-| Prompt Engineering & Design | ⬜ Not Started | 0% | |
-| Building with Claude API | ⬜ Not Started | 0% | |
-| Advanced Features | ⬜ Not Started | 0% | |
-| Application Architecture | ⬜ Not Started | 0% | |
-| Real-World Applications | ⬜ Not Started | 0% | |
-| Assessment & Certification | ⬜ Not Started | 0% | |
-
-**Overall Completion**: 0%
+Exam focus:
+- 77 scenario-based questions
+- 5 domains
+- interactive Claude Code skill for running the exam
 
 ---
 
-## 🎯 Certification Checklist
+## Supporting Package
 
-- [ ] Complete all 7 modules
-- [ ] Build at least 2 real-world projects
-- [ ] Pass practice exam (score: ___)
-- [ ] Submit final project
-- [ ] Pass certification exam
-- [ ] Receive AI Architect Foundation Level Certificate
+### claude_agent_sdk
+The Claude Agent SDK source, tests, examples, and release tooling.
 
----
-
-## 🔗 Related Files in This Repository
-
-- `005_text_editor_tool.ipynb` - Hands-on project
-- `requirements.txt` - Dependencies including `anthropic` package
-- `utils/litellm_client.py` - LLM integration utilities
+Useful references:
+- [README.md](claude_agent_sdk/README.md)
+- [examples/quick_start.py](claude_agent_sdk/examples/quick_start.py)
+- [tests/test_query.py](claude_agent_sdk/tests/test_query.py)
 
 ---
 
-## 📅 Timeline
+## Study Notes
 
-**Start Date**: 
-**Target Completion**: 
-**Certification Exam Date**: 
+### Themes Covered Across the Folder
+- MCP client/server patterns
+- tool registration and invocation
+- stdio, HTTP, and roots-based transport patterns
+- interactive chat loops and command workflows
+- notebook-driven prompt and retrieval exercises
+- certification-style scenario practice
 
----
-
-## 💡 Notes & Insights
-
-### What I've Learned So Far
-- The `anthropic` package is essential for API interactions
-- Proper dependency management is crucial for version flexibility
-
-### Challenges Faced
-- (To be updated as you progress)
-
-### Next Steps
-1. Complete Module 1 foundational concepts
-2. Set up development environment
-3. Run first Claude API calls
-4. Begin Module 2 prompt engineering exercises
+### Progress Tracker
+- [ ] Review the 001-006 practice projects end to end
+- [ ] Work through the 007 notebook exercises
+- [ ] Complete the 000 practice exam material
+- [ ] Revisit the Claude Agent SDK examples and tests
 
 ---
 
-*Last Updated: May 30, 2026*
+## Related Repository Files
+- [requirements.txt](requirements.txt)
+- [utils/litellm_client.py](utils/litellm_client.py)
+- [readme.md](readme.md)
+
+---
+
+*Last Updated: 2026-06-28*
