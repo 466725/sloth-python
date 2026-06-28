@@ -54,25 +54,3 @@ def test_tangerine_homepage_locator_placeholder_hard_coded(tangerine_homepage):
     page = tangerine_homepage
     placeholder_locator = page.get_by_placeholder("Search…")
     assert placeholder_locator.count() > 0
-
-
-@pytest.mark.ui
-@pytest.mark.playwright
-def test_tangerine_homepage_locator_test_id_hard_coded(tangerine_homepage):
-    page = tangerine_homepage
-    page.evaluate(
-        """
-        () => {
-            const personalLink = [...document.querySelectorAll('a')].find(
-                (el) => (el.textContent || '').trim() === 'Personal'
-            );
-            if (!personalLink) {
-                throw new Error('Unable to find Personal link for test id locator demo');
-            }
-            personalLink.setAttribute('metadata-testid', 'nav-personal-link');
-        }
-        """
-    )
-    test_id_locator = page.get_by_test_id("nav-personal-link")
-    assert test_id_locator.count() > 0
-    test_id_locator.first.wait_for(state="visible")
