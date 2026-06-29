@@ -123,6 +123,10 @@ Useful references:
 
 ## Study Notes
 
+### Additional Certification Resources
+- https://claudecertificationguide.com/
+- https://www.youtube.com/watch?v=VvKDoV39jAk&list=PLmiDJB5zE0KGwFtDCSqHfQG7SV6VeQ_31
+
 ### Themes Covered Across the Folder
 - MCP client/server patterns
 - tool registration and invocation
@@ -146,4 +150,4 @@ Useful references:
 
 ---
 
-*Last Updated: 2026-06-28*
+*Last Updated: 2026-06-29*
