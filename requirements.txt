@@ -33,7 +33,7 @@ scipy
 
 # Documents And Content Conversion
 # Markdown/document conversion used by document demos and utilities.
-markitdown[docx,pdf]>=0.1.1,<0.2.0
+markitdown[docx,pdf]>=0.1.6,<0.2.0
 
 # Database
 # MySQL connectivity helpers.
