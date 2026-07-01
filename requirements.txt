@@ -44,7 +44,7 @@ mysql-connector-python
 beautifulsoup4>=4.15.0,<5
 fake-useragent>=2.2.0
 lxml
-requests>=2.33.1,<3
+requests>=2.34.2,<3
 yfinance==1.5.1
 
 # Security And Network Utilities
