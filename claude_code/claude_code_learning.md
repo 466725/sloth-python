@@ -125,6 +125,7 @@ Useful references:
 
 ### Additional Certification Resources
 - https://claudecertificationguide.com/
+- https://www.youtube.com/watch?v=-NymqBcFy6E
 - https://www.youtube.com/watch?v=VvKDoV39jAk&list=PLmiDJB5zE0KGwFtDCSqHfQG7SV6VeQ_31
 - https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification
 
