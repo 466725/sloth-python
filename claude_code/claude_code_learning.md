@@ -148,7 +148,6 @@ Useful references:
 ## Related Repository Files
 - [requirements.txt](requirements.txt)
 - [utils/litellm_client.py](utils/litellm_client.py)
-- [readme.md](readme.md)
 
 ---
 
