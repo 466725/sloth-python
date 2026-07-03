@@ -120,3 +120,4 @@ When summarizing work, include:
 - commands run
 - result status (pass/fail/not run)
 - follow-up actions if validation was partial
+
