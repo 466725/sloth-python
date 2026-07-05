@@ -58,3 +58,4 @@ load_test_demo/load_runner/**/mdrv.log
 load_test_demo/load_runner/**/*.bak
 load_test_demo/load_runner/**/*.tmp
 load_test_demo/load_runner/**/*.lrr
+load_test_demo/load_runner/**/*.zip
