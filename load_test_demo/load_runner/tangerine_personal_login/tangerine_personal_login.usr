@@ -18,9 +18,9 @@ DFERebrandFlag=Done
 ParamLeftBrace={
 ParamRightBrace=}
 ScriptLanguage=C
-LastCodeGenerationVer=
+LastCodeGenerationVer=26.1.0.0
 DisableRegenerate=0
-Encoding=
+Encoding=ANSI
 Description=
 ScriptLocale=zh-CN
 [Actions]
@@ -37,11 +37,11 @@ Default Profile=default.cfg
 globals.h=
 [Modified Actions]
 vuser_init=0
-Action=0
+Action=1
 vuser_end=0
 [Recorded Actions]
 vuser_init=0
-Action=0
+Action=1
 vuser_end=0
 [Replayed Actions]
 vuser_init=0
