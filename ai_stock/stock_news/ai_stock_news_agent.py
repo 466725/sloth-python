@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
+from .provider import CompositeNewsProvider
+
 
 NewsProvider = Callable[..., Any]
 
@@ -46,7 +48,7 @@ class AIStockNewsAgent:
     }
 
     def __init__(self, news_provider: Optional[NewsProvider] = None) -> None:
-        self.news_provider = news_provider
+        self.news_provider = news_provider or CompositeNewsProvider()
 
     def collect_context(
         self,
