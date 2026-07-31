@@ -11,10 +11,24 @@ from ai_gen.mcp_context import ContextCollector
 from ai_gen.paths import resolve_output_path
 from utils.config import settings
 
+POPULAR_PLAYWRIGHT_CLI = """Popular Playwright CLI commands:
+  python -m playwright install
+  python -m playwright install --with-deps
+  python -m playwright codegen https://example.com
+  python -m playwright open https://example.com
+  python -m playwright screenshot https://example.com page.png
+  python -m playwright pdf https://example.com page.pdf
+  python -m playwright show-trace trace.zip
+"""
+
 
 def _parser() -> argparse.ArgumentParser:
     ai_config: Any = settings.ai_generation
-    parser = argparse.ArgumentParser(description="Generate pytest + Playwright UI tests from live page context.")
+    parser = argparse.ArgumentParser(
+        description="Generate pytest + Playwright UI tests from live page context.",
+        epilog=POPULAR_PLAYWRIGHT_CLI,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument(
         "--url",
         required=True,
