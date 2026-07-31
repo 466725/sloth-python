@@ -73,6 +73,8 @@ jobs:
       - name: Install Playwright browsers
         run: |
           python -m playwright install --with-deps
+      # CI/CD note for pytest Playwright runs:
+      # Keep PW_HEADLESS=1 in pipelines and install browsers before pytest to avoid UI prompts/failures.
       - name: Run all pytest tests (excluding ai generated)
         run: |
           python -m pytest -m "not ai" --tb=short --maxfail=5
