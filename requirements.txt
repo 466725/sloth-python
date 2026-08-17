@@ -71,4 +71,4 @@ robotframework-requests
 
 # Mobile Automation
 # Appium Python client for mobile UI automation demos.
-Appium-Python-Client>=5.3.1
+Appium-Python-Client>=6.0.0
