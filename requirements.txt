@@ -45,7 +45,7 @@ beautifulsoup4>=4.15.0,<5
 fake-useragent>=2.2.0
 lxml
 requests>=2.34.2,<3
-yfinance==1.5.2
+yfinance==1.6.0
 
 # Security And Network Utilities
 # Network scanning examples and related utility scripts.
