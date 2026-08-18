@@ -67,4 +67,3 @@ def test_playwright_text_verification_demo(page) -> None:
 
 	page.locator("#refresh").click()
 	expect(page.locator("#status")).to_have_text("Status: Synced")
-
