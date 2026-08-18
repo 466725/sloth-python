@@ -51,3 +51,4 @@ def test_playwright_assertions_demo(page) -> None:
 		expect(page.locator("#name-input")).to_have_value("Alice")
 		expect(page.locator("#agree")).to_be_checked()
 		expect(page.locator("#status")).to_be_hidden()
+
