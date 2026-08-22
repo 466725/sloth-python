@@ -17,7 +17,7 @@ PyYAML>=6.0.3,<7
 # AI, LLM, And Tokenization
 # Provider SDKs, routing layers, MCP support, embeddings, and token counting.
 anthropic
-litellm>=1.95.0,<1.95.1
+litellm>=1.96.2,<1.96.3
 mcp
 openai
 tiktoken
@@ -45,7 +45,7 @@ beautifulsoup4>=4.15.0,<5
 fake-useragent>=2.2.0
 lxml
 requests>=2.34.2,<3
-yfinance==1.5.2
+yfinance==1.6.0
 
 # Security And Network Utilities
 # Network scanning examples and related utility scripts.
@@ -71,4 +71,4 @@ robotframework-requests
 
 # Mobile Automation
 # Appium Python client for mobile UI automation demos.
-Appium-Python-Client>=5.3.1
+Appium-Python-Client>=6.0.0
