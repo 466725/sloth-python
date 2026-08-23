@@ -19,6 +19,7 @@ def page():
 		browser.close()
 
 
+# Purely demo purpose to show how to use the page fixture supplied by the pytest-playwright plugin.
 @pytest.mark.ui
 @pytest.mark.playwright
 def test_playwright_plugin_demo(page: Page) -> None:
