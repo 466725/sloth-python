@@ -161,22 +161,86 @@ class AIReportAgent:
 <meta charset="UTF-8">
 <title>AI Stock Report - {html.escape(symbol)}</title>
 <style>
-  body {{ font-family: Arial, Helvetica, sans-serif; margin: 2rem; color: #1f2937; background: #f9fafb; }}
-  .card {{ background: #fff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); max-width: 720px; margin: 0 auto; }}
-  h1 {{ margin-top: 0; }}
+    :root {{
+        --bg: #f9fafb;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --card-bg: #ffffff;
+        --card-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        --border: #e5e7eb;
+        --btn-bg: #f3f4f6;
+        --btn-text: #111827;
+        --btn-border: #d1d5db;
+    }}
+
+    body.dark-theme {{
+        --bg: #111827;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --card-bg: #1f2937;
+        --card-shadow: 0 1px 3px rgba(0,0,0,0.45);
+        --border: #374151;
+        --btn-bg: #374151;
+        --btn-text: #f9fafb;
+        --btn-border: #4b5563;
+    }}
+
+    body {{
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 2rem;
+        color: var(--text);
+        background: var(--bg);
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }}
+
+    .card {{
+        background: var(--card-bg);
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        max-width: 720px;
+        margin: 0 auto;
+    }}
+
+    .header {{
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+    }}
+
+    h1 {{ margin-top: 0; margin-bottom: 0.25rem; }}
+
+    .theme-toggle {{
+        border: 1px solid var(--btn-border);
+        background: var(--btn-bg);
+        color: var(--btn-text);
+        border-radius: 6px;
+        padding: 0.4rem 0.7rem;
+        cursor: pointer;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }}
+
   .advice {{ display: inline-block; padding: 0.5rem 1.25rem; border-radius: 6px; font-size: 1.5rem; font-weight: bold; color: #fff; }}
   .advice-buy {{ background: #16a34a; }}
   .advice-sell {{ background: #dc2626; }}
   .advice-hold {{ background: #d97706; }}
   table {{ width: 100%; border-collapse: collapse; margin-top: 0.5rem; }}
-  th, td {{ text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid #e5e7eb; font-size: 0.9rem; }}
-  .meta {{ color: #6b7280; font-size: 0.9rem; }}
+    th, td {{ text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }}
+    .meta {{ color: var(--muted); font-size: 0.9rem; }}
   ul {{ margin: 0.25rem 0 1rem 1.25rem; }}
 </style>
 </head>
 <body>
   <div class="card">
-    <h1>{html.escape(symbol)} <span class="meta">({html.escape(market)})</span></h1>
+        <div class="header">
+            <h1>{html.escape(symbol)} <span class="meta">({html.escape(market)})</span></h1>
+            <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle light and dark theme">
+                🌙 Dark
+            </button>
+        </div>
+
     <p class="meta">Generated at (UTC): {html.escape(generated_at)}</p>
     <p><span class="advice {advice_class}">{html.escape(advice)}</span></p>
     <p><strong>Direction:</strong> {html.escape(prediction.direction)} &nbsp;
@@ -199,6 +263,38 @@ class AIReportAgent:
       <tbody>{news_rows}</tbody>
     </table>
   </div>
+
+    <script>
+        (function () {{
+            var storageKey = "ai_report_theme";
+            var body = document.body;
+            var btn = document.getElementById("theme-toggle");
+
+            function applyTheme(theme) {{
+                if (theme === "dark") {{
+                    body.classList.add("dark-theme");
+                    btn.textContent = "☀️ Light";
+                }} else {{
+                    body.classList.remove("dark-theme");
+                    btn.textContent = "🌙 Dark";
+                }}
+            }}
+
+            var savedTheme = localStorage.getItem(storageKey);
+            if (!savedTheme) {{
+                savedTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "dark"
+                    : "light";
+            }}
+            applyTheme(savedTheme);
+
+            btn.addEventListener("click", function () {{
+                var nextTheme = body.classList.contains("dark-theme") ? "light" : "dark";
+                applyTheme(nextTheme);
+                localStorage.setItem(storageKey, nextTheme);
+            }});
+        }})();
+    </script>
 </body>
 </html>
 """
