@@ -202,3 +202,22 @@ class AIReportAgent:
 </body>
 </html>
 """
+
+
+if __name__ == "__main__":
+    demo_agent = AIReportAgent()
+    demo_report = demo_agent.build_report(
+        symbol="AAPL",
+        market="us",
+        prediction=PredictionOutcome(direction="up", confidence=0.8, reason="momentum + positive news"),
+        strategy_names=["ma_golden_cross"],
+        stock_data={"history": [{"close": 100}, {"close": 108}]},
+        stock_news={
+            "news_items": [
+                {"title": "Apple beats earnings", "source": "Reuters", "published_at": "2026-08-20"},
+            ],
+            "sentiment_score": 2,
+        },
+    )
+    demo_path = AIReportAgent.save_html_report(demo_report, "temps/ai_report_demo.html")
+    print(f"advice={demo_report['advice']} report saved to {demo_path}")
