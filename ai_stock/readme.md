@@ -27,6 +27,28 @@ The current codebase already contains the main building blocks:
 
 Important limitation: the current coordinator does not yet dispatch real LLM sub-agents. It collects context, loads strategies, and falls back to a baseline predictor that uses trend plus news sentiment. The architecture below describes the intended target shape while staying compatible with the current implementation.
 
+## Running the Report Demo
+
+`report/ai_report_agent.py` includes a small `if __name__ == "__main__":` demo block that builds a sample report (no data/news providers required) and writes it to `temps/ai_report_demo.html`:
+
+```powershell
+python ai_stock/report/ai_report_agent.py
+```
+
+Expected output:
+
+```text
+advice=BUY report saved to temps\ai_report_demo.html
+```
+
+Open `temps/ai_report_demo.html` in a browser to view the rendered buy/sell/hold report.
+
+To exercise the full pipeline (data + news + strategies) instead of the isolated demo, use `AICoordinatorAgent`:
+
+```powershell
+python -c "from ai_stock.engine.ai_coordinator_agent import AICoordinatorAgent; agent = AICoordinatorAgent(); report = agent.analyze(symbol='AAPL', market='us'); agent.report_agent.save_html_report(report, 'temps/ai_report.html')"
+```
+
 ## Target Architecture
 
 ```mermaid
