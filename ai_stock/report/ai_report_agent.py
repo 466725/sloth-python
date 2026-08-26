@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Union
 
-
+# AI Stock Prediction Report Agent
 @dataclass
 class PredictionOutcome:
     direction: str
