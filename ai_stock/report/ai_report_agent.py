@@ -22,6 +22,7 @@ _ADVICE_BY_DIRECTION = {
 }
 
 
+# AI Report Agent
 class AIReportAgent:
     """Builds final prediction reports from coordinator outputs."""
 
