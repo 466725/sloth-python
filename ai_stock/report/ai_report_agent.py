@@ -79,6 +79,7 @@ class AIReportAgent:
     def _derive_advice(prediction: PredictionOutcome) -> str:
         return _ADVICE_BY_DIRECTION.get(prediction.direction, "HOLD")
 
+    # Report saving and rendering methods
     @staticmethod
     def save_html_report(report: Dict[str, Any], output_path: Union[str, Path]) -> Path:
         """Writes ``report['report_html']`` to ``output_path`` and returns the path."""
