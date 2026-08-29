@@ -75,6 +75,7 @@ class AIReportAgent:
             "report_html": report_html,
         }
 
+    # Advice derivation method
     @staticmethod
     def _derive_advice(prediction: PredictionOutcome) -> str:
         return _ADVICE_BY_DIRECTION.get(prediction.direction, "HOLD")
@@ -88,6 +89,7 @@ class AIReportAgent:
         path.write_text(report["report_html"], encoding="utf-8")
         return path
 
+    # Markdown and HTML rendering methods
     @staticmethod
     def _render_markdown(
         symbol: str,
