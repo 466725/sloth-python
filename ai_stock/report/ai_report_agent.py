@@ -125,6 +125,7 @@ class AIReportAgent:
             ]
         )
 
+    # HTML rendering method
     @staticmethod
     def _render_html(
         symbol: str,
