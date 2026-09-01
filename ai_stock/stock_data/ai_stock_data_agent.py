@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 Provider = Callable[..., Any]
 
-
+# Stock data agent for collecting market data
 @dataclass
 class StockDataContext:
     symbol: str
