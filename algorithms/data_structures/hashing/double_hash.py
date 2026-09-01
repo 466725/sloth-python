@@ -3,7 +3,7 @@
 from hash_table import HashTable
 from number_theory.prime_numbers import check_prime, next_prime
 
-
+# Double Hashing implementation for open addressing in hash tables
 class DoubleHash(HashTable):
     """
     Hash Table example with open addressing and Double Hash
