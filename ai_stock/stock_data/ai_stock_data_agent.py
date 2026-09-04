@@ -24,7 +24,6 @@ class StockDataContext:
             "fundamentals": self.fundamentals,
         }
 
-
 class AIStockDataAgent:
     """Collects stock market data needed by prediction strategies.
 
