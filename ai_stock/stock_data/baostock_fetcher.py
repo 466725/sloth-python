@@ -42,6 +42,7 @@ import os
 logger = logging.getLogger(__name__)
 
 
+# Helper function to determine if a stock code is a US stock
 def _is_us_code(stock_code: str) -> bool:
     """
     判断代码是否为美股
