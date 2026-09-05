@@ -2,7 +2,7 @@ from collections import deque
 
 from hash_table import HashTable
 
-
+# Hash Table implementation with separate chaining using linked lists (deque)
 class HashTableWithLinkedList(HashTable):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
