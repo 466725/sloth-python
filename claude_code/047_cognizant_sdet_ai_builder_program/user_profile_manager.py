@@ -19,7 +19,9 @@ class UserProfileManager:
         - Convert each word to title case, e.g. "jOHN dOE" -> "John Doe".
         - Use str.title() (or equivalent string methods) for casing.
         """
-        raise NotImplementedError
+        # str.strip() removes stray whitespace so it doesn't affect casing;
+        # str.title() uppercases each word's first letter and lowercases the rest.
+        return name.strip().title()
 
     def normalize_email(self, email: str) -> str:
         """Normalize an email address to a canonical lowercase form.
@@ -30,7 +32,9 @@ class UserProfileManager:
           -> "john.doe@example.com".
         - Use str.lower() for case folding.
         """
-        raise NotImplementedError
+        # str.strip() drops surrounding whitespace from form/CSV input;
+        # str.lower() gives a canonical form so comparisons are case-insensitive.
+        return email.strip().lower()
 
     def validate_email(self, email: str) -> bool:
         """Validate email format using string methods only (no regex).
@@ -43,9 +47,24 @@ class UserProfileManager:
         - Combine str.count(), str.split(), str.startswith(), str.endswith(),
           and the `in` operator for the checks.
         """
-        raise NotImplementedError
+        # str.strip() first: surrounding spaces should not fail validation.
+        email = email.strip()
+        # str.count("@") ensures exactly one separator (rejects "a@@b.com").
+        if email.count("@") != 1:
+            return False
+        # str.split("@") separates local part from domain; both must be non-empty.
+        local, domain = email.split("@")
+        if not local or not domain:
+            return False
+        # `in` operator requires a dot in the domain ("example.com", not "examplecom").
+        if "." not in domain:
+            return False
+        # str.startswith()/str.endswith() reject malformed domains like ".com" or "com.".
+        if domain.startswith(".") or domain.endswith("."):
+            return False
+        return True
 
-    def get_display_string(self, name: str, email: str, user_id: int) -> str:
+    def get_display_string(self, name: str, email: str, user_id: int | str) -> str:
         """Build a display string like "John Doe | john@example.com | ID: 001".
 
         Expected behavior:
@@ -55,4 +74,18 @@ class UserProfileManager:
         - Join the parts with " | " using an f-string.
         - Raise ValueError if validate_email() returns False.
         """
-        raise NotImplementedError
+        if not self.validate_email(email):
+            raise ValueError(f"Invalid email address: {email!r}")
+        # Reuse our own helpers so formatting rules stay in one place.
+        formatted_name = self.format_name(name)
+        normalized_email = self.normalize_email(email)
+        # str(user_id).zfill(3) zero-pads to width 3: 7 -> "007", "001" -> "001".
+        padded_id = str(user_id).zfill(3)
+        # f-string joins the parts with the " | " separator and the "ID:" label.
+        return f"{formatted_name} | {normalized_email} | ID: {padded_id}"
+
+
+if __name__ == "__main__":
+    manager = UserProfileManager()
+    display = manager.get_display_string(name="john doe", email="John@Example.COM", user_id="001")
+    print(display)
