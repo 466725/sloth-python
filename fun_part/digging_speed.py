@@ -1,3 +1,4 @@
+# Calculate the combined digging speed of three people working together
 personA = int(
     input("How many days does it take for person number 1 to finish digging( choose a number)?:")
 )
