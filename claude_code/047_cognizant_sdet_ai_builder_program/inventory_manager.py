@@ -16,13 +16,15 @@ class InventoryManager:
         self._products: dict[str, dict[str, Any]] = {}
 
     def add_product(self, product_id: str, name: str, price: float, quantity: int) -> bool:
-        """Add a product. Returns False if the product_id already exists."""
-        # `in` tests dict keys directly (O(1)) -- no try/except KeyError needed
-        # for an expected duplicate check.
-        if product_id in self._products:
-            return False
+        """Add a product, overwriting any existing entry with the same product_id.
+
+        Returns True if an existing product was overwritten, False if it is new.
+        """
+        # `in` tests dict keys directly (O(1)); plain assignment on an existing
+        # key overwrites the value -- that is standard dict semantics.
+        existed = product_id in self._products
         self._products[product_id] = {"name": name, "price": price, "quantity": quantity}
-        return True
+        return existed
 
     def update_stock(self, product_id: str, quantity: int) -> bool:
         """Set the quantity of an existing product. Returns False if not found."""
