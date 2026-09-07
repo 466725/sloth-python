@@ -307,18 +307,66 @@ class AIReportAgent:
 # Demo usage of the AIReportAgent class
 if __name__ == "__main__":
     demo_agent = AIReportAgent()
-    demo_report = demo_agent.build_report(
-        symbol="AAPL",
-        market="us",
-        prediction=PredictionOutcome(direction="up", confidence=0.8, reason="momentum + positive news"),
-        strategy_names=["ma_golden_cross"],
-        stock_data={"history": [{"close": 100}, {"close": 108}]},
-        stock_news={
-            "news_items": [
-                {"title": "Apple beats earnings", "source": "Reuters", "published_at": "2026-08-20"},
-            ],
-            "sentiment_score": 2,
+
+    demo_cases = [
+        {
+            "symbol": "AAPL",
+            "market": "us",
+            "prediction": PredictionOutcome(
+                direction="up", confidence=0.8, reason="momentum + positive news"
+            ),
+            "strategy_names": ["ma_golden_cross", "volume_breakout", "bull_trend"],
+            "stock_data": {"history": [{"close": 100}, {"close": 108}]},
+            "stock_news": {
+                "news_items": [
+                    {"title": "Apple beats earnings", "source": "Reuters", "published_at": "2026-08-20"},
+                ],
+                "sentiment_score": 2,
+            },
         },
-    )
-    demo_path = AIReportAgent.save_html_report(demo_report, "temps/ai_report_demo.html")
-    print(f"advice={demo_report['advice']} report saved to {demo_path}")
+        {
+            "symbol": "AC",
+            "market": "ca",
+            "prediction": PredictionOutcome(
+                direction="sideways", confidence=0.6, reason="range-bound price + mixed news"
+            ),
+            "strategy_names": ["box_oscillation", "shrink_pullback", "event_driven"],
+            "stock_data": {"history": [{"close": 25.0}, {"close": 25.4}]},
+            "stock_news": {
+                "news_items": [
+                    {
+                        "title": "Air Canada updates full-year guidance",
+                        "source": "Bloomberg",
+                        "published_at": "2026-08-22",
+                    },
+                ],
+                "sentiment_score": 0,
+            },
+        },
+        {
+            "symbol": "BB",
+            "market": "us",
+            "prediction": PredictionOutcome(
+                direction="down", confidence=0.7, reason="weak momentum + negative news"
+            ),
+            "strategy_names": ["wave_theory", "growth_quality", "expectation_repricing"],
+            "stock_data": {"history": [{"close": 5.2}, {"close": 4.9}]},
+            "stock_news": {
+                "news_items": [
+                    {
+                        "title": "BlackBerry misses revenue estimates",
+                        "source": "CNBC",
+                        "published_at": "2026-08-25",
+                    },
+                ],
+                "sentiment_score": -1,
+            },
+        },
+    ]
+
+    for case in demo_cases:
+        demo_report = demo_agent.build_report(**case)
+        demo_path = AIReportAgent.save_html_report(
+            demo_report, f"temps/ai_report_{case['symbol'].lower()}_demo.html"
+        )
+        print(f"symbol={case['symbol']} advice={demo_report['advice']} report saved to {demo_path}")
