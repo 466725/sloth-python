@@ -304,7 +304,7 @@ class AIReportAgent:
 </html>
 """
 
-
+# Demo usage of the AIReportAgent class
 if __name__ == "__main__":
     demo_agent = AIReportAgent()
     demo_report = demo_agent.build_report(
