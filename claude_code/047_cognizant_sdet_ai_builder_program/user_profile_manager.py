@@ -11,6 +11,11 @@ from __future__ import annotations
 class UserProfileManager:
     """Manages formatting, validation, and display of user profile data."""
 
+    def __init__(self, name: str, email: str, user_id: str):
+        self.name = name
+        self.email = email
+        self.user_id = user_id
+
     def format_name(self, name: str) -> str:
         """Format a full name into title case.
 
@@ -86,6 +91,6 @@ class UserProfileManager:
 
 
 if __name__ == "__main__":
-    manager = UserProfileManager()
-    display = manager.get_display_string(name="john doe", email="John@Example.COM", user_id="001")
+    manager = UserProfileManager(name="john doe", email="John@Example.COM", user_id="001")
+    display = manager.get_display_string(name=manager.name, email=manager.email, user_id=manager.user_id)
     print(display)
