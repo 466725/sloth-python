@@ -26,6 +26,7 @@ class TestFormatName:
         assert manager.format_name("") == ""
 
 
+
 class TestNormalizeEmail:
     def test_uppercase_email_is_lowered(self, manager):
         assert manager.normalize_email("John@Example.COM") == "john@example.com"
