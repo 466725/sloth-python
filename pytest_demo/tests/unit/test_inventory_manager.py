@@ -19,6 +19,8 @@ def stocked_inventory() -> InventoryManager:
     return inventory
 
 
+
+
 class TestAddProduct:
     def test_new_product_returns_false_and_is_stored(self):
         inventory = InventoryManager()
