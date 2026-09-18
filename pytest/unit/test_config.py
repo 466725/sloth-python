@@ -2,7 +2,7 @@ import importlib
 
 import pytest
 
-import utils.config as config_module
+import config.config as config_module
 
 
 CONFIG_ENV_VARS = [
