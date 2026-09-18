@@ -25,6 +25,6 @@ GET_ONE_RANDOM_EDITABLE_AE_DETAILS = """
 GET_AE_BY_NAME = """
     SELECT id, name, description, created_at, updated_at
     FROM adverse_events
-    WHERE name = 'test' {additional_filters}
+    WHERE name = ?
     LIMIT 1;
 """
