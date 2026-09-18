@@ -6,27 +6,23 @@ import pytest
 from utils.data_base import connect_mysql, connection_scope
 from utils.qtest_client import QTestClient
 
-# map pytest outcome → qTest status
 STATUS_MAP = {
     "passed": "PASSED",
     "failed": "FAILED",
-    "skipped": "BLOCKED"
+    "skipped": "BLOCKED",
 }
 
-"""
-Setup below values as system environment variables:
-QTEST_BASE_URL=https://yourcompany.qtestnet.com
-QTEST_PROJECT_ID=123456
-QTEST_API_TOKEN=your_token_here
-"""
+QTEST_CONFIG_VARS = (
+    "QTEST_BASE_URL",
+    "QTEST_PROJECT_ID",
+    "QTEST_API_TOKEN",
+)
 
 
 def _build_qtest_client():
-    base_url = os.getenv("QTEST_BASE_URL")
-    project_id = os.getenv("QTEST_PROJECT_ID")
-    token = os.getenv("QTEST_API_TOKEN")
+    base_url, project_id, token = (os.getenv(name) for name in QTEST_CONFIG_VARS)
 
-    if not all([base_url, project_id, token]):
+    if not all((base_url, project_id, token)):
         return None
 
     return QTestClient(
@@ -34,6 +30,20 @@ def _build_qtest_client():
         project_id=int(project_id),
         token=token,
     )
+
+
+def _build_connection_factory():
+    backend = os.getenv("SLOTH_PYTEST_DB_BACKEND", "sqlite").strip().lower()
+
+    if backend == "sqlite":
+        sqlite_path = os.getenv("SLOTH_PYTEST_SQLITE_PATH", ":memory:")
+        return lambda: sqlite3.connect(sqlite_path)
+
+    if backend == "mysql":
+        return connect_mysql
+
+    raise ValueError("SLOTH_PYTEST_DB_BACKEND must be either 'sqlite' or 'mysql'.")
+
 
 @pytest.fixture(scope="session")
 def qtest():
@@ -53,15 +63,10 @@ def db_conn():
     utils.data_base.DatabaseConfig.from_env().
     """
 
-    backend = os.getenv("SLOTH_PYTEST_DB_BACKEND", "sqlite").strip().lower()
-
-    if backend == "sqlite":
-        sqlite_path = os.getenv("SLOTH_PYTEST_SQLITE_PATH", ":memory:")
-        connection_factory = lambda: sqlite3.connect(sqlite_path)
-    elif backend == "mysql":
-        connection_factory = connect_mysql
-    else:
-        pytest.fail("SLOTH_PYTEST_DB_BACKEND must be either 'sqlite' or 'mysql'.")
+    try:
+        connection_factory = _build_connection_factory()
+    except ValueError as error:
+        pytest.fail(str(error))
 
     with connection_scope(connection_factory) as connection:
         try:
