@@ -1,0 +1,59 @@
+# Vendor-neutral SCA inventory for CI integrations.
+# Snyk and Black Duck do not natively consume the same scamanifest.yml file.
+# Map these values to Snyk CLI options/.snyk and Black Duck Detect properties.
+
+version: 1
+project:
+  name: sloth-python
+  source: .
+
+manifests:
+  - requirements.txt
+  - pyproject.toml
+
+scan:
+  fail_on: high
+  include_dev_dependencies: true
+  include_transitive_dependencies: true
+  dependency_paths:
+    - ai_gen
+    - ai_stock
+    - config
+    - load_test
+    - self_healing
+    - skill_spring
+    - utils
+
+exclude:
+  paths:
+    - .git
+    - .idea
+    - .pytest_cache
+    - .venv
+    - .venv311
+    - temps
+  files:
+    - '*.ipynb'
+    - '*.html'
+
+snyk:
+  organization: ${SNYK_ORG}
+  project_name: sloth-python
+  severity_threshold: high
+  monitor: true
+
+black_duck:
+  project_name: sloth-python
+  project_version: ${BLACKDUCK_PROJECT_VERSION:-local}
+  detect_source_path: .
+  detect_excluded_directories:
+    - .git
+    - .idea
+    - .pytest_cache
+    - .venv
+    - .venv311
+    - temps
+  detect_policy_check_fail_on_severities:
+    - BLOCKER
+    - CRITICAL
+    - MAJOR
