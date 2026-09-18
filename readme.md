@@ -317,7 +317,7 @@ python -m pytest -q pytest_demo/tests/ai/generated_playwright
 
 ## 🧠 Claude Code Examples
 
-The `claude_code/` package is a hands-on collection of Claude API and MCP examples. It is useful for learning prompt design, tool use, retrieval, streaming, and building small MCP clients/servers around Claude.
+The `skill_spring/claude_code` package is a hands-on collection of Claude API and MCP examples. It is useful for learning prompt design, tool use, retrieval, streaming, and building small MCP clients/servers around Claude.
 
 ### Learning Tracks
 
@@ -337,7 +337,7 @@ The main subprojects are organized by numbered learning tracks:
 
 ### Notebook Tutorials
 
-Notebook tutorials live under `claude_code/007_note_book/`:
+Notebook tutorials live under `skill_spring/claude_code`:
 
 | Notebook | Focus |
 |---|---|
@@ -373,17 +373,17 @@ Most runnable subprojects include their own `README.md`. In general, set `ANTHRO
 
 Additional reference files:
 
-- `claude_code/anthropic_academy_courses.md`: curated course/content notes
-- `claude_code/report.md`: local notes and summary output for Claude experiments
+- `skill_spring/claude_code`: curated course/content notes
+- `skill_spring/claude_code`: local notes and summary output for Claude experiments
 
-### IDE Setup For `claude_code/` Subprojects
+### IDE Setup For `skill_spring/claude_code` Subprojects
 
-Some learning subprojects live under `claude_code/` instead of the repository root. If your IDE cannot resolve imports (for example, unresolved imports in `claude_agent_sdk` examples), use the setup below.
+Some learning subprojects live under `skill_spring/claude_code` instead of the repository root. If your IDE cannot resolve imports (for example, unresolved imports in `claude_agent_sdk` examples), use the setup below.
 
 **PyCharm**
 
 1. Open the `sloth-python` project.
-2. Right-click `claude_code/`.
+2. Right-click `skill_spring/claude_code`.
 3. Select **Mark Directory As** → **Sources Root**.
 
 **VS Code (recommended workspace settings)**
@@ -409,13 +409,13 @@ This is the VS Code equivalent of PyCharm's **Sources Root** behavior.
 
 **Why these paths?**
 
-- `./claude_code/claude_agent_sdk/src`: resolves imports for `src`-layout packages in SDK examples
-- `./claude_code/claude_agent_sdk`: resolves local package references in that subproject
-- `./claude_code`: resolves imports from other learning folders under `claude_code/`
+- `skill_spring/claude_code`: resolves imports for `src`-layout packages in SDK examples
+- `skill_spring/claude_code`: resolves local package references in that subproject
+- `skill_spring/claude_code`: resolves imports from other learning folders under `skill_spring/claude_code`
 
 **Quick verification checklist**
 
-1. Open a Python file under `claude_code/` with previous import warnings.
+1. Open a Python file under `skill_spring/claude_code` with previous import warnings.
 2. Confirm unresolved import diagnostics disappear.
 3. In the VS Code command palette, run **Python: Select Interpreter** and verify it points to `.venv311` (or your chosen project venv).
 
