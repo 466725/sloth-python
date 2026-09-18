@@ -1,0 +1,24 @@
+{
+  "tangerine.login": {
+    "primary": {
+      "by": "id",
+      "value": "login"
+    },
+    "fallbacks": [
+      {
+        "by": "css",
+        "value": "#login"
+      },
+      {
+        "by": "text",
+        "value": "Log in"
+      }
+    ],
+    "expected": {
+      "tag": "a",
+      "id": "login",
+      "text": "Log in"
+    }
+  }
+}
+
