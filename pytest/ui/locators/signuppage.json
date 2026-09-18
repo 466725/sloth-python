@@ -1,0 +1,24 @@
+{
+  "tangerine.signup": {
+    "primary": {
+      "by": "id",
+      "value": "menu_signup"
+    },
+    "fallbacks": [
+      {
+        "by": "css",
+        "value": "#menu_signup"
+      },
+      {
+        "by": "text",
+        "value": "Sign me up"
+      }
+    ],
+    "expected": {
+      "tag": "a",
+      "id": "menu_signup",
+      "text": "Sign me up"
+    }
+  }
+}
+
