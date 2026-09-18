@@ -4,7 +4,7 @@ import sqlite3
 import pytest
 
 from utils.data_base import connect_mysql, connection_scope
-from utils.qtest_client import QTestClient
+from utils.qtest_utilities.qtest_client import QTestClient
 
 STATUS_MAP = {
     "passed": "PASSED",
