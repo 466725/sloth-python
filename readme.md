@@ -99,7 +99,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 ## Configuration
 
-Runtime settings are centralized in `utils/config.py` and read from environment variables with safe defaults.
+Runtime settings are centralized in `config/config.py` and read from environment variables with safe defaults.
 
 | Variable | Default                                | Description                                                       |
 |---|----------------------------------------|-------------------------------------------------------------------|
