@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from utils.config import settings
+from config.config import settings
 
 logger = logging.getLogger(__name__)
 
