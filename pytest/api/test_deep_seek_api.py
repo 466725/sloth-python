@@ -4,7 +4,7 @@ import os
 import pytest
 from openai import OpenAI
 
-from utils.config import settings
+from config.config import settings
 
 logger = logging.getLogger(__name__)
 
