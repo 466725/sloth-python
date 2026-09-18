@@ -72,7 +72,7 @@ Notes:
 - `self_healing/`: locator healing logic for UI automation
 - `ai_gen/`: AI-based test/code generation helpers
 - `utils/`: shared helpers and integrations (config, analytics, qTest, DB)
-- `algorithms/`: algorithm and data-structure examples
+- `skill_spring/algorithms`: algorithm and data-structure examples
 - `load_test_demo/`: JMeter and Postman assets
 - `temps/`: generated logs, reports, videos, and temporary artifacts
 

@@ -720,7 +720,7 @@ Contributions are welcome and appreciated! Whether you're fixing bugs, adding fe
 
 ### Areas for Contribution
 
-- **Algorithms** - New algorithm implementations in `algorithms/` (with tests)
+- **Algorithms** - New algorithm implementations in `skill_spring/algorithms` (with tests)
 - **Test Automation** - Enhanced Robot Framework keywords, new UI test examples
 - **Self-Healing** - Improvements to the locator recovery mechanism
 - **AI Generation** - Enhancements to the MCP-driven test generator
