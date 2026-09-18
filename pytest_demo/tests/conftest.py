@@ -20,6 +20,8 @@ QTEST_CONFIG_VARS = (
 
 
 def _build_qtest_client():
+    """Build a qTest client from environment variables when configured."""
+
     base_url, project_id, token = (os.getenv(name) for name in QTEST_CONFIG_VARS)
 
     if not all((base_url, project_id, token)):
@@ -33,6 +35,8 @@ def _build_qtest_client():
 
 
 def _build_connection_factory():
+    """Return a connection factory for the configured database backend."""
+
     backend = os.getenv("SLOTH_PYTEST_DB_BACKEND", "sqlite").strip().lower()
 
     if backend == "sqlite":
@@ -47,6 +51,8 @@ def _build_connection_factory():
 
 @pytest.fixture(scope="session")
 def qtest():
+    """Provide a session-scoped qTest client or skip when it is not configured."""
+
     client = _build_qtest_client()
     if client is None:
         pytest.skip("qTest is not configured. Set QTEST_BASE_URL, QTEST_PROJECT_ID, and QTEST_API_TOKEN.")
@@ -78,6 +84,8 @@ def db_conn():
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
+    """Submit marked test results to qTest after the test call completes."""
+
     outcome = yield
     report = outcome.get_result()
 
@@ -105,6 +113,8 @@ def pytest_runtest_makereport(item, call):
 
 
 def pytest_addoption(parser):
+    """Register command-line options used by the test suite."""
+
     parser.addoption(
         "--env",
         action="store",
@@ -114,6 +124,8 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
+    """Register custom markers and store the selected test environment."""
+
     config.addinivalue_line(
         "markers",
         "qtest_id(test_case_id): associate a test with a qTest test case",
@@ -122,9 +134,13 @@ def pytest_configure(config):
 
 
 def pytest_sessionstart(session):
+    """Attach a configured qTest client to the pytest session."""
+
     # attach client to session (simple global access)
     session._qtest_client = _build_qtest_client()
 
 
 def pytest_sessionfinish(session, exitstatus):
+    """Release the qTest client reference after the test session finishes."""
+
     session._qtest_client = None
