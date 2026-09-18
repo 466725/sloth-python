@@ -9,7 +9,7 @@ from ai_gen.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
 from ai_gen.generator import TestScriptCreator, ScriptClient
 from ai_gen.mcp_context import ContextCollector
 from ai_gen.paths import resolve_output_path
-from utils.config import settings
+from config.config import settings
 
 POPULAR_PLAYWRIGHT_CLI = """Popular Playwright CLI commands:
   python -m playwright install
