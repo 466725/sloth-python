@@ -35,7 +35,6 @@ def _build_qtest_client():
         token=token,
     )
 
-
 @pytest.fixture(scope="session")
 def qtest():
     client = _build_qtest_client()
@@ -100,6 +99,27 @@ def pytest_runtest_makereport(item, call):
     qtest_client.submit_test_log(test_run_id, status, note)
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--env",
+        action="store",
+        default="local",
+        help="Test environment to use (default: local).",
+    )
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "qtest_id(test_case_id): associate a test with a qTest test case",
+    )
+    config.test_environment = config.getoption("--env")
+
+
 def pytest_sessionstart(session):
     # attach client to session (simple global access)
     session._qtest_client = _build_qtest_client()
+
+
+def pytest_sessionfinish(session, exitstatus):
+    session._qtest_client = None
