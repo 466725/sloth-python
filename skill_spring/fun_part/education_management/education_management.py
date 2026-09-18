@@ -1,4 +1,4 @@
-from fun_part.education_management.student import Student
+from skill_spring.fun_part.education_management.student import Student
 
 
 class EducationManagement:
