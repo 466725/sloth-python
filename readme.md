@@ -188,7 +188,7 @@ For AI-based test generation, see [AI-Generated UI Test Scripts](#-ai-generated-
 
 ### Robot Framework
 
-Robot demos live under `robot_demo/`.
+Robot demos live under `robot`.
 
 ```powershell
 # All Robot demos
@@ -206,7 +206,7 @@ python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun rob
 
 Robot writes `output.xml`, `log.html`, and `report.html` to the selected directory under `temps/`.
 
-For `robot_demo/tangerine_playwright/`:
+For `robot`:
 - failure screenshots are saved under `artifacts/playwright/screenshots/`
 - failure videos are saved under `artifacts/playwright/videos/`
 - screenshot/video links appear in Robot `log.html` and `report.html`
@@ -239,7 +239,7 @@ This project includes an advanced self-healing mechanism for Playwright-based UI
 
 ### Robot Tangerine Suite Scope
 
-The Robot suite in `robot_demo/tangerine_playwright/` uses the same self-healing locator store, but limits healing to these keys in the Playwright keywords:
+The Robot suite in `robot` uses the same self-healing locator store, but limits healing to these keys in the Playwright keywords:
 
 - `tangerine.login`
 - `tangerine.signup`
@@ -785,7 +785,7 @@ With the conditions:
 - **[GitHub Issues](https://github.com/466725/sloth-python/issues)** - Report bugs and request features
 - **[GitHub Discussions](https://github.com/466725/sloth-python/discussions)** - Ask questions, share ideas, and discuss best practices
 - **Documentation** - Check `README.md` and inline code comments for implementation details
-- **Example Tests** - Review `pytest` and `robot_demo/` for working examples
+- **Example Tests** - Review `pytest` and `robot` for working examples
 
 ### Reporting Bugs
 

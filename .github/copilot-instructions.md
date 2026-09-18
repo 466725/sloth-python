@@ -57,13 +57,13 @@ python -m pytest
 For Robot Framework changes, run the impacted suite first:
 
 ```bash
-python -m robot --outputdir temps/robot_calculator robot_demo/calculator/
+python -m robot --outputdir temps/robot_calculator robot/calculator/
 ```
 
 Optional dry run for keyword wiring:
 
 ```bash
-python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_demo/tangerine_playwright/
+python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot/tangerine_playwright/
 ```
 
 ## Project-Specific Conventions
