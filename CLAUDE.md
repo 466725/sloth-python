@@ -73,7 +73,7 @@ Notes:
 - `ai_gen/`: AI-based test/code generation helpers
 - `utils/`: shared helpers and integrations (config, analytics, qTest, DB)
 - `skill_spring/algorithms`: algorithm and data-structure examples
-- `load_test_demo/`: JMeter and Postman assets
+- `load_test`: JMeter and Postman assets
 - `temps/`: generated logs, reports, videos, and temporary artifacts
 
 ## Working Conventions
@@ -103,7 +103,7 @@ Pick the smallest meaningful validation first, then broaden only if needed.
 
 ## Load Test Assets Guidance
 
-- JMeter and Postman files in `load_test_demo/` are source artifacts.
+- JMeter and Postman files in `load_test` are source artifacts.
 - Avoid mass reformatting JSON/JMX files unless task requires it.
 - If environments are modified, keep variable names backward compatible when possible.
 
