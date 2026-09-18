@@ -37,7 +37,7 @@ def _slugify_nodeid(nodeid: str) -> str:
 
 def _tangerine_playwright_video_dir() -> Path:
     project_root = Path(__file__).resolve().parents[3]
-    video_dir = project_root / "temps" / "playwright-videos" / "tangerine_playwright"
+    video_dir = project_root / "temps" / "playwright-videos" / "ui"
     video_dir.mkdir(parents=True, exist_ok=True)
     return video_dir
 
