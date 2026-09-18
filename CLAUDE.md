@@ -111,7 +111,7 @@ Pick the smallest meaningful validation first, then broaden only if needed.
 
 - Never hardcode secrets or tokens.
 - Use environment variables for API keys and endpoints.
-- Keep defaults in `utils/config.py` and override through env vars.
+- Keep defaults in `config/config.py` and override through env vars.
 
 ## PR/Change Notes
 
