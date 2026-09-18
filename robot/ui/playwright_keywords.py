@@ -17,7 +17,7 @@ from robot.libraries.BuiltIn import BuiltIn
 from playwright.sync_api import Browser, BrowserContext, Page, Playwright, sync_playwright
 
 from self_healing.locator_store import get_locator
-from utils.config import settings
+from config.config import settings
 
 ROBOT_LIBRARY_SCOPE = "GLOBAL"
 
