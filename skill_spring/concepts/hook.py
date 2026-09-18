@@ -8,4 +8,4 @@ reporting. Pytest fixtures are usually the closer equivalent to TestNG's
 annotations because fixtures manage setup and teardown around test resources.
 """
 
-# See -> pytest_demo/tests/conftest.py
+# See -> pytest/tests/conftest.py

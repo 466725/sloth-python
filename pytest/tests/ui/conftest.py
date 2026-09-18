@@ -7,7 +7,7 @@ from pathlib import Path
 import allure
 import pytest
 
-from pytest_demo.tests.ui.tangerine_support import open_tangerine_homepage_playwright
+from pytest.tests.ui.tangerine_support import open_tangerine_homepage_playwright
 from utils.config import settings
 
 logger = logging.getLogger(__name__)

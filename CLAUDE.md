@@ -44,7 +44,7 @@ Use Ruff (configured in pyproject.toml):
 Notes:
 - pytest.ini writes Allure output to `temps/allure-results`
 - Default testpaths include:
-  - `pytest_demo/tests`
+  - `pytest`
   - `robot_demo/calculator/tests`
 
 ### Robot Framework
@@ -67,7 +67,7 @@ Notes:
 
 ## Repo Map
 
-- `pytest_demo/`: pytest-based tests (ui/api/unit/ddt/playwright)
+- `pytest`: pytest-based tests (ui/api/unit/ddt/playwright)
 - `robot_demo/`: Robot Framework suites and keyword libraries
 - `self_healing/`: locator healing logic for UI automation
 - `ai_gen/`: AI-based test/code generation helpers

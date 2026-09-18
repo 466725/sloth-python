@@ -113,7 +113,7 @@ Runtime settings are centralized in `utils/config.py` and read from environment 
 | `AI_GEN_MODEL` | `gpt-4.1`                              | LLM model identifier                                              |
 | `AI_GEN_BASE_URL` | `OPENAI_URL`                           | API base URL                                     |
 | `AI_GEN_MAX_DOM_CHARS` | `12000`                                | Max DOM/element-tree size sent to the model                       |
-| `AI_GEN_OUTPUT_DIR` | `pytest_demo/tests/ai/generated_playwright` | Default output folder                      |
+| `AI_GEN_OUTPUT_DIR` | `pytest` | Default output folder                      |
 | `QTEST_BASE_URL` | `https://yourcompany.qtestnet.com`     | Base URL for qTest API integration                                |
 | `QTEST_PROJECT_ID` | `123456`                               | qTest project id used for test run reporting                      |
 | `QTEST_API_TOKEN` | `your_token_here`                      | API token used to authenticate with qTest                         |
@@ -151,7 +151,7 @@ python -m pytest --alluredir=temps/allure-results --clean-alluredir
 allure serve temps/allure-results
 ```
 
-For `pytest_demo/tests/ui/tangerine_playwright`, Playwright records per-test video and keeps/attaches it only for failed tests. Videos are written under `temps/playwright-videos/tangerine_playwright/`.
+For `pytest`, Playwright records per-test video and keeps/attaches it only for failed tests. Videos are written under `temps/playwright-videos/tangerine_playwright/`.
 
 ### API Demos
 
@@ -218,10 +218,10 @@ The Tangerine Robot keyword libraries also bootstrap the project root import pat
 
 This project includes an advanced self-healing mechanism for Playwright-based UI tests that automatically detects and repairs broken locators.
 
-**Location:** `pytest_demo/self_healing/`
+**Location:** `pytest`
 **Locator Store:**
-- `pytest_demo/locators/signinpage.json`
-- `pytest_demo/locators/signuppage.json`
+- `pytest`
+- `pytest`
 
 ### How It Works
 
@@ -246,8 +246,8 @@ The Robot suite in `robot_demo/tangerine_playwright/` uses the same self-healing
 
 Locator definitions are shared from:
 
-- `pytest_demo/locators/signinpage.json`
-- `pytest_demo/locators/signuppage.json`
+- `pytest`
+- `pytest`
 
 Robot mode currently runs with read-only healing (`auto_update=False`) so it can recover using stored locator strategies without silently rewriting the locator files.
 
@@ -255,9 +255,9 @@ Robot mode currently runs with read-only healing (`auto_update=False`) so it can
 
 An AI-powered pipeline that generates runnable pytest + Playwright test scripts from natural-language goals and live page context.
 
-**How it works:** Playwright captures the page (DOM, screenshot, network events) → context is packaged into a structured prompt → an OpenAI-compatible model generates Python test code → the file is written to `pytest_demo/tests/ai/generated_playwright/`.
+**How it works:** Playwright captures the page (DOM, screenshot, network events) → context is packaged into a structured prompt → an OpenAI-compatible model generates Python test code → the file is written to `pytest`.
 
-**Location:** `pytest_demo/ai_generation/` — modules: `mcp_context.py`, `prompt_builder.py`, `ai_client.py`, `generator.py`, `cli.py`
+**Location:** `pytest` — modules: `mcp_context.py`, `prompt_builder.py`, `ai_client.py`, `generator.py`, `cli.py`
 
 ### Prerequisites
 
@@ -648,7 +648,7 @@ python -m pytest pytest_demo/tests/ui/tangerine_playwright -q
 
 **Issue: Locator selector not found in Playwright**
 - If the test uses the self-healing helpers, the framework may recover automatically
-- Check `pytest_demo/locators/signinpage.json` and `pytest_demo/locators/signuppage.json` for updated selectors
+- Check `pytest` and `pytest` for updated selectors
 - Manual fix: Update the JSON or run with `-v` flag for detailed logs
 
 ## 📖 Documentation & Resources
@@ -785,7 +785,7 @@ With the conditions:
 - **[GitHub Issues](https://github.com/466725/sloth-python/issues)** - Report bugs and request features
 - **[GitHub Discussions](https://github.com/466725/sloth-python/discussions)** - Ask questions, share ideas, and discuss best practices
 - **Documentation** - Check `README.md` and inline code comments for implementation details
-- **Example Tests** - Review `pytest_demo/` and `robot_demo/` for working examples
+- **Example Tests** - Review `pytest` and `robot_demo/` for working examples
 
 ### Reporting Bugs
 
