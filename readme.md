@@ -839,29 +839,22 @@ Project maintenance is supported by automated checks, dependency updates, securi
 - Follow the [Contributing](#-contributing) workflow for code, test, and documentation changes.
 - Report security vulnerabilities through the [Security Policy](security.md), not a public issue.
 
----
-
 ## ⭐ Acknowledgments
 
-### Built With
+This project builds on the following open-source tools, APIs, and communities.
+
+### Core tools
 
 - [Python](https://www.python.org/) - Programming language
 - [Pytest](https://docs.pytest.org/) - Testing framework
 - [Playwright](https://playwright.dev/python/) - Modern browser automation
 - [Robot Framework](https://robotframework.org/) - Keyword-driven testing
-- [OpenAI API](https://openai.com/api/) - AI-powered test generation
+- [Allure](https://docs.qameta.io/allure/) - Test reporting and visualization
+- [OpenAI API](https://openai.com/api/) - OpenAI-compatible AI integrations
 
-### Inspiration & References
+### Learning and reference sources
 
-This project draws on industry best practices from:
-- Test automation communities
-- Software engineering principles
-- Algorithm research and implementations
-
-### Community
-
-We welcome feedback, contributions, and ideas from the community. If you find this project useful, please consider:
-- ⭐ Starring the repository
-- 🔗 Sharing it with others
-- 🤝 Contributing improvements
-- 💬 Providing feedback via Issues or Discussions
+- Python and testing communities that inform the automation examples
+- Algorithm and data-structure research represented in `skill_spring/algorithms/`
+- Claude and MCP learning material collected in `skill_spring/claude_code/`
+- Open-source documentation and examples used throughout the project
