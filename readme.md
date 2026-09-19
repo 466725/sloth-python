@@ -44,8 +44,15 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 ## 📦 Prerequisites
 
-- **Python 3.11+**
-- **Git**
+### Required
+
+- **Python 3.11+** for the project libraries and test suites
+- **Git** to clone and update the repository
+
+### Needed for Specific Features
+
+- **Playwright browsers** for browser-based UI tests; install them with `playwright install`
+- **API credentials** for AI generation and provider-backed stock analysis; configure them through environment variables rather than source files
 
 ## 🚀 Quick Start
 
