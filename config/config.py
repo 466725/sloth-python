@@ -58,6 +58,7 @@ class UiSettings:
 @dataclass(frozen=True)
 class PlaywrightSettings:
 	headless: bool
+	slow_mo: int
 
 
 @dataclass(frozen=True)
@@ -93,6 +94,7 @@ def load_settings() -> Settings:
 
 	playwright = PlaywrightSettings(
 		headless=_env_bool("PW_HEADLESS", False),
+		slow_mo=_env_int("PW_SLOW_MO", 0),
 	)
 	ai_generation = AIGenerationSettings(
 		model=_env_str("AI_GEN_MODEL", "gpt-4.1"),

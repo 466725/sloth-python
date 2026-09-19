@@ -66,7 +66,10 @@ def tangerine_homepage(request: pytest.FixtureRequest):
     video_mode = _playwright_video_mode()
     video_dir = _tangerine_playwright_video_dir()
     with pw.sync_playwright() as p:
-        browser = p.chromium.launch(headless=settings.playwright.headless)
+        browser = p.chromium.launch(
+            headless=settings.playwright.headless,
+            slow_mo=settings.playwright.slow_mo,
+        )
         context_options = {"locale": settings.ui.locale}
         if video_mode != _VIDEO_MODE_OFF:
             context_options["record_video_dir"] = str(video_dir)

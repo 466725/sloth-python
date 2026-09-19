@@ -210,14 +210,16 @@ Use Playwright Codegen to record actions and bootstrap UI tests:
 python -m playwright codegen https://www.tangerine.ca/en/personal
 ```
 
-Run a UI test visibly for debugging:
+Run a UI test visibly for debugging. Configure browser visibility and slow motion through environment variables:
 
 ```powershell
-python -m pytest pytest/ui/tangerine/test_codegen.py --headed --slowmo 200
+$env:PW_HEADLESS = "false"
+$env:PW_SLOW_MO = "200"
+python -m pytest pytest/ui/tangerine/test_codegen.py -q
 ```
 
-- `--headed` opens a visible browser
-- `--slowmo 200` slows actions for easier observation
+- `PW_HEADLESS=false` opens a visible browser
+- `PW_SLOW_MO=200` slows Playwright actions by 200 milliseconds
 
 > This project uses **Python pytest + Playwright**, so run tests with `python -m pytest ...`, not `npx playwright test`.
 
