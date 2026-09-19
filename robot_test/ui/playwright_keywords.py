@@ -13,7 +13,7 @@ if str(PROJECT_ROOT) not in sys.path:
     # Ensure local imports resolve when Robot runs this suite directly.
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from robot.libraries.BuiltIn import BuiltIn
+from robot_test.libraries.BuiltIn import BuiltIn
 from playwright.sync_api import Browser, BrowserContext, Page, Playwright, sync_playwright
 
 from self_healing.locator_store import get_locator
