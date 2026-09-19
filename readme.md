@@ -700,19 +700,32 @@ Use the repository guides for project-specific behavior, then consult the extern
 - [Allure Report documentation](https://docs.qameta.io/allure/)
 - [pytest-html documentation](https://pytest-html.readthedocs.io/)
 
-## ❤️ Support This Project
+## ❤️ Support & Feedback
 
 If **Sloth Python** helps you learn, automate, or experiment, your support helps keep the project maintained and growing.
 
 ### Ways to help
 
 - [Sponsor the project](https://github.com/sponsors/466725) to support maintenance and new examples.
-- Report bugs or suggest improvements through GitHub issues and discussions.
+- Report reproducible bugs or request features through [GitHub Issues](https://github.com/466725/sloth-python/issues).
+- Ask questions or discuss ideas through [GitHub Discussions](https://github.com/466725/sloth-python/discussions).
 - Contribute tests, documentation, algorithms, automation examples, or AI tooling.
 
 [![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github&style=for-the-badge)](https://github.com/sponsors/466725)
 
 Thank you for helping make the project more useful for the next person who finds it.
+
+### Include useful context
+
+For issues and questions, include:
+
+- Python version, operating system, and relevant package or browser versions
+- The smallest reproduction or clear steps to reproduce
+- Expected and actual behavior
+- Relevant command output or a redacted traceback
+- The affected area, such as `pytest`, `robot`, `ai_gen`, `ai_stock`, or `skill_spring`
+
+Report security vulnerabilities through the [Security Policy](security.md), not a public issue. Never include API keys, tokens, credentials, or other sensitive values in reports.
 
 ## 🤝 Contributing
 
@@ -784,42 +797,6 @@ Sloth Python is distributed under the **MIT License**.
 ### Condition
 
 Redistributions must retain the applicable copyright and license notices.
-
-## 📧 Support & Feedback
-
-### Getting Help
-
-- **[GitHub Issues](https://github.com/466725/sloth-python/issues)** - Report bugs and request features
-- **[GitHub Discussions](https://github.com/466725/sloth-python/discussions)** - Ask questions, share ideas, and discuss best practices
-- **Documentation** - Check `README.md` and inline code comments for implementation details
-- **Example Tests** - Review `pytest` and `robot` for working examples
-
-### Reporting Bugs
-
-Found a bug? Please open an issue with:
-1. **Python version** and **OS** (e.g., Python 3.14 on Windows 11)
-2. **Steps to reproduce** the issue
-3. **Expected vs actual behavior**
-4. **Error message** and stack trace (if applicable)
-5. **Environment details** (e.g., Playwright version, headless/headed mode)
-
-### Feature Requests
-
-Have an idea for improvement? Open an issue with:
-1. **Clear description** of the feature or problem
-2. **Proposed solution** or use case
-3. **Alternative approaches** you've considered (if any)
-4. **Examples** or code snippets showing the idea
-
-### Discussions
-
-Have questions or want to discuss testing strategies? Use **GitHub Discussions** to:
-- Share test automation patterns and best practices
-- Get advice on test framework choices
-- Discuss algorithm implementations
-- Connect with other contributors
-
-We actively monitor both Issues and Discussions—your feedback helps improve this project!
 
 ## 📋 Project Governance
 
