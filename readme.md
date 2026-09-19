@@ -561,7 +561,13 @@ sloth-python/
 │   ├── fun_part/
 │   └── web_scraping/
 ├── test_data/                  # Test-data creation scripts and fixtures
-├── utils/                      # Shared configuration, database, analytics, and integration helpers
+├── utils/                      # Domain-oriented shared helpers
+│   ├── browser/                # Playwright and MCP helpers
+│   ├── data/                   # CSV and test-data readers
+│   ├── integrations/           # External service integrations
+│   ├── observability/          # Logging and diagnostics
+│   ├── data_base/              # Database helpers
+│   └── qtest_utilities/        # qTest integration helpers
 ├── temps/                      # Generated reports, logs, videos, and temporary results
 ├── .github/workflows/          # GitHub Actions CI/CD definitions
 ├── .vscode/                    # Workspace settings
@@ -583,7 +589,7 @@ sloth-python/
 - **self_healing/** - Locator fallback, DOM similarity, and locator-store update logic
 - **skill_spring/** - Learning material for algorithms, concepts, Claude/MCP, scraping, and experiments
 - **test_data/** - Utilities and input files used to create or supply test data
-- **utils/** - Shared configuration, CSV, database, analytics, qTest, and AI helpers
+- **utils/** - Domain-oriented helpers, with browser, data, integration, observability, database, and qTest boundaries
 - **temps/** - Generated output; do not edit it as source documentation
 
 ## 🎓 Best Practices & Patterns

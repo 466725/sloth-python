@@ -1,4 +1,4 @@
-"""Backward-compatible imports for integration utilities."""
+"""External service integration utilities."""
 
 from utils.integrations.google_analytics import GoogleAnalyticsTracker
 
