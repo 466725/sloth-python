@@ -590,30 +590,36 @@ sloth-python/
 - **utils/** - Shared configuration, CSV, database, analytics, qTest, and AI helpers
 - **temps/** - Generated output; do not edit it as source documentation
 
----
-
 ## 🎓 Best Practices & Patterns
 
-This project demonstrates industry best practices:
+Keep changes focused, reusable, and easy to validate.
 
-### Test Automation Patterns
-- **Page Object Model (POM)** - Maintainable UI test structure
-- **Fixtures & Dependency Injection** - Pytest fixtures for test setup/teardown
-- **Marker-Based Organization** - Categorize tests with markers such as `unit`, `api`, `ui`, and `playwright`
-- **Parameterization** - Run same test with multiple data sets
-- **Self-Healing** - AI-powered locator recovery mechanism
+### Testing and UI Automation
 
-### Code Quality
-- **Type Hints** - Type annotations for better IDE support and documentation
-- **Docstrings** - Comprehensive module and function documentation
-- **Error Handling** - Proper exception handling and logging
-- **Configuration Management** - Externalized config for different environments
-- **DRY Principle** - Reusable utilities and helper functions
+- **Organize by behavior:** Keep pytest suites under `pytest/` and Robot suites under `robot/`, grouped by `unit`, `api`, `ui`, `ddt`, and `ai` where applicable.
+- **Use shared fixtures and page objects:** Centralize setup, browser lifecycle, and page interactions instead of duplicating them in individual tests.
+- **Prefer stable selectors:** Reuse shared locator definitions and self-healing helpers for Playwright flows when selector recovery is appropriate.
+- **Parameterize repeated scenarios:** Use fixtures, markers, and parameterization to keep test coverage broad without duplicating test logic.
 
-### CI/CD & DevOps
-- **Automated Testing** - Smoke tests on PRs, full regression nightly
-- **Report Generation** - HTML and Allure reports for test visibility
-- **Artifact Management** - Uploaded for debugging and report review
+### Python and Configuration
+
+- **Keep code typed and readable:** Use clear names, type hints, focused functions, and useful docstrings.
+- **Reuse shared utilities:** Prefer helpers in `utils/`, `config/`, and `self_healing/` before introducing duplicates.
+- **Externalize settings:** Read URLs, feature flags, and integration settings from environment variables with safe defaults.
+- **Protect secrets:** Never commit API keys, tokens, or credentials; use environment variables and keep sensitive values out of logs.
+- **Format and lint consistently:** Run Ruff checks and formatting before finalizing substantial Python changes.
+
+### AI and Learning Workflows
+
+- **Review generated code:** Treat `ai_gen/` output as a starting point and validate it with focused pytest runs before committing.
+- **Keep research reproducible:** Follow the project README and notebook instructions under `skill_spring/` for learning experiments.
+- **Prefer explainable analysis:** Keep stock-analysis conclusions traceable to market data, news, and strategy inputs.
+
+### CI/CD and Reporting
+
+- **Validate in stages:** Run focused tests locally, then the smoke or regression workflow as the change requires.
+- **Keep CI headless:** Install Playwright browsers and use `PW_HEADLESS=1` in automated UI runs.
+- **Preserve diagnostics:** Use Allure, Robot HTML reports, screenshots, videos, and uploaded artifacts to investigate failures.
 
 ## 🐛 Troubleshooting
 
