@@ -35,12 +35,12 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 ## 📌 Key Highlights
 
-- **Advanced Test Automation:** Robot Framework and pytest examples for unit, API, and Playwright-based UI testing
-- **Self-Healing Locators:** AI-assisted Playwright framework that automatically detects and repairs broken element selectors
-- **AI Test Script Generation:** MCP-aware Playwright workflow that generates runnable pytest UI tests from natural-language goals
-- **Algorithm Library:** Curated implementations of algorithms, data structures, and machine learning concepts
-- **Production-Ready CI/CD:** GitHub Actions workflows for automated smoke tests and nightly regression suites
-- **Comprehensive Examples:** Real-world test scenarios and automation patterns
+- **Test Automation:** Robot Framework and pytest examples covering unit, API, and Playwright-based UI testing
+- **Self-Healing UI Tests:** AI-assisted locator recovery that detects broken selectors and learns from successful repairs
+- **AI Test Generation:** MCP-aware Playwright workflow for generating runnable pytest tests from natural-language goals
+- **AI-Assisted Stock Analysis:** Multi-agent pipeline combining market data, news, trading strategies, and report generation ([architecture](ai_stock/readme.md))
+- **Algorithms and Machine Learning:** Curated implementations of data structures, algorithms, and ML concepts
+- **CI/CD Workflows:** GitHub Actions automation for smoke tests and nightly regression suites
 
 ## 📦 Prerequisites
 
