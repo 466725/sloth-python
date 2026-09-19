@@ -115,7 +115,7 @@ def _sanitize_longbridge_env() -> None:
 
     if not os.environ.get("LONGBRIDGE_LOG_PATH"):
         try:
-            log_dir = (os.getenv("LOG_DIR") or "./logs").strip() or "./logs"
+            log_dir = (os.getenv("LOG_DIR") or "./temps/logs").strip() or "./temps/logs"
             p = Path(log_dir).expanduser()
             p.mkdir(parents=True, exist_ok=True)
             os.environ["LONGBRIDGE_LOG_PATH"] = str(p / "longbridge_sdk.log")
@@ -206,7 +206,7 @@ def _longbridge_config_kwargs() -> Dict[str, Any]:
 
     if "log_path" in params:
         try:
-            log_dir = (os.getenv("LOG_DIR") or "./logs").strip() or "./logs"
+            log_dir = (os.getenv("LOG_DIR") or "./temps/logs").strip() or "./temps/logs"
             p = Path(log_dir).expanduser()
             p.mkdir(parents=True, exist_ok=True)
             kw["log_path"] = str(p / "longbridge_sdk.log")
