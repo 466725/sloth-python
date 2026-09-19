@@ -38,7 +38,7 @@ jobs:
       - name: Run Robot Framework smoke tests
         run: |
           mkdir -p temps/robot_smoke
-          python -m robot --outputdir temps/robot_smoke robot_demo/calculator/
+          python -m robot --outputdir temps/robot_smoke robot_test/calculator/
       - name: Upload smoke artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -83,7 +83,7 @@ jobs:
       - name: Run all Robot Framework tests
         run: |
           mkdir -p temps
-          python -m robot --outputdir temps robot_demo/
+          python -m robot --outputdir temps robot_test/
         env:
           PW_HEADLESS: 1
       - name: Install Allure CLI
