@@ -79,45 +79,41 @@ See [Installation](#️-installation) for Linux/macOS commands, alternative pack
 
 ## 🛠️ Installation
 
-1. **Create and activate a virtual environment:**
-   **Windows (PowerShell):**
-   ```powershell
-   py -3.11 -m venv .venv
-   .\.venv\Scripts\activate
-   ```
+### 1. Create and activate a virtual environment
 
-   **Linux/macOS (bash/zsh):**
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
+**Windows (PowerShell):**
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\activate
+```
 
-2. **Install dependencies:**
-   **Using pip:**
-   ```powershell
-   pip install -r requirements.txt
-   ```
+**Linux/macOS (bash/zsh):**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
 
-   **Using uv:**
-   ```powershell
-   uv venv .venv --python 3.11
-   .\.venv\Scripts\activate
-   uv pip install -r requirements.txt
-   ```
+### 2. Install dependencies
 
-   **Linux/macOS with uv:**
-   ```bash
-   uv venv .venv --python 3.11
-   source .venv/bin/activate
-   uv pip install -r requirements.txt
-   ```
+Choose one package manager after activating the virtual environment:
 
-   *Note: This installs the packages used by Robot Framework, pytest, Playwright, and the supporting demo utilities.*
+**Using pip:**
+```powershell
+python -m pip install -r requirements.txt
+```
 
-3. **Install Playwright Browsers:**
-   ```powershell
-   playwright install
-   ```
+**Using uv:**
+```powershell
+uv pip install -r requirements.txt
+```
+
+This installs the packages used by Robot Framework, pytest, Playwright, and the supporting demo utilities.
+
+### 3. Install Playwright browsers
+
+```powershell
+playwright install
+```
 
 ## Configuration
 
