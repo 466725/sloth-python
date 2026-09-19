@@ -479,50 +479,63 @@ Note: `python.analysis.extraPaths` improves IDE analysis and autocomplete. It do
 
 ## 🔄 CI/CD Pipeline & Automation
 
-Automated testing is orchestrated through GitHub Actions workflows to ensure code quality and early defect detection.
+The main workflow is [`.github/workflows/ci.yml`](.github/workflows/ci.yml). It separates fast feedback for changes from scheduled or manually triggered regression coverage.
 
-### Workflow Overview
+### Triggers
 
-**Smoke Tests (Push + Pull Request)**
-- Run on pushes to `main` / `master`
-- Run on pull requests targeting `main` / `master` while the PR is open
-- Include pytest `unit` + `api` coverage and the Robot calculator suite
-- Provide fast feedback on core regressions
+| Event | Branches or schedule | Behavior |
+|---|---|---|
+| Push | `main`, `master` | Runs smoke tests |
+| Pull request | `main`, `master` | Runs smoke tests |
+| Schedule | `0 2 * * *` (2:00 UTC daily) | Runs regression tests |
+| Manual dispatch | Any selected ref | Runs regression tests |
 
-**Nightly Regression Suite (2 AM UTC)**
-- Runs from the scheduled workflow at `0 2 * * *`
-- Installs Playwright browsers with dependencies
-- Executes the full pytest suite and all Robot suites
-- Attempts Allure report generation after the test run
+### Jobs
 
-### Test Artifacts
+**Smoke test**
 
-The workflow uploads generated reports when available in the run's **Artifacts** section, including:
+- Uses Ubuntu and Python 3.11.
+- Installs dependencies from `requirements.txt`.
+- Runs pytest `unit` and `api` tests with `--tb=short`.
+- Runs the Robot calculator smoke suite.
+- Uploads smoke results with `retention-days: 14`.
+
+**Regression test**
+
+- Runs on the nightly schedule or manual dispatch with a 60-minute timeout.
+- Caches and installs Playwright browsers with system dependencies.
+- Runs pytest tests excluding the `ai` marker with `PW_HEADLESS=1`.
+- Runs the Robot suites with `PW_HEADLESS=1`.
+- Generates an Allure report after the test run when possible.
+- Uploads regression results with `retention-days: 21`.
+
+### Artifacts
+
+Depending on the job, uploaded artifacts can include:
+
+- `temps/allure-results/`
+- `temps/robot_smoke/`
 - `allure-report/`
-- `temps/log.html`
-- `temps/report.html`
-- `temps/output.xml`
+- `temps/log.html`, `temps/report.html`, and `temps/output.xml`
 
-### Viewing Reports
+Open a workflow run on GitHub, download the relevant artifact, and open the generated HTML report locally.
 
-1. Navigate to the workflow run on GitHub
-2. Download the artifacts zip file
-3. Extract and open `report.html` in your browser
+### Run the CI checks locally
 
-### Local CI/CD Simulation
-
-Use these commands to mimic the core CI flow locally (see `Running Tests` for more command variants):
+Run the closest equivalent from the repository root:
 
 ```powershell
-# Run smoke tests
-python -m pytest -m "unit or api"
-python -m robot robot_demo/calculator/
+# Smoke checks
+python -m pytest -m "unit or api" --tb=short
+python -m robot --outputdir temps/robot_smoke robot/calculator/
 
-# Run a nightly-like full pass
-playwright install
-python -m pytest --tb=short --maxfail=5
-python -m robot --outputdir temps robot_demo/
+# Regression-style checks
+python -m playwright install --with-deps
+python -m pytest -m "not ai" --tb=short --maxfail=5
+python -m robot --outputdir temps robot/
 ```
+
+The workflow file still references legacy `robot_demo` paths, while the current repository uses `robot/`. Keep those paths synchronized before relying on the Robot steps in GitHub Actions.
 
 ## 📂 Project Structure
 
