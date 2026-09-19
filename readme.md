@@ -686,21 +686,31 @@ The GitHub Actions workflow still contains legacy `robot_demo` paths. If those s
 
 ## 📖 Documentation & Resources
 
-### Project Docs (Recommended)
-- [Security Policy](security.md)
+Use the repository guides for project-specific behavior, then consult the external references for framework details.
 
-### Test Frameworks
-- [Pytest Documentation](https://docs.pytest.org/)
+### Repository documentation
+
+- [Security Policy](security.md) - Secret handling and vulnerability reporting
+- [AI Stock Architecture](ai_stock/readme.md) - Data, news, strategy, and report pipeline design
+- [Skill Spring Learning Notes](skill_spring/claude_code/claude_code_learning.md) - Claude, MCP, and study-project index
+- [Project Instructions](CLAUDE.md) - Repository conventions and common commands
+
+### Workflows and configuration
+
+- [CI/CD workflow](.github/workflows/ci.yml) - Smoke, regression, scheduling, and artifact steps
+- [Project tooling](pyproject.toml) - Ruff, pytest, and Python tooling configuration
+- [Configuration module](config/config.py) - Shared environment-backed runtime settings
+- [Security scanning manifest](scamanifest.yml) - Repository security-scan configuration
+
+### Framework references
+
+- [Python documentation](https://docs.python.org/)
+- [Pytest documentation](https://docs.pytest.org/)
 - [Robot Framework User Guide](https://robotframework.org/robotframework/#introduction)
 - [Playwright Python API](https://playwright.dev/python/)
-
-### Technologies
-- [Python Official Documentation](https://docs.python.org/)
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-
-### Related Tools
-- [Allure Report Framework](https://docs.qameta.io/allure/)
-- [Pytest HTML Plugin](https://pytest-html.readthedocs.io/)
+- [GitHub Actions documentation](https://docs.github.com/en/actions)
+- [Allure Report documentation](https://docs.qameta.io/allure/)
+- [pytest-html documentation](https://pytest-html.readthedocs.io/)
 
 ## ❤️ Support This Project
 
