@@ -305,38 +305,26 @@ Generate runnable pytest + Playwright scripts from a natural-language goal and l
 
 The command-line entry point is `ai_gen/cli.py`.
 
-### Requirements
+Use the channel that best matches the type of feedback:
 
-- Set `OPENAI_API_KEY` before generating a test. OpenAI-compatible endpoints are supported through `--base-url`.
-- Install project dependencies with `python -m pip install -r requirements.txt`.
-- Install Playwright browsers with `playwright install`.
+| Need | Where to go |
+|---|---|
+| Report a reproducible bug | [GitHub Issues](https://github.com/466725/sloth-python/issues) |
+| Request a feature or documentation improvement | [GitHub Issues](https://github.com/466725/sloth-python/issues) |
+| Ask a question or discuss an approach | [GitHub Discussions](https://github.com/466725/sloth-python/discussions) |
+| Report a security vulnerability | Follow the [Security Policy](security.md) |
 
-### Generate a test
+### Include useful context
 
-```powershell
-$env:OPENAI_API_KEY = "<your-api-key>"
+For issues and questions, include:
 
-python -m ai_gen.cli `
-   --url "https://www.tangerine.ca/en/personal" `
-   --goal "Verify the homepage loads and the Sign In button is visible" `
-   --test-name "test_tangerine_homepage" `
-   --output "pytest/ai/generated_playwright/test_tangerine_homepage.py"
-```
+- Python version, operating system, and relevant package or browser versions
+- The smallest reproduction or clear steps to reproduce
+- Expected and actual behavior
+- Relevant command output or a redacted traceback
+- The affected area, such as `pytest`, `robot`, `ai_gen`, `ai_stock`, or `skill_spring`
 
-Review the generated script, then run it with pytest:
-
-```powershell
-python -m pytest -q pytest/ai/generated_playwright/test_tangerine_homepage.py
-```
-
-### CLI options
-
-| Option | Default | Description |
-|---|---|---|
-| `--url` | *(required)* | Target page URL |
-| `--goal` | *(required)* | Natural-language test goal |
-| `--test-name` | `test_generated_ui_flow` | Generated pytest function name |
-| `--output` | `AI_GEN_OUTPUT_DIR/test_generated_ui_flow.py` | Generated script path |
+Search existing issues and discussions first. Never include API keys, tokens, credentials, or other sensitive values in reports.
 | `--model` | `AI_GEN_MODEL` (`gpt-4.1`) | LLM model name |
 | `--base-url` | `AI_GEN_BASE_URL` | OpenAI-compatible API endpoint |
 | `--headless` | `false` | Run context collection headlessly (`true`/`false`) |
