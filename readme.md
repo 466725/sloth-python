@@ -20,7 +20,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 - [Quick Start](#-quick-start)
 - [Installation](#️-installation)
-- [Configuration](#configuration)
+- [Configuration](#️-configuration)
 - [Running Tests](#-running-tests)
 - [Self-Healing Framework](#-self-healing-framework-playwright)
 - [AI-Generated Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp)
@@ -115,28 +115,47 @@ This installs the packages used by Robot Framework, pytest, Playwright, and the 
 playwright install
 ```
 
-## Configuration
+## ⚙️ Configuration
 
-Runtime settings are centralized in `config/config.py` and read from environment variables with safe defaults.
+Runtime settings are read from environment variables. Shared test and AI-generation settings are centralized in `config/config.py`; provider-specific `ai_stock` settings are documented in [ai_stock/readme.md](ai_stock/readme.md).
 
-| Variable | Default                                | Description                                                       |
-|---|----------------------------------------|-------------------------------------------------------------------|
-| `TANGERINE_URL` | `https://www.tangerine.ca/en/personal` | Base URL for Tangerine UI tests                                   |
-| `DEEP_SEEK_URL` | `https://api.deepseek.com`             | Base URL for DeepSeek-compatible API calls                        |
-| `OPENAI_URL` | `https://api.openai.com`               | Base URL for OpenAI API calls                                     |
-| `UI_LOCALE` | `en-US`                                | Browser locale used by Playwright-based UI tests                  |
-| `SLEEP_TIME` | `1`                                    | Generic sleep duration used in selected fixtures                  |
-| `COOKIE_BANNER_TIMEOUT_SECONDS` | `5`                                    | Wait time for Tangerine cookie banner handling                    |
-| `PW_HEADLESS` | `true`                                 | Playwright headless mode (`1/0`, `true/false`, `yes/no`, `on/off`) |
-| `AI_GEN_MODEL` | `gpt-4.1`                              | LLM model identifier                                              |
-| `AI_GEN_BASE_URL` | `OPENAI_URL`                           | API base URL                                     |
-| `AI_GEN_MAX_DOM_CHARS` | `12000`                                | Max DOM/element-tree size sent to the model                       |
-| `AI_GEN_OUTPUT_DIR` | `pytest` | Default output folder                      |
-| `QTEST_BASE_URL` | `https://yourcompany.qtestnet.com`     | Base URL for qTest API integration                                |
-| `QTEST_PROJECT_ID` | `123456`                               | qTest project id used for test run reporting                      |
-| `QTEST_API_TOKEN` | `your_token_here`                      | API token used to authenticate with qTest                         |
+### Shared URLs
 
-Quick local check:
+| Variable | Default | Purpose |
+|---|---|---|
+| `TANGERINE_URL` | `https://www.tangerine.ca/en/personal` | Base URL for Tangerine UI tests |
+| `DEEP_SEEK_URL` | `https://api.deepseek.com` | DeepSeek-compatible API endpoint |
+| `OPENAI_URL` | `https://api.openai.com/v1` | OpenAI-compatible API endpoint |
+
+### UI and Playwright
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `UI_LOCALE` | `en-US` | Browser locale for Playwright tests |
+| `SLEEP_TIME` | `1` | Generic delay used by selected fixtures |
+| `COOKIE_BANNER_TIMEOUT_SECONDS` | `5` | Timeout for Tangerine cookie-banner handling |
+| `PW_HEADLESS` | `false` | Run Playwright headlessly (`1/0`, `true/false`, `yes/no`, `on/off`) |
+
+### AI test generation
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `AI_GEN_MODEL` | `gpt-4.1` | LLM model identifier |
+| `AI_GEN_BASE_URL` | `OPENAI_URL` | API endpoint used by the generator |
+| `AI_GEN_MAX_DOM_CHARS` | `12000` | Maximum DOM characters sent to the model |
+| `AI_GEN_OUTPUT_DIR` | `pytest/tests/ai/generated_playwright` | Directory for generated tests |
+
+Set the required provider key, such as `OPENAI_API_KEY`, through the environment before using AI features. Never commit credentials to the repository.
+
+### Optional qTest integration
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `QTEST_BASE_URL` | `https://yourcompany.qtestnet.com` | qTest API base URL |
+| `QTEST_PROJECT_ID` | `123456` | qTest project identifier |
+| `QTEST_API_TOKEN` | `your_token_here` | qTest authentication token |
+
+Quick local check for shared settings:
 
 ```powershell
 python -m utils.config
