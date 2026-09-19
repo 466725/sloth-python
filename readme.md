@@ -5,7 +5,7 @@
 [![CI Status](https://github.com/466725/sloth-python/actions/workflows/ci.yml/badge.svg)](https://github.com/466725/sloth-python/actions/workflows/ci.yml)
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/466725)
 
-A comprehensive automation and algorithms reference project demonstrating modern testing patterns and best practices.
+A comprehensive Python reference project covering modern test automation, AI-assisted stock analysis, and algorithms.
 
 **Sloth Python** is an educational and professional-grade project combining:
 - 🧪 **Advanced test automation frameworks** (Robot Framework, pytest, Playwright)
