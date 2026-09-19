@@ -43,7 +43,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 - **Test Automation:** Robot Framework and pytest examples covering unit, API, and Playwright-based UI testing
 - **Self-Healing UI Tests:** AI-assisted locator recovery that detects broken selectors and learns from successful repairs
 - **AI Test Generation:** MCP-aware Playwright workflow for generating runnable pytest tests from natural-language goals
-- **AI-Assisted Stock Analysis:** Multi-agent pipeline combining market data, news, trading strategies, and report generation ([architecture](ai_stock/readme.md))
+- **AI-Assisted Stock Analysis:** Deterministic pipeline combining market data, news, trading strategies, and report generation, with a documented multi-agent roadmap ([architecture](ai_stock/readme.md))
 - **Algorithms and Machine Learning:** Curated implementations of data structures, algorithms, and ML concepts
 - **CI/CD Workflows:** GitHub Actions automation for smoke tests and nightly regression suites
 

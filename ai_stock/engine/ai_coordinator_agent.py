@@ -25,7 +25,12 @@ class StrategyDefinition:
 
 
 class AICoordinatorAgent:
-    """Coordinates data/news/report sub-agents for stock up/down prediction."""
+    """Coordinates stock-data and news collection with deterministic reporting.
+
+    A custom ``predictor`` can be injected for model-backed decisions. Without
+    one, the coordinator uses its deterministic trend-plus-sentiment baseline;
+    it does not dispatch LLM sub-agents by itself.
+    """
 
     def __init__(
         self,

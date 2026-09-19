@@ -4,13 +4,15 @@
 
 `ai_stock` is intended to answer a simple user question: given a stock symbol, recent market data, relevant news, and selected trading strategies, what is the most defensible AI-assisted view of the stock right now?
 
-The design target is a multi-agent pipeline:
+The current implementation is a deterministic context-and-report pipeline. A future multi-agent design is documented separately as a roadmap.
+
+### Current execution flow
 
 1. A coordinator agent receives the user request.
 2. The coordinator gathers structured context from stock data and stock news agents.
 3. The coordinator loads strategy instructions from YAML files.
-4. The coordinator assigns focused analysis tasks to specialized sub-agents.
-5. A synthesis agent in `report/` combines all intermediate outputs into one user-facing report.
+4. The coordinator uses an injected `predictor` when supplied; otherwise it calculates a trend-plus-news-sentiment baseline.
+5. `report/` renders the prediction and collected context as Markdown and HTML.
 
 This package should stay explainable. Every conclusion must be traceable back to data, news, and strategy evidence.
 
@@ -23,9 +25,9 @@ The current codebase already contains the main building blocks:
 - `stock_news/ai_stock_news_agent.py`: collects news and estimates a simple sentiment score.
 - `report/ai_report_agent.py`: builds the final response payload and markdown report.
 - `strategies/*.yaml`: human-editable strategy definitions and instructions.
-- `llm/litellm_client.py`: model client abstraction for future AI-driven sub-agent execution.
+- `llm/litellm_client.py`: available model client abstraction, not currently wired into coordinator execution.
 
-Important limitation: the current coordinator does not yet dispatch real LLM sub-agents. It collects context, loads strategies, and falls back to a baseline predictor that uses trend plus news sentiment. The architecture below describes the intended target shape while staying compatible with the current implementation.
+The current coordinator does not dispatch LLM sub-agents. This is intentional and keeps the existing demo deterministic; provider failures in data/news collection can still degrade the context through their existing fallback behavior.
 
 ## Running the Report Demo
 
@@ -49,7 +51,7 @@ To exercise the full pipeline (data + news + strategies) instead of the isolated
 python -c "from ai_stock.engine.ai_coordinator_agent import AICoordinatorAgent; agent = AICoordinatorAgent(); report = agent.analyze(symbol='AAPL', market='us'); agent.report_agent.save_html_report(report, 'temps/ai_report.html')"
 ```
 
-## Target Architecture
+## Implemented Architecture
 
 ```mermaid
 flowchart TD
@@ -60,14 +62,22 @@ flowchart TD
 		D --> P[Structured Payload]
 		N --> P
 		S --> P
-		P --> A1[Data Analysis Sub-Agent]
-		P --> A2[News Analysis Sub-Agent]
-		P --> A3[Strategy Reasoning Sub-Agent]
-		A1 --> R[Report Synthesis Agent\nreport/ai_report_agent.py]
-		A2 --> R
-		A3 --> R
+		P --> B[Injected Predictor or\nBaseline Trend + Sentiment]
+		B --> R[Report Agent\nreport/ai_report_agent.py]
 		R --> O[User Report\nJSON + Markdown]
 ```
+
+The diagram above describes the code that runs today. The `llm/` package is an extension point, not an active coordinator stage.
+
+## Future Multi-Agent Roadmap
+
+The intended multi-agent design can be introduced incrementally without changing the normalized payload or report contract:
+
+1. Add role-specific analyzers for market data, news, and strategy reasoning.
+2. Wire `llm/litellm_client.py` behind an explicit coordinator option or injected interface.
+3. Require each analyzer to return structured output with evidence, risks, and confidence.
+4. Add a synthesis step that reconciles analyzer outputs and records provenance.
+5. Preserve the deterministic baseline as an offline and provider-failure fallback.
 
 ## Package Responsibilities
 
