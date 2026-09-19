@@ -291,7 +291,7 @@ This reduces manual maintenance after small UI changes while keeping recovery de
 
 ### Robot Framework integration
 
-The Robot Tangerine suite uses the same locator store through `robot/ui/playwright_keywords.py` and currently supports these keys:
+The Robot Tangerine suite uses the same locator store through `robot_test` and currently supports these keys:
 
 - `tangerine.login`
 - `tangerine.signup`
@@ -531,7 +531,7 @@ python -m pytest -m "not ai" --tb=short --maxfail=5
 python -m robot --outputdir temps robot/
 ```
 
-The workflow file still references legacy `robot_demo` paths, while the current repository uses `robot/`. Keep those paths synchronized before relying on the Robot steps in GitHub Actions.
+The workflow file still references legacy `robot_demo` paths, while the current repository uses `robot_test`. Keep those paths synchronized before relying on the Robot steps in GitHub Actions.
 
 ## 📂 Project Structure
 
@@ -592,7 +592,7 @@ Keep changes focused, reusable, and easy to validate.
 
 ### Testing and UI Automation
 
-- **Organize by behavior:** Keep pytest suites under `pytest/` and Robot suites under `robot/`, grouped by `unit`, `api`, `ui`, `ddt`, and `ai` where applicable.
+- **Organize by behavior:** Keep pytest suites under `pytest/` and Robot suites under `robot_test`, grouped by `unit`, `api`, `ui`, `ddt`, and `ai` where applicable.
 - **Use shared fixtures and page objects:** Centralize setup, browser lifecycle, and page interactions instead of duplicating them in individual tests.
 - **Prefer stable selectors:** Reuse shared locator definitions and self-healing helpers for Playwright flows when selector recovery is appropriate.
 - **Parameterize repeated scenarios:** Use fixtures, markers, and parameterization to keep test coverage broad without duplicating test logic.
@@ -672,7 +672,7 @@ Use `--base-url` for an OpenAI-compatible provider and review generated scripts 
 
 ### Robot or CI path failures
 
-Run Robot suites from the repository root and use the current `robot/` directory:
+Run Robot suites from the repository root and use the current `robot_test` directory:
 
 ```powershell
 python -m robot --dryrun --outputdir temps/robot_dryrun robot/
