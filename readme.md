@@ -32,8 +32,8 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 - [Best Practices](#-best-practices--patterns)
 - [Troubleshooting](#-troubleshooting)
 - [Documentation](#-documentation--resources)
-- [Support & Feedback](#-support--feedback)
 - [Contributing](#-contributing)
+- [Support & Feedback](#-support--feedback)
 - [License](#-license)
 - [Project Governance](#-project-governance)
 - [Acknowledgments](#-acknowledgments)
@@ -705,33 +705,6 @@ Use the repository guides for project-specific behavior, then consult the extern
 - [Allure Report documentation](https://docs.qameta.io/allure/)
 - [pytest-html documentation](https://pytest-html.readthedocs.io/)
 
-## ❤️ Support & Feedback
-
-If **Sloth Python** helps you learn, automate, or experiment, your support helps keep the project maintained and growing.
-
-### Ways to help
-
-- [Sponsor the project](https://github.com/sponsors/466725) to support maintenance and new examples.
-- Report reproducible bugs or request features through [GitHub Issues](https://github.com/466725/sloth-python/issues).
-- Ask questions or discuss ideas through [GitHub Discussions](https://github.com/466725/sloth-python/discussions).
-- Contribute tests, documentation, algorithms, automation examples, or AI tooling.
-
-[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github&style=for-the-badge)](https://github.com/sponsors/466725)
-
-Thank you for helping make the project more useful for the next person who finds it.
-
-### Include useful context
-
-For issues and questions, include:
-
-- Python version, operating system, and relevant package or browser versions
-- The smallest reproduction or clear steps to reproduce
-- Expected and actual behavior
-- Relevant command output or a redacted traceback
-- The affected area, such as `pytest`, `robot`, `ai_gen`, `ai_stock`, or `skill_spring`
-
-Report security vulnerabilities through the [Security Policy](security.md), not a public issue. Never include API keys, tokens, credentials, or other sensitive values in reports.
-
 ## 🤝 Contributing
 
 Contributions are welcome across the Python libraries, test suites, AI workflows, learning material, and documentation.
@@ -785,6 +758,33 @@ Contributions are welcome across the Python libraries, test suites, AI workflows
 - Use GitHub Discussions for questions and design ideas.
 - Use GitHub Issues for reproducible bugs and feature requests.
 - Search existing issues before opening a new one.
+
+## ❤️ Support & Feedback
+
+If **Sloth Python** helps you learn, automate, or experiment, your support helps keep the project maintained and growing.
+
+### Ways to help
+
+- [Sponsor the project](https://github.com/sponsors/466725) to support maintenance and new examples.
+- Report reproducible bugs or request features through [GitHub Issues](https://github.com/466725/sloth-python/issues).
+- Ask questions or discuss ideas through [GitHub Discussions](https://github.com/466725/sloth-python/discussions).
+- Contribute tests, documentation, algorithms, automation examples, or AI tooling.
+
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github&style=for-the-badge)](https://github.com/sponsors/466725)
+
+Thank you for helping make the project more useful for the next person who finds it.
+
+### Include useful context
+
+For issues and questions, include:
+
+- Python version, operating system, and relevant package or browser versions
+- The smallest reproduction or clear steps to reproduce
+- Expected and actual behavior
+- Relevant command output or a redacted traceback
+- The affected area, such as `pytest`, `robot`, `ai_gen`, `ai_stock`, or `skill_spring`
+
+Report security vulnerabilities through the [Security Policy](security.md), not a public issue. Never include API keys, tokens, credentials, or other sensitive values in reports.
 
 ## 📝 License
 
