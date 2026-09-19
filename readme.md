@@ -27,7 +27,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 - [Self-Healing Framework](#-self-healing-framework-playwright)
 - [AI-Generated Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp)
 - [Skill Spring Learning Lab](#-skill-spring-learning-lab)
-- [CI/CD Pipeline](#️-cicd-pipeline--automation)
+- [CI/CD Pipeline](#cicd-pipeline-automation)
 - [Project Structure](#-project-structure)
 - [Best Practices](#-best-practices--patterns)
 - [Troubleshooting](#-troubleshooting)
@@ -470,6 +470,7 @@ This is the VS Code equivalent of PyCharm's **Sources Root** behavior.
 
 Note: `python.analysis.extraPaths` improves IDE analysis and autocomplete. It does not make invalid Python identifiers importable at runtime. For example, folders starting with digits such as `001_starter/` still cannot be imported as `claude_code.001_starter...` in a standard `from ... import ...` statement.
 
+<a id="cicd-pipeline-automation"></a>
 ## 🔄 CI/CD Pipeline & Automation
 
 The main workflow is [`.github/workflows/ci.yml`](.github/workflows/ci.yml). It separates fast feedback for changes from scheduled or manually triggered regression coverage.
