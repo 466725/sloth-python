@@ -33,7 +33,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 - [Troubleshooting](#-troubleshooting)
 - [Documentation](#-documentation--resources)
 - [Contributing](#-contributing)
-- [Support & Feedback](#-support--feedback)
+- [Support & Feedback](#support-feedback)
 - [License](#-license)
 - [Project Governance](#-project-governance)
 - [Acknowledgments](#-acknowledgments)
@@ -759,6 +759,7 @@ Contributions are welcome across the Python libraries, test suites, AI workflows
 - Use GitHub Issues for reproducible bugs and feature requests.
 - Search existing issues before opening a new one.
 
+<a id="support-feedback"></a>
 ## ❤️ Support & Feedback
 
 If **Sloth Python** helps you learn, automate, or experiment, your support helps keep the project maintained and growing.
