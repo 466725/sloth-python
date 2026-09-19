@@ -625,30 +625,64 @@ Keep changes focused, reusable, and easy to validate.
 
 ### Common Issues
 
-**Issue: "ModuleNotFoundError" when running tests**
+### Import or dependency errors
+
+Activate the project environment from the repository root and reinstall dependencies:
+
 **Windows (PowerShell):**
 ```powershell
 .\.venv\Scripts\activate
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 **Linux/macOS (bash/zsh):**
 ```bash
 source .venv/bin/activate
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-**Issue: Playwright tests timeout**
+Run tests as modules, for example `python -m pytest`, so the repository root remains available on the import path.
+
+### Playwright browsers or timeouts
+
+Install the browser binaries, then retry a focused UI suite:
+
 ```powershell
-# Solution: Install browsers and retry a focused UI suite first
-playwright install
-python -m pytest pytest_demo/tests/ui/tangerine_playwright -q
+python -m playwright install
+python -m pytest pytest/ui/tangerine -q
 ```
 
-**Issue: Locator selector not found in Playwright**
-- If the test uses the self-healing helpers, the framework may recover automatically
-- Check `pytest` and `pytest` for updated selectors
-- Manual fix: Update the JSON or run with `-v` flag for detailed logs
+For CI or other headless environments, set `PW_HEADLESS=1`. For local debugging, use `--headed --slowmo 200` on a focused test.
+
+### Locator not found
+
+- Review the locator definitions under `pytest/ui/locators/`.
+- If the test uses the self-healing helpers, inspect the logs for fallback and DOM-similarity recovery messages.
+- Run the focused test with `-v` to capture detailed failure output.
+- Update the relevant JSON locator only after confirming the replacement is stable.
+
+See [Self-Healing Framework](#-self-healing-framework-playwright) for the recovery flow and supported Robot locator keys.
+
+### AI generation errors
+
+Set `OPENAI_API_KEY` before invoking the generator and verify the CLI is available:
+
+```powershell
+$env:OPENAI_API_KEY = "<your-api-key>"
+python -m ai_gen.cli --help
+```
+
+Use `--base-url` for an OpenAI-compatible provider and review generated scripts before running or committing them.
+
+### Robot or CI path failures
+
+Run Robot suites from the repository root and use the current `robot/` directory:
+
+```powershell
+python -m robot --dryrun --outputdir temps/robot_dryrun robot/
+```
+
+The GitHub Actions workflow still contains legacy `robot_demo` paths. If those steps fail, update the workflow paths to match the current repository layout before rerunning CI.
 
 ## 📖 Documentation & Resources
 
