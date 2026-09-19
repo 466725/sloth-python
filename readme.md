@@ -780,19 +780,22 @@ Contributions are welcome across the Python libraries, test suites, AI workflows
 - Use GitHub Issues for reproducible bugs and feature requests.
 - Search existing issues before opening a new one.
 
-
 ## 📝 License
 
-This project is licensed under the **MIT License**.
+Sloth Python is distributed under the **MIT License**.
 
-The MIT License permits:
-- ✅ Commercial use
-- ✅ Modification
-- ✅ Distribution
-- ✅ Private use
+### Permissions
 
-With the conditions:
-- ⚠️ License and copyright notice must be included
+| Use | Permitted |
+|---|---|
+| Commercial use | Yes |
+| Private use | Yes |
+| Modification | Yes |
+| Distribution | Yes |
+
+### Condition
+
+Redistributions must retain the applicable copyright and license notices.
 
 ## 📧 Support & Feedback
 
