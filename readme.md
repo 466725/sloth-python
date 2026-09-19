@@ -821,21 +821,23 @@ Have questions or want to discuss testing strategies? Use **GitHub Discussions**
 
 We actively monitor both Issues and Discussions—your feedback helps improve this project!
 
----
-
 ## 📋 Project Governance
 
-### Community & Contribution Resources
+Project maintenance is supported by automated checks, dependency updates, security guidance, and community review.
 
-- **[SECURITY.md](security.md)** - How to responsibly report security vulnerabilities
+### Repository governance
 
-### GitHub Issue Templates
+- [Security Policy](security.md) - Responsible vulnerability reporting and secret-handling expectations
+- [CI workflow](.github/workflows/ci.yml) - Smoke, regression, and artifact automation
+- [Dependabot configuration](.github/dependabot.yml) - Automated dependency update settings
+- [Funding configuration](.github/FUNDING.yml) - GitHub Sponsors configuration
 
-We provide issue templates to streamline reporting:
-- **Bug Reports** - For issues and problems
-- **Feature Requests** - For new functionality ideas
-- **Documentation** - For improvements to docs
-- **Questions** - For general inquiries (consider using Discussions instead)
+### Community expectations
+
+- Use [GitHub Issues](https://github.com/466725/sloth-python/issues) for reproducible bugs and feature requests.
+- Use [GitHub Discussions](https://github.com/466725/sloth-python/discussions) for questions, ideas, and design conversations.
+- Follow the [Contributing](#-contributing) workflow for code, test, and documentation changes.
+- Report security vulnerabilities through the [Security Policy](security.md), not a public issue.
 
 ---
 
