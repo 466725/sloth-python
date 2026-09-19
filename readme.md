@@ -197,8 +197,8 @@ The repository includes three API-testing styles:
 | Approach | Example command |
 |---|---|
 | Pytest + Python | `python -m pytest -q pytest/api/test_deep_seek_api.py` |
-| Robot + Python keywords | `python -m robot --outputdir temps/robot_api robot/api/test_deep_seek_api_hybrid.robot` |
-| Robot-only `RequestsLibrary` | `python -m robot --outputdir temps/robot_api robot/api/test_deep_seek_api.robot` |
+| Robot + Python keywords | `python -m robot --outputdir temps/robot_api robot_test/api/test_deep_seek_api_hybrid.robot` |
+| Robot-only `RequestsLibrary` | `python -m robot --outputdir temps/robot_api robot_test/api/test_deep_seek_api.robot` |
 
 DeepSeek demos use `OPENAI_API_KEY`; `DEEP_SEEK_URL` is optional.
 
@@ -231,16 +231,16 @@ Robot demos live under `robot`.
 
 ```powershell
 # All Robot suites
-python -m robot --outputdir temps/robot_all robot/
+python -m robot --outputdir temps/robot_all robot_test/
 
 # Calculator demo
-python -m robot --outputdir temps/robot_calculator robot/calculator/
+python -m robot --outputdir temps/robot_calculator robot_test/calculator/
 
 # Tangerine Playwright suite
-python -m robot --outputdir temps/robot_tangerine_playwright robot/ui/
+python -m robot --outputdir temps/robot_tangerine_playwright robot_test/ui/
 
 # Dry run (syntax and keyword wiring only)
-python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot/ui/
+python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_test/ui/
 ```
 
 Robot writes `output.xml`, `log.html`, and `report.html` to the selected directory under `temps/`.
@@ -523,12 +523,12 @@ Run the closest equivalent from the repository root:
 ```powershell
 # Smoke checks
 python -m pytest -m "unit or api" --tb=short
-python -m robot --outputdir temps/robot_smoke robot/calculator/
+python -m robot --outputdir temps/robot_smoke robot_test/calculator/
 
 # Regression-style checks
 python -m playwright install --with-deps
 python -m pytest -m "not ai" --tb=short --maxfail=5
-python -m robot --outputdir temps robot/
+python -m robot --outputdir temps robot_test/
 ```
 
 The workflow file still references legacy `robot_demo` paths, while the current repository uses `robot_test`. Keep those paths synchronized before relying on the Robot steps in GitHub Actions.
@@ -547,7 +547,7 @@ sloth-python/
 │   ├── ddt/
 │   ├── ui/
 │   └── unit/
-├── robot/                      # Robot Framework API, calculator, UI, DDT, and unit suites
+├── robot_test/                      # Robot Framework API, calculator, UI, DDT, and unit suites
 │   ├── api/
 │   ├── calculator/
 │   ├── ddt/
@@ -579,7 +579,7 @@ sloth-python/
 - **ai_stock/** - Combines market data, news, strategies, and AI-generated stock reports
 - **load_test/** - Source assets for JMeter, Postman, and load-runner workflows
 - **pytest/** - Main pytest test suites, including the `ai`, `api`, `ui`, and `unit` areas
-- **robot/** - Robot Framework suites and Python keyword libraries
+- **robot_test/** - Robot Framework suites and Python keyword libraries
 - **self_healing/** - Locator fallback, DOM similarity, and locator-store update logic
 - **skill_spring/** - Learning material for algorithms, concepts, Claude/MCP, scraping, and experiments
 - **test_data/** - Utilities and input files used to create or supply test data
@@ -675,7 +675,7 @@ Use `--base-url` for an OpenAI-compatible provider and review generated scripts 
 Run Robot suites from the repository root and use the current `robot_test` directory:
 
 ```powershell
-python -m robot --dryrun --outputdir temps/robot_dryrun robot/
+python -m robot --dryrun --outputdir temps/robot_dryrun robot_test/
 ```
 
 The GitHub Actions workflow still contains legacy `robot_demo` paths. If those steps fail, update the workflow paths to match the current repository layout before rerunning CI.
@@ -726,7 +726,7 @@ Contributions are welcome across the Python libraries, test suites, AI workflows
    python -m ruff check .
    python -m ruff format --check .
    python -m pytest -m "unit or api"
-   python -m robot --dryrun --outputdir temps/robot_contributing robot/calculator/
+   python -m robot --dryrun --outputdir temps/robot_contributing robot_test/calculator/
    ```
 
    Run broader pytest or Robot suites when the change crosses those boundaries.
