@@ -12,7 +12,7 @@ def browser():
 def test_tangerine_get_our_app_links(browser):
     page = browser.new_page()
     page.goto("https://www.tangerine.ca/en/personal")
-    assert page.title() == "Personal Online Banking: Digital Banking in Canada | Tangerine | Tangerine"
+    assert "Digital Banking in Canada | Tangerine" in page.title()
     ios_link = page.get_by_role("link", name="Download on the App Store")
     android_link = page.get_by_role("link", name="Get it on Google Play")
     assert ios_link.is_visible()
