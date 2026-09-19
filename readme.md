@@ -260,40 +260,36 @@ The Tangerine Robot keyword libraries also bootstrap the project root import pat
 
 ## 🤖 Self-Healing Framework (Playwright)
 
-This project includes an advanced self-healing mechanism for Playwright-based UI tests that automatically detects and repairs broken locators.
+The Playwright UI tests use fallback locators and DOM similarity matching to recover from selector changes.
 
-**Location:** `pytest`
-**Locator Store:**
-- `pytest`
-- `pytest`
+### Components
 
-### How It Works
+| Component | Responsibility |
+|---|---|
+| `self_healing/element_finder.py` | Tries the primary locator and configured fallbacks |
+| `self_healing/dom_similarity.py` | Finds likely replacements in the current page DOM |
+| `self_healing/self_healing.py` | Coordinates recovery and optional locator updates |
+| `self_healing/locator_store.py` | Loads and persists keyed locator definitions |
+| `pytest/ui/locators/` | Stores the Tangerine locator JSON files |
 
-1. **Primary Locator Failure** → Framework attempts primary locator
-2. **Backup Locators** → Tries backup selectors from locator store
-3. **DOM Scanning** → Scans page DOM for similar elements using fuzzy matching
-4. **Auto-Update** → If a match is found, test passes and the page-specific locator file is automatically updated
-5. **Resilience** → Subsequent test runs use the updated selector
+### Recovery flow
 
-### Benefits
+1. Try the primary locator and its fallback strategies.
+2. If they fail, scan the page DOM for a similar candidate.
+3. Reject candidates below the similarity threshold.
+4. Build a locator from the best candidate.
+5. Update the primary locator when `auto_update=True`.
 
-- **Reduced Maintenance:** Eliminates manual locator fixes after UI changes
-- **Improved Stability:** Tests are more resilient to minor DOM alterations
-- **Smart Learning:** System learns from failures and improves over time
+This reduces manual maintenance after small UI changes while keeping recovery decisions visible in the test logs.
 
-### Robot Tangerine Suite Scope
+### Robot Framework integration
 
-The Robot suite in `robot` uses the same self-healing locator store, but limits healing to these keys in the Playwright keywords:
+The Robot Tangerine suite uses the same locator store through `robot/ui/playwright_keywords.py` and currently supports these keys:
 
 - `tangerine.login`
 - `tangerine.signup`
 
-Locator definitions are shared from:
-
-- `pytest`
-- `pytest`
-
-Robot mode currently runs with read-only healing (`auto_update=False`) so it can recover using stored locator strategies without silently rewriting the locator files.
+Robot integration enables locator updates through `SELF_HEAL_AUTO_UPDATE`. Set that constant to `False` when a run must recover without rewriting locator files.
 
 ## 🤖 AI-Generated UI Test Scripts (Python + Playwright + MCP)
 
