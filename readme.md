@@ -18,6 +18,8 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 ## 📚 Table of Contents
 
+- [Key Highlights](#-key-highlights)
+- [Prerequisites](#-prerequisites)
 - [Quick Start](#-quick-start)
 - [Installation](#️-installation)
 - [Configuration](#️-configuration)
@@ -30,8 +32,11 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 - [Best Practices](#-best-practices--patterns)
 - [Troubleshooting](#-troubleshooting)
 - [Documentation](#-documentation--resources)
-- [License](#-license)
 - [Support & Feedback](#-support--feedback)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Project Governance](#-project-governance)
+- [Acknowledgments](#-acknowledgments)
 
 ## 📌 Key Highlights
 
