@@ -24,7 +24,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 - [Running Tests](#-running-tests)
 - [Self-Healing Framework](#-self-healing-framework-playwright)
 - [AI-Generated Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp)
-- [Claude Code Examples](#-claude-code-examples)
+- [Skill Spring Learning Lab](#-skill-spring-learning-lab)
 - [CI/CD Pipeline](#️-cicd-pipeline--automation)
 - [Project Structure](#-project-structure)
 - [Best Practices](#-best-practices--patterns)
@@ -361,11 +361,21 @@ Validate the generator with:
 python -m pytest -q pytest/ai/test_ai_generation.py
 ```
 
-## 🧠 Claude Code Examples
+## 🌱 Skill Spring Learning Lab
 
-The `skill_spring/claude_code` package is a hands-on collection of Claude API and MCP examples. It is useful for learning prompt design, tool use, retrieval, streaming, and building small MCP clients/servers around Claude.
+`skill_spring` is the repository's learning and research area: a collection of study tracks, experiments, notebooks, and reusable examples spanning software engineering, AI, and exploratory programming.
 
-### Learning Tracks
+### Learning paths
+
+| Directory | Focus |
+|---|---|
+| [`algorithms/`](skill_spring/algorithms/) | Algorithms, data structures, problem-solving patterns, and machine learning exercises |
+| [`concepts/`](skill_spring/concepts/) | Practical programming and test-automation concepts, from browser contexts to CI/CD |
+| [`claude_code/`](skill_spring/claude_code/) | Claude, MCP, prompting, retrieval, tool use, and agent-oriented research |
+| [`web_scraping/`](skill_spring/web_scraping/) | Web scraping, browser utilities, networking, and data collection experiments |
+| [`fun_part/`](skill_spring/fun_part/) | Small games, creative programs, exploratory utilities, and learning experiments |
+
+### Claude and MCP study track
 
 The main subprojects are organized by numbered learning tracks:
 
@@ -419,8 +429,8 @@ Most runnable subprojects include their own `README.md`. In general, set `ANTHRO
 
 Additional reference files:
 
-- `skill_spring/claude_code`: curated course/content notes
-- `skill_spring/claude_code`: local notes and summary output for Claude experiments
+- `skill_spring/claude_code/claude_code_learning.md`: curated course and project notes
+- `skill_spring/claude_code/`: notebooks and supporting research material
 
 ### IDE Setup For `skill_spring/claude_code` Subprojects
 
@@ -444,9 +454,9 @@ This is the VS Code equivalent of PyCharm's **Sources Root** behavior.
 {
    "python.defaultInterpreterPath": "${workspaceFolder}/.venv311/Scripts/python.exe",
    "python.analysis.extraPaths": [
-      "./claude_code/claude_agent_sdk/src",
-      "./claude_code/claude_agent_sdk",
-      "./claude_code"
+      "./skill_spring/claude_code/claude_agent_sdk/src",
+      "./skill_spring/claude_code/claude_agent_sdk",
+      "./skill_spring/claude_code"
    ]
 }
 ```
