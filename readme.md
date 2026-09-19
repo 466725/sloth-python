@@ -541,130 +541,54 @@ The workflow file still references legacy `robot_demo` paths, while the current 
 
 ```
 sloth-python/
-├── ai_gen/                     # AI + MCP prompt-to-test generation package
-│   ├── ai_client.py            # OpenAI-compatible LLM client
-│   ├── cli.py                  # CLI entry point for generated Playwright tests
-│   ├── generator.py            # Test generation orchestration
-│   ├── mcp_context.py          # Page/context capture helpers
-│   ├── paths.py                # Output path utilities
-│   └── prompt_builder.py       # Prompt construction
-│
-├── ai_stock/                   # AI stock analysis and reporting experiments
-│   ├── engine/                 # Core stock analysis engine
-│   ├── llm/                    # LLM integrations/prompts
-│   ├── report/                 # Report generation utilities
-│   ├── stock_data/             # Market data models/loaders
-│   ├── stock_news/             # News ingestion and processing
-│   ├── strategies/             # Strategy implementations
-│   └── utils/                  # Shared helpers for ai_stock
-│
-├── algorithms/                 # Algorithms and data structures
-│   ├── backtracking/           # Backtracking algorithms
-│   ├── conversions/            # Number system conversions
-│   ├── data_structures/        # Trees, heaps, queues, stacks, tries, etc.
-│   ├── divide_and_conquer/     # Divide and conquer patterns
-│   ├── dynamic_programming/    # Dynamic programming examples
-│   ├── greedy/                 # Greedy algorithms
-│   ├── machine_learning/       # ML implementations
-│   ├── maths/                  # Mathematical algorithms
-│   ├── searches/               # Search algorithms
-│   ├── sliding_window/         # Sliding-window patterns
-│   ├── sorts/                  # Sorting algorithms
-│   ├── strings/                # String algorithms
-│   ├── traversals/             # Traversal algorithms
-│   └── two_pointers/           # Two-pointer patterns
-│
-├── claude_code/                # Claude/Anthropic notebooks and MCP examples
-│   ├── 000_Architect_Foundations_Certification_Exam/ # Architect foundations practice exam
-│   ├── 001_starter/            # MCP starter project
-│   ├── 002_cli/                # CLI/MCP client-server demo
-│   ├── 003_notifications/      # Notification server/client example
-│   ├── 004_roots/              # MCP roots examples
-│   ├── 005_sampling/           # MCP sampling examples
-│   ├── 006_transport_http/     # HTTP transport example
-│   ├── 007_note_book/          # Claude API/tutorial notebooks
-│   ├── claude_agent_sdk/       # Claude Agent SDK local source/examples
-│   ├── anthropic_academy_courses.md
-│   └── report.md
-│
-├── fun_part/                   # Educational & Fun Examples
-│   ├── bilibili/               # API demo projects
-│   ├── education_management/   # Education management examples
-│   ├── go_game/                # Game implementations
-│   └── py_echart/              # Charting examples
-│
-├── load_test_demo/             # JMeter and Postman load/API test assets
-│   ├── *.jmx                   # JMeter test plans
-│   └── *.postman_environment.json / *.postman_collection.json
-│
-├── pytest_demo/                # Pytest test suite
-│   ├── locators/               # Locator repository
-│   ├── tests/                  # Test cases
-│   │   ├── ai/                 # AI-generation tests and generated Playwright scripts
-│   │   ├── api/                # API tests
-│   │   ├── ddt/                # Data-driven tests
-│   │   ├── ui/                 # UI tests
-│   │   └── unit/               # Unit tests
-│   └── theatre-data.csv        # Test data fixture
-│
-├── robot_demo/                 # Robot Framework demo suites
-│   ├── api/                    # API demos
-│   ├── calculator/             # Calculator test suite
-│   ├── ddt/                    # Data-driven Robot examples
-│   ├── tangerine_playwright/   # Tangerine UI suite
-│   └── unit/                   # Basic/unit Robot examples
-│
-├── self_healing/               # Shared self-healing Playwright framework
-│   ├── dom_similarity.py       # DOM similarity scoring
-│   ├── driver_manager.py       # Browser driver helpers
-│   ├── element_finder.py       # Resilient element lookup
-│   ├── locator_store.py        # Locator persistence
-│   └── self_healing.py         # Self-healing workflow
-│
-├── utils/                      # Shared Utilities
-│   ├── config.py               # Configuration management
-│   ├── csv_reader.py           # CSV utilities
-│   ├── data_base/              # Database helpers
-│   ├── decorators.py           # Decorator examples/utilities
-│   ├── google_analytics.py     # Google Analytics helpers
-│   ├── litellm_client.py       # LiteLLM client wrapper
-│   ├── playwright_mcp.py       # Playwright MCP helpers
-│   ├── qtest_client.py         # qTest API client
-│   └── tik_token.py            # Token counting helpers
-│
-├── web_scraping/               # Web scraping and networking examples
-│   ├── hostname_ip_info_lookup.py
-│   ├── scrape_douban.py
-│   ├── scrape_google.py
-│   ├── scrape_weather_com_cn.py
-│   ├── scrape_yahoo_stock_price.py
-│   ├── screenshot_grabber.py
-│   ├── tcp_client.py
-│   └── tcp_server.py
-│
+├── ai_gen/                     # AI + MCP prompt-to-test generation
+├── ai_stock/                   # AI-assisted stock analysis and reporting
+├── config/                     # Shared and feature-specific configuration
+├── load_test/                  # JMeter, load-runner, and Postman assets
+├── pytest/                     # Pytest unit, API, UI, DDT, and AI tests
+│   ├── ai/
+│   ├── api/
+│   ├── ddt/
+│   ├── ui/
+│   └── unit/
+├── robot/                      # Robot Framework API, calculator, UI, DDT, and unit suites
+│   ├── api/
+│   ├── calculator/
+│   ├── ddt/
+│   ├── ui/
+│   └── unit/
+├── self_healing/               # Shared Playwright locator-recovery framework
+├── skill_spring/               # Learning and research tracks
+│   ├── algorithms/
+│   ├── claude_code/
+│   ├── concepts/
+│   ├── fun_part/
+│   └── web_scraping/
+├── test_data/                  # Test-data creation scripts and fixtures
+├── utils/                      # Shared configuration, database, analytics, and integration helpers
+├── temps/                      # Generated reports, logs, videos, and temporary results
 ├── .github/workflows/          # GitHub Actions CI/CD definitions
-├── .vscode/settings.json       # Workspace Python/Pylance settings
-├── .env.example                # Example local environment variables
+├── .vscode/                    # Workspace settings
 ├── pyproject.toml              # Tooling configuration
 ├── pytest.ini                  # Pytest configuration
-├── readme.md                   # This file
+├── readme.md                   # Project documentation
 ├── requirements.txt            # Python dependencies
 ├── security.md                 # Security policy
-└── uv.lock                     # uv lock file
+└── uv.lock                     # uv dependency lock file
 ```
 
 ### Key Directories Explained
 
-- **ai_gen/** - AI-assisted Playwright test generation using page context and LLM prompts
-- **ai_stock/** - AI-driven stock analysis, news ingestion, strategy logic, and report generation
-- **algorithms/** - Production-ready implementations for learning and reference
-- **claude_code/** - Claude learning tracks: MCP mini-projects, notebooks, and local Agent SDK examples
-- **load_test_demo/** - Load/performance assets for JMeter and Postman-based API testing
-- **pytest_demo/** - Complete pytest examples for unit, API, DDT, AI, and UI testing
-- **robot_demo/** - Robot Framework suites for API, calculator, DDT, unit, and Playwright UI workflows
-- **self_healing/** - Shared self-healing locator framework for Playwright-based automation
-- **utils/** - Reusable helpers for config, CSV, analytics, MCP/LLM integrations, qTest, and tokens
-- **web_scraping/** - Web scraping, screenshot, stock-price, and TCP networking examples
+- **ai_gen/** - Generates pytest + Playwright scripts from live page context and natural-language goals
+- **ai_stock/** - Combines market data, news, strategies, and AI-generated stock reports
+- **load_test/** - Source assets for JMeter, Postman, and load-runner workflows
+- **pytest/** - Main pytest test suites, including the `ai`, `api`, `ui`, and `unit` areas
+- **robot/** - Robot Framework suites and Python keyword libraries
+- **self_healing/** - Locator fallback, DOM similarity, and locator-store update logic
+- **skill_spring/** - Learning material for algorithms, concepts, Claude/MCP, scraping, and experiments
+- **test_data/** - Utilities and input files used to create or supply test data
+- **utils/** - Shared configuration, CSV, database, analytics, qTest, and AI helpers
+- **temps/** - Generated output; do not edit it as source documentation
 
 ---
 
