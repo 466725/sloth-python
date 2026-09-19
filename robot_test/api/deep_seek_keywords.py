@@ -7,7 +7,7 @@ from typing import cast
 
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
-from robot_test.libraries.BuiltIn import BuiltIn
+from robot.libraries.BuiltIn import BuiltIn
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
