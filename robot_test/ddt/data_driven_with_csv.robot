@@ -4,6 +4,10 @@ Library           DataDriver    file=data_driven.csv    dialect=excel
 Library           robot_test.calculator.calculator_library.CalculatorLibrary
 Test Template     Calculate
 
+*** Variables ***
+${expression}      ${EMPTY}
+${expected}        ${EMPTY}
+
 *** Test Cases ***
 Calculator with CSV
 	[Template]    Calculate
