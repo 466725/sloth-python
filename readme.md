@@ -728,83 +728,58 @@ Thank you for helping make the project more useful for the next person who finds
 
 ## 🤝 Contributing
 
-Contributions are welcome and appreciated! Whether you're fixing bugs, adding features, improving documentation, or sharing new algorithm implementations, we'd love your help.
+Contributions are welcome across the Python libraries, test suites, AI workflows, learning material, and documentation.
 
-### How to Contribute
+### Contribution workflow
 
-1. **Fork the repository** on GitHub
-2. **Create a feature branch** with a descriptive name:
+1. Fork the repository and create a focused feature branch:
    ```powershell
-   git checkout -b feature/add-new-algorithm
-   git checkout -b fix/self-healing-bug
-   git checkout -b docs/improve-readme
+   git checkout -b feature/your-feature-name
    ```
-3. **Make your changes** and ensure code quality:
-   - Follow **PEP 8** style guidelines
-   - Add **type hints** for new functions
-   - Include **docstrings** and comments
-   - Write **unit tests** for new functionality
-4. **Test your changes** locally:
+
+2. Make the smallest change that solves the problem and add or update focused tests and documentation.
+
+3. Validate the affected slice from the repository root:
    ```powershell
-   python -m pytest -m "unit or api"  # Quick smoke test
-   python -m pytest --tb=short          # Full test suite
+   python -m ruff check .
+   python -m ruff format --check .
+   python -m pytest -m "unit or api"
+   python -m robot --dryrun --outputdir temps/robot_contributing robot/calculator/
    ```
-5. **Commit with clear messages**:
+
+   Run broader pytest or Robot suites when the change crosses those boundaries.
+
+4. Commit with a clear conventional message and push the branch:
    ```powershell
-   git commit -m "feat: add new sorting algorithm"
-   git commit -m "fix: correct self-healing locator logic"
+   git add path/to/changed/files
+   git commit -m "feat: describe your changes"
+   git push origin feature/your-feature-name
    ```
-6. **Push your branch** and **create a Pull Request** on GitHub with:
-   - Clear title and description
-   - Reference to any related issues (e.g., `Fixes #42`)
-   - Explanation of changes and why they're needed
 
-### Areas for Contribution
+5. Open a pull request with a clear summary, validation commands, and related issue references such as `Fixes #42`.
 
-- **Algorithms** - New algorithm implementations in `skill_spring/algorithms` (with tests)
-- **Test Automation** - Enhanced Robot Framework keywords, new UI test examples
-- **Self-Healing** - Improvements to the locator recovery mechanism
-- **AI Generation** - Enhancements to the MCP-driven test generator
-- **Documentation** - README updates, code examples, tutorials
-- **CI/CD** - Workflow improvements, additional test coverage
+### Good contribution areas
 
-### Development Workflow
+- **Algorithms and learning:** Add focused examples under `skill_spring/algorithms/` with tests where appropriate.
+- **Test automation:** Improve pytest suites, Robot keywords, Playwright flows, and shared fixtures.
+- **Self-healing:** Improve locator recovery, DOM similarity, or locator-store behavior.
+- **AI workflows:** Enhance `ai_gen/` or `ai_stock/` while keeping provider settings externalized.
+- **Documentation and CI/CD:** Improve guides, examples, workflows, and failure diagnostics.
 
-```powershell
-# Complete initial setup first (see Installation), then:
+### Contribution standards
 
-# Create and switch to feature branch
-git checkout -b feature/your-feature-name
+- Keep public behavior stable unless the change is intentional and documented.
+- Prefer existing helpers, clear names, type hints, and focused modules.
+- Keep secrets out of source code, examples, logs, and commits.
+- Update tests and documentation when behavior or workflows change.
+- Use conventional commit prefixes such as `feat:`, `fix:`, and `docs:`.
 
-# Install dependencies (if adding new packages)
-pip install -r requirements.txt
+### Questions and support
 
-# Make your changes and test
-python -m pytest
-python -m robot robot_demo/calculator/
+- Use GitHub Discussions for questions and design ideas.
+- Use GitHub Issues for reproducible bugs and feature requests.
+- Search existing issues before opening a new one.
 
-# Commit and push
-git add .
-git commit -m "feat: describe your changes"
-git push origin feature/your-feature-name
-
-# Create Pull Request on GitHub
-```
-
-### Code Standards
-
-- **Python** - PEP 8, type hints, docstrings
-- **Tests** - Pytest or Robot Framework with clear naming
-- **Documentation** - Updated README.md or inline comments for complex logic
-- **Commit Messages** - Clear, concise, use conventional commits (feat:, fix:, docs:, etc.)
-
-### Questions or Need Help?
-
-- **GitHub Discussions** - Ask questions and share ideas
-- **GitHub Issues** - Report bugs or request features
-- **Check existing issues** - Your question might already be answered
-
-Thank you for contributing! 🙌
 
 ## 📝 License
 
