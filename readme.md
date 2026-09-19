@@ -62,6 +62,21 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
    cd sloth-python
    ```
 
+2. **Create an environment and install dependencies:**
+   ```powershell
+   py -3.11 -m venv .venv
+   .\.venv\Scripts\activate
+   python -m pip install -r requirements.txt
+   playwright install
+   ```
+
+3. **Run the baseline checks:**
+   ```powershell
+   python -m pytest -m "unit or api"
+   ```
+
+See [Installation](#️-installation) for Linux/macOS commands, alternative package installation with `uv`, and additional setup details.
+
 ## 🛠️ Installation
 
 1. **Create and activate a virtual environment:**
