@@ -170,6 +170,27 @@ python -m utils.config
 
 Run commands from the repository root. Choose the narrowest workflow that matches the change you are validating.
 
+### Run all pytest and Robot tests
+
+Run both test frameworks and return a failure if either suite fails:
+
+```powershell
+$pytestExit = 0
+$robotExit = 0
+
+python -m pytest
+$pytestExit = $LASTEXITCODE
+
+python -m robot --outputdir temps/robot_all robot_test/
+$robotExit = $LASTEXITCODE
+
+if ($pytestExit -ne 0 -or $robotExit -ne 0) {
+   exit 1
+}
+```
+
+Pytest results use the configured Allure output directory; Robot reports are written to `temps/robot_all/`.
+
 ### Pytest suites
 
 `pytest` covers the unit, API, and Playwright UI suites.
