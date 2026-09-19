@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from pytest.ui.tangerine.test_signinpage import goto_signup_page
+from ui.tangerine.test_signinpage import goto_signup_page
 
 logger = logging.getLogger(__name__)
 
