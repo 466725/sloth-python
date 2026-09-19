@@ -572,7 +572,7 @@ sloth-python/
 ├── .github/workflows/          # GitHub Actions CI/CD definitions
 ├── .vscode/                    # Workspace settings
 ├── pyproject.toml              # Tooling configuration
-├── pytest.ini                  # Pytest configuration
+├── pyproject.toml              # Python tooling and pytest configuration
 ├── readme.md                   # Project documentation
 ├── requirements.txt            # Python dependencies
 ├── security.md                 # Security policy

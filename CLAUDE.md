@@ -42,10 +42,10 @@ Use Ruff (configured in pyproject.toml):
   - `python -m pytest pytest_demo/tests/unit/test_csv_reader.py -q`
 
 Notes:
-- pytest.ini writes Allure output to `temps/allure-results`
+- `pyproject.toml` writes Allure output to `temps/allure-results`
 - Default testpaths include:
   - `pytest`
-  - `robot`
+  - `robot_test`
 
 ### Robot Framework
 
