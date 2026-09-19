@@ -714,19 +714,17 @@ Use the repository guides for project-specific behavior, then consult the extern
 
 ## ❤️ Support This Project
 
-If you find **Sloth Python** useful — whether for learning, professional automation, or as a reference — please consider sponsoring!
+If **Sloth Python** helps you learn, automate, or experiment, your support helps keep the project maintained and growing.
 
-Your support helps fund:
-- 🛠️ Ongoing maintenance and new features
-- 🤖 AI/Playwright tooling improvements
-- 📚 More algorithm and test examples
-- ⏱️ Faster responses to issues and PRs
+### Ways to help
+
+- [Sponsor the project](https://github.com/sponsors/466725) to support maintenance and new examples.
+- Report bugs or suggest improvements through GitHub issues and discussions.
+- Contribute tests, documentation, algorithms, automation examples, or AI tooling.
 
 [![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github&style=for-the-badge)](https://github.com/sponsors/466725)
 
-Even a small monthly contribution makes a big difference. Thank you! 🙏
-
----
+Thank you for helping make the project more useful for the next person who finds it.
 
 ## 🤝 Contributing
 
