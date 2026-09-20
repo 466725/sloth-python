@@ -96,6 +96,7 @@ def load_settings() -> Settings:
 		headless=_env_bool("PW_HEADLESS", False),
 		slow_mo=_env_int("PW_SLOW_MO", 0),
 	)
+	
 	ai_generation = AIGenerationSettings(
 		model=_env_str("AI_GEN_MODEL", "gpt-4.1"),
 		base_url=_normalize_openai_base_url(_env_str("AI_GEN_BASE_URL", urls.openai)),
