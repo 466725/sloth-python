@@ -148,7 +148,7 @@ Runtime settings are read from environment variables. Shared test and AI-generat
 | `AI_GEN_MODEL` | `gpt-4.1` | LLM model identifier |
 | `AI_GEN_BASE_URL` | `OPENAI_URL` | API endpoint used by the generator |
 | `AI_GEN_MAX_DOM_CHARS` | `12000` | Maximum DOM characters sent to the model |
-| `AI_GEN_OUTPUT_DIR` | `pytest/tests/ai/generated_playwright` | Directory for generated tests |
+| `AI_GEN_OUTPUT_DIR` | `temps/ai/generated_playwright` | Directory for generated tests |
 
 Set the required provider key, such as `OPENAI_API_KEY`, through the environment before using AI features. Never commit credentials to the repository.
 
@@ -375,9 +375,9 @@ python -m ai_gen.cli `
    --url "https://www.tangerine.ca/app/#/login" `
    --goal "Verify username, password, and submit controls are present" `
    --test-name "test_tangerine_signin" `
-   --output "pytest/ai/generated_playwright/test_tangerine_signin.py"
+   --output "temps/ai/generated_playwright/test_tangerine_signin.py"
 
-python -m pytest -q pytest/ai/generated_playwright
+python -m pytest -q temps/ai/generated_playwright/test_tangerine_signin.py
 ```
 
 Review generated code before committing. DOM input is limited by `AI_GEN_MAX_DOM_CHARS`, and generated tests are plain pytest files; self-healing must be added explicitly when needed.
