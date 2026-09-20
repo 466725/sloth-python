@@ -1,5 +1,6 @@
 import logging
 
+import allure
 import pytest
 
 from self_healing.locator_store import get_locator
@@ -17,6 +18,7 @@ def goto_signup_page(tangerine_homepage):
 
 @pytest.mark.ui
 @pytest.mark.playwright
+@allure.description("Owner: Weipeng Zheng")
 def test_signinpage_title(tangerine_homepage):
     logger.info("Verifying Tangerine signin page title (Playwright)")
     click(tangerine_homepage, "tangerine.login", get_locator("tangerine.login"))
