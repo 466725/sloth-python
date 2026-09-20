@@ -1,123 +1,102 @@
-# CLAUDE.md
+# Sloth Python Project Guide
 
-Global context for working in this monorepo with Claude Code.
+## Project Focus
 
-## Purpose
+This repository combines Python utilities, pytest and Playwright tests, Robot Framework suites, AI-assisted test generation, AI stock analysis, learning material, and load-test assets.
 
-This repository combines:
-- Python libraries and demos
-- Pytest + Playwright automation
-- Robot Framework suites
-- Load-testing artifacts (JMeter/Postman)
-- Shared utility modules
+Keep changes small, focused, and compatible with the existing project structure. Prefer current repository paths and existing helpers over introducing parallel abstractions.
 
-When making changes, prefer minimal, targeted edits and avoid broad refactors unless requested.
+## Main Areas
 
-## Environment
+- `ai_gen/`: AI + MCP generation of pytest/Playwright test scripts.
+- `ai_stock/`: Stock data, news, strategies, deterministic prediction, and report generation.
+- `config/`: Environment-backed shared runtime settings.
+- `pytest/`: Python tests grouped by `unit`, `api`, `ui`, `ddt`, and `ai`.
+- `robot_test/`: Robot Framework suites and Python keyword libraries.
+- `self_healing/`: Playwright locator fallback, DOM similarity, and locator persistence.
+- `skill_spring/`: Learning and research material, including algorithms and Claude/MCP studies.
+- `utils/`: Domain-oriented helpers under `data/`, `browser/`, `integrations/`, `observability/`, `data_base/`, and `qtest_utilities/`.
+- `load_test/`: JMeter, Postman, and load-runner assets.
+- `temps/`: Generated reports, logs, videos, and test results. Never edit or treat this as source.
 
-- OS used most often: Windows (PowerShell)
-- Python: 3.11+ supported; tooling config targets Python 3.12
-- Install deps:
-  - `pip install -r requirements.txt`
-- Install Playwright browsers when needed:
-  - `playwright install`
+## Configuration
 
-## Common Commands
+- Python tooling and pytest configuration live in `pyproject.toml`.
+- RobotCode project Python-path configuration lives in `robot.toml`.
+- Runtime environment settings live in `config/config.py` and use environment variables.
+- Keep secrets, API keys, tokens, and credentials out of source, tests, logs, and documentation.
+- Use `.env.example` as the template for local environment variables.
 
-### Lint and format
+## Validation Commands
 
-Use Ruff (configured in pyproject.toml):
-- `python -m ruff check .`
-- `python -m ruff check . --fix`
-- `python -m ruff format .`
+Run commands from the repository root with the project environment active.
 
-### Pytest
+### Python and pytest
 
-- Full run:
-  - `python -m pytest`
-- Marker-based run:
-  - `python -m pytest -m ui`
-  - `python -m pytest -m api`
-- Single file:
-  - `python -m pytest pytest/unit/test_csv_reader.py -q`
-
-Notes:
-- `pyproject.toml` writes Allure output to `temps/allure-results`
-- Default testpaths include:
-  - `pytest`
-  - `robot_test`
+```powershell
+python -m pytest --collect-only -q
+python -m pytest -m "unit or api" --tb=short --maxfail=5
+python -m pytest path/to/test_file.py -q
+python -m ruff check .
+python -m ruff format --check .
+```
 
 ### Robot Framework
 
-- Run all Robot demos:
-  - `python -m robot --outputdir temps/robot_all robot_demo/`
-- Run calculator suite:
-  - `python -m robot --outputdir temps/robot_calculator robot_demo/calculator/`
-- Run Tangerine Playwright suite:
-  - `python -m robot --outputdir temps/robot_tangerine_playwright robot_demo/tangerine_playwright/`
-- Dry run (syntax/keyword wiring):
-  - `python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_demo/tangerine_playwright/`
+```powershell
+python -m robot --dryrun --outputdir temps/robot_calculator_dryrun robot_test/calculator/
+python -m robot --outputdir temps/robot_calculator robot_test/calculator/
+python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_test/ui/
+python -m robot --outputdir temps/robot_tangerine_playwright robot_test/ui/
+```
 
-### Allure report
+### Run Everything
 
-- Generate results via pytest:
-  - `python -m pytest --alluredir=temps/allure-results --clean-alluredir`
-- Open report:
-  - `allure serve temps/allure-results`
+```powershell
+$pytestExit = 0
+$robotExit = 0
 
-## Repo Map
+python -m pytest
+$pytestExit = $LASTEXITCODE
 
-- `pytest`: pytest-based tests (ui/api/unit/ddt/playwright)
-- `robot`: Robot Framework suites and keyword libraries
-- `self_healing/`: locator healing logic for UI automation
-- `ai_gen/`: AI-based test/code generation helpers
-- `utils/`: shared helpers and integrations (config, analytics, qTest, DB)
-- `skill_spring/algorithms`: algorithm and data-structure examples
-- `load_test`: JMeter and Postman assets
-- `temps/`: generated logs, reports, videos, and temporary artifacts
+python -m robot --outputdir temps/robot_all robot_test/
+$robotExit = $LASTEXITCODE
+
+if ($pytestExit -ne 0 -or $robotExit -ne 0) {
+    exit 1
+}
+```
+
+Install Playwright browsers before UI execution:
+
+```powershell
+python -m playwright install
+```
+
+## Implementation Guidance
+
+- Preserve public behavior unless the task explicitly changes it.
+- Add focused tests for behavior changes.
+- Use stable selectors and shared page objects/helpers for UI tests.
+- Keep Robot keyword libraries importable from the project root and validate with a dry run first.
+- Treat generated AI code as untrusted output: review it, run focused tests, and do not commit secrets.
+- Keep `ai_stock` documentation honest about implemented deterministic behavior versus future LLM-agent work.
+- Preserve compatibility shims when moving shared utilities into domain-specific packages.
+- Do not modify generated files under `temps/` unless explicitly requested.
 
 ## Working Conventions
 
 - Keep changes scoped to the requested task.
-- Do not edit generated outputs in `temps/` unless explicitly asked.
-- Prefer stable selectors and reusable helpers for UI tests.
-- For Robot keyword/library changes, keep keyword names descriptive and consistent.
-- Reuse shared helpers in `utils/` before adding duplicate logic.
-- Preserve existing style rules from pyproject.toml:
-  - line length 100
-  - double quotes
-  - sorted imports via Ruff/isort profile
+- Prefer small, incremental edits over broad refactors.
+- Reuse existing utilities before introducing new helpers.
+- Keep Robot keyword names descriptive and consistent.
+- Preserve line length and formatting conventions configured in `pyproject.toml`.
+- Keep generated output, reports, logs, and videos under `temps/` and out of source review.
 
-## Test Strategy After Changes
+## Change Completion Checklist
 
-Pick the smallest meaningful validation first, then broaden only if needed.
-
-- Python utility/module change:
-  - run targeted pytest file(s)
-- Pytest UI/API change:
-  - run impacted test module and marker subset
-- Robot change:
-  - run target suite, optionally dry run first
-- Cross-cutting change:
-  - run `python -m pytest` and at least one relevant Robot suite
-
-## Load Test Assets Guidance
-
-- JMeter and Postman files in `load_test` are source artifacts.
-- Avoid mass reformatting JSON/JMX files unless task requires it.
-- If environments are modified, keep variable names backward compatible when possible.
-
-## Safety and Secrets
-
-- Never hardcode secrets or tokens.
-- Use environment variables for API keys and endpoints.
-- Keep defaults in `config/config.py` and override through env vars.
-
-## PR/Change Notes
-
-When summarizing work, include:
-- files changed
-- commands run
-- result status (pass/fail/not run)
-- follow-up actions if validation was partial
-
+1. Inspect nearby implementation and tests before editing.
+2. Make the smallest focused change.
+3. Run the narrowest meaningful validation first.
+4. Run broader tests when the change crosses package boundaries.
+5. Report files changed, commands run, outcomes, and known limitations.
