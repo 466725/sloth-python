@@ -1,5 +1,14 @@
+from config.config import settings
+
+
 # Create a DB connection with server, database, user, and password information.
-def create_connection(server, database, user, password):
+def create_connection(
+    server=None,
+    database=None,
+    user=None,
+    password=None,
+    port=None,
+):
     """Create a database connection using the provided server, database, user, and password information.
 
     Args:
@@ -12,11 +21,14 @@ def create_connection(server, database, user, password):
         connection: A database connection object.
     """
     import mysql.connector
+
+    database_settings = settings.database
     return mysql.connector.connect(
-        host=server,
-        database=database,
-        user=user,
-        password=password
+        host=server or database_settings.host,
+        port=port or database_settings.port,
+        database=database or database_settings.database,
+        user=user or database_settings.user,
+        password=password if password is not None else database_settings.password,
     )
 
 # Get a DB connection using a configuration object.
