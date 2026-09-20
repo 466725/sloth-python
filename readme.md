@@ -290,6 +290,17 @@ The Tangerine Robot keyword libraries also bootstrap the project root import pat
 
 The Playwright UI tests use fallback locators and DOM similarity matching to recover from selector changes.
 
+### Try it
+
+Install the Playwright browsers once, then run a Tangerine UI test from the repository root:
+
+```powershell
+python -m playwright install
+python -m pytest .\pytest\ui\tangerine\test_signinpage.py -q
+```
+
+This opens the sign-in flow through the shared UI fixture and self-healing locator support. Set `PW_HEADLESS=false` to watch the browser, or add `PW_SLOW_MO=200` to slow Playwright actions while learning the flow.
+
 ### Components
 
 | Component | Responsibility |
