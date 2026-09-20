@@ -203,12 +203,12 @@ python -m pytest
 python -m pytest -m "unit or api"
 
 # One file / one test
-python -m pytest pytest/unit/test_csv_reader.py -q
-python -m pytest pytest/unit/test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
+python -m pytest pytest_tests/unit/test_csv_reader.py -q
+python -m pytest pytest_tests/unit/test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
 
 # UI tests
 python -m pytest -m ui
-python -m pytest pytest/ui/tangerine -q
+python -m pytest pytest_tests/ui/tangerine -q
 ```
 
 ### API demos
@@ -217,7 +217,7 @@ The repository includes three API-testing styles:
 
 | Approach | Example command |
 |---|---|
-| Pytest + Python | `python -m pytest -q pytest/api/test_deep_seek_api.py` |
+| Pytest + Python | `python -m pytest -q pytest_tests/api/test_deep_seek_api.py` |
 | Robot + Python keywords | `python -m robot --outputdir temps/robot_api robot_test/api/test_deep_seek_api_hybrid.robot` |
 | Robot-only `RequestsLibrary` | `python -m robot --outputdir temps/robot_api robot_test/api/test_deep_seek_api.robot` |
 
@@ -236,7 +236,7 @@ Run a UI test visibly for debugging. Configure browser visibility and slow motio
 ```powershell
 $env:PW_HEADLESS = "false"
 $env:PW_SLOW_MO = "200"
-python -m pytest pytest/ui/tangerine/test_codegen.py -q
+python -m pytest pytest_tests/ui/tangerine/test_codegen.py -q
 ```
 
 - `PW_HEADLESS=false` opens a visible browser
@@ -296,7 +296,7 @@ Install the Playwright browsers once, then run a Tangerine UI test from the repo
 
 ```powershell
 python -m playwright install
-python -m pytest .\pytest\ui\tangerine\test_signinpage.py -q
+python -m pytest .\pytest_tests\ui\tangerine\test_signinpage.py -q
 ```
 
 This opens the sign-in flow through the shared UI fixture and self-healing locator support. Set `PW_HEADLESS=false` to watch the browser, or add `PW_SLOW_MO=200` to slow Playwright actions while learning the flow.
@@ -309,7 +309,7 @@ This opens the sign-in flow through the shared UI fixture and self-healing locat
 | `self_healing/dom_similarity.py` | Finds likely replacements in the current page DOM |
 | `self_healing/self_healing.py` | Coordinates recovery and optional locator updates |
 | `self_healing/locator_store.py` | Loads and persists keyed locator definitions |
-| `pytest/ui/locators/` | Stores the Tangerine locator JSON files |
+| `pytest_tests/ui/locators/` | Stores the Tangerine locator JSON files |
 
 ### Recovery flow
 
@@ -385,7 +385,7 @@ Review generated code before committing. DOM input is limited by `AI_GEN_MAX_DOM
 Validate the generator with:
 
 ```powershell
-python -m pytest -q pytest/ai/test_ai_generation.py
+python -m pytest -q pytest_tests/ai/test_ai_generation.py
 ```
 
 ## 🌱 Skill Spring Learning Lab
@@ -573,7 +573,7 @@ sloth-python/
 ├── ai_stock/                   # AI-assisted stock analysis and reporting
 ├── config/                     # Shared and feature-specific configuration
 ├── load_test/                  # JMeter, load-runner, and Postman assets
-├── pytest/                     # Pytest unit, API, UI, DDT, and AI tests
+├── pytest_tests/               # Pytest unit, API, UI, DDT, and AI tests
 │   ├── ai/
 │   ├── api/
 │   ├── ddt/
@@ -616,7 +616,7 @@ sloth-python/
 - **ai_gen/** - Generates pytest + Playwright scripts from live page context and natural-language goals
 - **ai_stock/** - Combines market data, news, strategies, and AI-generated stock reports
 - **load_test/** - Source assets for JMeter, Postman, and load-runner workflows
-- **pytest/** - Main pytest test suites, including the `ai`, `api`, `ui`, and `unit` areas
+- **pytest_tests/** - Main pytest test suites, including the `ai`, `api`, `ui`, and `unit` areas
 - **robot_test/** - Robot Framework suites and Python keyword libraries
 - **self_healing/** - Locator fallback, DOM similarity, and locator-store update logic
 - **skill_spring/** - Learning material for algorithms, concepts, Claude/MCP, scraping, and experiments
@@ -630,7 +630,7 @@ Keep changes focused, reusable, and easy to validate.
 
 ### Testing and UI Automation
 
-- **Organize by behavior:** Keep pytest suites under `pytest/` and Robot suites under `robot_test`, grouped by `unit`, `api`, `ui`, `ddt`, and `ai` where applicable.
+- **Organize by behavior:** Keep pytest suites under `pytest_tests/` and Robot suites under `robot_test`, grouped by `unit`, `api`, `ui`, `ddt`, and `ai` where applicable.
 - **Use shared fixtures and page objects:** Centralize setup, browser lifecycle, and page interactions instead of duplicating them in individual tests.
 - **Prefer stable selectors:** Reuse shared locator definitions and self-healing helpers for Playwright flows when selector recovery is appropriate.
 - **Parameterize repeated scenarios:** Use fixtures, markers, and parameterization to keep test coverage broad without duplicating test logic.
@@ -683,14 +683,14 @@ Install the browser binaries, then retry a focused UI suite:
 
 ```powershell
 python -m playwright install
-python -m pytest pytest/ui/tangerine -q
+python -m pytest pytest_tests/ui/tangerine -q
 ```
 
 For CI or other headless environments, set `PW_HEADLESS=1`. For local debugging, use `--headed --slowmo 200` on a focused test.
 
 ### Locator not found
 
-- Review the locator definitions under `pytest/ui/locators/`.
+- Review the locator definitions under `pytest_tests/ui/locators/`.
 - If the test uses the self-healing helpers, inspect the logs for fallback and DOM-similarity recovery messages.
 - Run the focused test with `-v` to capture detailed failure output.
 - Update the relevant JSON locator only after confirming the replacement is stable.

@@ -11,7 +11,7 @@ Keep changes small, focused, and compatible with the existing project structure.
 - `ai_gen/`: AI + MCP generation of pytest/Playwright test scripts.
 - `ai_stock/`: Stock data, news, strategies, deterministic prediction, and report generation.
 - `config/`: Environment-backed shared runtime settings.
-- `pytest/`: Python tests grouped by `unit`, `api`, `ui`, `ddt`, and `ai`.
+- `pytest_tests/`: Python tests grouped by `unit`, `api`, `ui`, `ddt`, and `ai`.
 - `robot_test/`: Robot Framework suites and Python keyword libraries.
 - `self_healing/`: Playwright locator fallback, DOM similarity, and locator persistence.
 - `skill_spring/`: Learning and research material, including algorithms and Claude/MCP studies.
