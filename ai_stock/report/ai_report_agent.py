@@ -22,6 +22,7 @@ _ADVICE_BY_DIRECTION = {
 }
 
 HTML_TEMPLATE_PATH = Path(__file__).with_name("html_report") / "template.html"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 # AI Report Agent
@@ -87,6 +88,9 @@ class AIReportAgent:
     def save_html_report(report: Dict[str, Any], output_path: Union[str, Path]) -> Path:
         """Writes ``report['report_html']`` to ``output_path`` and returns the path."""
         path = Path(output_path)
+        if not path.is_absolute():
+            path = PROJECT_ROOT / path
+        path = path.resolve()
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(report["report_html"], encoding="utf-8")
         return path
@@ -247,4 +251,7 @@ if __name__ == "__main__":
         demo_path = AIReportAgent.save_html_report(
             demo_report, f"temps/ai_report_{case['symbol'].lower()}_demo.html"
         )
-        print(f"symbol={case['symbol']} advice={demo_report['advice']} report saved to {demo_path}")
+        print(
+            f"symbol={case['symbol']} advice={demo_report['advice']} "
+            f"report saved to {demo_path}"
+        )
