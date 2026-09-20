@@ -1,6 +1,6 @@
 ﻿# Sloth Python
 
-[![Python Version](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org)
+[![Python Version](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI Status](https://github.com/466725/sloth-python/actions/workflows/ci.yml/badge.svg)](https://github.com/466725/sloth-python/actions/workflows/ci.yml)
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/466725)
@@ -51,7 +51,8 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 ### Required
 
-- **Python 3.11+** for the project libraries and test suites
+- **Python 3.11** is the supported and CI-tested version for the project libraries and test suites
+- **Python 3.12** is the formatting and lint target configured for the repository
 - **Git** to clone and update the repository
 
 ### Needed for Specific Features
