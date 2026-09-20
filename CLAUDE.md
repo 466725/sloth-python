@@ -39,7 +39,7 @@ Use Ruff (configured in pyproject.toml):
   - `python -m pytest -m ui`
   - `python -m pytest -m api`
 - Single file:
-  - `python -m pytest pytest_demo/tests/unit/test_csv_reader.py -q`
+  - `python -m pytest pytest/unit/test_csv_reader.py -q`
 
 Notes:
 - `pyproject.toml` writes Allure output to `temps/allure-results`
