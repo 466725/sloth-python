@@ -16,7 +16,7 @@ Keep changes small, focused, and compatible with the existing project structure.
 - `self_healing/`: Playwright locator fallback, DOM similarity, and locator persistence.
 - `skill_spring/`: Learning and research material, including algorithms and Claude/MCP studies.
 - `utils/`: Domain-oriented helpers under `data/`, `browser/`, `integrations/`, `observability/`, `data_base/`, and `qtest_utilities/`.
-- `load_test/`: JMeter, Postman, and load-runner assets.
+- `load_tests/`: JMeter, Postman, and load-runner assets.
 - `temps/`: Generated reports, logs, videos, and test results. Never edit or treat this as source.
 
 ## Configuration

@@ -572,7 +572,7 @@ sloth-python/
 ├── ai_gen/                     # AI + MCP prompt-to-test generation
 ├── ai_stock/                   # AI-assisted stock analysis and reporting
 ├── config/                     # Shared and feature-specific configuration
-├── load_test/                  # JMeter, load-runner, and Postman assets
+├── load_tests/                 # JMeter, load-runner, and Postman assets
 ├── pytest_tests/               # Pytest unit, API, UI, DDT, and AI tests
 │   ├── ai/
 │   ├── api/
@@ -615,7 +615,7 @@ sloth-python/
 
 - **ai_gen/** - Generates pytest + Playwright scripts from live page context and natural-language goals
 - **ai_stock/** - Combines market data, news, strategies, and AI-generated stock reports
-- **load_test/** - Source assets for JMeter, Postman, and load-runner workflows
+- **load_tests/** - Source assets for JMeter, Postman, and load-runner workflows
 - **pytest_tests/** - Main pytest test suites, including the `ai`, `api`, `ui`, and `unit` areas
 - **robot_tests/** - Robot Framework suites and Python keyword libraries
 - **self_healing/** - Locator fallback, DOM similarity, and locator-store update logic
