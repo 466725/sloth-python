@@ -345,6 +345,14 @@ Generate runnable pytest + Playwright scripts from a natural-language goal and l
 
 The command-line entry point is `ai_gen/cli.py`.
 
+### CLI options
+
+| Option | Default | Description |
+|---|---|---|
+| `--model` | `AI_GEN_MODEL` (`gpt-4.1`) | LLM model name |
+| `--base-url` | `AI_GEN_BASE_URL` | OpenAI-compatible API endpoint |
+| `--headless` | `false` | Run context collection headlessly (`true`/`false`) |
+
 Use the channel that best matches the type of feedback:
 
 | Need | Where to go |
@@ -365,9 +373,6 @@ For issues and questions, include:
 - The affected area, such as `pytest`, `robot`, `ai_gen`, `ai_stock`, or `skill_spring`
 
 Search existing issues and discussions first. Never include API keys, tokens, credentials, or other sensitive values in reports.
-| `--model` | `AI_GEN_MODEL` (`gpt-4.1`) | LLM model name |
-| `--base-url` | `AI_GEN_BASE_URL` | OpenAI-compatible API endpoint |
-| `--headless` | `false` | Run context collection headlessly (`true`/`false`) |
 
 ### Additional examples
 
