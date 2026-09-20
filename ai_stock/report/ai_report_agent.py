@@ -249,7 +249,7 @@ if __name__ == "__main__":
     for case in demo_cases:
         demo_report = demo_agent.build_report(**case)
         demo_path = AIReportAgent.save_html_report(
-            demo_report, f"temps/ai_report_{case['symbol'].lower()}_demo.html"
+            demo_report, f"temps/ai_stock/ai_report_{case['symbol'].lower()}_demo.html"
         )
         print(
             f"symbol={case['symbol']} advice={demo_report['advice']} "
