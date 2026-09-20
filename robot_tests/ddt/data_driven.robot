@@ -6,7 +6,7 @@ Documentation     Example test cases using the data-driven testing approach.
 ...
 Test Template     Calculate
 Library           DebugLibrary
-Library           robot_test.calculator.calculator_library.CalculatorLibrary
+Library           robot_tests.calculator.calculator_library.CalculatorLibrary
 
 *** Variables ***
 ${DEBUG_BREAKPOINT}    ${False}

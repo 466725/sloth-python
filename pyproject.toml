@@ -33,7 +33,7 @@ line-ending = "auto"
 
 [tool.pytest.ini_options]
 addopts = ["--alluredir=temps/allure-results", "--clean-alluredir", "--strict-markers"]
-testpaths = ["pytest_tests", "robot_test"]
+testpaths = ["pytest_tests", "robot_tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 markers = [

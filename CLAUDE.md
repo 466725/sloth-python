@@ -12,7 +12,7 @@ Keep changes small, focused, and compatible with the existing project structure.
 - `ai_stock/`: Stock data, news, strategies, deterministic prediction, and report generation.
 - `config/`: Environment-backed shared runtime settings.
 - `pytest_tests/`: Python tests grouped by `unit`, `api`, `ui`, `ddt`, and `ai`.
-- `robot_test/`: Robot Framework suites and Python keyword libraries.
+- `robot_tests/`: Robot Framework suites and Python keyword libraries.
 - `self_healing/`: Playwright locator fallback, DOM similarity, and locator persistence.
 - `skill_spring/`: Learning and research material, including algorithms and Claude/MCP studies.
 - `utils/`: Domain-oriented helpers under `data/`, `browser/`, `integrations/`, `observability/`, `data_base/`, and `qtest_utilities/`.
@@ -44,10 +44,10 @@ python -m ruff format --check .
 ### Robot Framework
 
 ```powershell
-python -m robot --dryrun --outputdir temps/robot_calculator_dryrun robot_test/calculator/
-python -m robot --outputdir temps/robot_calculator robot_test/calculator/
-python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_test/ui/
-python -m robot --outputdir temps/robot_tangerine_playwright robot_test/ui/
+python -m robot --dryrun --outputdir temps/robot_calculator_dryrun robot_tests/calculator/
+python -m robot --outputdir temps/robot_calculator robot_tests/calculator/
+python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_tests/ui/
+python -m robot --outputdir temps/robot_tangerine_playwright robot_tests/ui/
 ```
 
 ### Run Everything
@@ -59,7 +59,7 @@ $robotExit = 0
 python -m pytest
 $pytestExit = $LASTEXITCODE
 
-python -m robot --outputdir temps/robot_all robot_test/
+python -m robot --outputdir temps/robot_all robot_tests/
 $robotExit = $LASTEXITCODE
 
 if ($pytestExit -ne 0 -or $robotExit -ne 0) {

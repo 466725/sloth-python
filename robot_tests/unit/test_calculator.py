@@ -1,6 +1,6 @@
 import pytest
 
-from robot_test.calculator.calculator import CalculationError, Calculator
+from robot_tests.calculator.calculator import CalculationError, Calculator
 
 
 @pytest.mark.unit

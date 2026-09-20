@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation     Data-driven calculator tests loaded from CSV using DataDriver.
 Library           DataDriver    file=data_driven.csv    dialect=excel
-Library           robot_test.calculator.calculator_library.CalculatorLibrary
+Library           robot_tests.calculator.calculator_library.CalculatorLibrary
 Test Template     Calculate
 
 *** Variables ***
