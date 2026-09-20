@@ -21,6 +21,8 @@ _ADVICE_BY_DIRECTION = {
     "sideways": "HOLD",
 }
 
+HTML_TEMPLATE_PATH = Path(__file__).with_name("html_report") / "template.html"
+
 
 # AI Report Agent
 class AIReportAgent:
@@ -160,149 +162,25 @@ class AIReportAgent:
         if not news_rows:
             news_rows = "<tr><td colspan=\"3\">No news items available.</td></tr>"
 
-        return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>AI Stock Report - {html.escape(symbol)}</title>
-<style>
-    :root {{
-        --bg: #f9fafb;
-        --text: #1f2937;
-        --muted: #6b7280;
-        --card-bg: #ffffff;
-        --card-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        --border: #e5e7eb;
-        --btn-bg: #f3f4f6;
-        --btn-text: #111827;
-        --btn-border: #d1d5db;
-    }}
-
-    body.dark-theme {{
-        --bg: #111827;
-        --text: #e5e7eb;
-        --muted: #9ca3af;
-        --card-bg: #1f2937;
-        --card-shadow: 0 1px 3px rgba(0,0,0,0.45);
-        --border: #374151;
-        --btn-bg: #374151;
-        --btn-text: #f9fafb;
-        --btn-border: #4b5563;
-    }}
-
-    body {{
-        font-family: Arial, Helvetica, sans-serif;
-        margin: 2rem;
-        color: var(--text);
-        background: var(--bg);
-        transition: background-color 0.2s ease, color 0.2s ease;
-    }}
-
-    .card {{
-        background: var(--card-bg);
-        border-radius: 8px;
-        padding: 1.5rem;
-        box-shadow: var(--card-shadow);
-        max-width: 720px;
-        margin: 0 auto;
-    }}
-
-    .header {{
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 1rem;
-    }}
-
-    h1 {{ margin-top: 0; margin-bottom: 0.25rem; }}
-
-    .theme-toggle {{
-        border: 1px solid var(--btn-border);
-        background: var(--btn-bg);
-        color: var(--btn-text);
-        border-radius: 6px;
-        padding: 0.4rem 0.7rem;
-        cursor: pointer;
-        font-size: 0.85rem;
-        white-space: nowrap;
-    }}
-
-  .advice {{ display: inline-block; padding: 0.5rem 1.25rem; border-radius: 6px; font-size: 1.5rem; font-weight: bold; color: #fff; }}
-  .advice-buy {{ background: #16a34a; }}
-  .advice-sell {{ background: #dc2626; }}
-  .advice-hold {{ background: #d97706; }}
-  table {{ width: 100%; border-collapse: collapse; margin-top: 0.5rem; }}
-    th, td {{ text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }}
-    .meta {{ color: var(--muted); font-size: 0.9rem; }}
-  ul {{ margin: 0.25rem 0 1rem 1.25rem; }}
-</style>
-</head>
-<body>
-  <div class="card">
-        <div class="header">
-            <h1>{html.escape(symbol)} <span class="meta">({html.escape(market)})</span></h1>
-            <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle light and dark theme">
-                🌙 Dark
-            </button>
-        </div>
-
-    <p class="meta">Generated at (UTC): {html.escape(generated_at)}</p>
-    <p><span class="advice {advice_class}">{html.escape(advice)}</span></p>
-    <p><strong>Direction:</strong> {html.escape(prediction.direction)} &nbsp;
-       <strong>Confidence:</strong> {prediction.confidence:.0%}</p>
-    <p><strong>Reason:</strong> {html.escape(prediction.reason)}</p>
-
-    <h2>Applied Strategies</h2>
-    <ul>{strategies_html}</ul>
-
-    <h2>Data Summary</h2>
-    <ul>
-      <li>History rows: {history_count}</li>
-      <li>News items: {len(news_items)}</li>
-      <li>News sentiment score: {html.escape(str(sentiment_score))}</li>
-    </ul>
-
-    <h2>Recent News</h2>
-    <table>
-      <thead><tr><th>Title</th><th>Source</th><th>Published</th></tr></thead>
-      <tbody>{news_rows}</tbody>
-    </table>
-  </div>
-
-    <script>
-        (function () {{
-            var storageKey = "ai_report_theme";
-            var body = document.body;
-            var btn = document.getElementById("theme-toggle");
-
-            function applyTheme(theme) {{
-                if (theme === "dark") {{
-                    body.classList.add("dark-theme");
-                    btn.textContent = "☀️ Light";
-                }} else {{
-                    body.classList.remove("dark-theme");
-                    btn.textContent = "🌙 Dark";
-                }}
-            }}
-
-            var savedTheme = localStorage.getItem(storageKey);
-            if (!savedTheme) {{
-                savedTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
-                    ? "dark"
-                    : "light";
-            }}
-            applyTheme(savedTheme);
-
-            btn.addEventListener("click", function () {{
-                var nextTheme = body.classList.contains("dark-theme") ? "light" : "dark";
-                applyTheme(nextTheme);
-                localStorage.setItem(storageKey, nextTheme);
-            }});
-        }})();
-    </script>
-</body>
-</html>
-"""
+        template = HTML_TEMPLATE_PATH.read_text(encoding="utf-8")
+        values = {
+            "symbol": html.escape(symbol),
+            "market": html.escape(market),
+            "generated_at": html.escape(generated_at),
+            "advice_class": advice_class,
+            "advice": html.escape(advice),
+            "direction": html.escape(prediction.direction),
+            "confidence": f"{prediction.confidence:.0%}",
+            "reason": html.escape(prediction.reason),
+            "strategies_html": strategies_html,
+            "history_count": str(history_count),
+            "news_count": str(len(news_items)),
+            "sentiment_score": html.escape(str(sentiment_score)),
+            "news_rows": news_rows,
+        }
+        for name, value in values.items():
+            template = template.replace(f"{{{{{name}}}}}", value)
+        return template
 
 # Demo usage of the AIReportAgent class
 if __name__ == "__main__":
