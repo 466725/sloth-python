@@ -269,8 +269,9 @@ Robot writes `output.xml`, `log.html`, and `report.html` to the selected directo
 
 For Robot failures:
 
-- failure screenshots are saved under `artifacts/playwright/screenshots/`
-- failure videos are saved under `artifacts/playwright/videos/`
+- failure screenshots are saved under `<outputdir>/artifacts/playwright/screenshots/`
+- failure videos are saved under `<outputdir>/artifacts/playwright/videos/`
+- for example, `--outputdir temps/robot_all` produces `temps/robot_all/artifacts/playwright/`
 - screenshot/video links appear in Robot `log.html` and `report.html`
 - passed-test videos are deleted to keep artifacts small
 
@@ -548,6 +549,7 @@ The main workflow is [`.github/workflows/ci.yml`](.github/workflows/ci.yml). It 
 Depending on the job, uploaded artifacts can include:
 
 - `temps/allure-results/`
+- `temps/artifacts/playwright/`
 - `temps/robot_smoke/`
 - `allure-report/`
 - `temps/log.html`, `temps/report.html`, and `temps/output.xml`
