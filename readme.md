@@ -249,7 +249,7 @@ For AI-based test generation, see [AI-Generated UI Test Scripts](#-ai-generated-
 
 ### Robot Framework suites
 
-Robot demos live under `robot`.
+Robot demos live under `robot_tests`.
 
 ```powershell
 # All Robot suites
