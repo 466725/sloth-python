@@ -104,6 +104,7 @@ jobs:
           name: regression-results-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             temps/allure-results/
+            temps/artifacts/playwright/
             allure-report/
             temps/log.html
             temps/report.html
