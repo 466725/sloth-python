@@ -77,7 +77,6 @@ class AIGenerationSettings:
 	temperature: float = 0.7
 
 
-
 @dataclass(frozen=True)
 class DatabaseSettings:
 	host: str
@@ -163,6 +162,7 @@ def print_configured_settings() -> None:
 	print(f"database.port={settings.database.port}")
 	print(f"database.database={settings.database.database}")
 	print(f"database.user={settings.database.user}")
+	print(f"database.password={settings.database.password}")
 
 
 if __name__ == "__main__":
