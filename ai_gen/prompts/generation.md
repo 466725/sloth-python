@@ -1,17 +1,28 @@
-Goal:
+## Task
+
+Generate one runnable pytest test for this goal:
+
 {goal}
 
-Create a runnable test function named `{test_name}` using pytest and Playwright sync API.
-Requirements:
-- Include imports required by the generated test.
-- Navigate to `{url}`.
-- Verify the page with at least one meaningful assertion.
-- Prefer locator strategies (id, metadata-testid, text) that are likely stable.
-- Do not include explanations, markdown, or prose. Return code only.
+## Test contract
 
-Page context:
-Title: {title}
-URL: {url}
+- Function name: `{test_name}`
+- Framework: pytest with Playwright sync API
+- Target URL: `{url}`
+- Include every required import.
+- Navigate to the target URL before interacting with the page.
+- Add at least one meaningful assertion related to the goal.
+- Use the supplied page context to choose realistic locators and interactions.
 
-Element tree (truncated):
+## Page context
+
+Title: `{title}`
+URL: `{url}`
+
+Element tree, truncated:
+
 {element_tree}
+
+## Output
+
+Return only complete Python source code. Do not include Markdown fences, explanations, or comments outside the generated code.
