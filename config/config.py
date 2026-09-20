@@ -2,8 +2,15 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from pathlib import Path
 from urllib.parse import urlparse
 from typing import Final
+
+from dotenv import load_dotenv
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(PROJECT_ROOT / ".env")
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -70,12 +77,23 @@ class AIGenerationSettings:
 	temperature: float = 0.7
 
 
+
+@dataclass(frozen=True)
+class DatabaseSettings:
+	host: str
+	port: int
+	database: str
+	user: str
+	password: str
+
+
 @dataclass(frozen=True)
 class Settings:
 	urls: UrlSettings
 	ui: UiSettings
 	playwright: PlaywrightSettings
 	ai_generation: AIGenerationSettings
+	database: DatabaseSettings
 
 
 def load_settings() -> Settings:
@@ -103,8 +121,21 @@ def load_settings() -> Settings:
 		max_dom_chars=_env_int("AI_GEN_MAX_DOM_CHARS", 12000),
 		output_dir=_env_str("AI_GEN_OUTPUT_DIR", "temps/ai/generated_playwright"),
 	)
+	database = DatabaseSettings(
+		host=_env_str("SLOTH_MYSQL_HOST", "localhost"),
+		port=_env_int("SLOTH_MYSQL_PORT", 3306),
+		database=_env_str("SLOTH_MYSQL_DB", "slothdb"),
+		user=_env_str("SLOTH_MYSQL_USER", "slothuser"),
+		password=os.getenv("SLOTH_MYSQL_PASSWORD", ""),
+	)
 
-	return Settings(urls=urls, ui=ui, playwright=playwright, ai_generation=ai_generation)
+	return Settings(
+		urls=urls,
+		ui=ui,
+		playwright=playwright,
+		ai_generation=ai_generation,
+		database=database,
+	)
 
 
 settings: Final[Settings] = load_settings()
@@ -128,6 +159,10 @@ def print_configured_settings() -> None:
 	print(f"ai_generation.max_dom_chars={settings.ai_generation.max_dom_chars}")
 	print(f"ai_generation.output_dir={settings.ai_generation.output_dir}")
 	print(f"ai_generation.temperature={settings.ai_generation.temperature}")
+	print(f"database.host={settings.database.host}")
+	print(f"database.port={settings.database.port}")
+	print(f"database.database={settings.database.database}")
+	print(f"database.user={settings.database.user}")
 
 
 if __name__ == "__main__":
