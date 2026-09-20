@@ -686,7 +686,7 @@ python -m playwright install
 python -m pytest pytest_tests/ui/tangerine -q
 ```
 
-For CI or other headless environments, set `PW_HEADLESS=1`. For local debugging, use `--headed --slowmo 200` on a focused test.
+For CI or other headless environments, set `PW_HEADLESS=1`. For local debugging, set `PW_HEADLESS=false` and `PW_SLOW_MO=200` before running a focused test.
 
 ### Locator not found
 
