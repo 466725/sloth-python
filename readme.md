@@ -163,7 +163,7 @@ Set the required provider key, such as `OPENAI_API_KEY`, through the environment
 Quick local check for shared settings:
 
 ```powershell
-python -m utils.config
+python -m config.config
 ```
 
 ## 🏃 Running Tests
