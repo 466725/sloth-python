@@ -1,4 +1,4 @@
-class ArgsKwargsDemo:
+class ArgsKwargs:
     """Utility to demonstrate handling of *args and **kwargs."""
 
     @staticmethod
@@ -25,5 +25,5 @@ class ArgsKwargsDemo:
 
 
 if __name__ == "__main__":
-    demo = ArgsKwargsDemo()
+    demo = ArgsKwargs()
     demo.show(1, 2, a=3, b=4, c=5)
