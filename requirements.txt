@@ -64,7 +64,7 @@ pytest
 pytest-html
 pytest-rerunfailures
 pytest-result-log
-robotframework~=7.4
+robotframework~=7.5
 robotframework-datadriver
 robotframework-debuglibrary
 robotframework-requests
