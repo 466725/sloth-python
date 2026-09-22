@@ -7,8 +7,8 @@ def project_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
-def resolve_output_path(output_path: str | Path) -> Path:
-    path = Path(output_path)
+def resolve_path(my_path: str | Path) -> Path:
+    path = Path(my_path)
     if path.is_absolute():
         return path
     return (project_root() / path).resolve()
