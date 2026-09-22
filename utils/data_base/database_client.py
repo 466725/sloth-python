@@ -16,18 +16,13 @@ from __future__ import annotations
 
 import argparse
 import functools
-import os
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
-from dataclasses import dataclass
 from typing import Any, ParamSpec, TypeVar
 
+from config.config import DatabaseSettings, settings
 
-DEFAULT_HOST = "localhost"
-DEFAULT_PORT = 3306
-DEFAULT_DB = "slothdb"
-DEFAULT_USER = "slothuser"
-DEFAULT_PASSWORD = "slothpass123"
+DatabaseConfig = DatabaseSettings
 
 SqlParams = Sequence[Any] | Mapping[str, Any] | None
 ConnectionFactory = Callable[[], Any]
@@ -35,48 +30,9 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 
-@dataclass(frozen=True)
-class DatabaseConfig:
-    """Connection settings for a MySQL database."""
-
-    host: str = DEFAULT_HOST
-    port: int = DEFAULT_PORT
-    database: str = DEFAULT_DB
-    user: str = DEFAULT_USER
-    password: str = DEFAULT_PASSWORD
-
-    @classmethod
-    def from_env(cls, prefix: str = "SLOTH_MYSQL") -> "DatabaseConfig":
-        """Build config from environment variables.
-
-        For the default prefix, the variables are:
-        ``SLOTH_MYSQL_HOST``, ``SLOTH_MYSQL_PORT``, ``SLOTH_MYSQL_DB``,
-        ``SLOTH_MYSQL_USER``, and ``SLOTH_MYSQL_PASSWORD``.
-        """
-
-        return cls(
-            host=os.getenv(f"{prefix}_HOST", DEFAULT_HOST),
-            port=int(os.getenv(f"{prefix}_PORT", str(DEFAULT_PORT))),
-            database=os.getenv(f"{prefix}_DB", DEFAULT_DB),
-            user=os.getenv(f"{prefix}_USER", DEFAULT_USER),
-            password=os.getenv(f"{prefix}_PASSWORD", DEFAULT_PASSWORD),
-        )
-
-    def as_mysql_kwargs(self) -> dict[str, Any]:
-        """Return keyword arguments accepted by ``mysql.connector.connect``."""
-
-        return {
-            "host": self.host,
-            "port": self.port,
-            "user": self.user,
-            "password": self.password,
-            "database": self.database,
-        }
-
-
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Connect to MySQL and print tables from one schema.")
-    config = DatabaseConfig.from_env()
+    config = settings.database
     parser.add_argument("--host", default=config.host)
     parser.add_argument("--port", type=int, default=config.port)
     parser.add_argument("--database", default=config.database)
@@ -100,7 +56,7 @@ def connect_mysql(config: DatabaseConfig | None = None, **overrides: Any) -> Any
             "Install project dependencies with: pip install -r requirements.txt"
         ) from exc
 
-    resolved = config or DatabaseConfig.from_env()
+    resolved = config or settings.database
     kwargs = resolved.as_mysql_kwargs()
     kwargs.update(overrides)
     return mysql.connector.connect(**kwargs)
@@ -252,19 +208,20 @@ def transactional(connection_factory: ConnectionFactory) -> Callable[[Callable[P
 
 def show_tables(
     *,
-    host: str = DEFAULT_HOST,
-    port: int = DEFAULT_PORT,
-    database: str = DEFAULT_DB,
-    user: str = DEFAULT_USER,
-    password: str = DEFAULT_PASSWORD,
+    host: str | None = None,
+    port: int | None = None,
+    database: str | None = None,
+    user: str | None = None,
+    password: str | None = None,
 ) -> list[str]:
     """Return table names from the given MySQL schema."""
+    database_settings = settings.database
     config = DatabaseConfig(
-        host=host,
-        port=port,
-        database=database,
-        user=user,
-        password=password,
+        host=host if host is not None else database_settings.host,
+        port=port if port is not None else database_settings.port,
+        database=database if database is not None else database_settings.database,
+        user=user if user is not None else database_settings.user,
+        password=password if password is not None else database_settings.password,
     )
     with connection_scope(lambda: connect_mysql(config)) as conn:
         with cursor_scope(conn) as cursor:
