@@ -5,7 +5,7 @@ import pytest
 from ai_gen.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
 from ai_gen.generator import _normalize_generated_code
 from ai_gen.mcp_context import BrowserSnapshot
-from ai_gen.paths import resolve_output_path
+from ai_gen.paths import resolve_path
 from ai_gen.prompt_builder import SYSTEM_PROMPT, build_generation_prompt
 
 
@@ -41,7 +41,7 @@ def test_real_ai_generation_without_cli_from_explicit_prompts():
     raw_code = client.generate(system_prompt=SYSTEM_PROMPT, user_prompt=user_prompt)
     normalized_code = _normalize_generated_code(raw_code, test_name=test_name, url=snapshot.url)
 
-    output_path = resolve_output_path(f"temps/ai/generated_playwright/{test_name}.py")
+    output_path = resolve_path(f"temps/ai/generated_playwright/{test_name}.py")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(normalized_code, encoding="utf-8")
 
