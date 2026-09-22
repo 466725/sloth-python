@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from ai_gen.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
-from ai_gen.paths import resolve_output_path
+from ai_gen.paths import resolve_path
 from config.config import settings
 
 
@@ -22,7 +22,7 @@ def evaluate_example(
 	if not api_key:
 		raise RuntimeError("OPENAI_API_KEY is required to run this example.")
 
-	generated_path = resolve_output_path(input_path)
+	generated_path = resolve_path(input_path)
 	if not generated_path.is_file():
 		raise FileNotFoundError(
 			f"Generated output was not found at {generated_path}. "
@@ -53,7 +53,7 @@ def evaluate_example(
 		user_prompt=evaluation_prompt,
 	)
 
-	destination = resolve_output_path(output_path)
+	destination = resolve_path(output_path)
 	destination.parent.mkdir(parents=True, exist_ok=True)
 	destination.write_text(review + "\n", encoding="utf-8")
 	return destination
