@@ -1,3 +1,4 @@
+from utils.data_base.database_client import connect_mysql
 from config.config import settings
 
 
@@ -20,16 +21,19 @@ def create_connection(
     Returns:
         connection: A database connection object.
     """
-    import mysql.connector
-
     database_settings = settings.database
-    return mysql.connector.connect(
-        host=server or database_settings.host,
-        port=port or database_settings.port,
-        database=database or database_settings.database,
-        user=user or database_settings.user,
-        password=password if password is not None else database_settings.password,
-    )
+    overrides = {}
+    if server is not None:
+        overrides["host"] = server
+    if port is not None:
+        overrides["port"] = port
+    if database is not None:
+        overrides["database"] = database
+    if user is not None:
+        overrides["user"] = user
+    if password is not None:
+        overrides["password"] = password
+    return connect_mysql(database_settings, **overrides)
 
 # Get a DB connection using a configuration object.
 def get_connection(config):
