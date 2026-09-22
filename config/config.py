@@ -85,6 +85,25 @@ class DatabaseSettings:
 	user: str
 	password: str
 
+	@classmethod
+	def from_env(cls, prefix: str = "SLOTH_MYSQL") -> "DatabaseSettings":
+		return cls(
+			host=_env_str(f"{prefix}_HOST", "localhost"),
+			port=_env_int(f"{prefix}_PORT", 3306),
+			database=_env_str(f"{prefix}_DB", "slothdb"),
+			user=_env_str(f"{prefix}_USER", "slothuser"),
+			password=os.getenv(f"{prefix}_PASSWORD", ""),
+		)
+
+	def as_mysql_kwargs(self) -> dict[str, object]:
+		return {
+			"host": self.host,
+			"port": self.port,
+			"user": self.user,
+			"password": self.password,
+			"database": self.database,
+		}
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -120,13 +139,7 @@ def load_settings() -> Settings:
 		max_dom_chars=_env_int("AI_GEN_MAX_DOM_CHARS", 12000),
 		output_dir=_env_str("AI_GEN_OUTPUT_DIR", "temps/ai/generated_playwright"),
 	)
-	database = DatabaseSettings(
-		host=_env_str("SLOTH_MYSQL_HOST", "localhost"),
-		port=_env_int("SLOTH_MYSQL_PORT", 3306),
-		database=_env_str("SLOTH_MYSQL_DB", "slothdb"),
-		user=_env_str("SLOTH_MYSQL_USER", "slothuser"),
-		password=os.getenv("SLOTH_MYSQL_PASSWORD", ""),
-	)
+	database = DatabaseSettings.from_env()
 
 	return Settings(
 		urls=urls,
@@ -162,7 +175,6 @@ def print_configured_settings() -> None:
 	print(f"database.port={settings.database.port}")
 	print(f"database.database={settings.database.database}")
 	print(f"database.user={settings.database.user}")
-	print(f"database.password={settings.database.password}")
 
 
 if __name__ == "__main__":
