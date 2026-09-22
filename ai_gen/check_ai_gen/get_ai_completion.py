@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from ai_gen.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
-from ai_gen.paths import resolve_output_path
+from ai_gen.paths import resolve_path
 from config.config import settings
 
 
@@ -27,7 +27,7 @@ def generate_example(output_path: str | Path = "temps/ai/check_ai_gen/example.tx
 		user_prompt="Write one short, useful tip for making automated tests reliable.",
 	)
 
-	destination = resolve_output_path(output_path)
+	destination = resolve_path(output_path)
 	destination.parent.mkdir(parents=True, exist_ok=True)
 	destination.write_text(response + "\n", encoding="utf-8")
 	return destination
