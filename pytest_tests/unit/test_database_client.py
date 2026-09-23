@@ -1,9 +1,11 @@
+import os
 import sqlite3
 
 import pytest
 
 from utils.data_base import (
     DatabaseConfig,
+    connect_mysql,
     connection_scope,
     cursor_scope,
     execute_sql,
@@ -15,8 +17,25 @@ from utils.data_base import (
 )
 
 
+def _mysql_env_ready() -> bool:
+    return all(
+        os.getenv(f"SLOTH_MYSQL_{name}") is not None
+        for name in ("HOST", "PORT", "DB", "USER", "PASSWORD")
+    )
+
+
 def _create_connection() -> sqlite3.Connection:
     return sqlite3.connect(":memory:")
+
+
+def _create_mysql_connection():
+    if not _mysql_env_ready():
+        pytest.skip("MySQL local database env vars are not configured.")
+
+    try:
+        return connect_mysql(DatabaseConfig.from_env())
+    except Exception as exc:  # pragma: no cover - depends on local environment
+        pytest.skip(f"Local MySQL database is not available: {exc}")
 
 
 def _create_users_table(connection: sqlite3.Connection) -> None:
@@ -62,6 +81,16 @@ def test_build_connection_factory_defaults_to_mysql_when_mysql_env_is_configured
     import pytest_tests.conftest as conftest
 
     assert conftest._build_connection_factory() is conftest.connect_mysql
+
+
+@pytest.mark.unit
+def test_local_mysql_connection_works_when_configured():
+    connection = _create_mysql_connection()
+    try:
+        assert fetch_value(connection, "SELECT DATABASE()") == os.getenv("SLOTH_MYSQL_DB")
+        assert fetch_value(connection, "SELECT 1") == 1
+    finally:
+        connection.close()
 
 
 @pytest.mark.unit
