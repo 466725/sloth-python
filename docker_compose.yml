@@ -13,6 +13,26 @@ services:
       retries: 24
       start_period: 60s
 
+  mysql:
+    image: mysql:8.0
+    container_name: sloth-mysql
+    ports:
+      - "${SLOTH_MYSQL_PORT:-3306}:3306"
+    environment:
+      MYSQL_DATABASE: "${SLOTH_MYSQL_DB:-slothdb}"
+      MYSQL_USER: "${SLOTH_MYSQL_USER:-slothuser}"
+      MYSQL_PASSWORD: "${SLOTH_MYSQL_PASSWORD:-slothpass123}"
+      MYSQL_ROOT_PASSWORD: "${SLOTH_MYSQL_ROOT_PASSWORD:-rootpass123}"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+
   appium:
     image: appium/appium@sha256:db22c8f2dff3f452477c2049b50feb9720c60a9ee23e6abdd6bc2acd82dc8dba
     profiles: ["mobile-host"]
@@ -56,11 +76,22 @@ services:
       SELENIUM_SESSION_RETRY_DELAY_SECONDS: "12"
       SUITE_XML_FILE: "${SUITE_XML_FILE:-SmokeTest.xml}"
       MOBILE_WEB_RUN_MODE: "${MOBILE_WEB_RUN_MODE:-selenium}"
+      SLOTH_MYSQL_HOST: "mysql"
+      SLOTH_MYSQL_PORT: "${SLOTH_MYSQL_PORT:-3306}"
+      SLOTH_MYSQL_DB: "${SLOTH_MYSQL_DB:-slothdb}"
+      SLOTH_MYSQL_USER: "${SLOTH_MYSQL_USER:-slothuser}"
+      SLOTH_MYSQL_PASSWORD: "${SLOTH_MYSQL_PASSWORD:-slothpass123}"
+      SLOTH_MYSQL_ROOT_PASSWORD: "${SLOTH_MYSQL_ROOT_PASSWORD:-rootpass123}"
     depends_on:
       selenium:
+        condition: service_healthy
+      mysql:
         condition: service_healthy
     command: >
       bash -lc "mvn -B -ntp -pl test-automation-framework test
       -DsuiteXmlFile=$${SUITE_XML_FILE}
       -Dheadless=$${HEADLESS}"
+
+volumes:
+  mysql-data:
 
