@@ -35,18 +35,32 @@ def _build_qtest_client():
 
 
 def _build_connection_factory():
-    """Return a connection factory for the configured database backend."""
+    """Return a connection factory for the configured database backend.
 
-    backend = os.getenv("SLOTH_PYTEST_DB_BACKEND", "sqlite").strip().lower()
+    Default to MySQL when the project environment variables are set, because the
+    application's shared database settings are loaded from .env. Keep explicit
+    overrides available via SLOTH_PYTEST_DB_BACKEND for tests that need SQLite.
+    """
 
-    if backend == "sqlite":
-        sqlite_path = os.getenv("SLOTH_PYTEST_SQLITE_PATH", ":memory:")
-        return lambda: sqlite3.connect(sqlite_path)
+    backend = os.getenv("SLOTH_PYTEST_DB_BACKEND")
+    if backend:
+        backend = backend.strip().lower()
+        if backend == "sqlite":
+            sqlite_path = os.getenv("SLOTH_PYTEST_SQLITE_PATH", ":memory:")
+            return lambda: sqlite3.connect(sqlite_path)
+        if backend == "mysql":
+            return connect_mysql
+        raise ValueError("SLOTH_PYTEST_DB_BACKEND must be either 'sqlite' or 'mysql'.")
 
-    if backend == "mysql":
+    mysql_env_present = any(
+        os.getenv(f"SLOTH_MYSQL_{name}") is not None
+        for name in ("HOST", "PORT", "DB", "USER", "PASSWORD")
+    )
+    if mysql_env_present:
         return connect_mysql
 
-    raise ValueError("SLOTH_PYTEST_DB_BACKEND must be either 'sqlite' or 'mysql'.")
+    sqlite_path = os.getenv("SLOTH_PYTEST_SQLITE_PATH", ":memory:")
+    return lambda: sqlite3.connect(sqlite_path)
 
 
 @pytest.fixture(scope="session")
@@ -64,9 +78,9 @@ def qtest():
 def db_conn():
     """Provide a managed database connection for tests.
 
-    Defaults to an in-memory SQLite database so unit tests run without external
-    services. Set SLOTH_PYTEST_DB_BACKEND=mysql to use the MySQL settings from
-    utils.data_base.DatabaseConfig.from_env().
+    Defaults to the configured MySQL database from the project .env when present,
+    and falls back to SQLite otherwise. Set SLOTH_PYTEST_DB_BACKEND=sqlite to
+    force the SQLite path for tests that need an in-memory local database.
     """
 
     try:
