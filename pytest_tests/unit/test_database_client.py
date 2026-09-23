@@ -51,6 +51,20 @@ def test_database_config_loads_from_environment(monkeypatch: pytest.MonkeyPatch)
 
 
 @pytest.mark.unit
+def test_build_connection_factory_defaults_to_mysql_when_mysql_env_is_configured(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.delenv("SLOTH_PYTEST_DB_BACKEND", raising=False)
+    monkeypatch.setenv("SLOTH_MYSQL_HOST", "db.example.test")
+    monkeypatch.setenv("SLOTH_MYSQL_PORT", "3307")
+    monkeypatch.setenv("SLOTH_MYSQL_DB", "demo")
+    monkeypatch.setenv("SLOTH_MYSQL_USER", "demo_user")
+    monkeypatch.setenv("SLOTH_MYSQL_PASSWORD", "secret")
+
+    import pytest_tests.conftest as conftest
+
+    assert conftest._build_connection_factory() is conftest.connect_mysql
+
+
+@pytest.mark.unit
 def test_execute_sql_supports_parameters_and_fetch_helpers():
     connection = _create_connection()
     _create_users_table(connection)
