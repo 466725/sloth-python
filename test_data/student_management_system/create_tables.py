@@ -14,6 +14,36 @@ DEPARTMENTS = (
     ("ART", "Fine Arts"),
 )
 
+BRANCHES = (
+    (1, "Corporate", 206),
+    (2, "Sales", 207),
+    (3, "Information Technology", 208),
+)
+
+EMPLOYEES = (
+    (206, "Yellow", "1998-02-04", "F", 50000, 1, None),
+    (207, "Green", "1985-07-03", "M", 29000, 2, 206),
+    (208, "Black", "2000-12-06", "M", 35000, 3, 206),
+    (209, "White", "1997-10-22", "F", 39000, 3, 207),
+    (210, "Blue", "1949-08-17", "F", 84000, 1, 207),
+)
+
+CLIENTS = (
+    (400, "dog", "3653214589"),
+    (401, "cat", "3653214590"),
+    (402, "bird", "3653214591"),
+    (403, "fish", "3653214592"),
+    (404, "rabbit", "3653214593"),
+)
+
+WORK_WITH = (
+    (206, 400, 70000),
+    (207, 401, 24000),
+    (208, 402, 9800),
+    (208, 403, 24000),
+    (210, 404, 87900),
+)
+
 INSTRUCTORS = (
     ("EMP-1001", "Ada", "Lovelace", "ada.lovelace@example.edu", "CS"),
     ("EMP-1002", "Alan", "Turing", "alan.turing@example.edu", "CS"),
@@ -148,6 +178,27 @@ def seed_data(cursor):
     department_ids = {
         code: _id_by_value(cursor, "departments", "code", code) for code, _ in DEPARTMENTS
     }
+
+    cursor.executemany(
+        "INSERT IGNORE INTO branches (branch_id, branch_name, manager_id) VALUES (%s, %s, %s)",
+        BRANCHES,
+    )
+    cursor.executemany(
+        """
+        INSERT IGNORE INTO employees
+            (emp_id, name, birth_date, sex, salary, branch_id, sup_id)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """,
+        EMPLOYEES,
+    )
+    cursor.executemany(
+        "INSERT IGNORE INTO clients (client_id, client_name, phone) VALUES (%s, %s, %s)",
+        CLIENTS,
+    )
+    cursor.executemany(
+        "INSERT IGNORE INTO work_with (emp_id, client_id, total_sales) VALUES (%s, %s, %s)",
+        WORK_WITH,
+    )
 
     cursor.executemany(
         """
