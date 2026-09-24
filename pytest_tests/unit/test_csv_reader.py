@@ -2,13 +2,21 @@ from pathlib import Path
 
 import pytest
 
-from utils.csv_reader import read_csv_to_list
+from utils.csv_reader import read_csv_to_list, resolve_path
 
 
 def _write_csv(tmp_path: Path, name: str, content: str) -> Path:
     file_path = tmp_path / name
     file_path.write_text(content, encoding="utf-8")
     return file_path
+
+
+@pytest.mark.unit
+def test_resolve_path_uses_repository_root_for_relative_paths():
+    csv_path = Path("pytest_tests/ddt/calculator-data.csv")
+
+    assert resolve_path(csv_path) == Path(__file__).resolve().parents[2] / csv_path
+    assert resolve_path(csv_path).is_file()
 
 
 @pytest.mark.unit
