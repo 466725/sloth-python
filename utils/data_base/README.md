@@ -9,6 +9,11 @@
 - `execute_sql()`, `fetch_one()`, `fetch_all()`, and `fetch_value()` cover common SQL calls.
 - `with_connection()` and `transactional()` wrap functions with managed connections.
 
+Implementation is intentionally limited to two modules:
+
+- `db_wrapper.py` contains reusable connection, transaction, cursor, and query wrappers.
+- `sql_queries.py` contains named SQL statement strings only.
+
 ## MySQL Environment Variables
 
 ```env
@@ -67,8 +72,3 @@ def create_user(name: str, email: str, *, connection):
     )
 ```
 
-For runnable SQLite examples that do not need a server, run:
-
-```powershell
-python -m utils.data_base.examples
-```
