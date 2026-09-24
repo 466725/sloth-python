@@ -99,33 +99,30 @@ def test_local_mysql_can_create_table_and_insert_records_when_configured():
     connection = _create_mysql_connection()
     table_name = f"test_database_client_{uuid4().hex}"
 
-    try:
-        execute_sql(
-            connection,
-            f"""
-            CREATE TABLE `{table_name}` (
-                id INTEGER PRIMARY KEY AUTO_INCREMENT,
-                name VARCHAR(100) NOT NULL,
-                active BOOLEAN NOT NULL
-            )
-            """,
+    execute_sql(
+        connection,
+        f"""
+        CREATE TABLE `{table_name}` (
+            id INTEGER PRIMARY KEY AUTO_INCREMENT,
+            name VARCHAR(100) NOT NULL,
+            active BOOLEAN NOT NULL
         )
-        rowcount = execute_sql(
-            connection,
-            f"INSERT INTO `{table_name}` (name, active) VALUES (%s, %s)",
-            [("Ada", True), ("Grace", False)],
-            many=True,
-            commit=True,
-        )
+        """,
+    )
+    rowcount = execute_sql(
+        connection,
+        f"INSERT INTO `{table_name}` (name, active) VALUES (%s, %s)",
+        [("Ada", True), ("Grace", False)],
+        many=True,
+        commit=True,
+    )
 
-        assert rowcount == 2
-        assert fetch_all(connection, f"SELECT name, active FROM `{table_name}` ORDER BY id") == [
-            ("Ada", 1),
-            ("Grace", 0),
-        ]
-    finally:
-        execute_sql(connection, f"DROP TABLE IF EXISTS `{table_name}`")
-        connection.close()
+    assert rowcount == 2
+    assert fetch_all(connection, f"SELECT name, active FROM `{table_name}` ORDER BY id") == [
+        ("Ada", 1),
+        ("Grace", 0),
+    ]
+    connection.close()
 
 
 @pytest.mark.unit
