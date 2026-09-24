@@ -53,6 +53,28 @@ CREATE_DEPARTMENTS_TABLE = """
     ) ENGINE=InnoDB;
 """
 
+CREATE_BRANCHES_TABLE = """
+    CREATE TABLE IF NOT EXISTS branches (
+        branch_id BIGINT UNSIGNED PRIMARY KEY,
+        branch_name VARCHAR(100) NOT NULL UNIQUE,
+        manager_id BIGINT UNSIGNED NULL
+    ) ENGINE=InnoDB;
+"""
+
+CREATE_EMPLOYEES_TABLE = """
+    CREATE TABLE IF NOT EXISTS employees (
+        emp_id BIGINT UNSIGNED PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        birth_date DATE NULL,
+        sex CHAR(1) NULL,
+        salary INT UNSIGNED NULL,
+        branch_id BIGINT UNSIGNED NULL,
+        sup_id BIGINT UNSIGNED NULL,
+        FOREIGN KEY (branch_id) REFERENCES branches(branch_id) ON DELETE SET NULL,
+        FOREIGN KEY (sup_id) REFERENCES employees(emp_id) ON DELETE SET NULL
+    ) ENGINE=InnoDB;
+"""
+
 CREATE_STUDENTS_TABLE = """
     CREATE TABLE IF NOT EXISTS students (
         id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
@@ -109,10 +131,33 @@ CREATE_ENROLLMENTS_TABLE = """
     ) ENGINE=InnoDB;
 """
 
+CREATE_CLIENTS_TABLE = """
+    CREATE TABLE IF NOT EXISTS clients (
+        client_id BIGINT UNSIGNED PRIMARY KEY,
+        client_name VARCHAR(100) NOT NULL,
+        phone VARCHAR(30) NULL
+    ) ENGINE=InnoDB;
+"""
+
+CREATE_WORK_WITH_TABLE = """
+    CREATE TABLE IF NOT EXISTS work_with (
+        emp_id BIGINT UNSIGNED NOT NULL,
+        client_id BIGINT UNSIGNED NOT NULL,
+        total_sales DECIMAL(12, 2) NOT NULL DEFAULT 0,
+        PRIMARY KEY (emp_id, client_id),
+        FOREIGN KEY (emp_id) REFERENCES employees(emp_id) ON DELETE CASCADE,
+        FOREIGN KEY (client_id) REFERENCES clients(client_id) ON DELETE CASCADE
+    ) ENGINE=InnoDB;
+"""
+
 STUDENT_MANAGEMENT_SCHEMA = (
     CREATE_DEPARTMENTS_TABLE,
+    CREATE_BRANCHES_TABLE,
+    CREATE_EMPLOYEES_TABLE,
     CREATE_STUDENTS_TABLE,
     CREATE_INSTRUCTORS_TABLE,
     CREATE_COURSES_TABLE,
     CREATE_ENROLLMENTS_TABLE,
+    CREATE_CLIENTS_TABLE,
+    CREATE_WORK_WITH_TABLE,
 )
