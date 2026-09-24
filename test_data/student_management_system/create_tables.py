@@ -1,4 +1,9 @@
 from utils.data_base.sql_queries import STUDENT_MANAGEMENT_SCHEMA 
+# Run this script to create tables and populate them with initial data, here is the command: 
+"""
+python -c "from utils.data_base import connect_mysql; from test_data.student_management_system.create_tables import create_tables; connection=connect_mysql(); cursor=connection.cursor(); create_tables(cursor); connection.commit(); cursor.close(); connection.close()"
+"""
+# Make sure to have the database connection ready before running this script. And no need to run it multiple times.
 
 DEPARTMENTS = (
     ("CS", "Computer Science"),
