@@ -1,4 +1,4 @@
-from utils.data_base.database_client import (
+from utils.data_base.db_wrapper import (
     DatabaseConfig,
     connect_mysql,
     connection_scope,
