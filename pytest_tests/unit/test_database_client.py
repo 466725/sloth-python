@@ -16,6 +16,7 @@ from utils.data_base import (
     transactional,
     with_connection,
 )
+from utils.data_base.sql_queries import GET_TEST_DATABASE_USER_BY_NAME
 
 
 def _mysql_env_ready() -> bool:
@@ -123,6 +124,11 @@ def test_local_mysql_can_create_table_and_insert_records_when_configured():
             ("Ada", 1),
             ("Grace", 0),
         ]
+        assert fetch_one(
+            connection,
+            GET_TEST_DATABASE_USER_BY_NAME.format(table_name=table_name),
+            ("Ada",),
+        ) == ("Ada", 1)
     finally:
         execute_sql(connection, f"DROP TABLE IF EXISTS `{table_name}`")
         connection.close()
