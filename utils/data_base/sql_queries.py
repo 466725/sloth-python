@@ -27,7 +27,7 @@ GET_AE_BY_NAME = """
     LIMIT 1;
 """
 
-GET_TEST_DATABASE_USER_BY_NAME = """
+GET_ACTIVE_USER_BY_NAME = """
     SELECT name, active
     FROM `{table_name}`
     WHERE name = %s
