@@ -18,26 +18,14 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 
 ## 📚 Table of Contents
 
-- [Key Highlights](#-key-highlights)
-- [Prerequisites](#-prerequisites)
-- [Quick Start](#-quick-start)
-- [Installation](#️-installation)
+- [Get Started](#-quick-start)
 - [Configuration](#️-configuration)
 - [Docker and Database](#-docker-and-database)
-- [Running Tests](#-running-tests)
-- [Self-Healing Framework](#-self-healing-framework-playwright)
-- [AI-Generated Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp)
-- [Skill Spring Learning Lab](#-skill-spring-learning-lab)
-- [CI/CD Pipeline](#cicd-pipeline-automation)
-- [Project Structure](#-project-structure)
-- [Best Practices](#-best-practices--patterns)
+- [Run Tests](#-running-tests)
+- [Project Areas](#-project-structure)
+- [Feature Guides](#feature-guides)
 - [Troubleshooting](#-troubleshooting)
-- [Documentation](#-documentation--resources)
 - [Contributing](#-contributing)
-- [Support & Feedback](#support-feedback)
-- [License](#-license)
-- [Project Governance](#-project-governance)
-- [Acknowledgments](#-acknowledgments)
 
 ## 📌 Key Highlights
 
@@ -426,18 +414,6 @@ Use the channel that best matches the type of feedback:
 | Ask a question or discuss an approach | [GitHub Discussions](https://github.com/466725/sloth-python/discussions) |
 | Report a security vulnerability | Follow the [Security Policy](security.md) |
 
-### Include useful context
-
-For issues and questions, include:
-
-- Python version, operating system, and relevant package or browser versions
-- The smallest reproduction or clear steps to reproduce
-- Expected and actual behavior
-- Relevant command output or a redacted traceback
-- The affected area, such as `pytest`, `robot`, `ai_gen`, `ai_stock`, or `skill_spring`
-
-Search existing issues and discussions first. Never include API keys, tokens, credentials, or other sensitive values in reports.
-
 ### Additional examples
 
 ```powershell
@@ -531,119 +507,16 @@ Additional reference files:
 
 ### IDE Setup For `skill_spring/claude_code` Subprojects
 
-Some learning subprojects live under `skill_spring/claude_code` instead of the repository root. If your IDE cannot resolve imports (for example, unresolved imports in `claude_agent_sdk` examples), use the setup below.
+`skill_spring` is the repository's learning and research area. It contains algorithms, test-automation concepts, web-scraping exercises, and Claude/MCP experiments.
 
-**PyCharm**
+| Area | Starting point |
+|---|---|
+| Algorithms and data structures | [skill_spring/algorithms/](skill_spring/algorithms/) |
+| Test-automation concepts | [skill_spring/concepts/](skill_spring/concepts/) |
+| Claude, MCP, and agent experiments | [skill_spring/claude_code/](skill_spring/claude_code/) |
+| Web scraping and small experiments | [skill_spring/web_scraping/](skill_spring/web_scraping/) and [skill_spring/fun_part/](skill_spring/fun_part/) |
 
-1. Open the `sloth-python` project.
-2. Right-click `skill_spring/claude_code`.
-3. Select **Mark Directory As** → **Sources Root**.
-
-**VS Code (recommended workspace settings)**
-
-This is the VS Code equivalent of PyCharm's **Sources Root** behavior.
-
-1. Open the `sloth-python` project folder in VS Code.
-2. Create or edit `.vscode/settings.json`.
-3. Add/update the settings below:
-
-```jsonc
-{
-   "python.defaultInterpreterPath": "${workspaceFolder}/.venv311/Scripts/python.exe",
-   "python.analysis.extraPaths": [
-      "./skill_spring/claude_code/claude_agent_sdk/src",
-      "./skill_spring/claude_code/claude_agent_sdk",
-      "./skill_spring/claude_code"
-   ]
-}
-```
-
-4. Reload VS Code window: **Developer: Reload Window**.
-
-**Why these paths?**
-
-- `skill_spring/claude_code`: resolves imports for `src`-layout packages in SDK examples
-- `skill_spring/claude_code`: resolves local package references in that subproject
-- `skill_spring/claude_code`: resolves imports from other learning folders under `skill_spring/claude_code`
-
-**Quick verification checklist**
-
-1. Open a Python file under `skill_spring/claude_code` with previous import warnings.
-2. Confirm unresolved import diagnostics disappear.
-3. In the VS Code command palette, run **Python: Select Interpreter** and verify it points to `.venv311` (or your chosen project venv).
-
-Note: `python.analysis.extraPaths` improves IDE analysis and autocomplete. It does not make invalid Python identifiers importable at runtime. For example, folders starting with digits such as `001_starter/` still cannot be imported as `claude_code.001_starter...` in a standard `from ... import ...` statement.
-
-<a id="cicd-pipeline-automation"></a>
-## 🔄 CI/CD Pipeline & Automation
-
-The main workflow is [`.github/workflows/ci.yml`](.github/workflows/ci.yml). It separates fast feedback for changes from scheduled or manually triggered regression coverage.
-
-### Triggers
-
-| Event | Branches or schedule | Behavior |
-|---|---|---|
-| Push | `main`, `master` | Runs smoke tests |
-| Pull request | `main`, `master` | Runs smoke tests |
-| Schedule | `0 2 * * *` (2:00 UTC daily) | Runs regression tests |
-| Manual dispatch | Any selected ref | Runs regression tests |
-
-### Jobs
-
-**Smoke test**
-
-- Uses Ubuntu and Python 3.11.
-- Installs dependencies from `requirements.txt`.
-- Runs pytest `unit` and `api` tests with `--tb=short`.
-- Runs the Robot calculator smoke suite.
-- Uploads smoke results with `retention-days: 14`.
-
-**Regression test**
-
-- Runs on the nightly schedule or manual dispatch with a 60-minute timeout.
-- Caches and installs Playwright browsers with system dependencies.
-- Runs pytest tests excluding the `ai` marker with `PW_HEADLESS=1`.
-- Runs the Robot suites with `PW_HEADLESS=1`.
-- Generates an Allure report after the test run when possible.
-- Uploads regression results with `retention-days: 21`.
-
-### Artifacts
-
-Depending on the job, uploaded artifacts can include:
-
-- `temps/allure-results/`
-- `temps/artifacts/playwright/`
-- `temps/robot_smoke/`
-- `allure-report/`
-- `temps/log.html`, `temps/report.html`, and `temps/output.xml`
-
-Open a workflow run on GitHub, download the relevant artifact, and open the generated HTML report locally.
-
-### Run the CI checks locally
-
-Run the closest equivalent from the repository root:
-
-```powershell
-# Smoke checks
-python -m pytest -m "unit or api" --tb=short
-python -m robot --outputdir temps/robot_smoke robot_tests/calculator/
-
-# Regression-style checks
-python -m playwright install --with-deps
-python -m pytest -m "not ai" --tb=short --maxfail=5
-python -m robot --outputdir temps robot_tests/
-```
-
-The current repository uses `robot_tests/` for Robot suites. Keep CI and local commands synchronized with that path.
-
-## 📂 Project Structure
-
-```
-sloth-python/
-├── ai_gen/                     # AI + MCP prompt-to-test generation
-├── ai_stock/                   # AI-assisted stock analysis and reporting
-├── config/                     # Shared and feature-specific configuration
-├── load_tests/                 # JMeter, load-runner, and Postman assets
+Each runnable subproject carries its own setup instructions. For the Claude/MCP index and notebook guide, see [Skill Spring Learning Notes](skill_spring/claude_code/claude_code_learning.md).
 ├── pytest_tests/               # Pytest unit, API, UI, DDT, and AI tests
 │   ├── ai/
 │   ├── api/
@@ -674,7 +547,6 @@ sloth-python/
 ├── temps/                      # Generated reports, logs, videos, and temporary results
 ├── .github/workflows/          # GitHub Actions CI/CD definitions
 ├── .vscode/                    # Workspace settings
-├── pyproject.toml              # Tooling configuration
 ├── pyproject.toml              # Python tooling and pytest configuration
 ├── readme.md                   # Project documentation
 ├── requirements.txt            # Python dependencies
@@ -682,18 +554,16 @@ sloth-python/
 └── uv.lock                     # uv dependency lock file
 ```
 
-### Key Directories Explained
+<a id="feature-guides"></a>
+## Feature Guides
 
-- **ai_gen/** - Generates pytest + Playwright scripts from live page context and natural-language goals
-- **ai_stock/** - Combines market data, news, strategies, and AI-generated stock reports
-- **load_tests/** - Source assets for JMeter, Postman, and load-runner workflows
-- **pytest_tests/** - Main pytest test suites, including the `ai`, `api`, `ui`, and `unit` areas
-- **robot_tests/** - Robot Framework suites and Python keyword libraries
-- **self_healing/** - Locator fallback, DOM similarity, and locator-store update logic
-- **skill_spring/** - Learning material for algorithms, concepts, Claude/MCP, scraping, and experiments
-- **test_data/** - Utilities and input files used to create or supply test data
-- **utils/** - Domain-oriented helpers, with browser, data, integration, observability, database, and qTest boundaries
-- **temps/** - Generated output; do not edit it as source documentation
+| Area | Guide |
+|---|---|
+| Self-healing locators | [Self-Healing Framework](#-self-healing-framework-playwright) |
+| AI-assisted test generation | [AI-Generated UI Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp) |
+| Stock analysis | [AI Stock Architecture](ai_stock/readme.md) |
+| Database utilities | [Database Utilities](utils/data_base/README.md) |
+| Learning material | [Skill Spring Learning Notes](skill_spring/claude_code/claude_code_learning.md) |
 
 ## 🎓 Best Practices & Patterns
 
@@ -727,8 +597,6 @@ Keep changes focused, reusable, and easy to validate.
 - **Preserve diagnostics:** Use Allure, Robot HTML reports, screenshots, videos, and uploaded artifacts to investigate failures.
 
 ## 🐛 Troubleshooting
-
-### Common Issues
 
 ### Import or dependency errors
 
