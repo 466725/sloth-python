@@ -34,6 +34,16 @@ GET_ACTIVE_USER_BY_NAME = """
     LIMIT 1;
 """
 
+ENROLL_STUDENT_IN_COURSE = """
+    INSERT INTO enrollments (student_id, course_id, academic_year, term)
+    SELECT s.id, c.id, %s, %s
+    FROM students s
+    INNER JOIN courses c
+    WHERE s.student_number = %s
+        AND s.status = 'ACTIVE'
+        AND c.course_code = %s;
+"""
+
 CREATE_DEPARTMENTS_TABLE = """
     CREATE TABLE IF NOT EXISTS departments (
         id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
