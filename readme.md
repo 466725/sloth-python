@@ -1,76 +1,5 @@
 ﻿# Sloth Python
 
-[![Python Version](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI Status](https://github.com/466725/sloth-python/actions/workflows/ci.yml/badge.svg)](https://github.com/466725/sloth-python/actions/workflows/ci.yml)
-[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/466725)
-
-A comprehensive Python reference project covering modern test automation, AI-assisted stock analysis, and algorithms.
-
-**Sloth Python** is an educational and professional-grade project combining:
-- 🧪 **Advanced test automation frameworks** (Robot Framework, pytest, Playwright)
-- 🤖 **AI-powered self-healing test locators** that automatically repair broken selectors
-- 🏗️ **Comprehensive algorithm library** (data structures, ML, divide & conquer, and more)
-- ⚙️ **Production-ready CI/CD workflows** using GitHub Actions
-- 🔧 **AI-driven test script generation** from natural-language goals using MCP
-
-Perfect for learning modern test automation, exploring algorithms, or as a reference for professional test frameworks.
-
-## 📚 Table of Contents
-
-- [Get Started](#-quick-start)
-- [Configuration](#️-configuration)
-- [Docker and Database](#-docker-and-database)
-- [Run Tests](#-running-tests)
-- [Project Areas](#-project-structure)
-- [Feature Guides](#feature-guides)
-- [Troubleshooting](#-troubleshooting)
-- [Contributing](#-contributing)
-
-## 📌 Key Highlights
-
-- **Test Automation:** Robot Framework and pytest examples covering unit, API, and Playwright-based UI testing
-- **Self-Healing UI Tests:** AI-assisted locator recovery that detects broken selectors and learns from successful repairs
-- **AI Test Generation:** MCP-aware Playwright workflow for generating runnable pytest tests from natural-language goals
-- **AI-Assisted Stock Analysis:** Deterministic pipeline combining market data, news, trading strategies, and report generation, with a documented multi-agent roadmap ([architecture](ai_stock/readme.md))
-- **Algorithms and Machine Learning:** Curated implementations of data structures, algorithms, and ML concepts
-- **CI/CD Workflows:** GitHub Actions automation for smoke tests and nightly regression suites
-
-## 📦 Prerequisites
-
-### Required
-
-- **Python 3.11** is the supported and CI-tested version for the project libraries and test suites
-- **Python 3.12** is the formatting and lint target configured for the repository
-- **Git** to clone and update the repository
-
-### Needed for Specific Features
-
-- **Playwright browsers** for browser-based UI tests; install them with `playwright install`
-- **API credentials** for AI generation and provider-backed stock analysis; configure them through environment variables rather than source files
-
-## 🚀 Quick Start
-
-1. **Clone the repository:**
-   ```powershell
-   git clone https://github.com/466725/sloth-python.git
-   cd sloth-python
-   ```
-
-2. **Create an environment and install dependencies:**
-   ```powershell
-   py -3.11 -m venv .venv
-   .\.venv\Scripts\activate
-   python -m pip install -r requirements.txt
-   playwright install
-   ```
-
-3. **Run the baseline checks:**
-   ```powershell
-   python -m pytest -m "unit or api"
-   ```
-
-See [Installation](#️-installation) for Linux/macOS commands, alternative package installation with `uv`, and additional setup details.
 
 ## 🛠️ Installation
 
@@ -517,13 +446,22 @@ Additional reference files:
 | Web scraping and small experiments | [skill_spring/web_scraping/](skill_spring/web_scraping/) and [skill_spring/fun_part/](skill_spring/fun_part/) |
 
 Each runnable subproject carries its own setup instructions. For the Claude/MCP index and notebook guide, see [Skill Spring Learning Notes](skill_spring/claude_code/claude_code_learning.md).
+
+## 📂 Project Structure
+
+```text
+sloth-python/
+├── ai_gen/                     # AI + MCP prompt-to-test generation
+├── ai_stock/                   # AI-assisted stock analysis and reporting
+├── config/                     # Shared runtime configuration
+├── load_tests/                 # JMeter, load-runner, and Postman assets
 ├── pytest_tests/               # Pytest unit, API, UI, DDT, and AI tests
 │   ├── ai/
 │   ├── api/
 │   ├── ddt/
 │   ├── ui/
 │   └── unit/
-├── robot_tests/                     # Robot Framework API, calculator, UI, DDT, and unit suites
+├── robot_tests/                # Robot Framework API, calculator, UI, DDT, and unit suites
 │   ├── api/
 │   ├── calculator/
 │   ├── ddt/
