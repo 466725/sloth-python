@@ -1,6 +1,8 @@
-# ===============================================================================
-# SQL Queries - Inner Join with parameter
-# ===============================================================================
+"""SQL query catalog.
+
+Keep SQL statements as named multiline strings. Use placeholders appropriate for
+the configured DB-API driver.
+"""
 
 GET_ONE_RANDOM_EDITABLE_AE_DETAILS = """
     SELECT ae.id, ae.name, ae.description, ae.created_at, ae.updated_at
@@ -17,10 +19,6 @@ GET_ONE_RANDOM_EDITABLE_AE_DETAILS = """
     ORDER BY RANDOM()
     LIMIT 1;
 """
-
-# ===============================================================================
-# SQL Queries - Cursor
-# ===============================================================================
 
 GET_AE_BY_NAME = """
     SELECT id, name, description, created_at, updated_at
