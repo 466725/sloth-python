@@ -54,6 +54,22 @@ def _create_users_table(connection: sqlite3.Connection) -> None:
 
 
 @pytest.mark.unit
+def test_db_conn_fixture_provides_managed_connection(db_conn):
+    execute_sql(
+        db_conn,
+        """
+        CREATE TABLE users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL
+        )
+        """,
+    )
+    execute_sql(db_conn, "INSERT INTO users (name) VALUES (?)", ("Ada",))
+
+    assert fetch_value(db_conn, "SELECT COUNT(*) FROM users") == 1
+
+    
+@pytest.mark.unit
 def test_database_config_loads_from_environment(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("SLOTH_MYSQL_HOST", "db.example.test")
     monkeypatch.setenv("SLOTH_MYSQL_PORT", "3307")
