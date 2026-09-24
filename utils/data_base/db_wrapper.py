@@ -7,7 +7,7 @@ module preserve the original wrapper API for existing callers.
 from __future__ import annotations
 
 import functools
-from collections.abc import Callable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Generator, Mapping, Sequence
 from contextlib import contextmanager
 from typing import Any, ParamSpec, TypeVar
 
@@ -67,7 +67,7 @@ def connection_scope(
     commit: bool = False,
     rollback_on_error: bool = True,
     close: bool = True,
-) -> Iterator[Any]:
+) -> Generator[Any, None, None]:
     """Open a connection for a block, optionally commit, and always close it."""
 
     connection = connection_factory()
@@ -85,7 +85,7 @@ def connection_scope(
 
 
 @contextmanager
-def cursor_scope(connection: Any, **cursor_kwargs: Any) -> Iterator[Any]:
+def cursor_scope(connection: Any, **cursor_kwargs: Any) -> Generator[Any, None, None]:
     """Create a cursor and close it after use."""
 
     cursor = connection.cursor(**cursor_kwargs) if cursor_kwargs else connection.cursor()
