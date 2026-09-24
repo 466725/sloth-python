@@ -1,4 +1,8 @@
-"""Reusable wrappers for MySQL and DB-API compatible connections."""
+"""Reusable wrappers for MySQL and DB-API compatible connections.
+
+Use the core helpers for new code. The compatibility helpers at the end of this
+module preserve the original wrapper API for existing callers.
+"""
 
 from __future__ import annotations
 
@@ -14,6 +18,29 @@ SqlParams = Sequence[Any] | Mapping[str, Any] | None
 ConnectionFactory = Callable[[], Any]
 P = ParamSpec("P")
 R = TypeVar("R")
+
+__all__ = [
+    "DatabaseConfig",
+    "connect_mysql",
+    "connection_scope",
+    "cursor_scope",
+    "execute_sql",
+    "fetch_all",
+    "fetch_one",
+    "fetch_value",
+    "show_tables",
+    "transactional",
+    "with_connection",
+    "close_connection",
+    "create_connection",
+    "execute_query",
+    "get_connection",
+    "query_all",
+    "query_one",
+]
+
+
+# Connection management
 
 
 def connect_mysql(config: DatabaseConfig | None = None, **overrides: Any) -> Any:
@@ -68,6 +95,13 @@ def cursor_scope(connection: Any, **cursor_kwargs: Any) -> Iterator[Any]:
         cursor.close()
 
 
+# Query helpers
+
+
+def _cursor_kwargs(as_dict: bool) -> dict[str, bool]:
+    return {"dictionary": True} if as_dict else {}
+
+
 def execute_sql(
     connection: Any,
     sql: str,
@@ -99,8 +133,7 @@ def fetch_all(
 ) -> list[Any]:
     """Run a query and return all rows."""
 
-    cursor_kwargs = {"dictionary": True} if as_dict else {}
-    with cursor_scope(connection, **cursor_kwargs) as cursor:
+    with cursor_scope(connection, **_cursor_kwargs(as_dict)) as cursor:
         cursor.execute(sql, params or ())
         return list(cursor.fetchall())
 
@@ -114,8 +147,7 @@ def fetch_one(
 ) -> Any | None:
     """Run a query and return one row, or ``None`` when no row matches."""
 
-    cursor_kwargs = {"dictionary": True} if as_dict else {}
-    with cursor_scope(connection, **cursor_kwargs) as cursor:
+    with cursor_scope(connection, **_cursor_kwargs(as_dict)) as cursor:
         cursor.execute(sql, params or ())
         return cursor.fetchone()
 
@@ -129,6 +161,9 @@ def fetch_value(connection: Any, sql: str, params: SqlParams = None, default: An
     if isinstance(row, Mapping):
         return next(iter(row.values()), default)
     return row[0] if row else default
+
+
+# Decorators
 
 
 def with_connection(
@@ -166,6 +201,27 @@ def show_tables(connection: Any) -> list[str]:
     return [row[0] for row in fetch_all(connection, "SHOW TABLES")]
 
 
+# Compatibility helpers
+
+
+def _connection_overrides(
+    *,
+    server: str | None,
+    database: str | None,
+    user: str | None,
+    password: str | None,
+    port: int | None,
+) -> dict[str, str | int]:
+    values = {
+        "host": server,
+        "port": port,
+        "database": database,
+        "user": user,
+        "password": password,
+    }
+    return {key: value for key, value in values.items() if value is not None}
+
+
 def create_connection(
     server: str | None = None,
     database: str | None = None,
@@ -175,17 +231,13 @@ def create_connection(
 ) -> Any:
     """Open a MySQL connection with optional setting overrides."""
 
-    overrides = {
-        key: value
-        for key, value in {
-            "host": server,
-            "port": port,
-            "database": database,
-            "user": user,
-            "password": password,
-        }.items()
-        if value is not None
-    }
+    overrides = _connection_overrides(
+        server=server,
+        database=database,
+        user=user,
+        password=password,
+        port=port,
+    )
     return connect_mysql(settings.database, **overrides)
 
 
