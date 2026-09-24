@@ -26,3 +26,10 @@ GET_AE_BY_NAME = """
     WHERE name = ?
     LIMIT 1;
 """
+
+GET_TEST_DATABASE_USER_BY_NAME = """
+    SELECT name, active
+    FROM `{table_name}`
+    WHERE name = %s
+    LIMIT 1;
+"""
