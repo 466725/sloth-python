@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from uuid import uuid4
 
 import pytest
 
@@ -90,6 +91,40 @@ def test_local_mysql_connection_works_when_configured():
         assert fetch_value(connection, "SELECT DATABASE()") == os.getenv("SLOTH_MYSQL_DB")
         assert fetch_value(connection, "SELECT 1") == 1
     finally:
+        connection.close()
+
+
+@pytest.mark.unit
+def test_local_mysql_can_create_table_and_insert_records_when_configured():
+    connection = _create_mysql_connection()
+    table_name = f"test_database_client_{uuid4().hex}"
+
+    try:
+        execute_sql(
+            connection,
+            f"""
+            CREATE TABLE `{table_name}` (
+                id INTEGER PRIMARY KEY AUTO_INCREMENT,
+                name VARCHAR(100) NOT NULL,
+                active BOOLEAN NOT NULL
+            )
+            """,
+        )
+        rowcount = execute_sql(
+            connection,
+            f"INSERT INTO `{table_name}` (name, active) VALUES (%s, %s)",
+            [("Ada", True), ("Grace", False)],
+            many=True,
+            commit=True,
+        )
+
+        assert rowcount == 2
+        assert fetch_all(connection, f"SELECT name, active FROM `{table_name}` ORDER BY id") == [
+            ("Ada", 1),
+            ("Grace", 0),
+        ]
+    finally:
+        execute_sql(connection, f"DROP TABLE IF EXISTS `{table_name}`")
         connection.close()
 
 
