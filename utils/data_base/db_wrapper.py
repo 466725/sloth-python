@@ -1,7 +1,6 @@
 """Reusable wrappers for MySQL and DB-API compatible connections.
 
-Use the core helpers for new code. The compatibility helpers at the end of this
-module preserve the original wrapper API for existing callers.
+Use these helpers to manage connections and run parameterized queries.
 """
 
 from __future__ import annotations
@@ -9,35 +8,13 @@ from __future__ import annotations
 import functools
 from collections.abc import Callable, Generator, Mapping, Sequence
 from contextlib import contextmanager
-from typing import Any, ParamSpec, TypeVar
+from typing import Any
 
 from config.config import DatabaseSettings, settings
 
 DatabaseConfig = DatabaseSettings
 SqlParams = Sequence[Any] | Mapping[str, Any] | None
 ConnectionFactory = Callable[[], Any]
-P = ParamSpec("P")
-R = TypeVar("R")
-
-__all__ = [
-    "DatabaseConfig",
-    "connect_mysql",
-    "connection_scope",
-    "cursor_scope",
-    "execute_sql",
-    "fetch_all",
-    "fetch_one",
-    "fetch_value",
-    "show_tables",
-    "transactional",
-    "with_connection",
-    "close_connection",
-    "create_connection",
-    "execute_query",
-    "get_connection",
-    "query_all",
-    "query_one",
-]
 
 
 # Connection management
@@ -171,12 +148,12 @@ def with_connection(
     *,
     commit: bool = False,
     connection_arg: str = "connection",
-) -> Callable[[Callable[P, R]], Callable[P, R]]:
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorate a function to inject a managed connection keyword argument."""
 
-    def decorator(func: Callable[P, R]) -> Callable[P, R]:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             if connection_arg in kwargs and kwargs[connection_arg] is not None:
                 return func(*args, **kwargs)
 
@@ -189,7 +166,9 @@ def with_connection(
     return decorator
 
 
-def transactional(connection_factory: ConnectionFactory) -> Callable[[Callable[P, R]], Callable[P, R]]:
+def transactional(
+    connection_factory: ConnectionFactory,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorate a function to commit on success and roll back on error."""
 
     return with_connection(connection_factory, commit=True)
@@ -199,78 +178,3 @@ def show_tables(connection: Any) -> list[str]:
     """Return the table names visible to an open database connection."""
 
     return [row[0] for row in fetch_all(connection, "SHOW TABLES")]
-
-
-# Compatibility helpers
-
-
-def _connection_overrides(
-    *,
-    server: str | None,
-    database: str | None,
-    user: str | None,
-    password: str | None,
-    port: int | None,
-) -> dict[str, str | int]:
-    values = {
-        "host": server,
-        "port": port,
-        "database": database,
-        "user": user,
-        "password": password,
-    }
-    return {key: value for key, value in values.items() if value is not None}
-
-
-def create_connection(
-    server: str | None = None,
-    database: str | None = None,
-    user: str | None = None,
-    password: str | None = None,
-    port: int | None = None,
-) -> Any:
-    """Open a MySQL connection with optional setting overrides."""
-
-    overrides = _connection_overrides(
-        server=server,
-        database=database,
-        user=user,
-        password=password,
-        port=port,
-    )
-    return connect_mysql(settings.database, **overrides)
-
-
-def get_connection(config: DatabaseConfig) -> Any:
-    """Open a MySQL connection from a ``DatabaseConfig`` instance."""
-
-    return connect_mysql(config)
-
-
-def close_connection(connection: Any) -> None:
-    """Close a connection when one was created."""
-
-    if connection is not None:
-        connection.close()
-
-
-def query_one(connection: Any, query: str, params: SqlParams = None) -> Any | None:
-    """Compatibility wrapper for ``fetch_one``."""
-
-    return fetch_one(connection, query, params)
-
-
-def query_all(connection: Any, query: str, params: SqlParams = None) -> list[Any]:
-    """Compatibility wrapper for ``fetch_all``."""
-
-    return fetch_all(connection, query, params)
-
-
-def execute_query(connection: Any, query: str, params: SqlParams = None) -> list[Any] | None:
-    """Execute a query, returning rows for SELECT statements and committing writes."""
-
-    if query.lstrip().upper().startswith("SELECT"):
-        return fetch_all(connection, query, params)
-
-    execute_sql(connection, query, params, commit=True)
-    return None
