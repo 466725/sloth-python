@@ -26,20 +26,6 @@ def _mysql_env_ready() -> bool:
     )
 
 
-def _create_connection() -> sqlite3.Connection:
-    return sqlite3.connect(":memory:")
-
-
-def _create_mysql_connection():
-    if not _mysql_env_ready():
-        pytest.skip("MySQL local database env vars are not configured.")
-
-    try:
-        return connect_mysql(DatabaseConfig.from_env())
-    except Exception as exc:  # pragma: no cover - depends on local environment
-        pytest.skip(f"Local MySQL database is not available: {exc}")
-
-
 def _create_users_table(connection: sqlite3.Connection) -> None:
     execute_sql(
         connection,
@@ -53,22 +39,32 @@ def _create_users_table(connection: sqlite3.Connection) -> None:
     )
 
 
-@pytest.mark.unit
-def test_db_conn_fixture_provides_managed_connection(db_conn):
-    execute_sql(
-        db_conn,
-        """
-        CREATE TABLE users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL
-        )
-        """,
-    )
-    execute_sql(db_conn, "INSERT INTO users (name) VALUES (?)", ("Ada",))
+@pytest.fixture
+def sqlite_users_connection():
+    connection = sqlite3.connect(":memory:")
+    _create_users_table(connection)
+    try:
+        yield connection
+    finally:
+        connection.close()
 
-    assert fetch_value(db_conn, "SELECT COUNT(*) FROM users") == 1
 
-    
+@pytest.fixture
+def mysql_connection():
+    if not _mysql_env_ready():
+        pytest.skip("MySQL local database env vars are not configured.")
+
+    try:
+        connection = connect_mysql(DatabaseConfig.from_env())
+    except Exception as exc:  # pragma: no cover - depends on local environment
+        pytest.skip(f"Local MySQL database is not available: {exc}")
+
+    try:
+        yield connection
+    finally:
+        connection.close()
+
+
 @pytest.mark.unit
 def test_database_config_loads_from_environment(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("SLOTH_MYSQL_HOST", "db.example.test")
@@ -102,23 +98,18 @@ def test_build_connection_factory_defaults_to_mysql_when_mysql_env_is_configured
 
 
 @pytest.mark.unit
-def test_local_mysql_connection_works_when_configured():
-    connection = _create_mysql_connection()
-    try:
-        assert fetch_value(connection, "SELECT DATABASE()") == os.getenv("SLOTH_MYSQL_DB")
-        assert fetch_value(connection, "SELECT 1") == 1
-    finally:
-        connection.close()
+def test_local_mysql_connection_works_when_configured(mysql_connection):
+    assert fetch_value(mysql_connection, "SELECT DATABASE()") == os.getenv("SLOTH_MYSQL_DB")
+    assert fetch_value(mysql_connection, "SELECT 1") == 1
 
 
 @pytest.mark.unit
-def test_local_mysql_can_create_table_and_insert_records_when_configured():
-    connection = _create_mysql_connection()
+def test_local_mysql_can_create_table_and_insert_records_when_configured(mysql_connection):
     table_name = f"test_database_client_{uuid4().hex}"
 
     try:
         execute_sql(
-            connection,
+            mysql_connection,
             f"""
             CREATE TABLE `{table_name}` (
                 id INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -128,7 +119,7 @@ def test_local_mysql_can_create_table_and_insert_records_when_configured():
             """,
         )
         rowcount = execute_sql(
-            connection,
+            mysql_connection,
             f"INSERT INTO `{table_name}` (name, active) VALUES (%s, %s)",
             [("Ada", True), ("Grace", False)],
             many=True,
@@ -136,65 +127,54 @@ def test_local_mysql_can_create_table_and_insert_records_when_configured():
         )
 
         assert rowcount == 2
-        assert fetch_all(connection, f"SELECT name, active FROM `{table_name}` ORDER BY id") == [
+        assert fetch_all(mysql_connection, f"SELECT name, active FROM `{table_name}` ORDER BY id") == [
             ("Ada", 1),
             ("Grace", 0),
         ]
         assert fetch_one(
-            connection,
+            mysql_connection,
             GET_ACTIVE_USER_BY_NAME.format(table_name=table_name),
             ("Ada",),
         ) == ("Ada", 1)
     finally:
-        execute_sql(connection, f"DROP TABLE IF EXISTS `{table_name}`")
-        connection.close()
+        execute_sql(mysql_connection, f"DROP TABLE IF EXISTS `{table_name}`")
 
 
 @pytest.mark.unit
-def test_execute_sql_supports_parameters_and_fetch_helpers():
-    connection = _create_connection()
-    _create_users_table(connection)
+def test_execute_sql_supports_parameters_and_fetch_helpers(sqlite_users_connection):
+    execute_sql(sqlite_users_connection, "INSERT INTO users (name, active) VALUES (?, ?)", ("Ada", 1))
+    execute_sql(sqlite_users_connection, "INSERT INTO users (name, active) VALUES (?, ?)", ("Grace", 0))
 
-    execute_sql(connection, "INSERT INTO users (name, active) VALUES (?, ?)", ("Ada", 1))
-    execute_sql(connection, "INSERT INTO users (name, active) VALUES (?, ?)", ("Grace", 0))
-
-    assert fetch_value(connection, "SELECT COUNT(*) FROM users") == 2
-    assert fetch_one(connection, "SELECT name FROM users WHERE active = ?", (1,)) == ("Ada",)
-    assert fetch_all(connection, "SELECT name FROM users ORDER BY name") == [("Ada",), ("Grace",)]
-
-    connection.close()
+    assert fetch_value(sqlite_users_connection, "SELECT COUNT(*) FROM users") == 2
+    assert fetch_one(sqlite_users_connection, "SELECT name FROM users WHERE active = ?", (1,)) == ("Ada",)
+    assert fetch_all(sqlite_users_connection, "SELECT name FROM users ORDER BY name") == [
+        ("Ada",),
+        ("Grace",),
+    ]
 
 
 @pytest.mark.unit
-def test_execute_sql_supports_many_parameter_sets():
-    connection = _create_connection()
-    _create_users_table(connection)
-
+def test_execute_sql_supports_many_parameter_sets(sqlite_users_connection):
     rowcount = execute_sql(
-        connection,
+        sqlite_users_connection,
         "INSERT INTO users (name, active) VALUES (?, ?)",
         [("Ada", 1), ("Grace", 0), ("Katherine", 1)],
         many=True,
     )
 
     assert rowcount == 3
-    assert fetch_value(connection, "SELECT COUNT(*) FROM users WHERE active = ?", (1,)) == 2
-
-    connection.close()
+    assert fetch_value(sqlite_users_connection, "SELECT COUNT(*) FROM users WHERE active = ?", (1,)) == 2
 
 
 @pytest.mark.unit
-def test_cursor_scope_allows_direct_cursor_usage():
-    connection = _create_connection()
-    _create_users_table(connection)
-    execute_sql(connection, "INSERT INTO users (name) VALUES (?)", ("Ada",))
+def test_cursor_scope_allows_direct_cursor_usage(sqlite_users_connection):
+    execute_sql(sqlite_users_connection, "INSERT INTO users (name) VALUES (?)", ("Ada",))
 
-    with cursor_scope(connection) as cursor:
+    with cursor_scope(sqlite_users_connection) as cursor:
         cursor.execute("SELECT name FROM users")
         row = cursor.fetchone()
 
     assert row == ("Ada",)
-    connection.close()
 
 
 @pytest.mark.unit
@@ -225,11 +205,8 @@ def test_connection_scope_rolls_back_on_error(tmp_path):
 
 
 @pytest.mark.unit
-def test_with_connection_wrapper_injects_connection():
-    connection = _create_connection()
-    _create_users_table(connection)
-
-    @with_connection(lambda: connection)
+def test_with_connection_wrapper_injects_connection(sqlite_users_connection):
+    @with_connection(lambda: sqlite_users_connection)
     def count_users(*, connection: sqlite3.Connection) -> int:
         return int(fetch_value(connection, "SELECT COUNT(*) FROM users"))
 
