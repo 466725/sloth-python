@@ -23,6 +23,7 @@ Perfect for learning modern test automation, exploring algorithms, or as a refer
 - [Quick Start](#-quick-start)
 - [Installation](#️-installation)
 - [Configuration](#️-configuration)
+- [Docker and Database](#-docker-and-database)
 - [Running Tests](#-running-tests)
 - [Self-Healing Framework](#-self-healing-framework-playwright)
 - [AI-Generated Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp)
@@ -166,6 +167,68 @@ Quick local check for shared settings:
 ```powershell
 python -m config.config
 ```
+
+## 🐳 Docker and Database
+
+The local MySQL service is defined in `docker_compose.yml`. It stores data in the named `mysql-data` Docker volume, so stopping or recreating the container does not remove the database.
+
+### Start and manage MySQL
+
+Run these commands from the repository root:
+
+```powershell
+# Start MySQL in the background
+docker compose -f docker_compose.yml up -d mysql
+
+# Check container and health status
+docker compose -f docker_compose.yml ps mysql
+
+# Follow MySQL startup and server logs
+docker compose -f docker_compose.yml logs -f mysql
+
+# Stop MySQL while retaining its data volume
+docker compose -f docker_compose.yml stop mysql
+
+# Start an existing stopped MySQL container
+docker compose -f docker_compose.yml start mysql
+```
+
+The service is exposed at `localhost:3306` by default. Set `SLOTH_MYSQL_PORT` before starting Compose to use another host port.
+
+### Connect to the local database
+
+The default local connection values are:
+
+| Setting | Value |
+|---|---|
+| Host | `127.0.0.1` |
+| Port | `3306` |
+| Database | `slothdb` |
+| User | `slothuser` |
+| Password | `slothpass123` |
+
+Override these local defaults with `SLOTH_MYSQL_DB`, `SLOTH_MYSQL_USER`, `SLOTH_MYSQL_PASSWORD`, and `SLOTH_MYSQL_ROOT_PASSWORD` before the first `docker compose ... up` command. Do not use the default passwords outside local development.
+
+For DBeaver, create a MySQL connection using the values above. Refresh the `Tables` node after running schema-changing tests, or run:
+
+```sql
+SHOW TABLES;
+```
+
+### Run a database write check
+
+The MySQL test creates a uniquely named table, inserts two rows, and verifies the data. Set the connection variables in the shell, then run the focused test:
+
+```powershell
+$env:SLOTH_MYSQL_HOST = "127.0.0.1"
+$env:SLOTH_MYSQL_PORT = "3306"
+$env:SLOTH_MYSQL_DB = "slothdb"
+$env:SLOTH_MYSQL_USER = "slothuser"
+$env:SLOTH_MYSQL_PASSWORD = "slothpass123"
+python -m pytest pytest_tests/unit/test_database_client.py -q -k local_mysql_can_create_table_and_insert_records_when_configured
+```
+
+For Python database helper usage and parameterized query examples, see [utils/data_base/README.md](utils/data_base/README.md).
 
 ## 🏃 Running Tests
 
