@@ -6,7 +6,7 @@ import csv
 from collections.abc import Iterator
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def resolve_path(file_path: str | Path) -> Path:
