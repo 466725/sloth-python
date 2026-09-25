@@ -4,9 +4,52 @@ from __future__ import annotations
 
 import logging
 import os
+from datetime import datetime
 from pathlib import Path
 
 from config.config import LoggerSettings, settings
+
+WEEKDAY_NAMES = (
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+)
+
+
+class SizeLimitedFileHandler(logging.FileHandler):
+    """Append to a file and truncate it when the configured size is reached."""
+
+    def __init__(self, filename: str | os.PathLike[str], max_bytes: int, **kwargs: object):
+        self.max_bytes = max_bytes
+        super().__init__(filename, **kwargs)
+
+    def emit(self, record: logging.LogRecord) -> None:
+        if self.max_bytes > 0:
+            self.flush()
+            message_size = len(
+                f"{self.format(record)}{self.terminator}".encode(
+                    self.encoding or "utf-8", errors="replace"
+                )
+            )
+            current_size = Path(self.baseFilename).stat().st_size
+            if current_size + message_size > self.max_bytes:
+                self._truncate()
+        super().emit(record)
+
+    def _truncate(self) -> None:
+        self.flush()
+        if self.stream is not None:
+            self.stream.close()
+        self.stream = open(
+            self.baseFilename,
+            mode="w",
+            encoding=self.encoding,
+            errors=self.errors,
+        )
 
 
 def get_logger(name: str | None = None) -> logging.Logger:
@@ -31,10 +74,19 @@ def configure_logging(
         root_logger.addHandler(stream_handler)
 
     configured_file = log_file if log_file is not None else config.log_file
-    if configured_file and not _has_file_handler(root_logger, configured_file):
-        file_path = Path(configured_file)
+    file_path = (
+        Path(configured_file)
+        if configured_file
+        else Path(config.log_directory) / f"{_current_weekday()}.log"
+    )
+    if not _has_file_handler(root_logger, file_path):
+        file_path = Path(file_path)
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(file_path, encoding="utf-8")
+        file_handler = SizeLimitedFileHandler(
+            file_path,
+            max_bytes=config.max_bytes,
+            encoding="utf-8",
+        )
         file_handler.setFormatter(logging.Formatter(config.log_format))
         root_logger.addHandler(file_handler)
 
@@ -57,3 +109,7 @@ def _has_file_handler(logger: logging.Logger, log_file: str | os.PathLike[str]) 
         and Path(handler.baseFilename).resolve() == target
         for handler in logger.handlers
     )
+
+
+def _current_weekday() -> str:
+    return WEEKDAY_NAMES[datetime.now().weekday()]

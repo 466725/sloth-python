@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from config.config import LoggerSettings
-from utils.observability.logger import configure_logging, get_logger
+from utils.observability.logger import WEEKDAY_NAMES, configure_logging, get_logger
 
 
 @pytest.mark.unit
@@ -57,6 +57,51 @@ def test_logger_writes_message_to_temps_log_file():
     try:
         assert log_file.exists()
         assert message in log_file.read_text(encoding="utf-8")
+    finally:
+        for handler in list(root_logger.handlers):
+            if isinstance(handler, logging.FileHandler) and Path(handler.baseFilename) == log_file.resolve():
+                handler.close()
+                root_logger.removeHandler(handler)
+        root_logger.setLevel(previous_level)
+
+
+@pytest.mark.unit
+def test_default_logger_uses_current_weekday_and_truncates_at_size(tmp_path, monkeypatch):
+    import utils.observability.logger as logger_module
+
+    log_directory = tmp_path / "logs"
+    logger_settings = LoggerSettings(
+        level="INFO",
+        log_file=None,
+        log_format="%(message)s",
+        log_directory=str(log_directory),
+        max_bytes=40,
+    )
+    root_logger = logging.getLogger()
+    previous_level = root_logger.level
+    monkeypatch.setattr(logger_module, "_current_weekday", lambda: "monday")
+
+    configure_logging(logger_settings=logger_settings)
+    logger = get_logger("weekday-test")
+    logger.info("first message that is long enough")
+    logger.info("second message")
+
+    for handler in root_logger.handlers:
+        handler.flush()
+
+    log_file = log_directory / "monday.log"
+    try:
+        assert log_file.exists()
+        assert log_file.read_text(encoding="utf-8") == "second message\n"
+        assert WEEKDAY_NAMES == (
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday",
+        )
     finally:
         for handler in list(root_logger.handlers):
             if isinstance(handler, logging.FileHandler) and Path(handler.baseFilename) == log_file.resolve():

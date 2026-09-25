@@ -73,6 +73,8 @@ class LoggerSettings:
 	level: str
 	log_file: str | None
 	log_format: str
+	log_directory: str = "temps/logs"
+	max_bytes: int = 500 * 1024 * 1024
 
 
 @dataclass(frozen=True)
@@ -145,6 +147,8 @@ def load_settings() -> Settings:
 		level=_env_str("LOG_LEVEL", "INFO").upper(),
 		log_file=os.getenv("LOG_FILE") or None,
 		log_format=_env_str("LOG_FORMAT", "%(asctime)s %(levelname)s %(name)s: %(message)s"),
+		log_directory=_env_str("LOG_DIRECTORY", "temps/logs"),
+		max_bytes=_env_int("LOG_MAX_BYTES", 500 * 1024 * 1024),
 	)
 	
 	ai_generation = AIGenerationSettings(
@@ -184,6 +188,8 @@ def print_configured_settings() -> None:
 	print(f"logger.level={settings.logger.level}")
 	print(f"logger.log_file={settings.logger.log_file}")
 	print(f"logger.log_format={settings.logger.log_format}")
+	print(f"logger.log_directory={settings.logger.log_directory}")
+	print(f"logger.max_bytes={settings.logger.max_bytes}")
 	print(f"ai_generation.model={settings.ai_generation.model}")
 	print(f"ai_generation.base_url={settings.ai_generation.base_url}")
 	print(f"ai_generation.max_dom_chars={settings.ai_generation.max_dom_chars}")

@@ -20,6 +20,8 @@ CONFIG_ENV_VARS = [
     "LOG_LEVEL",
     "LOG_FILE",
     "LOG_FORMAT",
+    "LOG_DIRECTORY",
+    "LOG_MAX_BYTES",
 ]
 
 
@@ -42,6 +44,8 @@ def test_settings_defaults_are_loaded_from_expected_fallbacks(monkeypatch: pytes
     assert module.settings.logger.level == "INFO"
     assert module.settings.logger.log_file is None
     assert module.settings.logger.log_format == "%(asctime)s %(levelname)s %(name)s: %(message)s"
+    assert module.settings.logger.log_directory == "temps/logs"
+    assert module.settings.logger.max_bytes == 500 * 1024 * 1024
     assert module.settings.ai_generation.model == "gpt-4.1"
     assert module.settings.ai_generation.base_url == module.settings.urls.openai
     assert module.settings.ai_generation.max_dom_chars == 12000
@@ -63,6 +67,8 @@ def test_settings_support_environment_overrides(monkeypatch: pytest.MonkeyPatch)
     monkeypatch.setenv("LOG_LEVEL", "debug")
     monkeypatch.setenv("LOG_FILE", "temps/test.log")
     monkeypatch.setenv("LOG_FORMAT", "%(levelname)s %(message)s")
+    monkeypatch.setenv("LOG_DIRECTORY", "temps/custom-logs")
+    monkeypatch.setenv("LOG_MAX_BYTES", "1024")
 
     module = importlib.reload(module)
 
@@ -79,6 +85,8 @@ def test_settings_support_environment_overrides(monkeypatch: pytest.MonkeyPatch)
     assert module.settings.logger.level == "DEBUG"
     assert module.settings.logger.log_file == "temps/test.log"
     assert module.settings.logger.log_format == "%(levelname)s %(message)s"
+    assert module.settings.logger.log_directory == "temps/custom-logs"
+    assert module.settings.logger.max_bytes == 1024
 
 
 @pytest.mark.unit
