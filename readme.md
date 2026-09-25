@@ -359,32 +359,11 @@ sloth-python/
 ├── config/                     # Shared runtime configuration
 ├── load_tests/                 # JMeter, load-runner, and Postman assets
 ├── pytest_tests/               # Pytest unit, API, UI, DDT, and AI tests
-│   ├── ai/
-│   ├── api/
-│   ├── ddt/
-│   ├── ui/
-│   └── unit/
 ├── robot_tests/                # Robot Framework API, calculator, UI, DDT, and unit suites
-│   ├── api/
-│   ├── calculator/
-│   ├── ddt/
-│   ├── ui/
-│   └── unit/
 ├── self_healing/               # Shared Playwright locator-recovery framework
 ├── skill_spring/               # Learning and research tracks
-│   ├── algorithms/
-│   ├── claude_code/
-│   ├── concepts/
-│   ├── fun_part/
-│   └── web_scraping/
 ├── test_data/                  # Test-data creation scripts and fixtures
 ├── utils/                      # Domain-oriented shared helpers
-│   ├── browser/                # Playwright and MCP helpers
-│   ├── data/                   # CSV and test-data readers
-│   ├── integrations/           # External service integrations
-│   ├── observability/          # Logging and diagnostics
-│   ├── data_base/              # Database helpers
-│   └── qtest_utilities/        # qTest integration helpers
 ├── temps/                      # Generated reports, logs, videos, and temporary results
 ├── .github/workflows/          # GitHub Actions CI/CD definitions
 ├── .vscode/                    # Workspace settings
