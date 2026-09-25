@@ -12,7 +12,7 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 from data_provider.base import canonical_stock_code, normalize_stock_code
 from src.config import get_config
-from src.repositories.portfolio_repo import (
+from ai_stock.repositories import (
     DuplicateTradeDedupHashError,
     DuplicateTradeUidError,
     PortfolioBusyError as RepoPortfolioBusyError,

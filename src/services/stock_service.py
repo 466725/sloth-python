@@ -13,7 +13,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, List
 
-from src.repositories.stock_repo import StockRepository
+from ai_stock.repositories import StockRepository
 
 logger = logging.getLogger(__name__)
 

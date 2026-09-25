@@ -15,7 +15,7 @@ import copy
 import uuid
 from typing import Optional, Dict, Any, Callable, List
 
-from src.repositories.analysis_repo import AnalysisRepository
+from ai_stock.repositories import AnalysisRepository
 from src.report_language import (
     get_sentiment_label,
     get_localized_stock_name,

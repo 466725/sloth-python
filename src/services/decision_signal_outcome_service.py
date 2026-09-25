@@ -11,9 +11,9 @@ import math
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from src.core.backtest_engine import BacktestEngine, EvaluationConfig
-from src.repositories.decision_signal_outcome_repo import DecisionSignalOutcomeRepository
-from src.repositories.decision_signal_repo import DecisionSignalRepository
-from src.repositories.stock_repo import StockRepository
+from ai_stock.repositories import DecisionSignalOutcomeRepository
+from ai_stock.repositories import DecisionSignalRepository
+from ai_stock.repositories import StockRepository
 from src.services.decision_signal_service import (
     HORIZONS,
     SIGNAL_STATUSES,

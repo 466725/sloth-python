@@ -8,7 +8,7 @@ from datetime import date, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
 from src.config import Config, get_config
-from src.repositories.portfolio_repo import PortfolioRepository
+from ai_stock.repositories import PortfolioRepository
 from src.services.decision_signal_service import DecisionSignalService
 from src.services.decision_signal_summary import summarize_decision_signal
 from src.services.portfolio_service import PortfolioService

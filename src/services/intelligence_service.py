@@ -21,7 +21,7 @@ import requests
 from sqlalchemy.exc import IntegrityError
 
 from src.config import get_config
-from src.repositories.intelligence_repo import IntelligenceRepository
+from ai_stock.repositories import IntelligenceRepository
 from src.storage import IntelligenceSource, INTELLIGENCE_ITEM_NULL_SCOPE_VALUE
 from src.services.run_diagnostics import sanitize_diagnostic_text
 

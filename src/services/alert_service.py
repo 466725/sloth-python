@@ -18,7 +18,7 @@ from ai_stock.agent.events import (
     _read_quote_float,
     validate_event_alert_rule,
 )
-from src.repositories.alert_repo import AlertRepository
+from ai_stock.repositories import AlertRepository
 from src.services.alert_indicators import (
     TECHNICAL_ALERT_TYPES,
     TechnicalIndicatorAlert,
