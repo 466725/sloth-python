@@ -1,5 +1,0 @@
-"""Backward-compatible imports for browser utilities."""
-
-from utils.browser.playwright_mcp import MCPPlaywrightHelper
-
-__all__ = ["MCPPlaywrightHelper"]
