@@ -337,63 +337,6 @@ python -m pytest -q pytest_tests/ai/test_ai_generation.py
 | [`web_scraping/`](skill_spring/web_scraping/) | Web scraping, browser utilities, networking, and data collection experiments |
 | [`fun_part/`](skill_spring/fun_part/) | Small games, creative programs, exploratory utilities, and learning experiments |
 
-### Claude and MCP study track
-
-The main subprojects are organized by numbered learning tracks:
-
-| Directory | Purpose |
-|---|---|
-| `000_Architect_Foundations_Certification_Exam/` | Community practice exam for Claude Certified Architect (77 scenario-based questions) |
-| `001_starter/` | Starter MCP server for document-processing tools |
-| `002_cli/` | Interactive Claude CLI with MCP client/server and document retrieval patterns |
-| `003_notifications/` | MCP logging, progress, and notification demo |
-| `004_roots/` | MCP chat with controlled filesystem roots and video conversion helpers |
-| `005_sampling/` | MCP sampling demo with Claude-backed client flow |
-| `006_transport_http/` | MCP transport-over-HTTP server example |
-| `007_note_book/` | Notebook-based tutorials for prompting, tools, retrieval, evals, and web/search workflows |
-| `claude_agent_sdk/` | Local copy of Claude Agent SDK for Python with examples and docs |
-
-### Notebook Tutorials
-
-Notebook tutorials live under `skill_spring/claude_code`:
-
-| Notebook | Focus |
-|---|---|
-| `001_prompting.ipynb`, `002_prompting.ipynb` | Prompting patterns and prompt iteration |
-| `001_thinking.ipynb` | Claude thinking/reasoning examples |
-| `001_tools.ipynb` | Multi-tool calling basics |
-| `001_prompt_grader_evals.ipynb` | Prompt evaluation datasets, grading, and scoring |
-| `001_chunking.ipynb` | Text chunking for retrieval workflows |
-| `002_citations.ipynb` | Citation-aware responses |
-| `002_embeddings.ipynb` | Embeddings and semantic retrieval |
-| `002_images.ipynb` | Image input and multimodal usage patterns |
-| `003_vectordb.ipynb`, `004_bm25.ipynb`, `005_hybrid.ipynb` | Vector search, keyword search, and hybrid retrieval |
-| `003_caching.ipynb` | Prompt caching examples |
-| `003_tool_streaming.ipynb` | Streaming tool-use flows |
-| `005_code_execution.ipynb` | Code execution tool examples |
-| `005_text_editor_tool.ipynb` | Text editor tool usage |
-| `006_web_search.ipynb` | Web search examples |
-
-### MCP Projects
-
-The runnable MCP examples and mini-projects are:
-
-| Directory | Purpose |
-|---|---|
-| `001_starter/` | Document-processing MCP starter server |
-| `002_cli/` | Interactive MCP chat CLI project |
-| `003_notifications/` | Logging/progress and notification flow |
-| `004_roots/` | Root-restricted filesystem operations + video conversion |
-| `005_sampling/` | Sampling patterns and response flow control |
-| `006_transport_http/` | HTTP transport setup for MCP server communication |
-
-Most runnable subprojects include their own `README.md`. In general, set `ANTHROPIC_API_KEY`, install dependencies with `uv sync` or `uv pip install -e .`, then run the project-specific command such as `uv run main.py` or `uv run client.py`.
-
-Additional reference files:
-
-- `skill_spring/claude_code/claude_code_learning.md`: curated course and project notes
-- `skill_spring/claude_code/`: notebooks and supporting research material
-
 ### IDE Setup For `skill_spring/claude_code` Subprojects
 
 `skill_spring` is the repository's learning and research area. It contains algorithms, test-automation concepts, web-scraping exercises, and Claude/MCP experiments.
