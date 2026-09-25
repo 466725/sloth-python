@@ -303,15 +303,6 @@ The command-line entry point is `ai_gen/cli.py`.
 | `--base-url` | `AI_GEN_BASE_URL` | OpenAI-compatible API endpoint |
 | `--headless` | `false` | Run context collection headlessly (`true`/`false`) |
 
-Use the channel that best matches the type of feedback:
-
-| Need | Where to go |
-|---|---|
-| Report a reproducible bug | [GitHub Issues](https://github.com/466725/sloth-python/issues) |
-| Request a feature or documentation improvement | [GitHub Issues](https://github.com/466725/sloth-python/issues) |
-| Ask a question or discuss an approach | [GitHub Discussions](https://github.com/466725/sloth-python/discussions) |
-| Report a security vulnerability | Follow the [Security Policy](security.md) |
-
 ### Additional examples
 
 ```powershell
