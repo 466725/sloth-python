@@ -6,8 +6,7 @@ import logging
 import os
 from pathlib import Path
 
-DEFAULT_LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s: %(message)s"
-DEFAULT_LOG_LEVEL = "INFO"
+from config.config import LoggerSettings, settings
 
 
 def get_logger(name: str | None = None) -> logging.Logger:
@@ -17,28 +16,32 @@ def get_logger(name: str | None = None) -> logging.Logger:
 def configure_logging(
     level: str | int | None = None,
     log_file: str | os.PathLike[str] | None = None,
+    *,
+    logger_settings: LoggerSettings | None = None,
 ) -> logging.Logger:
+    """Configure the root logger from shared settings and return it."""
+
+    config = logger_settings or settings.logger
     root_logger = logging.getLogger()
-    root_logger.setLevel(_resolve_level(level))
+    root_logger.setLevel(_resolve_level(level if level is not None else config.level))
 
     if not root_logger.handlers:
         stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(logging.Formatter(DEFAULT_LOG_FORMAT))
+        stream_handler.setFormatter(logging.Formatter(config.log_format))
         root_logger.addHandler(stream_handler)
 
-    configured_file = log_file or os.getenv("LOG_FILE")
+    configured_file = log_file if log_file is not None else config.log_file
     if configured_file and not _has_file_handler(root_logger, configured_file):
         file_path = Path(configured_file)
         file_path.parent.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(file_path, encoding="utf-8")
-        file_handler.setFormatter(logging.Formatter(DEFAULT_LOG_FORMAT))
+        file_handler.setFormatter(logging.Formatter(config.log_format))
         root_logger.addHandler(file_handler)
 
     return root_logger
 
 
-def _resolve_level(level: str | int | None) -> int:
-    value = level if level is not None else os.getenv("LOG_LEVEL", DEFAULT_LOG_LEVEL)
+def _resolve_level(value: str | int) -> int:
     if isinstance(value, int):
         return value
     resolved = logging.getLevelNamesMapping().get(value.upper())

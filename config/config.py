@@ -69,6 +69,13 @@ class PlaywrightSettings:
 
 
 @dataclass(frozen=True)
+class LoggerSettings:
+	level: str
+	log_file: str | None
+	log_format: str
+
+
+@dataclass(frozen=True)
 class AIGenerationSettings:
 	model: str
 	base_url: str
@@ -110,6 +117,7 @@ class Settings:
 	urls: UrlSettings
 	ui: UiSettings
 	playwright: PlaywrightSettings
+	logger: LoggerSettings
 	ai_generation: AIGenerationSettings
 	database: DatabaseSettings
 
@@ -132,6 +140,12 @@ def load_settings() -> Settings:
 		headless=_env_bool("PW_HEADLESS", False),
 		slow_mo=_env_int("PW_SLOW_MO", 0),
 	)
+
+	logger = LoggerSettings(
+		level=_env_str("LOG_LEVEL", "INFO").upper(),
+		log_file=os.getenv("LOG_FILE") or None,
+		log_format=_env_str("LOG_FORMAT", "%(asctime)s %(levelname)s %(name)s: %(message)s"),
+	)
 	
 	ai_generation = AIGenerationSettings(
 		model=_env_str("AI_GEN_MODEL", "gpt-4.1"),
@@ -145,6 +159,7 @@ def load_settings() -> Settings:
 		urls=urls,
 		ui=ui,
 		playwright=playwright,
+		logger=logger,
 		ai_generation=ai_generation,
 		database=database,
 	)
@@ -166,6 +181,9 @@ def print_configured_settings() -> None:
 		f"{settings.ui.cookie_banner_timeout_seconds}"
 	)
 	print(f"playwright.headless={settings.playwright.headless}")
+	print(f"logger.level={settings.logger.level}")
+	print(f"logger.log_file={settings.logger.log_file}")
+	print(f"logger.log_format={settings.logger.log_format}")
 	print(f"ai_generation.model={settings.ai_generation.model}")
 	print(f"ai_generation.base_url={settings.ai_generation.base_url}")
 	print(f"ai_generation.max_dom_chars={settings.ai_generation.max_dom_chars}")
