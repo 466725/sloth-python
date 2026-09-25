@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -37,15 +38,17 @@ def test_configure_logging_uses_logger_settings(tmp_path):
 
 @pytest.mark.unit
 def test_logger_writes_message_to_temps_log_file():
-    log_file = Path("temps/logs/test_logger.log")
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    log_directory = Path("temps/logs")
+    log_file = log_directory / f"{datetime.now().strftime('%A').lower()}.log"
+    log_directory.mkdir(parents=True, exist_ok=True)
     message = "logger integration test message"
     root_logger = logging.getLogger()
     previous_level = root_logger.level
     logger_settings = LoggerSettings(
         level="INFO",
-        log_file=str(log_file),
+        log_file=None,
         log_format="%(levelname)s %(name)s: %(message)s",
+        log_directory=str(log_directory),
     )
 
     configure_logging(logger_settings=logger_settings)
