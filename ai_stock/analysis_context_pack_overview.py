@@ -8,7 +8,7 @@ import logging
 from collections.abc import Mapping
 from typing import Any, Dict, List, Optional
 
-from src.analysis_context_pack_prompt import (
+from ai_stock.analysis_context_pack_prompt import (
     SENSITIVE_MARKERS,
     analysis_context_pack_to_dict,
     get_analysis_context_pack_block_labels,

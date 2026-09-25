@@ -45,7 +45,7 @@ from src.report_language import (
     normalize_report_language,
 )
 from src.search_service import SearchService
-from src.analysis_context_pack_prompt import format_analysis_context_pack_prompt_section
+from ai_stock.analysis_context_pack_prompt import format_analysis_context_pack_prompt_section
 from src.analysis_context_pack_overview import render_analysis_context_pack_overview
 from src.market_phase_summary import MARKET_PHASE_SUMMARY_KEY, render_market_phase_summary
 from src.daily_market_context_guardrail import apply_daily_market_context_guardrail

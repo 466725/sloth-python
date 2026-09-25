@@ -1537,7 +1537,7 @@ Market conditions can change quickly. The data above is for reference only and d
 # 测试入口
 if __name__ == "__main__":
     import sys
-    sys.path.insert(0, '.')
+    sys.path.insert(0, '../src')
     
     logging.basicConfig(
         level=logging.INFO,
