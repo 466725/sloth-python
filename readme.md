@@ -173,18 +173,6 @@ python -m pytest -m ui
 python -m pytest pytest_tests/ui/tangerine -q
 ```
 
-### API demos
-
-The repository includes three API-testing styles:
-
-| Approach | Example command |
-|---|---|
-| Pytest + Python | `python -m pytest -q pytest_tests/api/test_deep_seek_api.py` |
-| Robot + Python keywords | `python -m robot --outputdir temps/robot_api robot_tests/api/test_deep_seek_api_hybrid.robot` |
-| Robot-only `RequestsLibrary` | `python -m robot --outputdir temps/robot_api robot_tests/api/test_deep_seek_api.robot` |
-
-DeepSeek demos use `OPENAI_API_KEY`; `DEEP_SEEK_URL` is optional.
-
 ### Playwright recording and debugging
 
 Use Playwright Codegen to record actions and bootstrap UI tests:
