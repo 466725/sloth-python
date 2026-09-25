@@ -78,18 +78,6 @@ class YfinanceFetcher(BaseFetcher):
         """初始化 YfinanceFetcher"""
         pass
 
-    @staticmethod
-    def _is_jp_kr_suffix_stock(stock_code: str) -> bool:
-        """Return True for supported JP/KR suffix-only Yahoo symbols."""
-        code = (stock_code or "").strip().upper()
-        if code.endswith(".T"):
-            base = code[:-2]
-            return base.isdigit() and len(base) in (4, 5)
-        if code.endswith((".KS", ".KQ")):
-            base = code.rsplit(".", 1)[0]
-            return base.isdigit() and len(base) == 6
-        return False
-
     def _convert_stock_code(self, stock_code: str) -> str:
         """
         转换股票代码为 Yahoo Finance 格式
@@ -438,52 +426,6 @@ class YfinanceFetcher(BaseFetcher):
         except Exception as e:
             logger.error(f"[Yfinance] 获取港股指数行情失败: {e}")
 
-        return None
-
-    def _get_jp_main_indices(self, yf) -> Optional[List[Dict[str, Any]]]:
-        """获取日本主要指数行情（日经225、TOPIX），复用 _fetch_yf_ticker_data。"""
-        jp_indices = {
-            'N225': ('^N225', '日经225'),
-            'TOPX': ('^TOPX', '东证指数'),
-        }
-        results = []
-        try:
-            for code, (yf_symbol, name) in jp_indices.items():
-                try:
-                    item = self._fetch_yf_ticker_data(yf, yf_symbol, name, code)
-                    if item:
-                        results.append(item)
-                        logger.debug(f"[Yfinance] 获取日本指数 {name} 成功")
-                except Exception as e:
-                    logger.warning(f"[Yfinance] 获取日本指数 {name} 失败: {e}")
-            if results:
-                logger.info(f"[Yfinance] 成功获取 {len(results)} 个日本指数行情")
-                return results
-        except Exception as e:
-            logger.error(f"[Yfinance] 获取日本指数行情失败: {e}")
-        return None
-
-    def _get_kr_main_indices(self, yf) -> Optional[List[Dict[str, Any]]]:
-        """获取韩国主要指数行情（KOSPI、KOSDAQ），复用 _fetch_yf_ticker_data。"""
-        kr_indices = {
-            'KS11': ('^KS11', 'KOSPI'),
-            'KQ11': ('^KQ11', 'KOSDAQ'),
-        }
-        results = []
-        try:
-            for code, (yf_symbol, name) in kr_indices.items():
-                try:
-                    item = self._fetch_yf_ticker_data(yf, yf_symbol, name, code)
-                    if item:
-                        results.append(item)
-                        logger.debug(f"[Yfinance] 获取韩国指数 {name} 成功")
-                except Exception as e:
-                    logger.warning(f"[Yfinance] 获取韩国指数 {name} 失败: {e}")
-            if results:
-                logger.info(f"[Yfinance] 成功获取 {len(results)} 个韩国指数行情")
-                return results
-        except Exception as e:
-            logger.error(f"[Yfinance] 获取韩国指数行情失败: {e}")
         return None
 
     def _is_us_stock(self, stock_code: str) -> bool:

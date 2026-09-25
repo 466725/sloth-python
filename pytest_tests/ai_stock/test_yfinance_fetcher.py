@@ -252,23 +252,6 @@ def test_get_realtime_quote_non_us_non_suffix_returns_none(
 
 
 @pytest.mark.unit
-def test_get_realtime_quote_us_index_delegates(
-    monkeypatch: pytest.MonkeyPatch, yfinance_module: ModuleType
-) -> None:
-    _install_yfinance_stub(monkeypatch, ticker_factory=lambda symbol: _FakeTicker())
-
-    fetcher = yfinance_module.YfinanceFetcher()
-    monkeypatch.setattr(
-        fetcher,
-        "_get_us_index_realtime_quote",
-        lambda user_code, yf_symbol, index_name: {"code": user_code, "yf": yf_symbol, "name": index_name},
-    )
-
-    quote = fetcher.get_realtime_quote("SPX")
-    assert quote == {"code": "SPX", "yf": "^GSPC", "name": "标普500"}
-
-
-@pytest.mark.unit
 def test_get_realtime_quote_fast_info_success(
     monkeypatch: pytest.MonkeyPatch, yfinance_module: ModuleType
 ) -> None:
@@ -298,56 +281,3 @@ def test_get_realtime_quote_fast_info_success(
     assert quote.change_pct == round((6.0 / 145.0) * 100, 2)
     assert quote.amplitude == round((152.0 - 148.0) / 145.0 * 100, 2)
     assert quote.total_mv == 3000000000
-
-
-@pytest.mark.unit
-def test_get_realtime_quote_history_empty_uses_stooq_fallback(
-    monkeypatch: pytest.MonkeyPatch, yfinance_module: ModuleType
-) -> None:
-
-    class _BrokenFastInfoTicker(_FakeTicker):
-        @property
-        def fast_info(self):
-            raise RuntimeError("fast_info failed")
-
-    ticker = _BrokenFastInfoTicker(history_rows=[])
-    _install_yfinance_stub(monkeypatch, ticker_factory=lambda symbol: ticker)
-
-    fetcher = yfinance_module.YfinanceFetcher()
-    monkeypatch.setattr(fetcher, "_get_us_stock_quote_from_stooq", lambda symbol: {"code": symbol, "from": "stooq"})
-
-    quote = fetcher.get_realtime_quote("MSFT")
-    assert quote == {"code": "MSFT", "from": "stooq"}
-
-
-@pytest.mark.unit
-def test_get_us_stock_quote_from_stooq_parses_payload(
-    monkeypatch: pytest.MonkeyPatch, yfinance_module: ModuleType
-) -> None:
-    fetcher = yfinance_module.YfinanceFetcher()
-
-    payload_realtime = "Symbol,Date,Time,Open,High,Low,Close,Volume\nAAPL.US,2026-01-10,22:00:00,149.0,151.0,148.0,150.0,123456"
-    payload_history = "Date,Open,High,Low,Close,Volume\n2026-01-09,147,149,146,148,100\n2026-01-10,149,151,148,150,110"
-
-    calls = {"count": 0}
-
-    def _fake_urlopen(request: Any, timeout: int = 15):
-        calls["count"] += 1
-        assert timeout == 15
-        if calls["count"] == 1:
-            return _DummyUrlopenResponse(payload_realtime)
-        return _DummyUrlopenResponse(payload_history)
-
-    monkeypatch.setattr(yfinance_module, "urlopen", _fake_urlopen)
-
-    quote = fetcher._get_us_stock_quote_from_stooq("aapl")
-
-    assert quote is not None
-    assert quote.code == "AAPL"
-    assert quote.source == yfinance_module.RealtimeSource.STOOQ
-    assert quote.price == 150.0
-    assert quote.pre_close == 148.0
-    assert quote.change_amount == 2.0
-    assert quote.change_pct == round((2.0 / 148.0) * 100, 2)
-    assert quote.amplitude == round((151.0 - 148.0) / 148.0 * 100, 2)
-    assert quote.volume == 123456

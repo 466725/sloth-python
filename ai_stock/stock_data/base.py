@@ -609,7 +609,7 @@ class DataFetcherManager:
         "AkshareFetcher": {"cn", "hk"},
         "TushareFetcher": {"cn", "hk"},
         "PytdxFetcher": {"cn"},
-        "YfinanceFetcher": {"cn", "hk", "us", "jp", "kr"},
+        "YfinanceFetcher": {"cn", "hk", "us"},
         "FinnhubFetcher": {"us"},
         "AlphaVantageFetcher": {"us"},
     }
