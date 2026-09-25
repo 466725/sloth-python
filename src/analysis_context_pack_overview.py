@@ -15,7 +15,7 @@ from src.analysis_context_pack_prompt import (
     iter_analysis_context_pack_block_keys,
 )
 from src.market_phase_summary import MARKET_PHASE_SUMMARY_KEY
-from src.schemas.analysis_context_pack import ContextFieldStatus
+from ai_stock.schemas.analysis_context_pack import ContextFieldStatus
 
 
 ANALYSIS_CONTEXT_PACK_OVERVIEW_KEY = "analysis_context_pack_overview"

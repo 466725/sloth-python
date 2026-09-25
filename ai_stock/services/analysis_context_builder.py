@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Sequence
 
-from src.schemas.analysis_context_pack import (
+from ai_stock.schemas.analysis_context_pack import (
     AnalysisContextBlock,
     AnalysisContextItem,
     AnalysisContextPack,

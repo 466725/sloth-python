@@ -24,7 +24,7 @@ from src.report_language import (
     normalize_report_language,
 )
 from src.market_phase_summary import extract_market_phase_summary
-from src.schemas.decision_action import build_action_fields
+from ai_stock.schemas.decision_action import build_action_fields
 from src.services.run_diagnostics import (
     activate_run_diagnostic_context,
     build_run_diagnostic_summary,

@@ -59,7 +59,7 @@ from src.report_language import (
     localize_confidence_level,
     normalize_report_language,
 )
-from src.schemas.decision_action import build_action_fields
+from ai_stock.schemas.decision_action import build_action_fields
 from src.schemas.report_schema import AnalysisReportSchema
 from src.market_context import detect_market, get_market_role, get_market_guidelines
 from src.services.daily_market_context import format_daily_market_context_prompt_section

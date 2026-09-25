@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 from ai_stock.core.trading_calendar import get_open_markets_today
-from src.schemas.market_light import MarketLightSnapshot
+from ai_stock.schemas.market_light import MarketLightSnapshot
 from src.services.market_light_service import (
     build_current_snapshot,
     load_previous_snapshot,

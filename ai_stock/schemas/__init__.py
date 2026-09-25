@@ -7,7 +7,7 @@ DSA Schemas
 Pydantic schemas for report output validation and internal contracts.
 """
 
-from src.schemas.analysis_context_pack import (
+from ai_stock.schemas.analysis_context_pack import (
     PACK_VERSION,
     AnalysisContextBlock,
     AnalysisContextItem,

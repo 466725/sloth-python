@@ -14,7 +14,7 @@ from ai_stock.core.trading_calendar import MarketPhase
 from ai_stock.repositories import DecisionSignalRepository
 from ai_stock.repositories import PortfolioRepository
 from src.report_language import normalize_report_language
-from src.schemas.decision_action import (
+from ai_stock.schemas.decision_action import (
     DecisionAction,
     build_action_fields,
     localize_action_label,

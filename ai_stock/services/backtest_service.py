@@ -15,7 +15,7 @@ from src.core.backtest_engine import OVERALL_SENTINEL_CODE, BacktestEngine, Eval
 from src.market_phase_summary import extract_market_phase_summary, normalize_analysis_phase_bucket
 from ai_stock.repositories import BacktestRepository
 from ai_stock.repositories import StockRepository
-from src.schemas.decision_action import build_action_fields
+from ai_stock.schemas.decision_action import build_action_fields
 from src.storage import BacktestResult, BacktestSummary, DatabaseManager
 from src.utils.data_processing import parse_json_field
 
