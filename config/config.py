@@ -155,7 +155,7 @@ def load_settings() -> Settings:
 		model=_env_str("AI_GEN_MODEL", "gpt-4.1"),
 		base_url=_normalize_openai_base_url(_env_str("AI_GEN_BASE_URL", urls.openai)),
 		max_dom_chars=_env_int("AI_GEN_MAX_DOM_CHARS", 12000),
-		output_dir=_env_str("AI_GEN_OUTPUT_DIR", "temps/ai/generated_playwright"),
+		output_dir=_env_str("AI_GEN_OUTPUT_DIR", "temps/ai/ai_gen_tests"),
 	)
 	database = DatabaseSettings.from_env()
 

@@ -49,7 +49,7 @@ def test_settings_defaults_are_loaded_from_expected_fallbacks(monkeypatch: pytes
     assert module.settings.ai_generation.model == "gpt-4.1"
     assert module.settings.ai_generation.base_url == module.settings.urls.openai
     assert module.settings.ai_generation.max_dom_chars == 12000
-    assert module.settings.ai_generation.output_dir == "temps/ai/generated_playwright"
+    assert module.settings.ai_generation.output_dir == "temps/ai/ai_gen_tests"
 
 
 @pytest.mark.unit
