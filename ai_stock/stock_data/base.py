@@ -608,7 +608,6 @@ class DataFetcherManager:
         "TencentFetcher": {"cn"},
         "AkshareFetcher": {"cn", "hk"},
         "TushareFetcher": {"cn", "hk"},
-        "PytdxFetcher": {"cn"},
         "YfinanceFetcher": {"cn", "hk", "us"},
         "FinnhubFetcher": {"us"},
         "AlphaVantageFetcher": {"us"},
@@ -1120,7 +1119,6 @@ class DataFetcherManager:
         - 默认优先级：
           0. EfinanceFetcher (Priority 0) - 最高优先级
           1. AkshareFetcher (Priority 1)
-          2. PytdxFetcher (Priority 2) - 通达信
           4. YfinanceFetcher (Priority 4)
         """
         from src.config import get_config
@@ -1128,14 +1126,12 @@ class DataFetcherManager:
         from .tencent_fetcher import TencentFetcher
         from .akshare_fetcher import AkshareFetcher
         from .tushare_fetcher import TushareFetcher
-        from .pytdx_fetcher import PytdxFetcher
         from .yfinance_fetcher import YfinanceFetcher
         config = get_config()
         # 创建所有数据源实例（优先级在各 Fetcher 的 __init__ 中确定）
         efinance = EfinanceFetcher()
         tencent = TencentFetcher()
         akshare = AkshareFetcher()
-        pytdx = PytdxFetcher()      # 通达信数据源（可配 PYTDX_HOST/PYTDX_PORT）
         yfinance = YfinanceFetcher()
         optional_fetchers: List[BaseFetcher] = []
 
@@ -1166,7 +1162,6 @@ class DataFetcherManager:
                 efinance,
                 tencent,
                 akshare,
-                pytdx,
                 yfinance,
                 *optional_fetchers,
             ]
