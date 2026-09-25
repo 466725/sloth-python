@@ -28,12 +28,12 @@ if TYPE_CHECKING:
     from asyncio import Queue as AsyncQueue
 
 from data_provider.base import canonical_stock_code, normalize_stock_code
-from src.services.run_diagnostics import (
+from ai_stock.services.run_diagnostics import (
     activate_run_diagnostic_context,
     get_current_diagnostic_context,
     reset_run_diagnostic_context,
 )
-from src.utils.analysis_metadata import SELECTION_SOURCES
+from ai_stock.utils.analysis_metadata import SELECTION_SOURCES
 from src.services.stock_code_utils import resolve_index_stock_code_for_analysis
 
 logger = logging.getLogger(__name__)

@@ -23,7 +23,7 @@ from src.search_service import SearchService
 from src.core.market_profile import get_profile, MarketProfile
 from src.core.market_strategy import get_market_strategy_blueprint
 from ai_stock.schemas.market_light import MarketLightSnapshot
-from src.services.run_diagnostics import record_llm_run, record_llm_run_started
+from ai_stock.services.run_diagnostics import record_llm_run, record_llm_run_started
 from src.services.intelligence_service import IntelligenceService
 from data_provider.base import DataFetcherManager
 

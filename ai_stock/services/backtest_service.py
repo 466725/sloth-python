@@ -17,7 +17,7 @@ from ai_stock.repositories import BacktestRepository
 from ai_stock.repositories import StockRepository
 from ai_stock.schemas.decision_action import build_action_fields
 from src.storage import BacktestResult, BacktestSummary, DatabaseManager
-from src.utils.data_processing import parse_json_field
+from ai_stock.utils.data_processing import parse_json_field
 
 logger = logging.getLogger(__name__)
 

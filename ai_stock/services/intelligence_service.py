@@ -23,7 +23,7 @@ from sqlalchemy.exc import IntegrityError
 from src.config import get_config
 from ai_stock.repositories import IntelligenceRepository
 from src.storage import IntelligenceSource, INTELLIGENCE_ITEM_NULL_SCOPE_VALUE
-from src.services.run_diagnostics import sanitize_diagnostic_text
+from ai_stock.services.run_diagnostics import sanitize_diagnostic_text
 
 logger = logging.getLogger(__name__)
 _ALLOWED_SOURCE_TYPES = {"rss", "atom", "newsnow"}

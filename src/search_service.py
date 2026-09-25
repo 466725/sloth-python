@@ -38,7 +38,7 @@ from src.config import (
     normalize_news_strategy_profile,
     resolve_news_window_days,
 )
-from src.services.run_diagnostics import record_provider_run, record_provider_run_started
+from ai_stock.services.run_diagnostics import record_provider_run, record_provider_run_started
 
 logger = logging.getLogger(__name__)
 

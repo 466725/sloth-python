@@ -31,13 +31,13 @@ from src.report_language import (
     normalize_report_language,
 )
 from src.storage import DatabaseManager
-from src.services.run_diagnostics import build_run_diagnostic_summary
+from ai_stock.services.run_diagnostics import build_run_diagnostic_summary
 from src.market_phase_summary import (
     rebuild_market_phase_summary_for_stock_code,
 )
 from ai_stock.schemas.decision_action import build_action_fields
-from src.utils.sniper_points import find_sniper_points
-from src.utils.data_processing import (
+from ai_stock.utils.sniper_points import find_sniper_points
+from ai_stock.utils.data_processing import (
     extract_realtime_detail_fields,
     normalize_model_used,
     parse_json_field,

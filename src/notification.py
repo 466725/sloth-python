@@ -51,7 +51,7 @@ from src.report_language import (
 )
 from bot.models import BotMessage
 from src.utils.sanitize import sanitize_diagnostic_text
-from src.utils.data_processing import normalize_model_used
+from ai_stock.utils.data_processing import normalize_model_used
 from src.notification_sender import (
     AstrbotSender,
     CustomWebhookSender,

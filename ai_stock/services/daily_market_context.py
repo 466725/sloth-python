@@ -18,7 +18,7 @@ from src.core.market_review_lock import (
     try_acquire_market_review_lock,
 )
 from src.report_language import normalize_report_language
-from src.services.run_diagnostics import (
+from ai_stock.services.run_diagnostics import (
     activate_run_diagnostic_context,
     reset_run_diagnostic_context,
 )

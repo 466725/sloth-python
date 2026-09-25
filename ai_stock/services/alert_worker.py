@@ -32,7 +32,7 @@ from src.market_phase_summary import (
     render_market_phase_summary,
 )
 from src.services.alert_service import AlertService
-from src.services.decision_signal_service import DecisionSignalService
+from ai_stock.services.decision_signal_service import DecisionSignalService
 from src.services.decision_signal_summary import (
     format_decision_signal_excerpt,
     summarize_decision_signal,

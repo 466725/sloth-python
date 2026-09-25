@@ -28,7 +28,7 @@ from src.report_language import (
     localize_trend_prediction,
     normalize_report_language,
 )
-from src.utils.data_processing import normalize_model_used
+from ai_stock.utils.data_processing import normalize_model_used
 
 logger = logging.getLogger(__name__)
 

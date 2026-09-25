@@ -14,7 +14,7 @@ from src.core.backtest_engine import BacktestEngine, EvaluationConfig
 from ai_stock.repositories import DecisionSignalOutcomeRepository
 from ai_stock.repositories import DecisionSignalRepository
 from ai_stock.repositories import StockRepository
-from src.services.decision_signal_service import (
+from ai_stock.services.decision_signal_service import (
     HORIZONS,
     SIGNAL_STATUSES,
     SOURCE_TYPES,

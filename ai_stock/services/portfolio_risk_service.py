@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from src.config import Config, get_config
 from ai_stock.repositories import PortfolioRepository
-from src.services.decision_signal_service import DecisionSignalService
+from ai_stock.services.decision_signal_service import DecisionSignalService
 from src.services.decision_signal_summary import summarize_decision_signal
 from src.services.portfolio_service import PortfolioService
 

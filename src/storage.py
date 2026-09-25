@@ -57,7 +57,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 
 from ai_stock.agent.provider_trace import PROVIDER_TRACE_RETENTION_LIMIT
 from src.config import get_config
-from src.utils.sniper_points import extract_sniper_points, parse_sniper_value
+from ai_stock.utils.sniper_points import extract_sniper_points, parse_sniper_value
 
 logger = logging.getLogger(__name__)
 T = TypeVar("T")

@@ -22,7 +22,7 @@ from src.market_analyzer import MarketAnalyzer
 from src.report_language import normalize_report_language
 from src.search_service import SearchService
 from src.analyzer import AnalysisResult, GeminiAnalyzer
-from src.services.run_diagnostics import (
+from ai_stock.services.run_diagnostics import (
     current_diagnostic_snapshot,
     record_history_run,
     record_notification_run,

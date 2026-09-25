@@ -61,7 +61,7 @@ from src.services.analysis_context_builder import (
     AnalysisContextBuilder,
     PipelineAnalysisArtifacts,
 )
-from src.services.run_diagnostics import (
+from ai_stock.services.run_diagnostics import (
     activate_run_diagnostic_context,
     current_diagnostic_snapshot,
     get_current_diagnostic_context,

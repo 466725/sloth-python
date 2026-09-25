@@ -25,7 +25,7 @@ from src.report_language import (
 )
 from src.market_phase_summary import extract_market_phase_summary
 from ai_stock.schemas.decision_action import build_action_fields
-from src.services.run_diagnostics import (
+from ai_stock.services.run_diagnostics import (
     activate_run_diagnostic_context,
     build_run_diagnostic_summary,
     get_current_diagnostic_context,

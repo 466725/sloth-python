@@ -27,7 +27,7 @@ from src.storage import (
     to_utc_naive_datetime,
     utc_naive_now,
 )
-from src.utils.data_processing import parse_json_field
+from ai_stock.utils.data_processing import parse_json_field
 from src.utils.sanitize import sanitize_decision_signal_payload, sanitize_decision_signal_text
 
 

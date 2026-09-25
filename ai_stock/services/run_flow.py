@@ -11,12 +11,12 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from api.v1.schemas.run_flow import RunFlowSnapshot
 from src.analysis_context_pack_overview import extract_analysis_context_pack_overview
-from src.services.run_diagnostics import (
+from ai_stock.services.run_diagnostics import (
     safe_diagnostic_key,
     sanitize_diagnostic_metadata,
     sanitize_diagnostic_text,
 )
-from src.utils.data_processing import normalize_model_used, parse_json_field
+from ai_stock.utils.data_processing import normalize_model_used, parse_json_field
 
 
 _LANES = [
