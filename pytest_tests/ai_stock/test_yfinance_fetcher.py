@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 import re
 import sys
+from collections.abc import Iterator
 from types import ModuleType, SimpleNamespace
 from typing import Any, Optional
 
@@ -142,15 +143,31 @@ def _make_us_index_mapping_stub() -> ModuleType:
     return module
 
 
-def _load_module(monkeypatch: pytest.MonkeyPatch):
+@pytest.fixture
+def yfinance_module(monkeypatch: pytest.MonkeyPatch) -> Iterator[ModuleType]:
+    parent_name, _, module_name = MODULE_NAME.rpartition(".")
+    parent_module = importlib.import_module(parent_name)
+    missing = object()
+    original_attribute = getattr(parent_module, module_name, missing)
+    original_module = sys.modules.pop(MODULE_NAME, None)
+
     monkeypatch.setitem(sys.modules, "tenacity", _make_tenacity_stub())
     monkeypatch.setitem(sys.modules, "pandas", _make_pandas_stub())
     monkeypatch.setitem(sys.modules, "ai_stock.stock_data.base", _make_base_stub())
     monkeypatch.setitem(sys.modules, "ai_stock.stock_data.realtime_types", _make_realtime_types_stub())
     monkeypatch.setitem(sys.modules, "ai_stock.stock_data.us_index_mapping", _make_us_index_mapping_stub())
 
-    sys.modules.pop(MODULE_NAME, None)
-    return importlib.import_module(MODULE_NAME)
+    module = importlib.import_module(MODULE_NAME)
+    try:
+        yield module
+    finally:
+        sys.modules.pop(MODULE_NAME, None)
+        if original_module is not None:
+            sys.modules[MODULE_NAME] = original_module
+        if original_attribute is missing:
+            delattr(parent_module, module_name)
+        else:
+            setattr(parent_module, module_name, original_attribute)
 
 
 def _install_yfinance_stub(monkeypatch: pytest.MonkeyPatch, ticker_factory) -> None:
@@ -161,37 +178,45 @@ def _install_yfinance_stub(monkeypatch: pytest.MonkeyPatch, ticker_factory) -> N
 
 
 @pytest.mark.unit
-def test_is_jp_kr_suffix_stock(monkeypatch: pytest.MonkeyPatch) -> None:
-    module = _load_module(monkeypatch)
-    fetcher = module.YfinanceFetcher()
+@pytest.mark.parametrize(
+    ("symbol", "expected"),
+    [("7203.T", True), ("005930.KS", True), ("005930.KQ", True), ("AAPL", False)],
+)
+def test_is_jp_kr_suffix_stock(
+    yfinance_module: ModuleType, symbol: str, expected: bool
+) -> None:
+    fetcher = yfinance_module.YfinanceFetcher()
 
-    assert fetcher._is_jp_kr_suffix_stock("7203.T") is True
-    assert fetcher._is_jp_kr_suffix_stock("005930.KS") is True
-    assert fetcher._is_jp_kr_suffix_stock("005930.KQ") is True
-    assert fetcher._is_jp_kr_suffix_stock("AAPL") is False
-
-
-@pytest.mark.unit
-def test_convert_stock_code_cases(monkeypatch: pytest.MonkeyPatch) -> None:
-    module = _load_module(monkeypatch)
-    fetcher = module.YfinanceFetcher()
-
-    assert fetcher._convert_stock_code("SPX") == "^GSPC"
-    assert fetcher._convert_stock_code("AAPL") == "AAPL"
-    assert fetcher._convert_stock_code("7203.T") == "7203.T"
-    assert fetcher._convert_stock_code("hk00700") == "0700.HK"
-    assert fetcher._convert_stock_code("600519.SH") == "600519.SS"
-    assert fetcher._convert_stock_code("510050") == "510050.SS"
-    assert fetcher._convert_stock_code("159919") == "159919.SZ"
-    assert fetcher._convert_stock_code("920001") == "920001.BJ"
-    assert fetcher._convert_stock_code("600519") == "600519.SS"
-    assert fetcher._convert_stock_code("300750") == "300750.SZ"
+    assert fetcher._is_jp_kr_suffix_stock(symbol) is expected
 
 
 @pytest.mark.unit
-def test_fetch_yf_ticker_data_success(monkeypatch: pytest.MonkeyPatch) -> None:
-    module = _load_module(monkeypatch)
-    fetcher = module.YfinanceFetcher()
+@pytest.mark.parametrize(
+    ("symbol", "expected"),
+    [
+        ("SPX", "^GSPC"),
+        ("AAPL", "AAPL"),
+        ("7203.T", "7203.T"),
+        ("hk00700", "0700.HK"),
+        ("600519.SH", "600519.SS"),
+        ("510050", "510050.SS"),
+        ("159919", "159919.SZ"),
+        ("920001", "920001.BJ"),
+        ("600519", "600519.SS"),
+        ("300750", "300750.SZ"),
+    ],
+)
+def test_convert_stock_code_cases(
+    yfinance_module: ModuleType, symbol: str, expected: str
+) -> None:
+    fetcher = yfinance_module.YfinanceFetcher()
+
+    assert fetcher._convert_stock_code(symbol) == expected
+
+
+@pytest.mark.unit
+def test_fetch_yf_ticker_data_success(yfinance_module: ModuleType) -> None:
+    fetcher = yfinance_module.YfinanceFetcher()
 
     ticker = _FakeTicker(
         history_rows=[
@@ -212,20 +237,22 @@ def test_fetch_yf_ticker_data_success(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.mark.unit
-def test_get_realtime_quote_non_us_non_suffix_returns_none(monkeypatch: pytest.MonkeyPatch) -> None:
-    module = _load_module(monkeypatch)
+def test_get_realtime_quote_non_us_non_suffix_returns_none(
+    monkeypatch: pytest.MonkeyPatch, yfinance_module: ModuleType
+) -> None:
     _install_yfinance_stub(monkeypatch, ticker_factory=lambda symbol: _FakeTicker())
 
-    fetcher = module.YfinanceFetcher()
+    fetcher = yfinance_module.YfinanceFetcher()
     assert fetcher.get_realtime_quote("600519") is None
 
 
 @pytest.mark.unit
-def test_get_realtime_quote_us_index_delegates(monkeypatch: pytest.MonkeyPatch) -> None:
-    module = _load_module(monkeypatch)
+def test_get_realtime_quote_us_index_delegates(
+    monkeypatch: pytest.MonkeyPatch, yfinance_module: ModuleType
+) -> None:
     _install_yfinance_stub(monkeypatch, ticker_factory=lambda symbol: _FakeTicker())
 
-    fetcher = module.YfinanceFetcher()
+    fetcher = yfinance_module.YfinanceFetcher()
     monkeypatch.setattr(
         fetcher,
         "_get_us_index_realtime_quote",
@@ -237,8 +264,9 @@ def test_get_realtime_quote_us_index_delegates(monkeypatch: pytest.MonkeyPatch) 
 
 
 @pytest.mark.unit
-def test_get_realtime_quote_fast_info_success(monkeypatch: pytest.MonkeyPatch) -> None:
-    module = _load_module(monkeypatch)
+def test_get_realtime_quote_fast_info_success(
+    monkeypatch: pytest.MonkeyPatch, yfinance_module: ModuleType
+) -> None:
 
     ticker = _FakeTicker(
         fast_info=SimpleNamespace(
@@ -254,7 +282,7 @@ def test_get_realtime_quote_fast_info_success(monkeypatch: pytest.MonkeyPatch) -
     )
     _install_yfinance_stub(monkeypatch, ticker_factory=lambda symbol: ticker)
 
-    fetcher = module.YfinanceFetcher()
+    fetcher = yfinance_module.YfinanceFetcher()
     quote = fetcher.get_realtime_quote("AAPL")
 
     assert quote is not None
@@ -268,8 +296,9 @@ def test_get_realtime_quote_fast_info_success(monkeypatch: pytest.MonkeyPatch) -
 
 
 @pytest.mark.unit
-def test_get_realtime_quote_history_empty_uses_stooq_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
-    module = _load_module(monkeypatch)
+def test_get_realtime_quote_history_empty_uses_stooq_fallback(
+    monkeypatch: pytest.MonkeyPatch, yfinance_module: ModuleType
+) -> None:
 
     class _BrokenFastInfoTicker(_FakeTicker):
         @property
@@ -279,7 +308,7 @@ def test_get_realtime_quote_history_empty_uses_stooq_fallback(monkeypatch: pytes
     ticker = _BrokenFastInfoTicker(history_rows=[])
     _install_yfinance_stub(monkeypatch, ticker_factory=lambda symbol: ticker)
 
-    fetcher = module.YfinanceFetcher()
+    fetcher = yfinance_module.YfinanceFetcher()
     monkeypatch.setattr(fetcher, "_get_us_stock_quote_from_stooq", lambda symbol: {"code": symbol, "from": "stooq"})
 
     quote = fetcher.get_realtime_quote("MSFT")
@@ -287,9 +316,10 @@ def test_get_realtime_quote_history_empty_uses_stooq_fallback(monkeypatch: pytes
 
 
 @pytest.mark.unit
-def test_get_us_stock_quote_from_stooq_parses_payload(monkeypatch: pytest.MonkeyPatch) -> None:
-    module = _load_module(monkeypatch)
-    fetcher = module.YfinanceFetcher()
+def test_get_us_stock_quote_from_stooq_parses_payload(
+    monkeypatch: pytest.MonkeyPatch, yfinance_module: ModuleType
+) -> None:
+    fetcher = yfinance_module.YfinanceFetcher()
 
     payload_realtime = "Symbol,Date,Time,Open,High,Low,Close,Volume\nAAPL.US,2026-01-10,22:00:00,149.0,151.0,148.0,150.0,123456"
     payload_history = "Date,Open,High,Low,Close,Volume\n2026-01-09,147,149,146,148,100\n2026-01-10,149,151,148,150,110"
@@ -303,13 +333,13 @@ def test_get_us_stock_quote_from_stooq_parses_payload(monkeypatch: pytest.Monkey
             return _DummyUrlopenResponse(payload_realtime)
         return _DummyUrlopenResponse(payload_history)
 
-    monkeypatch.setattr(module, "urlopen", _fake_urlopen)
+    monkeypatch.setattr(yfinance_module, "urlopen", _fake_urlopen)
 
     quote = fetcher._get_us_stock_quote_from_stooq("aapl")
 
     assert quote is not None
     assert quote.code == "AAPL"
-    assert quote.source == module.RealtimeSource.STOOQ
+    assert quote.source == yfinance_module.RealtimeSource.STOOQ
     assert quote.price == 150.0
     assert quote.pre_close == 148.0
     assert quote.change_amount == 2.0
