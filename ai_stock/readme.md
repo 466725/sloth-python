@@ -20,7 +20,7 @@ This package should stay explainable. Every conclusion must be traceable back to
 
 The current codebase already contains the main building blocks:
 
-- `engine/ai_coordinator_agent.py`: orchestration entry point.
+- `core/ai_coordinator_agent.py`: orchestration entry point.
 - `stock_data/ai_stock_data_agent.py`: collects historical price, realtime quote, and fundamentals.
 - `stock_news/ai_stock_news_agent.py`: collects news and estimates a simple sentiment score.
 - `report/ai_report_agent.py`: builds the final response payload and markdown report.
