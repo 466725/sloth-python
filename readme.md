@@ -126,25 +126,6 @@ The default local connection values are:
 
 Override these local defaults with `SLOTH_MYSQL_DB`, `SLOTH_MYSQL_USER`, `SLOTH_MYSQL_PASSWORD`, and `SLOTH_MYSQL_ROOT_PASSWORD` before the first `docker compose ... up` command. Do not use the default passwords outside local development.
 
-For DBeaver, create a MySQL connection using the values above. Refresh the `Tables` node after running schema-changing tests, or run:
-
-```sql
-SHOW TABLES;
-```
-
-### Run a database write check
-
-The MySQL test creates a uniquely named table, inserts two rows, and verifies the data. Set the connection variables in the shell, then run the focused test:
-
-```powershell
-$env:SLOTH_MYSQL_HOST = "127.0.0.1"
-$env:SLOTH_MYSQL_PORT = "3306"
-$env:SLOTH_MYSQL_DB = "slothdb"
-$env:SLOTH_MYSQL_USER = "slothuser"
-$env:SLOTH_MYSQL_PASSWORD = "slothpass123"
-python -m pytest pytest_tests/unit/test_database_client.py -q -k local_mysql_can_create_table_and_insert_records_when_configured
-```
-
 For Python database helper usage and parameterized query examples, see [utils/data_base/README.md](utils/data_base/README.md).
 
 ## 🏃 Running Tests
