@@ -180,7 +180,12 @@ def _install_yfinance_stub(monkeypatch: pytest.MonkeyPatch, ticker_factory) -> N
 @pytest.mark.unit
 @pytest.mark.parametrize(
     ("symbol", "expected"),
-    [("7203.T", True), ("005930.KS", True), ("005930.KQ", True), ("AAPL", False)],
+    [
+        ("7203.T", True),
+        ("005930.KS", True),
+        ("005930.KQ", True),
+        ("AAPL", False)
+    ],
 )
 def test_is_jp_kr_suffix_stock(
     yfinance_module: ModuleType, symbol: str, expected: bool
