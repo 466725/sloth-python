@@ -609,7 +609,6 @@ class DataFetcherManager:
         "AkshareFetcher": {"cn", "hk"},
         "TushareFetcher": {"cn", "hk"},
         "PytdxFetcher": {"cn"},
-        "BaostockFetcher": {"cn"},
         "YfinanceFetcher": {"cn", "hk", "us", "jp", "kr"},
         "LongbridgeFetcher": {"hk", "us"},
         "FinnhubFetcher": {"us"},
@@ -1124,7 +1123,6 @@ class DataFetcherManager:
           0. EfinanceFetcher (Priority 0) - 最高优先级
           1. AkshareFetcher (Priority 1)
           2. PytdxFetcher (Priority 2) - 通达信
-          3. BaostockFetcher (Priority 3)
           4. YfinanceFetcher (Priority 4)
         """
         from src.config import get_config
@@ -1133,7 +1131,6 @@ class DataFetcherManager:
         from .akshare_fetcher import AkshareFetcher
         from .tushare_fetcher import TushareFetcher
         from .pytdx_fetcher import PytdxFetcher
-        from .baostock_fetcher import BaostockFetcher
         from .yfinance_fetcher import YfinanceFetcher
         from .longbridge_fetcher import LongbridgeFetcher
         config = get_config()
@@ -1142,7 +1139,6 @@ class DataFetcherManager:
         tencent = TencentFetcher()
         akshare = AkshareFetcher()
         pytdx = PytdxFetcher()      # 通达信数据源（可配 PYTDX_HOST/PYTDX_PORT）
-        baostock = BaostockFetcher()
         yfinance = YfinanceFetcher()
         optional_fetchers: List[BaseFetcher] = []
 
@@ -1179,7 +1175,6 @@ class DataFetcherManager:
                 tencent,
                 akshare,
                 pytdx,
-                baostock,
                 yfinance,
                 *optional_fetchers,
             ]
