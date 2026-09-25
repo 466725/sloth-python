@@ -1,0 +1,25 @@
+id,student_number,first_name,last_name,email,date_of_birth,department_id,status,created_at
+1,STU-0001,Sofia,Anderson,sofia.anderson@example.edu,2003-02-14,1,ACTIVE,2026-09-24 17:33:47
+2,STU-0002,Liam,Bennett,liam.bennett@example.edu,2002-11-09,3,ACTIVE,2026-09-24 17:33:47
+3,STU-0003,Olivia,Carter,olivia.carter@example.edu,2004-06-22,2,ACTIVE,2026-09-24 17:33:47
+4,STU-0004,Noah,Davis,noah.davis@example.edu,2001-08-30,4,GRADUATED,2026-09-24 17:33:47
+5,STU-0005,Emma,Evans,emma.evans@example.edu,2003-01-17,5,ACTIVE,2026-09-24 17:33:47
+6,STU-0006,Mateo,Foster,mateo.foster@example.edu,2002-04-05,6,ACTIVE,2026-09-24 17:33:47
+7,STU-0007,Ava,Garcia,ava.garcia@example.edu,2004-09-12,1,ACTIVE,2026-09-24 17:33:47
+8,STU-0008,Ethan,Harris,ethan.harris@example.edu,2000-12-03,3,GRADUATED,2026-09-24 17:33:47
+9,STU-0009,Mia,Irwin,mia.irwin@example.edu,2003-05-28,2,ACTIVE,2026-09-24 17:33:47
+10,STU-0010,Lucas,Jackson,lucas.jackson@example.edu,2002-07-19,4,INACTIVE,2026-09-24 17:33:47
+11,STU-0011,Isabella,King,isabella.king@example.edu,2004-03-11,5,ACTIVE,2026-09-24 17:33:47
+12,STU-0012,James,Lewis,james.lewis@example.edu,2001-10-26,6,GRADUATED,2026-09-24 17:33:47
+13,STU-0013,Amelia,Martin,amelia.martin@example.edu,2003-12-08,1,ACTIVE,2026-09-24 17:33:47
+14,STU-0014,Henry,Nelson,henry.nelson@example.edu,2002-02-21,3,ACTIVE,2026-09-24 17:33:47
+15,STU-0015,Harper,Owens,harper.owens@example.edu,2004-08-16,2,ACTIVE,2026-09-24 17:33:47
+16,STU-0016,Benjamin,Parker,benjamin.parker@example.edu,2001-06-07,4,GRADUATED,2026-09-24 17:33:47
+17,STU-0017,Evelyn,Quinn,evelyn.quinn@example.edu,2003-04-29,5,ACTIVE,2026-09-24 17:33:47
+18,STU-0018,Alexander,Roberts,alexander.roberts@example.edu,2002-09-24,6,ACTIVE,2026-09-24 17:33:47
+19,STU-0019,Luna,Stewart,luna.stewart@example.edu,2004-01-13,1,ACTIVE,2026-09-24 17:33:47
+20,STU-0020,Daniel,Turner,daniel.turner@example.edu,2000-05-02,3,GRADUATED,2026-09-24 17:33:47
+21,STU-0021,Camila,Underwood,camila.underwood@example.edu,2003-07-15,2,ACTIVE,2026-09-24 17:33:47
+22,STU-0022,Michael,Vasquez,michael.vasquez@example.edu,2002-11-27,4,INACTIVE,2026-09-24 17:33:47
+23,STU-0023,Eleanor,White,eleanor.white@example.edu,2004-10-04,5,ACTIVE,2026-09-24 17:33:47
+24,STU-0024,Sebastian,Young,sebastian.young@example.edu,2001-03-18,6,GRADUATED,2026-09-24 17:33:47
