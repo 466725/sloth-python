@@ -26,8 +26,7 @@ import random
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
-from dataclasses import dataclass, field
-from datetime import datetime
+from dataclasses import dataclass
 from typing import Optional, Dict, Any, List, Tuple
 
 import pandas as pd
@@ -51,7 +50,7 @@ except (ValueError, TypeError):
     )
     _EF_CALL_TIMEOUT = 30
 
-from src.patches.eastmoney_patch import eastmoney_patch
+from ai_stock.patches import eastmoney_patch
 from src.config import get_config
 from .base import (
     BaseFetcher,
