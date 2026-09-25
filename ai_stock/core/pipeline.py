@@ -76,7 +76,7 @@ from src.services.decision_signal_extractor import extract_and_persist_from_anal
 from src.services.decision_signal_summary import summarize_decision_signal
 from src.enums import ReportType
 from src.stock_analyzer import StockTrendAnalyzer, TrendAnalysisResult
-from src.core.trading_calendar import (
+from ai_stock.core.trading_calendar import (
     build_market_phase_context,
     get_effective_trading_date,
     get_market_for_stock,

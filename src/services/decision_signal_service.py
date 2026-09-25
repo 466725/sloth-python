@@ -10,7 +10,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple, get_args
 
 from data_provider.base import canonical_stock_code, normalize_stock_code
-from src.core.trading_calendar import MarketPhase
+from ai_stock.core.trading_calendar import MarketPhase
 from src.repositories.decision_signal_repo import DecisionSignalRepository
 from src.repositories.portfolio_repo import PortfolioRepository
 from src.report_language import normalize_report_language

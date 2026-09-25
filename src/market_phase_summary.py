@@ -8,7 +8,7 @@ from datetime import datetime
 from collections.abc import Mapping
 from typing import Any, Dict, List, Optional
 
-from src.core.trading_calendar import MarketPhase, build_market_phase_context, get_market_for_stock
+from ai_stock.core.trading_calendar import MarketPhase, build_market_phase_context, get_market_for_stock
 
 
 MARKET_PHASE_SUMMARY_KEY = "market_phase_summary"

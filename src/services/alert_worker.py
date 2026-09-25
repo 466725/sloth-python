@@ -26,7 +26,7 @@ from src.analysis_context_pack_overview import (
     ANALYSIS_CONTEXT_PACK_OVERVIEW_KEY,
     extract_analysis_context_pack_overview,
 )
-from src.core.trading_calendar import build_market_phase_context, get_market_for_stock
+from ai_stock.core.trading_calendar import build_market_phase_context, get_market_for_stock
 from src.market_phase_summary import (
     format_public_phase_pack_excerpt,
     render_market_phase_summary,
