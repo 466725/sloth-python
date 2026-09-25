@@ -13,7 +13,7 @@ from __future__ import annotations
 import logging
 from typing import List, Optional
 
-from src.agent.protocols import AgentContext
+from ai_stock.agent.protocols import AgentContext
 from src.agent.skills.defaults import (
     get_default_router_skill_ids,
     get_regime_skill_ids,

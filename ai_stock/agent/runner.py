@@ -26,7 +26,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from src.agent.llm_adapter import LLMToolAdapter
 from src.agent.tools.registry import ToolRegistry
-from src.agent.stock_scope import StockScope
+from ai_stock.agent.stock_scope import StockScope
 from src.llm.usage import should_persist_usage_telemetry
 from src.storage import persist_llm_usage as _persist_usage
 

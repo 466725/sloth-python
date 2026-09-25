@@ -6,7 +6,7 @@ Provides pluggable trading skills for the agent.
 Skills are defined in natural language (YAML files) — no Python code needed.
 """
 
-from src.agent.skills.base import (
+from ai_stock.agent.skills.base import (
     Skill,
     SkillManager,
     load_skill_from_markdown,
@@ -48,7 +48,7 @@ __all__ = [
 
 def __getattr__(name):
     if name == "SkillAgent":
-        from src.agent.skills.skill_agent import SkillAgent
+        from ai_stock.agent.skills.skill_agent import SkillAgent
 
         return SkillAgent
     if name == "SkillRouter":

@@ -29,7 +29,7 @@ def __getattr__(name):
         from src.agent.runner import RunLoopResult
         return RunLoopResult
     if name in ("AgentContext", "AgentOpinion", "StageResult", "AgentRunStats"):
-        from src.agent import protocols
+        from ai_stock.agent import protocols
         return getattr(protocols, name)
     if name == "AgentOrchestrator":
         from src.agent.orchestrator import AgentOrchestrator

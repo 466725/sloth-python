@@ -1729,7 +1729,7 @@ class StockAnalysisPipeline:
                 if signal_label:
                     result.operation_advice = signal_label
                     self._mark_trend_fallback_source(result)
-            from src.agent.protocols import normalize_decision_signal
+            from ai_stock.agent.protocols import normalize_decision_signal
 
             raw_decision = self._agent_dashboard_value(
                 dash,
@@ -2077,7 +2077,7 @@ class StockAnalysisPipeline:
         else:
             result.operation_advice = "Watch" if report_language == "en" else "观望"
 
-        from src.agent.protocols import normalize_decision_signal
+        from ai_stock.agent.protocols import normalize_decision_signal
 
         signal_name = getattr(buy_signal, "name", "").lower()
         signal_to_decision = {

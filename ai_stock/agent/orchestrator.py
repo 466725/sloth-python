@@ -33,7 +33,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
 from src.agent.llm_adapter import LLMToolAdapter
-from src.agent.protocols import (
+from ai_stock.agent.protocols import (
     AgentContext,
     AgentRunStats,
     StageResult,
@@ -41,9 +41,9 @@ from src.agent.protocols import (
     normalize_decision_signal,
 )
 from src.agent.runner import parse_dashboard_json
-from src.agent.stock_scope import resolve_stock_scope
+from ai_stock.agent.stock_scope import resolve_stock_scope
 from src.agent.tools.registry import ToolRegistry
-from src.agent.chat_context import build_visible_chat_history
+from ai_stock.agent.chat_context import build_visible_chat_history
 from src.config import AGENT_MAX_STEPS_DEFAULT, get_config
 from src.report_language import normalize_report_language
 
@@ -591,7 +591,7 @@ class AgentOrchestrator:
         """Instantiate the ordered agent list based on ``self.mode``."""
         from src.agent.agents.technical_agent import TechnicalAgent
         from src.agent.agents.intel_agent import IntelAgent
-        from src.agent.agents.decision_agent import DecisionAgent
+        from ai_stock.agent.agents.decision_agent import DecisionAgent
         from src.agent.agents.risk_agent import RiskAgent
 
         self._skill_agent_names = set()
@@ -640,7 +640,7 @@ class AgentOrchestrator:
             if not selected:
                 return []
 
-            from src.agent.skills.skill_agent import SkillAgent
+            from ai_stock.agent.skills.skill_agent import SkillAgent
             agents = []
             for skill_id in selected[:3]:  # cap at 3 concurrent skills
                 agent = self._prepare_agent(SkillAgent(

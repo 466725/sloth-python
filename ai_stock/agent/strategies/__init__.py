@@ -8,7 +8,7 @@ Provides:
 - :class:`StrategyAggregator` — legacy alias of :class:`SkillAggregator`
 """
 
-from src.agent.strategies.strategy_agent import StrategyAgent
+from ai_stock.agent.strategies.strategy_agent import StrategyAgent
 from src.agent.strategies.router import StrategyRouter
 from src.agent.strategies.aggregator import StrategyAggregator
 

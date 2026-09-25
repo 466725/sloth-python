@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
 
-from src.agent.events import (
+from ai_stock.agent.events import (
     EventMonitor,
     PriceAlert,
     PriceChangeAlert,

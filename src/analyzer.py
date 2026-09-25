@@ -27,7 +27,7 @@ from src.agent.llm_adapter import (
     resolve_fallback_litellm_wire_models,
     register_fallback_model_pricing,
 )
-from src.agent.provider_trace import resolved_model_provider_identity
+from ai_stock.agent.provider_trace import resolved_model_provider_identity
 from src.agent.skills.defaults import CORE_TRADING_SKILL_POLICY_ZH
 from src.config import (
     Config,
@@ -35,8 +35,6 @@ from src.config import (
     get_api_keys_for_model,
     get_config,
     get_configured_llm_models,
-    normalize_litellm_temperature,
-    resolve_litellm_wire_model,
     resolve_news_window_days,
 )
 from src.llm.generation_params import apply_litellm_generation_params

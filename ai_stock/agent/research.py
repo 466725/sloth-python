@@ -464,7 +464,7 @@ Use Markdown formatting.  Be concise but thorough.
 
         Reuses the same filtering logic as :meth:`BaseAgent._filtered_registry`.
         """
-        from src.agent.agents.base_agent import BaseAgent
+        from ai_stock.agent.agents.base_agent import BaseAgent
         # Borrow the shared implementation; it respects self.tool_names / self.tool_registry.
         return BaseAgent._filtered_registry(self)
 

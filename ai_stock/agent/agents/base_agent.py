@@ -17,7 +17,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from src.agent.llm_adapter import LLMToolAdapter
 from src.agent.memory import AgentMemory
-from src.agent.protocols import AgentContext, AgentOpinion, StageResult, StageStatus
+from ai_stock.agent.protocols import AgentContext, AgentOpinion, StageResult, StageStatus
 from src.agent.runner import RunLoopResult, run_agent_loop
 from src.agent.skills.defaults import extract_skill_id
 from src.agent.tools.registry import ToolRegistry

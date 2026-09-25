@@ -92,7 +92,7 @@ def get_default_technical_skill_policy(*, explicit_skill_selection: bool) -> str
 @lru_cache(maxsize=1)
 def _load_builtin_skill_catalog() -> tuple[object, ...]:
     try:
-        from src.agent.skills.base import load_skills_from_directory
+        from ai_stock.agent.skills.base import load_skills_from_directory
 
         return tuple(load_skills_from_directory(_BUILTIN_SKILLS_DIR))
     except Exception:

@@ -14,8 +14,8 @@ import json
 import logging
 from typing import List, Optional
 
-from src.agent.agents.base_agent import BaseAgent
-from src.agent.protocols import AgentContext, AgentOpinion, normalize_decision_signal
+from ai_stock.agent.agents.base_agent import BaseAgent
+from ai_stock.agent.protocols import AgentContext, AgentOpinion, normalize_decision_signal
 from src.report_language import normalize_report_language
 
 logger = logging.getLogger(__name__)

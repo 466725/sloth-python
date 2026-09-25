@@ -24,7 +24,7 @@ from src.config import (
     get_effective_agent_models_to_try,
     get_effective_agent_primary_model,
 )
-from src.agent.provider_trace import (
+from ai_stock.agent.provider_trace import (
     TRACE_MODEL_KEY,
     TRACE_PROVIDER_KEY,
     resolved_model_provider_identity,

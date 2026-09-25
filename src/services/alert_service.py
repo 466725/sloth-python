@@ -10,7 +10,7 @@ import re
 from datetime import date, datetime
 from typing import Any, Dict, List, Optional
 
-from src.agent.events import (
+from ai_stock.agent.events import (
     EventMonitor,
     PriceAlert,
     PriceChangeAlert,

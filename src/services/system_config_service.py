@@ -12,7 +12,7 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
-from urllib.parse import urljoin, urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse
 
 import requests
 
@@ -1790,7 +1790,7 @@ class SystemConfigService:
             else:
                 if key == "AGENT_EVENT_ALERT_RULES_JSON":
                     try:
-                        from src.agent.events import parse_event_alert_rules, validate_event_alert_rule
+                        from ai_stock.agent.events import parse_event_alert_rules, validate_event_alert_rule
 
                         rule_index = 0
                         for rule_index, rule in enumerate(parse_event_alert_rules(parsed), start=1):

@@ -181,8 +181,8 @@ def get_tool_registry():
 
     from src.agent.tools.registry import ToolRegistry
     from src.agent.tools.data_tools import ALL_DATA_TOOLS
-    from src.agent.tools.analysis_tools import ALL_ANALYSIS_TOOLS
-    from src.agent.tools.search_tools import ALL_SEARCH_TOOLS
+    from ai_stock.agent.tools.analysis_tools import ALL_ANALYSIS_TOOLS
+    from ai_stock.agent.tools.search_tools import ALL_SEARCH_TOOLS
     from src.agent.tools.market_tools import ALL_MARKET_TOOLS
     from src.agent.tools.backtest_tools import ALL_BACKTEST_TOOLS
 
@@ -216,7 +216,7 @@ def get_skill_manager(config=None):
     if _SKILL_MANAGER_PROTOTYPE is not None and current_custom_dir == _SKILL_MANAGER_CUSTOM_DIR:
         return copy.deepcopy(_SKILL_MANAGER_PROTOTYPE)
 
-    from src.agent.skills.base import SkillManager
+    from ai_stock.agent.skills.base import SkillManager
 
     if _SKILL_MANAGER_PROTOTYPE is not None:
         logger.info("[AgentFactory] SkillManager prototype invalidated (agent_skill_dir changed: %r -> %r)",

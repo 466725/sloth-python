@@ -55,7 +55,7 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from src.agent.provider_trace import PROVIDER_TRACE_RETENTION_LIMIT
+from ai_stock.agent.provider_trace import PROVIDER_TRACE_RETENTION_LIMIT
 from src.config import get_config
 from src.utils.sniper_points import extract_sniper_points, parse_sniper_value
 

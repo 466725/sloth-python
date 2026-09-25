@@ -9,7 +9,7 @@ import logging
 from typing import Dict, List, Optional
 
 from src.agent.memory import AgentMemory
-from src.agent.protocols import AgentContext, AgentOpinion
+from ai_stock.agent.protocols import AgentContext, AgentOpinion
 from src.agent.skills.defaults import (
     SKILL_CONSENSUS_AGENT_NAME,
     extract_skill_id,
