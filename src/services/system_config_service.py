@@ -51,8 +51,8 @@ from src.notification_contracts import (
     is_feishu_static_env_configured,
 )
 from src.notification_noise import validate_notification_timezone
-from src.notification_sender.gotify_sender import resolve_gotify_message_endpoint
-from src.notification_sender.ntfy_sender import resolve_ntfy_endpoint
+from ai_stock.notification_sender.gotify_sender import resolve_gotify_message_endpoint
+from ai_stock.notification_sender.ntfy_sender import resolve_ntfy_endpoint
 
 logger = logging.getLogger(__name__)
 
