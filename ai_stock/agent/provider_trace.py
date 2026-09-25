@@ -18,7 +18,7 @@ import math
 from dataclasses import dataclass, field
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
-from src.llm.generation_params import resolve_litellm_wire_model
+from ai_stock.llm.generation_params import resolve_litellm_wire_model
 
 
 PROVIDER_TRACE_RETENTION_LIMIT = 3

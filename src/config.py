@@ -35,7 +35,7 @@ from src.notification_contracts import (
     is_feishu_app_bot_configured,
     is_feishu_static_configured,
 )
-from src.llm import generation_params as llm_generation_params
+from ai_stock.llm import generation_params as llm_generation_params
 
 logger = logging.getLogger(__name__)
 

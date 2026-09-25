@@ -32,7 +32,7 @@ from ai_stock.agent.provider_trace import (
     trace_model_matches,
 )
 from src.llm.errors import call_litellm_with_param_recovery
-from src.llm.generation_params import apply_litellm_generation_params, resolve_litellm_wire_model
+from ai_stock.llm.generation_params import apply_litellm_generation_params, resolve_litellm_wire_model
 from src.llm.usage import attach_message_hmacs, extract_usage_payload, normalize_litellm_usage
 
 logger = logging.getLogger(__name__)

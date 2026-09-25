@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 from typing import Any, Callable, Dict, List, Optional
 
-from src.llm.generation_params import (
+from ai_stock.llm.generation_params import (
     GenerationParamRecovery,
     apply_litellm_param_recovery,
     remember_litellm_generation_param_recovery,

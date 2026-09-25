@@ -37,7 +37,7 @@ from src.config import (
     get_configured_llm_models,
     resolve_news_window_days,
 )
-from src.llm.generation_params import apply_litellm_generation_params
+from ai_stock.llm.generation_params import apply_litellm_generation_params
 from src.llm.errors import call_litellm_with_param_recovery
 from src.llm.usage import (
     attach_legacy_message_stability_audit,
