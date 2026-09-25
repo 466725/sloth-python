@@ -32,7 +32,7 @@ indent-style = "space"
 line-ending = "auto"
 
 [tool.pytest.ini_options]
-addopts = ["--alluredir=temps/allure-results", "--clean-alluredir", "--strict-markers"]
+addopts = ["--alluredir=temps/allure-results", "--clean-alluredir", "--strict-markers", "--import-mode=importlib"]
 testpaths = ["pytest_tests", "robot_tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
