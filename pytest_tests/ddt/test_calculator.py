@@ -3,7 +3,7 @@ import logging
 import allure
 import pytest
 
-from utils.csv_reader import read_csv_to_list
+from test_data.csv_reader import read_csv_to_list
 
 logger = logging.getLogger(__name__)
 
