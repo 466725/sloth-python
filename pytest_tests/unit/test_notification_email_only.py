@@ -1,11 +1,11 @@
 import pytest
 
-import ai_stock.notification_sender as notification_sender
-from ai_stock.notification_capabilities import (
+import ai_stock.report as notification_sender
+from ai_stock.report.notification_capabilities import (
     CHANNEL_PROFILES,
     CHANNEL_RENDERER_PRESETS,
 )
-from ai_stock.notification_routing import (
+from ai_stock.report.notification_routing import (
     ROUTABLE_NOTIFICATION_CHANNELS,
     split_notification_route_channels,
 )
@@ -13,10 +13,10 @@ from ai_stock.notification_routing import (
 
 @pytest.mark.unit
 def test_email_is_the_only_exported_sender():
-    assert notification_sender.__all__ == ["EmailSender"]
-    assert notification_sender.EmailSender is not None
-    assert not hasattr(notification_sender, "TelegramSender")
-    assert not hasattr(notification_sender, "WechatSender")
+    assert report.__all__ == ["EmailSender"]
+    assert report.EmailSender is not None
+    assert not hasattr(report, "TelegramSender")
+    assert not hasattr(report, "WechatSender")
 
 
 @pytest.mark.unit

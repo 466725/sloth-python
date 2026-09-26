@@ -23,7 +23,7 @@ The current codebase already contains the main building blocks:
 - `core/ai_coordinator_agent.py`: orchestration entry point.
 - `stock_data/ai_stock_data_agent.py`: collects historical price, realtime quote, and fundamentals.
 - `stock_news/ai_stock_news_agent.py`: collects news and estimates a simple sentiment score.
-- `report/ai_report_agent.py`: builds the final response payload and markdown report.
+- `report`: builds the final response payload and markdown report.
 - `strategies/*.yaml`: human-editable strategy definitions and instructions.
 - `llm/litellm_client.py`: available model client abstraction, not currently wired into coordinator execution.
 
@@ -31,7 +31,7 @@ The current coordinator does not dispatch LLM sub-agents. This is intentional an
 
 ## Running the Report Demo
 
-`report/ai_report_agent.py` includes a small `if __name__ == "__main__":` demo block that builds a sample report (no data/news providers required) and writes it to `temps/ai_report_demo.html`:
+`report` includes a small `if __name__ == "__main__":` demo block that builds a sample report (no data/news providers required) and writes it to `temps/ai_report_demo.html`:
 
 ```powershell
 python ai_stock/report/ai_report_agent.py

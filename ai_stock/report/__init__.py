@@ -1,3 +1,6 @@
-from .ai_report_agent import AIReportAgent, PredictionOutcome
+# -*- coding: utf-8 -*-
+"""Email notification sender."""
 
-__all__ = ["AIReportAgent", "PredictionOutcome"]
+from .email_sender import EmailSender
+
+__all__ = ["EmailSender"]
