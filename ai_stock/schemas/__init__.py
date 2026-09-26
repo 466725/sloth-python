@@ -16,7 +16,7 @@ from ai_stock.schemas.analysis_context_pack import (
     ContextFieldStatus,
     DataQuality,
 )
-from src.schemas.report_schema import AnalysisReportSchema
+from ai_stock.schemas.report_schema import AnalysisReportSchema
 
 __all__ = [
     "AnalysisReportSchema",

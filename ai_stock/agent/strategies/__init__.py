@@ -9,8 +9,8 @@ Provides:
 """
 
 from ai_stock.agent.strategies.strategy_agent import StrategyAgent
-from src.agent.strategies.router import StrategyRouter
-from src.agent.strategies.aggregator import StrategyAggregator
+from ai_stock.agent.strategies.router import StrategyRouter
+from ai_stock.agent.strategies.aggregator import StrategyAggregator
 
 __all__ = [
     "StrategyAgent",

@@ -13,7 +13,7 @@ from ai_stock.agent.skills.base import (
     load_skill_from_yaml,
     load_skills_from_directory,
 )
-from src.agent.skills.defaults import (
+from ai_stock.agent.skills.defaults import (
     DEFAULT_ACTIVE_SKILL_IDS,
     DEFAULT_ROUTER_SKILL_IDS,
     PRIMARY_DEFAULT_SKILL_ID,
