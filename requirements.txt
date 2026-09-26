@@ -79,3 +79,4 @@ Appium-Python-Client>=6.0.0
 json-repair>=0.55.1         # JSON repair
 sqlalchemy>=2.0.0           # ORM database access
 newspaper3k>=0.2.8          # Article extraction
+efinance>=0.5.5             # Priority 0: East Money data source https://github.com/Micro-sheep/efinance

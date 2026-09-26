@@ -50,8 +50,7 @@ except (ValueError, TypeError):
     )
     _EF_CALL_TIMEOUT = 30
 
-from ai_stock.patches import eastmoney_patch
-from src.config import get_config
+from ai_stock.config import get_config
 from .base import (
     BaseFetcher,
     DataFetchError,
@@ -290,9 +289,6 @@ class EfinanceFetcher(BaseFetcher):
         self.sleep_min = sleep_min
         self.sleep_max = sleep_max
         self._last_request_time: Optional[float] = None
-        # 东财补丁开启才执行打补丁操作
-        if get_config().enable_eastmoney_patch:
-            eastmoney_patch()
 
     @staticmethod
     def _build_history_failure_message(

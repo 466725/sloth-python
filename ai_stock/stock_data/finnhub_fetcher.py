@@ -29,7 +29,7 @@ class FinnhubFetcher(BaseFetcher):
     priority = 2
 
     def __init__(self):
-        from src.config import get_config
+        from ai_stock.config import get_config
         config = get_config()
         self._api_key = getattr(config, 'finnhub_api_key', None) or os.getenv('FINNHUB_API_KEY')
         if not self._api_key:
