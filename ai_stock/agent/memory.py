@@ -79,7 +79,7 @@ class AgentMemory:
     def from_config(cls) -> "AgentMemory":
         """Create an AgentMemory from the current config."""
         try:
-            from src.config import get_config
+            from ai_stock.config import get_config
             config = get_config()
             enabled = getattr(config, "agent_memory_enabled", False)
             return cls(enabled=enabled)
@@ -104,7 +104,7 @@ class AgentMemory:
             return []
 
         try:
-            from src.storage import get_db
+            from ai_stock.storage import get_db
             db = get_db()
             records = db.get_analysis_history(code=stock_code, limit=limit)
             entries = []
@@ -212,7 +212,7 @@ class AgentMemory:
             return {"available": False}
 
         try:
-            from src.services.backtest_service import BacktestService
+            from ai_stock.services.backtest_service import BacktestService
             service = BacktestService()
             summary = service.get_skill_summary(skill_id)
             if summary:
@@ -289,7 +289,7 @@ class AgentMemory:
     ) -> Dict[str, Any]:
         """Aggregate accuracy statistics from backtest history."""
         try:
-            from src.services.backtest_service import BacktestService
+            from ai_stock.services.backtest_service import BacktestService
             service = BacktestService()
 
             if skill_id:

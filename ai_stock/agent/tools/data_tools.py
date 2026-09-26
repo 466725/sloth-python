@@ -14,7 +14,7 @@ from datetime import date
 from threading import Lock
 from typing import Any, Dict, List, Optional, Tuple
 
-from src.agent.tools.registry import ToolParameter, ToolDefinition
+from ai_stock.agent.tools.registry import ToolParameter, ToolDefinition
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ def _get_fetcher_manager():
     (~2 s each) and prevents circuit-breaker cooldown from taking effect across
     consecutive tool calls within the same agent run.
     """
-    from data_provider import DataFetcherManager
+    from ai_stock.stock_data import DataFetcherManager
     global _fetcher_manager_singleton
     if _fetcher_manager_singleton is None:
         with _fetcher_manager_lock:
@@ -49,7 +49,7 @@ def reset_fetcher_manager() -> None:
 
 def _get_db():
     """Lazy import for DatabaseManager."""
-    from src.storage import get_db
+    from ai_stock.storage import get_db
     return get_db()
 
 
@@ -89,7 +89,7 @@ def _normalize_history_days(days: Any) -> Tuple[int, Dict[str, Any]]:
 
 def _history_code_candidates(stock_code: str) -> Tuple[List[str], str]:
     """Return cache lookup candidates plus canonical write code."""
-    from data_provider.base import canonical_stock_code, normalize_stock_code
+    from ai_stock.stock_data.base import canonical_stock_code, normalize_stock_code
 
     raw_code = str(stock_code or "").strip()
     normalized_code = canonical_stock_code(normalize_stock_code(raw_code))
@@ -291,7 +291,7 @@ def _handle_get_daily_history(stock_code: str, days: int = 60) -> dict:
     """Get daily OHLCV history data."""
     effective_days, metadata = _normalize_history_days(days)
 
-    from src.services.history_loader import load_history_df
+    from ai_stock.services.history_loader import load_history_df
     df, source = load_history_df(stock_code, days=effective_days)
 
     if df is None or df.empty:
@@ -530,8 +530,8 @@ def _handle_get_portfolio_snapshot(
             return {"error": "as_of must be YYYY-MM-DD"}
 
     try:
-        from src.services.portfolio_service import PortfolioService
-        from src.services.portfolio_risk_service import PortfolioRiskService
+        from ai_stock.services.portfolio_service import PortfolioService
+        from ai_stock.services.portfolio_risk_service import PortfolioRiskService
     except Exception as exc:
         logger.warning("get_portfolio_snapshot unavailable: %s", exc)
         return {"status": "not_supported", "error": f"portfolio module unavailable: {exc}"}

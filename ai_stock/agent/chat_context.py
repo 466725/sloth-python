@@ -8,7 +8,7 @@ import math
 from dataclasses import dataclass
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
-from src.config import (
+from ai_stock.config import (
     get_agent_context_compression_preset,
     get_effective_agent_primary_model,
     get_effective_agent_models_to_try,
@@ -21,8 +21,8 @@ from ai_stock.agent.provider_trace import (
     strip_trace_metadata,
     trace_model_matches,
 )
-from src.llm.usage import should_persist_usage_telemetry
-from src.storage import get_db, persist_llm_usage
+from ai_stock.llm.usage import should_persist_usage_telemetry
+from ai_stock.storage import get_db, persist_llm_usage
 
 logger = logging.getLogger(__name__)
 

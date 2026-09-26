@@ -20,18 +20,18 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
-from src.config import get_config
+from ai_stock.config import get_config
 from ai_stock.agent.chat_context import build_agent_chat_context_bundle
-from src.agent.llm_adapter import LLMToolAdapter
+from ai_stock.agent.llm_adapter import LLMToolAdapter
 from ai_stock.agent.provider_trace import extract_provider_trace_turns
-from src.agent.runner import run_agent_loop, parse_dashboard_json
+from ai_stock.agent.runner import run_agent_loop, parse_dashboard_json
 from ai_stock.agent.stock_scope import StockScope, resolve_stock_scope
-from src.storage import get_db
-from src.agent.tools.registry import ToolRegistry
-from src.report_language import normalize_report_language
-from src.market_context import get_market_role, get_market_guidelines
-from src.market_phase_prompt import format_market_phase_prompt_section
-from src.services.daily_market_context import format_daily_market_context_prompt_section
+from ai_stock.storage import get_db
+from ai_stock.agent.tools.registry import ToolRegistry
+from ai_stock.report.report_language import normalize_report_language
+from ai_stock.market_context import get_market_role, get_market_guidelines
+from ai_stock.market_phase_prompt import format_market_phase_prompt_section
+from ai_stock.services.daily_market_context import format_daily_market_context_prompt_section
 
 logger = logging.getLogger(__name__)
 
@@ -556,7 +556,7 @@ class AgentExecutor:
         Returns:
             AgentResult with the text response.
         """
-        from src.agent.conversation import conversation_manager
+        from ai_stock.agent.conversation import conversation_manager
 
         scope_resolution = resolve_stock_scope(message, context)
         context = scope_resolution.effective_context

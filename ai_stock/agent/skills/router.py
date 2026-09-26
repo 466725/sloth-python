@@ -14,7 +14,7 @@ import logging
 from typing import List, Optional
 
 from ai_stock.agent.protocols import AgentContext
-from src.agent.skills.defaults import (
+from ai_stock.agent.skills.defaults import (
     get_default_router_skill_ids,
     get_regime_skill_ids,
 )
@@ -101,7 +101,7 @@ class SkillRouter:
     @staticmethod
     def _get_routing_mode() -> str:
         try:
-            from src.config import get_config
+            from ai_stock.config import get_config
 
             config = get_config()
             return getattr(config, "agent_skill_routing", "auto")
@@ -116,12 +116,12 @@ class SkillRouter:
     @staticmethod
     def _get_available_skills() -> list:
         try:
-            from src.agent.factory import _SKILL_MANAGER_PROTOTYPE
+            from ai_stock.agent.factory import _SKILL_MANAGER_PROTOTYPE
 
             if _SKILL_MANAGER_PROTOTYPE is not None:
                 return list(_SKILL_MANAGER_PROTOTYPE.list_skills())
 
-            from src.agent.factory import get_skill_manager
+            from ai_stock.agent.factory import get_skill_manager
 
             sm = get_skill_manager()
             return list(sm.list_skills())
@@ -133,7 +133,7 @@ class SkillRouter:
     def _get_manual_skills(cls, max_count: int) -> List[str]:
         configured: List[str] = []
         try:
-            from src.config import get_config
+            from ai_stock.config import get_config
 
             config = get_config()
             configured = [

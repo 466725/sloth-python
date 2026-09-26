@@ -16,12 +16,12 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 import uuid
 
-from src.config import get_config
-from src.notification import NotificationService
+from ai_stock.config import get_config
+from ai_stock.report.notification import NotificationService
 from ai_stock.market_analyzer import MarketAnalyzer
-from src.report_language import normalize_report_language
-from src.search_service import SearchService
-from src.analyzer import AnalysisResult, GeminiAnalyzer
+from ai_stock.report.report_language import normalize_report_language
+from ai_stock.search_service import SearchService
+from ai_stock.analyzer import AnalysisResult, GeminiAnalyzer
 from ai_stock.services.run_diagnostics import (
     current_diagnostic_snapshot,
     record_history_run,
@@ -57,7 +57,7 @@ def _refresh_market_review_history_diagnostics(*, query_id: str) -> None:
         return
 
     try:
-        from src.storage import DatabaseManager
+        from ai_stock.storage import DatabaseManager
 
         db = DatabaseManager.get_instance()
         updater = getattr(db, "update_analysis_history_diagnostics", None)
@@ -507,7 +507,7 @@ def _persist_market_review_history(
 ) -> int:
     """Persist market review output into the existing analysis history table."""
     try:
-        from src.storage import DatabaseManager
+        from ai_stock.storage import DatabaseManager
 
         report_language = normalize_report_language(getattr(config, "report_language", "zh"))
         summary = _summarize_market_review(review_report, report_language)

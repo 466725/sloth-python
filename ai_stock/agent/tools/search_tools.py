@@ -9,25 +9,25 @@ Tools:
 
 import logging
 
-from src.agent.tools.registry import ToolParameter, ToolDefinition
+from ai_stock.agent.tools.registry import ToolParameter, ToolDefinition
 
 logger = logging.getLogger(__name__)
 
 
 def _get_db():
     """Lazy import for DatabaseManager."""
-    from src.storage import get_db
+    from ai_stock.storage import get_db
     return get_db()
 
 
 def _get_search_service():
     """Return shared SearchService singleton."""
-    from src.search_service import get_search_service
+    from ai_stock.search_service import get_search_service
     return get_search_service()
 
 
 def _canonical_search_code(stock_code: str) -> str:
-    from data_provider.base import canonical_stock_code, normalize_stock_code
+    from ai_stock.stock_data.base import canonical_stock_code, normalize_stock_code
 
     return canonical_stock_code(normalize_stock_code(str(stock_code or "").strip()))
 

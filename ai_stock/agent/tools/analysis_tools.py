@@ -9,14 +9,14 @@ Tools:
 import logging
 from typing import Optional
 
-from src.agent.tools.registry import ToolParameter, ToolDefinition
+from ai_stock.agent.tools.registry import ToolParameter, ToolDefinition
 
 logger = logging.getLogger(__name__)
 
 
 def _fetch_trend_data(stock_code: str):
     """Fetch historical OHLCV (DataFrame) for trend analysis. DB first, then DataFetcher fallback."""
-    from src.services.history_loader import load_history_df
+    from ai_stock.services.history_loader import load_history_df
 
     df, _ = load_history_df(stock_code, days=60)
     return df
@@ -24,7 +24,7 @@ def _fetch_trend_data(stock_code: str):
 
 def _handle_analyze_trend(stock_code: str) -> dict:
     """Run technical trend analysis on a stock."""
-    from src.stock_analyzer import StockTrendAnalyzer
+    from ai_stock.stock_analyzer import StockTrendAnalyzer
 
     if not (stock_code and str(stock_code).strip()):
         return {"error": "stock_code is required"}
@@ -105,7 +105,7 @@ analyze_trend_tool = ToolDefinition(
 
 def _handle_calculate_ma(stock_code: str, periods: Optional[str] = None, days: int = 120) -> dict:
     """Calculate moving averages for arbitrary periods from historical K-line data."""
-    from src.services.history_loader import load_history_df
+    from ai_stock.services.history_loader import load_history_df
 
     df, source = load_history_df(stock_code, days=days)
 
@@ -196,7 +196,7 @@ calculate_ma_tool = ToolDefinition(
 
 def _handle_get_volume_analysis(stock_code: str, days: int = 30) -> dict:
     """Analyse volume-price patterns over recent trading days."""
-    from src.services.history_loader import load_history_df
+    from ai_stock.services.history_loader import load_history_df
     import pandas as pd
 
     df, source = load_history_df(stock_code, days=max(days + 20, 60))
@@ -312,7 +312,7 @@ get_volume_analysis_tool = ToolDefinition(
 
 def _handle_analyze_pattern(stock_code: str, days: int = 60) -> dict:
     """Detect common candlestick and chart patterns in recent price history."""
-    from src.services.history_loader import load_history_df
+    from ai_stock.services.history_loader import load_history_df
 
     df, source = load_history_df(stock_code, days=max(days, 120))
 

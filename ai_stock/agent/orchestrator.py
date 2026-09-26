@@ -32,7 +32,7 @@ import time
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
-from src.agent.llm_adapter import LLMToolAdapter
+from ai_stock.agent.llm_adapter import LLMToolAdapter
 from ai_stock.agent.protocols import (
     AgentContext,
     AgentRunStats,
@@ -40,15 +40,15 @@ from ai_stock.agent.protocols import (
     StageStatus,
     normalize_decision_signal,
 )
-from src.agent.runner import parse_dashboard_json
+from ai_stock.agent.runner import parse_dashboard_json
 from ai_stock.agent.stock_scope import resolve_stock_scope
-from src.agent.tools.registry import ToolRegistry
+from ai_stock.agent.tools.registry import ToolRegistry
 from ai_stock.agent.chat_context import build_visible_chat_history
-from src.config import AGENT_MAX_STEPS_DEFAULT, get_config
-from src.report_language import normalize_report_language
+from ai_stock.config import AGENT_MAX_STEPS_DEFAULT, get_config
+from ai_stock.report.report_language import normalize_report_language
 
 if TYPE_CHECKING:
-    from src.agent.executor import AgentResult
+    from ai_stock.agent.executor import AgentResult
 
 logger = logging.getLogger(__name__)
 
@@ -279,7 +279,7 @@ class AgentOrchestrator:
 
         Returns an ``AgentResult`` (same type as ``AgentExecutor.run``).
         """
-        from src.agent.executor import AgentResult
+        from ai_stock.agent.executor import AgentResult
 
         ctx = self._build_context(task, context)
         ctx.meta["response_mode"] = "dashboard"
@@ -310,8 +310,8 @@ class AgentOrchestrator:
         ``conversation_manager``); the orchestrator focuses on multi-agent
         coordination.
         """
-        from src.agent.executor import AgentResult
-        from src.agent.conversation import conversation_manager
+        from ai_stock.agent.executor import AgentResult
+        from ai_stock.agent.conversation import conversation_manager
 
         scope_resolution = resolve_stock_scope(message, context)
         ctx = self._build_context(message, scope_resolution.effective_context)
@@ -589,10 +589,10 @@ class AgentOrchestrator:
 
     def _build_agent_chain(self, ctx: AgentContext) -> list:
         """Instantiate the ordered agent list based on ``self.mode``."""
-        from src.agent.agents.technical_agent import TechnicalAgent
-        from src.agent.agents.intel_agent import IntelAgent
+        from ai_stock.agent.agents.technical_agent import TechnicalAgent
+        from ai_stock.agent.agents.intel_agent import IntelAgent
         from ai_stock.agent.agents.decision_agent import DecisionAgent
-        from src.agent.agents.risk_agent import RiskAgent
+        from ai_stock.agent.agents.risk_agent import RiskAgent
 
         self._skill_agent_names = set()
 
@@ -628,7 +628,7 @@ class AgentOrchestrator:
         lightweight agent wrappers for each.
         """
         try:
-            from src.agent.skills.router import SkillRouter
+            from ai_stock.agent.skills.router import SkillRouter
             common_kwargs = dict(
                 tool_registry=self.tool_registry,
                 llm_adapter=self.llm_adapter,
@@ -672,7 +672,7 @@ class AgentOrchestrator:
         consensus and stores it in context so the decision agent can use it.
         """
         try:
-            from src.agent.skills.aggregator import SkillAggregator
+            from ai_stock.agent.skills.aggregator import SkillAggregator
             aggregator = SkillAggregator()
             consensus = aggregator.aggregate(ctx)
             if consensus:

@@ -28,19 +28,19 @@ from api.v1.schemas.stocks import (
 )
 from api.v1.schemas.history import WatchlistRequest, WatchlistResponse
 from api.v1.schemas.common import ErrorResponse
-from src.services.image_stock_extractor import (
+from ai_stock.services.image_stock_extractor import (
     ALLOWED_MIME,
     MAX_SIZE_BYTES,
     extract_stock_codes_from_image,
 )
-from src.services.import_parser import (
+from ai_stock.services.import_parser import (
     MAX_FILE_BYTES,
     parse_import_from_bytes,
     parse_import_from_text,
 )
-from src.services.stock_service import StockService
-from src.services.system_config_service import SystemConfigService
-from data_provider.base import normalize_stock_code
+from ai_stock.services.stock_service import StockService
+from ai_stock.services.system_config_service import SystemConfigService
+from ai_stock.stock_data.base import normalize_stock_code
 
 logger = logging.getLogger(__name__)
 

@@ -27,7 +27,7 @@ from typing import Optional
 
 from ai_stock.agent.agents.base_agent import BaseAgent
 from ai_stock.agent.protocols import AgentContext, AgentOpinion
-from src.agent.runner import try_parse_json
+from ai_stock.agent.runner import try_parse_json
 
 logger = logging.getLogger(__name__)
 

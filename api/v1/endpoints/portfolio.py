@@ -35,10 +35,10 @@ from api.v1.schemas.portfolio import (
     PortfolioTradeListResponse,
     PortfolioTradeCreateRequest,
 )
-from src.services.task_queue import get_task_queue
-from src.services.portfolio_import_service import PortfolioImportService
-from src.services.portfolio_risk_service import PortfolioRiskService
-from src.services.portfolio_service import (
+from ai_stock.services.task_queue import get_task_queue
+from ai_stock.services.portfolio_import_service import PortfolioImportService
+from ai_stock.services.portfolio_risk_service import PortfolioRiskService
+from ai_stock.services.portfolio_service import (
     PortfolioBusyError,
     PortfolioConflictError,
     PortfolioOversellError,

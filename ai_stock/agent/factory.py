@@ -29,7 +29,7 @@ import logging
 from dataclasses import dataclass
 from typing import List, Optional
 
-from src.config import AGENT_MAX_STEPS_DEFAULT
+from ai_stock.config import AGENT_MAX_STEPS_DEFAULT
 
 logger = logging.getLogger(__name__)
 
@@ -179,12 +179,12 @@ def get_tool_registry():
     if _TOOL_REGISTRY is not None:
         return _TOOL_REGISTRY
 
-    from src.agent.tools.registry import ToolRegistry
-    from src.agent.tools.data_tools import ALL_DATA_TOOLS
+    from ai_stock.agent.tools.registry import ToolRegistry
+    from ai_stock.agent.tools.data_tools import ALL_DATA_TOOLS
     from ai_stock.agent.tools.analysis_tools import ALL_ANALYSIS_TOOLS
     from ai_stock.agent.tools.search_tools import ALL_SEARCH_TOOLS
-    from src.agent.tools.market_tools import ALL_MARKET_TOOLS
-    from src.agent.tools.backtest_tools import ALL_BACKTEST_TOOLS
+    from ai_stock.agent.tools.market_tools import ALL_MARKET_TOOLS
+    from ai_stock.agent.tools.backtest_tools import ALL_BACKTEST_TOOLS
 
     registry = ToolRegistry()
     for tool_fn in ALL_DATA_TOOLS + ALL_ANALYSIS_TOOLS + ALL_SEARCH_TOOLS + ALL_MARKET_TOOLS + ALL_BACKTEST_TOOLS:
@@ -209,7 +209,7 @@ def get_skill_manager(config=None):
     global _SKILL_MANAGER_PROTOTYPE, _SKILL_MANAGER_CUSTOM_DIR
 
     if config is None:
-        from src.config import get_config
+        from ai_stock.config import get_config
         config = get_config()
 
     current_custom_dir = getattr(config, "agent_skill_dir", None)
@@ -240,10 +240,10 @@ def get_skill_manager(config=None):
 def resolve_skill_prompt_state(config=None, skills: Optional[List[str]] = None) -> SkillPromptState:
     """Resolve active skills and prompt fragments for analyzer / agent entrypoints."""
     if config is None:
-        from src.config import get_config
+        from ai_stock.config import get_config
         config = get_config()
 
-    from src.agent.skills.defaults import (
+    from ai_stock.agent.skills.defaults import (
         get_default_active_skill_ids,
         get_default_technical_skill_policy,
         get_default_trading_skill_policy,
@@ -312,12 +312,12 @@ def build_agent_executor(config=None, skills: Optional[List[str]] = None):
         A ready-to-call :class:`src.agent.executor.AgentExecutor` instance.
     """
     if config is None:
-        from src.config import get_config
+        from ai_stock.config import get_config
         config = get_config()
 
     arch = getattr(config, "agent_arch", "single")
 
-    from src.agent.llm_adapter import LLMToolAdapter
+    from ai_stock.agent.llm_adapter import LLMToolAdapter
 
     registry = get_tool_registry()
     prompt_state = resolve_skill_prompt_state(config, skills=skills)
@@ -341,7 +341,7 @@ def build_agent_executor(config=None, skills: Optional[List[str]] = None):
             technical_skill_policy=prompt_state.technical_skill_policy,
         )
 
-    from src.agent.executor import AgentExecutor
+    from ai_stock.agent.executor import AgentExecutor
     # Intentionally do not mutate config routing fields here. We only coerce
     # execution params (max_steps/timeout_seconds) from config values; provider,
     # model, base URL and channel routes stay unchanged and are consumed by
@@ -371,7 +371,7 @@ def _build_orchestrator(config, registry, llm_adapter, skill_manager, *, technic
     The orchestrator presents the same ``run()`` / ``chat()`` interface as
     :class:`AgentExecutor` so callers need no changes.
     """
-    from src.agent.orchestrator import AgentOrchestrator
+    from ai_stock.agent.orchestrator import AgentOrchestrator
 
     mode = getattr(config, "agent_orchestrator_mode", "standard")
     logger.info("[AgentFactory] Building AgentOrchestrator (mode=%s)", mode)

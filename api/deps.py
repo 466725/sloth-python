@@ -15,9 +15,9 @@ from typing import Generator
 from fastapi import Request
 from sqlalchemy.orm import Session
 
-from src.storage import DatabaseManager
-from src.config import get_config, Config
-from src.services.system_config_service import SystemConfigService
+from ai_stock.storage import DatabaseManager
+from ai_stock.config import get_config, Config
+from ai_stock.services.system_config_service import SystemConfigService
 
 
 def get_db() -> Generator[Session, None, None]:

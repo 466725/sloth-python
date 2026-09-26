@@ -15,8 +15,8 @@ from typing import Optional
 
 from ai_stock.agent.agents.base_agent import BaseAgent
 from ai_stock.agent.protocols import AgentContext, AgentOpinion
-from src.agent.runner import try_parse_json
-from src.agent.skills.defaults import build_skill_agent_name
+from ai_stock.agent.runner import try_parse_json
+from ai_stock.agent.skills.defaults import build_skill_agent_name
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class SkillAgent(BaseAgent):
     def _load_skill(skill_id: str):
         """Load the Skill definition for a skill id."""
         try:
-            from src.agent.factory import get_skill_manager
+            from ai_stock.agent.factory import get_skill_manager
 
             sm = get_skill_manager()
             return sm.get(skill_id)

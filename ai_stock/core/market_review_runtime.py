@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Optional, Tuple
 
-from src.config import Config
+from ai_stock.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +48,9 @@ def build_market_review_runtime(
     """
     Build shared NotificationService, GeminiAnalyzer and SearchService instances.
     """
-    from src.analyzer import GeminiAnalyzer
-    from src.notification import NotificationService
-    from src.search_service import SearchService
+    from ai_stock.analyzer import GeminiAnalyzer
+    from ai_stock.report.notification import NotificationService
+    from ai_stock.search_service import SearchService
 
     notifier = NotificationService(source_message=source_message)
 

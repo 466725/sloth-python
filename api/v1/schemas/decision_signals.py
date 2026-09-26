@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field
 
 from api.v1.schemas.market_phase import MarketPhaseValue
-from src.schemas.decision_action import DecisionAction
+from ai_stock.schemas.decision_action import DecisionAction
 
 
 DecisionSignalSourceType = Literal["analysis", "agent", "alert", "market_review", "manual"]

@@ -28,8 +28,8 @@ from api.v1.schemas.system_config import (
     ValidateSystemConfigRequest,
     ValidateSystemConfigResponse,
 )
-from src.auth import COOKIE_NAME, is_auth_enabled, refresh_auth_state, verify_session
-from src.services.system_config_service import (
+from ai_stock.auth import COOKIE_NAME, is_auth_enabled, refresh_auth_state, verify_session
+from ai_stock.services.system_config_service import (
     ConfigConflictError,
     ConfigImportError,
     ConfigValidationError,

@@ -72,7 +72,7 @@ def _normalize_stock_code(value: Any) -> str:
     if not text:
         return ""
     try:
-        from src.agent.runner import _normalize_tool_stock_code
+        from ai_stock.agent.runner import _normalize_tool_stock_code
 
         normalized = _normalize_tool_stock_code(text)
     except Exception:
@@ -87,7 +87,7 @@ def _is_denied_candidate(candidate: str, text: str = "") -> bool:
     if token in _CONTEXTUAL_INDICATOR_TOKENS and _INDICATOR_CONTEXT_PATTERN.search(text or ""):
         return True
     try:
-        from src.agent.orchestrator import _COMMON_WORDS
+        from ai_stock.agent.orchestrator import _COMMON_WORDS
 
         return token in _COMMON_WORDS
     except Exception:

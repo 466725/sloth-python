@@ -10,7 +10,7 @@ Tools:
 
 import logging
 
-from src.agent.tools.registry import ToolParameter, ToolDefinition
+from ai_stock.agent.tools.registry import ToolParameter, ToolDefinition
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ def _get_backtest_service():
     """Lazy import + singleton to avoid circular deps and repeated instantiation."""
     global _backtest_service
     if _backtest_service is None:
-        from src.services.backtest_service import BacktestService
+        from ai_stock.services.backtest_service import BacktestService
         _backtest_service = BacktestService()
     return _backtest_service
 

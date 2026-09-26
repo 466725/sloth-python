@@ -80,3 +80,7 @@ json-repair>=0.55.1         # JSON repair
 sqlalchemy>=2.0.0           # ORM database access
 newspaper3k>=0.2.8          # Article extraction
 efinance>=0.5.5             # Priority 0: East Money data source https://github.com/Micro-sheep/efinance
+# FastAPI Web framework
+fastapi>=0.109.0            # Modern Python Web framework
+uvicorn[standard]>=0.27.0   # ASGI server
+python-multipart>=0.0.6     # FastAPI File/Form upload support

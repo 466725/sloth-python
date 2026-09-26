@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, Query
 
 from api.deps import get_database_manager
 from api.v1.schemas.usage import UsageDashboardResponse, UsageSummaryResponse
-from src.storage import DatabaseManager
+from ai_stock.storage import DatabaseManager
 
 logger = logging.getLogger(__name__)
 

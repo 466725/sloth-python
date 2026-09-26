@@ -15,15 +15,15 @@ import time
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Dict, List, Optional
 
-from src.agent.llm_adapter import LLMToolAdapter
-from src.agent.memory import AgentMemory
+from ai_stock.agent.llm_adapter import LLMToolAdapter
+from ai_stock.agent.memory import AgentMemory
 from ai_stock.agent.protocols import AgentContext, AgentOpinion, StageResult, StageStatus
-from src.agent.runner import RunLoopResult, run_agent_loop
-from src.agent.skills.defaults import extract_skill_id
-from src.agent.tools.registry import ToolRegistry
-from src.market_phase_prompt import format_market_phase_prompt_section
-from src.report_language import normalize_report_language
-from src.services.daily_market_context import format_daily_market_context_prompt_section
+from ai_stock.agent.runner import RunLoopResult, run_agent_loop
+from ai_stock.agent.skills.defaults import extract_skill_id
+from ai_stock.agent.tools.registry import ToolRegistry
+from ai_stock.market_phase_prompt import format_market_phase_prompt_section
+from ai_stock.report.report_language import normalize_report_language
+from ai_stock.services.daily_market_context import format_daily_market_context_prompt_section
 
 logger = logging.getLogger(__name__)
 
@@ -232,7 +232,7 @@ class BaseAgent(ABC):
         if self.tool_names is None:
             return self.tool_registry
 
-        from src.agent.tools.registry import ToolRegistry as TR
+        from ai_stock.agent.tools.registry import ToolRegistry as TR
         filtered = TR()
         for name in self.tool_names:
             tool_def = self.tool_registry.get(name)

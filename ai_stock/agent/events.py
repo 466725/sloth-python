@@ -261,7 +261,7 @@ class EventMonitor:
         return None
 
     def _fetch_realtime_quote(self, stock_code: str) -> Any:
-        from data_provider import DataFetcherManager
+        from ai_stock.stock_data import DataFetcherManager
 
         return DataFetcherManager().get_realtime_quote(stock_code)
 
@@ -336,7 +336,7 @@ class EventMonitor:
         """Check volume spike against recent average."""
         try:
             def _fetch_daily_data():
-                from data_provider import DataFetcherManager
+                from ai_stock.stock_data import DataFetcherManager
 
                 fm = DataFetcherManager()
                 return fm.get_daily_data(rule.stock_code, days=20)
@@ -523,7 +523,7 @@ def validate_event_alert_rule(rule: Dict[str, Any]) -> None:
 def build_event_monitor_from_config(config=None, notifier=None) -> Optional[EventMonitor]:
     """Build an EventMonitor from runtime config and attach notification callbacks."""
     if config is None:
-        from src.config import get_config
+        from ai_stock.config import get_config
         config = get_config()
 
     if not getattr(config, "agent_event_monitor_enabled", False):
@@ -544,7 +544,7 @@ def build_event_monitor_from_config(config=None, notifier=None) -> Optional[Even
     if not monitor.rules:
         return None
 
-    from src.notification import NotificationBuilder, NotificationService
+    from ai_stock.report.notification import NotificationBuilder, NotificationService
 
     notification_service = notifier or NotificationService()
 

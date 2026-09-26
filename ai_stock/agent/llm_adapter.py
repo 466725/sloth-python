@@ -16,7 +16,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 import litellm
 from litellm import Router
 
-from src.config import (
+from ai_stock.config import (
     extra_litellm_params,
     get_api_keys_for_model,
     get_config,
@@ -31,9 +31,9 @@ from ai_stock.agent.provider_trace import (
     resolved_provider_namespace,
     trace_model_matches,
 )
-from src.llm.errors import call_litellm_with_param_recovery
+from ai_stock.llm.errors import call_litellm_with_param_recovery
 from ai_stock.llm.generation_params import apply_litellm_generation_params, resolve_litellm_wire_model
-from src.llm.usage import attach_message_hmacs, extract_usage_payload, normalize_litellm_usage
+from ai_stock.llm.usage import attach_message_hmacs, extract_usage_payload, normalize_litellm_usage
 
 logger = logging.getLogger(__name__)
 

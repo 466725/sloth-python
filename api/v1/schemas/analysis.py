@@ -14,7 +14,7 @@ from typing import Optional, List, Any, Literal
 from enum import Enum
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
-from src.utils.analysis_metadata import SELECTION_SOURCE_PATTERN
+from ai_stock.utils.analysis_metadata import SELECTION_SOURCE_PATTERN
 
 
 class TaskStatusEnum(str, Enum):

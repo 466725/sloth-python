@@ -14,7 +14,7 @@ from typing import Optional, List, Any, Dict, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from api.v1.schemas.market_phase import MarketPhaseSummary
-from src.schemas.decision_action import DecisionAction
+from ai_stock.schemas.decision_action import DecisionAction
 
 
 class HistoryItem(BaseModel):

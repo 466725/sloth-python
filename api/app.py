@@ -136,10 +136,10 @@ from api.v1 import api_v1_router
 from api.middlewares.auth import add_auth_middleware
 from api.middlewares.error_handler import add_error_handlers
 from api.v1.schemas.common import HealthResponse
-from src.auth import is_auth_enabled
-from src.data.stock_index_loader import find_existing_stock_index_path
-from src.services.system_config_service import SystemConfigService
-from src.services.stock_index_remote_service import (
+from ai_stock.auth import is_auth_enabled
+from ai_stock.stock_data.stock_index_loader import find_existing_stock_index_path
+from ai_stock.services.system_config_service import SystemConfigService
+from ai_stock.services.stock_index_remote_service import (
     get_remote_stock_index_cache_path,
     refresh_remote_stock_index_cache,
     settings_from_config,
@@ -158,7 +158,7 @@ def _bundled_stock_index_path() -> Path:
 
 async def _refresh_stock_index_cache_in_background(reason: str) -> None:
     try:
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         settings = settings_from_config(get_config())
         result = await run_in_threadpool(refresh_remote_stock_index_cache, settings)

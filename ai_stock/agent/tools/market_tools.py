@@ -9,14 +9,14 @@ Tools:
 
 import logging
 
-from src.agent.tools.registry import ToolParameter, ToolDefinition
+from ai_stock.agent.tools.registry import ToolParameter, ToolDefinition
 
 logger = logging.getLogger(__name__)
 
 
 def _get_fetcher_manager():
     """Lazy import to avoid circular deps."""
-    from data_provider import DataFetcherManager
+    from ai_stock.stock_data import DataFetcherManager
     return DataFetcherManager()
 
 

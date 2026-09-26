@@ -8,9 +8,9 @@ from __future__ import annotations
 import logging
 from typing import Dict, List, Optional
 
-from src.agent.memory import AgentMemory
+from ai_stock.agent.memory import AgentMemory
 from ai_stock.agent.protocols import AgentContext, AgentOpinion
-from src.agent.skills.defaults import (
+from ai_stock.agent.skills.defaults import (
     SKILL_CONSENSUS_AGENT_NAME,
     extract_skill_id,
     is_skill_agent_name,
@@ -134,7 +134,7 @@ class SkillAggregator:
 
         skill_id = extract_skill_id(agent_name) or agent_name
         try:
-            from src.services.backtest_service import BacktestService
+            from ai_stock.services.backtest_service import BacktestService
 
             service = BacktestService()
             summary = service.get_skill_summary(skill_id)
@@ -148,7 +148,7 @@ class SkillAggregator:
     @staticmethod
     def _use_backtest_autoweight() -> bool:
         try:
-            from src.config import get_config
+            from ai_stock.config import get_config
 
             config = get_config()
             return getattr(config, "agent_skill_autoweight", True)

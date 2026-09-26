@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from src.storage import get_db
+from ai_stock.storage import get_db
 
 logger = logging.getLogger(__name__)
 

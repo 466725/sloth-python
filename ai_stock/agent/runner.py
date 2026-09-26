@@ -24,11 +24,11 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeou
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
-from src.agent.llm_adapter import LLMToolAdapter
-from src.agent.tools.registry import ToolRegistry
+from ai_stock.agent.llm_adapter import LLMToolAdapter
+from ai_stock.agent.tools.registry import ToolRegistry
 from ai_stock.agent.stock_scope import StockScope
-from src.llm.usage import should_persist_usage_telemetry
-from src.storage import persist_llm_usage as _persist_usage
+from ai_stock.llm.usage import should_persist_usage_telemetry
+from ai_stock.storage import persist_llm_usage as _persist_usage
 
 logger = logging.getLogger(__name__)
 
@@ -125,7 +125,7 @@ def _normalize_tool_stock_code(value: Any) -> Any:
         return f"HK{text}"
 
     try:
-        from data_provider.base import canonical_stock_code, normalize_stock_code
+        from ai_stock.stock_data.base import canonical_stock_code, normalize_stock_code
 
         return canonical_stock_code(normalize_stock_code(text))
     except Exception:

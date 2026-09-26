@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Optional
 
-from src.config import Config
+from ai_stock.config import Config
 
 try:
     import fcntl

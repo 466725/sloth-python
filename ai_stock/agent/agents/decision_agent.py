@@ -16,7 +16,7 @@ from typing import List, Optional
 
 from ai_stock.agent.agents.base_agent import BaseAgent
 from ai_stock.agent.protocols import AgentContext, AgentOpinion, normalize_decision_signal
-from src.report_language import normalize_report_language
+from ai_stock.report.report_language import normalize_report_language
 
 logger = logging.getLogger(__name__)
 
@@ -205,7 +205,7 @@ limitation must be reflected in ``confidence_reason`` or ``data_limitations``.
                 raw_data={"response_mode": "chat"},
             )
 
-        from src.agent.runner import parse_dashboard_json
+        from ai_stock.agent.runner import parse_dashboard_json
 
         dashboard = parse_dashboard_json(raw_text)
         if dashboard:

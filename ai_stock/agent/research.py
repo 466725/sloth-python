@@ -23,9 +23,9 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
-from src.agent.llm_adapter import LLMToolAdapter
-from src.agent.runner import RunLoopResult, run_agent_loop
-from src.agent.tools.registry import ToolRegistry
+from ai_stock.agent.llm_adapter import LLMToolAdapter
+from ai_stock.agent.runner import RunLoopResult, run_agent_loop
+from ai_stock.agent.tools.registry import ToolRegistry
 
 logger = logging.getLogger(__name__)
 

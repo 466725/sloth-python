@@ -10,13 +10,13 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any, Dict, List, Optional
 
-from src.config import (
+from ai_stock.config import (
     AGENT_CONTEXT_COMPRESSION_PROFILES,
     AGENT_MAX_STEPS_DEFAULT,
     DEFAULT_ALPHASIFT_INSTALL_SPEC,
 )
-from src.notification_noise import NOTIFICATION_SEVERITIES
-from src.notification_routing import ROUTABLE_NOTIFICATION_CHANNELS
+from ai_stock.report.notification_noise import NOTIFICATION_SEVERITIES
+from ai_stock.report.notification_routing import ROUTABLE_NOTIFICATION_CHANNELS
 
 SCHEMA_VERSION = "2026-05-25"
 
