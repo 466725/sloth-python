@@ -32,13 +32,13 @@ from tenacity import (
     before_sleep_log,
 )
 
-from data_provider.us_index_mapping import is_us_index_code
-from src.config import (
+from ai_stock.stock_data.us_index_mapping import is_us_index_code
+from ai_stock.config import (
     NEWS_STRATEGY_WINDOWS,
     normalize_news_strategy_profile,
     resolve_news_window_days,
 )
-from src.services.run_diagnostics import record_provider_run, record_provider_run_started
+from ai_stock.services.run_diagnostics import record_provider_run, record_provider_run_started
 
 logger = logging.getLogger(__name__)
 
@@ -4442,7 +4442,7 @@ def get_search_service() -> SearchService:
     if _search_service is None:
         with _search_service_lock:
             if _search_service is None:
-                from src.config import get_config
+                from ai_stock.config import get_config
                 config = get_config()
                 
                 _search_service = SearchService(

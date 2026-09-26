@@ -24,7 +24,7 @@ from enum import Enum
 import pandas as pd
 import numpy as np
 
-from src.config import get_config
+from ai_stock.config import get_config
 
 logger = logging.getLogger(__name__)
 
