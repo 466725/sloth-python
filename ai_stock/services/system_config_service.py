@@ -16,7 +16,7 @@ from urllib.parse import urlparse, urlunparse
 
 import requests
 
-from src.config import (
+from ai_stock.config import (
     ANSPIRE_LLM_BASE_URL_DEFAULT,
     ANSPIRE_LLM_MODEL_DEFAULT,
     SUPPORTED_LLM_CHANNEL_PROTOCOLS,
@@ -35,16 +35,16 @@ from src.config import (
     resolve_llm_channel_protocol,
     setup_env,
 )
-from src.core.config_manager import ConfigManager
-from src.core.config_registry import (
+from ai_stock.core.config_manager import ConfigManager
+from ai_stock.core.config_registry import (
     build_schema_response,
     get_category_definitions,
     get_field_definition,
     get_registered_field_keys,
 )
-from src.llm.errors import call_litellm_with_param_recovery
+from ai_stock.llm.errors import call_litellm_with_param_recovery
 from ai_stock.llm.generation_params import apply_litellm_generation_params
-from src.notification_noise import validate_notification_timezone
+from ai_stock.report.notification_noise import validate_notification_timezone
 
 logger = logging.getLogger(__name__)
 
@@ -136,8 +136,8 @@ class SystemConfigService:
     @staticmethod
     def _reload_runtime_singletons() -> None:
         """Reset runtime singleton services after config reload."""
-        from src.agent.tools.data_tools import reset_fetcher_manager
-        from src.search_service import reset_search_service
+        from ai_stock.agent.tools.data_tools import reset_fetcher_manager
+        from ai_stock.search_service import reset_search_service
 
         reset_fetcher_manager()
         reset_search_service()
@@ -761,7 +761,7 @@ class SystemConfigService:
 
         try:
             import litellm
-            from src.agent.llm_adapter import (
+            from ai_stock.agent.llm_adapter import (
                 resolve_fallback_litellm_wire_models,
                 register_fallback_model_pricing,
             )
@@ -2020,7 +2020,7 @@ class SystemConfigService:
         content: str,
         timeout_seconds: float,
     ) -> Dict[str, Any]:
-        from src.notification_sender import EmailSender
+        from ai_stock.report import EmailSender
 
         started_at = time.perf_counter()
         target = self._resolve_notification_test_target(channel, effective_map)

@@ -20,10 +20,10 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import Optional, Dict, Any, List, Union
 
-from src.enums import ReportType
-from src.storage import get_db
+from ai_stock.enums import ReportType
+from ai_stock.storage import get_db
 from bot.models import BotMessage
-from src.services.stock_code_utils import resolve_index_stock_code_for_analysis
+from ai_stock.services.stock_code_utils import resolve_index_stock_code_for_analysis
 
 logger = logging.getLogger(__name__)
 
@@ -174,7 +174,7 @@ class TaskService:
 
         try:
             # 延迟导入避免循环依赖
-            from src.config import get_config
+            from ai_stock.config import get_config
             from main import StockAnalysisPipeline
 
             logger.info(f"[TaskService] 开始分析股票: {code}")

@@ -29,7 +29,7 @@ class AlphaVantageFetcher(BaseFetcher):
     priority = 3
 
     def __init__(self):
-        from src.config import get_config
+        from ai_stock.config import get_config
         config = get_config()
         self._api_key = getattr(config, 'alphavantage_api_key', None) or os.getenv('ALPHAVANTAGE_API_KEY')
         if not self._api_key:

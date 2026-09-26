@@ -27,14 +27,14 @@ from typing import Optional, Dict, List, Any, TYPE_CHECKING, Tuple, Literal, Cal
 if TYPE_CHECKING:
     from asyncio import Queue as AsyncQueue
 
-from data_provider.base import canonical_stock_code, normalize_stock_code
+from ai_stock.stock_data.base import canonical_stock_code, normalize_stock_code
 from ai_stock.services.run_diagnostics import (
     activate_run_diagnostic_context,
     get_current_diagnostic_context,
     reset_run_diagnostic_context,
 )
 from ai_stock.utils.analysis_metadata import SELECTION_SOURCES
-from src.services.stock_code_utils import resolve_index_stock_code_for_analysis
+from ai_stock.services.stock_code_utils import resolve_index_stock_code_for_analysis
 
 logger = logging.getLogger(__name__)
 
@@ -698,7 +698,7 @@ class AnalysisTaskQueue:
         
         try:
             # 导入分析服务（延迟导入避免循环依赖）
-            from src.services.analysis_service import AnalysisService
+            from ai_stock.services.analysis_service import AnalysisService
             
             # 执行分析
             service = AnalysisService()
@@ -990,7 +990,7 @@ def get_task_queue() -> AnalysisTaskQueue:
     """
     queue = AnalysisTaskQueue()
     try:
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
         target_workers = max(1, int(getattr(config, "max_workers", queue.max_workers)))

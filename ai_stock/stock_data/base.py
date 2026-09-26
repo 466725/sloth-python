@@ -24,8 +24,8 @@ from typing import Callable, Optional, List, Tuple, Dict, Any
 
 import pandas as pd
 import numpy as np
-from src.data.stock_index_loader import get_index_stock_name
-from src.data.stock_mapping import STOCK_NAME_MAP, is_meaningful_stock_name
+from ai_stock.stock_data.stock_index_loader import get_index_stock_name
+from ai_stock.stock_data.stock_mapping import STOCK_NAME_MAP, is_meaningful_stock_name
 from ai_stock.services.run_diagnostics import record_provider_run, record_provider_run_started
 from .fundamental_adapter import AkshareFundamentalAdapter
 from .yfinance_fundamental_adapter import YfinanceFundamentalAdapter
@@ -829,7 +829,7 @@ class DataFetcherManager:
 
     def _get_tickflow_fetcher(self):
         """Lazily create a TickFlow fetcher for market-review-only calls."""
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
         api_key = (getattr(config, "tickflow_api_key", None) or "").strip()
@@ -1109,7 +1109,7 @@ class DataFetcherManager:
           1. AkshareFetcher (Priority 1)
           4. YfinanceFetcher (Priority 4)
         """
-        from src.config import get_config
+        from ai_stock.config import get_config
         from .efinance_fetcher import EfinanceFetcher
         from .tencent_fetcher import TencentFetcher
         from .akshare_fetcher import AkshareFetcher
@@ -1446,7 +1446,7 @@ class DataFetcherManager:
         # Normalize all codes
         stock_codes = [normalize_stock_code(c) for c in stock_codes]
 
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
 
@@ -1632,7 +1632,7 @@ class DataFetcherManager:
 
         from .akshare_fetcher import _is_us_code
         from .us_index_mapping import is_us_index_code
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
 
@@ -1996,7 +1996,7 @@ class DataFetcherManager:
         stock_code = normalize_stock_code(stock_code)
 
         from .realtime_types import get_chip_circuit_breaker
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
 
@@ -2492,7 +2492,7 @@ class DataFetcherManager:
         return None, last_error, total_cost_ms
 
     def _get_fundamental_config(self):
-        from src.config import get_config
+        from ai_stock.config import get_config
         return get_config()
 
     @staticmethod
@@ -2691,7 +2691,7 @@ class DataFetcherManager:
         Cache, retry and fail-open semantics intentionally match the CN path so
         upstream callers see the same shape regardless of market.
         """
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
         stage_timeout = float(
@@ -2889,7 +2889,7 @@ class DataFetcherManager:
         """
         Aggregate fundamental blocks with fail-open semantics.
         """
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
         if not config.enable_fundamental_pipeline:
@@ -3187,7 +3187,7 @@ class DataFetcherManager:
 
     def get_capital_flow_context(self, stock_code: str, budget_seconds: Optional[float] = None) -> Dict[str, Any]:
         """资金流向块（fail-open）。"""
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
         stock_code = normalize_stock_code(stock_code)
@@ -3251,7 +3251,7 @@ class DataFetcherManager:
 
     def get_dragon_tiger_context(self, stock_code: str, budget_seconds: Optional[float] = None) -> Dict[str, Any]:
         """龙虎榜块（fail-open）。"""
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
         stock_code = normalize_stock_code(stock_code)
@@ -3301,7 +3301,7 @@ class DataFetcherManager:
 
     def get_board_context(self, stock_code: str, budget_seconds: Optional[float] = None) -> Dict[str, Any]:
         """板块榜单块（fail-open）。"""
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
         stock_code = normalize_stock_code(stock_code)
