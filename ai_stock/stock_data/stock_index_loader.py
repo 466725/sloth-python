@@ -7,8 +7,8 @@ from pathlib import Path
 from threading import RLock
 from typing import Dict, Iterable, Optional
 
-from src.data.stock_mapping import is_meaningful_stock_name
-from src.services.stock_index_remote_service import (
+from ai_stock.stock_data.stock_mapping import is_meaningful_stock_name
+from ai_stock.services.stock_index_remote_service import (
     get_remote_stock_index_cache_path,
     is_valid_remote_stock_index_file,
     validate_stock_index_payload,
