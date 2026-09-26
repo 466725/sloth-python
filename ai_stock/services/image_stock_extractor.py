@@ -19,7 +19,7 @@ import sys
 import time
 from typing import List, Optional, Tuple
 
-from src.config import Config, get_config
+from ai_stock.config import Config, get_config
 
 logger = logging.getLogger(__name__)
 

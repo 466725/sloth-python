@@ -7,9 +7,9 @@ import logging
 import math
 from typing import Any, Dict, Mapping, Optional
 
-from data_provider.base import normalize_stock_code
+from ai_stock.stock_data.base import normalize_stock_code
 
-from src.analyzer import AnalysisResult
+from ai_stock.analyzer import AnalysisResult
 from ai_stock.core.trading_calendar import get_market_for_stock
 from ai_stock.schemas.decision_action import build_action_fields
 from ai_stock.services.decision_signal_service import DecisionSignalService

@@ -20,9 +20,9 @@ from xml.etree import ElementTree as ET
 import requests
 from sqlalchemy.exc import IntegrityError
 
-from src.config import get_config
-from ai_stock.repositories import IntelligenceRepository
-from src.storage import IntelligenceSource, INTELLIGENCE_ITEM_NULL_SCOPE_VALUE
+from ai_stock.config import get_config
+from ai_stock.repositories.intelligence_repo import IntelligenceRepository
+from ai_stock.storage import IntelligenceSource, INTELLIGENCE_ITEM_NULL_SCOPE_VALUE
 from ai_stock.services.run_diagnostics import sanitize_diagnostic_text
 
 logger = logging.getLogger(__name__)

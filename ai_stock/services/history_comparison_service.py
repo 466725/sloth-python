@@ -11,7 +11,7 @@ Excludes current record via exclude_query_id.
 import logging
 from typing import Any, Dict, List, Optional
 
-from src.storage import DatabaseManager
+from ai_stock.storage import DatabaseManager
 
 logger = logging.getLogger(__name__)
 

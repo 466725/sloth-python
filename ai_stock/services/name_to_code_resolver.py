@@ -14,8 +14,8 @@ import logging
 import time
 from typing import Dict, Optional, Set, Tuple
 
-from src.data.stock_mapping import STOCK_NAME_MAP
-from src.services.stock_code_utils import is_code_like, normalize_code
+from ai_stock.stock_data.stock_mapping import STOCK_NAME_MAP
+from ai_stock.services.stock_code_utils import is_code_like, normalize_code
 
 logger = logging.getLogger(__name__)
 

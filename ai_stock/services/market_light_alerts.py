@@ -10,12 +10,12 @@ from typing import Any, Dict, Optional
 
 from ai_stock.core.trading_calendar import get_open_markets_today
 from ai_stock.schemas.market_light import MarketLightSnapshot
-from src.services.market_light_service import (
+from ai_stock.services.market_light_service import (
     build_current_snapshot,
     load_previous_snapshot,
     normalize_market_region,
 )
-from src.services.portfolio_alerts import RuntimeAlertPayload
+from ai_stock.services.portfolio_alerts import RuntimeAlertPayload
 
 
 MARKET_ALERT_TYPES = frozenset({"market_light_status", "market_light_score_drop"})
@@ -80,7 +80,7 @@ def make_market_light_payload(
 ) -> RuntimeAlertPayload:
     region = normalize_market_region(data["target"])
     if config is None:
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
     trading_day_check_enabled = bool(getattr(config, "trading_day_check_enabled", True))

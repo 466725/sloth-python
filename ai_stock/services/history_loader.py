@@ -52,7 +52,7 @@ def _get_fetcher_manager():
     if _fetcher_singleton is None:
         with _fetcher_lock:
             if _fetcher_singleton is None:
-                from data_provider import DataFetcherManager
+                from ai_stock.stock_data import DataFetcherManager
                 _fetcher_singleton = DataFetcherManager()
     return _fetcher_singleton
 
@@ -61,7 +61,7 @@ def _get_fetcher_manager():
 # DB-first history loader
 # ---------------------------------------------------------------------------
 def _history_code_candidates(stock_code: str) -> Tuple[List[str], str]:
-    from data_provider.base import canonical_stock_code, normalize_stock_code
+    from ai_stock.stock_data.base import canonical_stock_code, normalize_stock_code
 
     raw_code = str(stock_code or "").strip()
     normalized_code = canonical_stock_code(normalize_stock_code(raw_code))
@@ -134,7 +134,7 @@ def load_history_df(
     actual provider name on network fallback.  Returns ``(None, "none")`` when
     both paths fail.
     """
-    from src.storage import get_db
+    from ai_stock.storage import get_db
 
     # Resolve effective end date
     if target_date is not None:

@@ -15,9 +15,9 @@ import logging
 from datetime import date, datetime, timedelta
 from typing import Optional, Dict, Any, List, Tuple, TYPE_CHECKING
 
-from src.config import get_config, resolve_news_window_days
-from src.data.stock_index_loader import resolve_index_stock_code
-from src.report_language import (
+from ai_stock.config import get_config, resolve_news_window_days
+from ai_stock.stock_data.stock_index_loader import resolve_index_stock_code
+from ai_stock.report.report_language import (
     get_bias_status_emoji,
     get_localized_stock_name,
     get_report_labels,
@@ -30,9 +30,9 @@ from src.report_language import (
     localize_trend_prediction,
     normalize_report_language,
 )
-from src.storage import DatabaseManager
+from ai_stock.storage import DatabaseManager
 from ai_stock.services.run_diagnostics import build_run_diagnostic_summary
-from src.market_phase_summary import (
+from ai_stock.market_phase_summary import (
     rebuild_market_phase_summary_for_stock_code,
 )
 from ai_stock.schemas.decision_action import build_action_fields
@@ -44,7 +44,7 @@ from ai_stock.utils.data_processing import (
 )
 
 if TYPE_CHECKING:
-    from src.analyzer import AnalysisResult
+    from ai_stock.analyzer import AnalysisResult
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +88,7 @@ class HistoryService:
                 candidates.append(candidate)
 
         try:
-            from data_provider.base import (
+            from ai_stock.stock_data.base import (
                 canonical_stock_code,
                 is_bse_code,
                 normalize_stock_code,
@@ -437,7 +437,7 @@ class HistoryService:
         if not record:
             return None
 
-        from src.services.run_flow import build_history_run_flow_snapshot
+        from ai_stock.services.run_flow import build_history_run_flow_snapshot
 
         return build_history_run_flow_snapshot(
             record,
@@ -824,7 +824,7 @@ class HistoryService:
             AnalysisResult object or None
         """
         try:
-            from src.analyzer import AnalysisResult
+            from ai_stock.analyzer import AnalysisResult
             # Extract dashboard data if available
             dashboard = raw_result.get("dashboard", {})
 

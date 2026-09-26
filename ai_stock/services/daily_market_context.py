@@ -13,16 +13,16 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Tuple
 
-from src.core.market_review_lock import (
+from ai_stock.core.market_review_lock import (
     release_market_review_lock,
     try_acquire_market_review_lock,
 )
-from src.report_language import normalize_report_language
+from ai_stock.report.report_language import normalize_report_language
 from ai_stock.services.run_diagnostics import (
     activate_run_diagnostic_context,
     reset_run_diagnostic_context,
 )
-from src.storage import DatabaseManager
+from ai_stock.storage import DatabaseManager
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ _RISK_PATTERNS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
 
 def run_market_review(**kwargs: Any) -> Any:
     """Lazy wrapper to avoid importing analyzer while prompt modules import this formatter."""
-    from src.core.market_review import run_market_review as _run_market_review
+    from ai_stock.core.market_review import run_market_review as _run_market_review
 
     return _run_market_review(**kwargs)
 

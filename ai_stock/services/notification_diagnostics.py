@@ -6,16 +6,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Literal, Optional, Sequence, Tuple
 
-from src.config import Config
-from src.notification import ChannelDetector, NotificationChannel, NotificationService
-from src.notification_noise import (
+from ai_stock.config import Config
+from ai_stock.report.notification import ChannelDetector, NotificationChannel, NotificationService
+from ai_stock.report.notification_noise import (
     NOTIFICATION_SEVERITIES,
     P4_NOISE_ENV_KEYS,
     is_supported_notification_severity,
     parse_notification_quiet_hours,
     validate_notification_timezone,
 )
-from src.notification_routing import (
+from ai_stock.report.notification_routing import (
     NOTIFICATION_ROUTE_CONFIGS,
     ROUTABLE_NOTIFICATION_CHANNELS,
     split_notification_route_channels,

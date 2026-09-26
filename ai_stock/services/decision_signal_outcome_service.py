@@ -10,7 +10,8 @@ import logging
 import math
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from src.core.backtest_engine import BacktestEngine, EvaluationConfig
+import ai_stock
+from ai_stock.core.backtest_engine import BacktestEngine, EvaluationConfig
 from ai_stock.repositories import DecisionSignalOutcomeRepository
 from ai_stock.repositories import DecisionSignalRepository
 from ai_stock.repositories import StockRepository
@@ -21,13 +22,13 @@ from ai_stock.services.decision_signal_service import (
     DecisionSignalNotFoundError,
     DecisionSignalService,
 )
-from src.storage import (
+from ai_stock.storage import (
     DatabaseManager,
     DecisionSignalFeedbackRecord,
     DecisionSignalOutcomeRecord,
     DecisionSignalRecord,
 )
-from src.utils.sanitize import sanitize_decision_signal_text
+from ai_stock.utils.sanitize import sanitize_decision_signal_text
 
 
 logger = logging.getLogger(__name__)
@@ -63,7 +64,7 @@ class DecisionSignalOutcomeService:
         *,
         repo: Optional[DecisionSignalOutcomeRepository] = None,
         signal_repo: Optional[DecisionSignalRepository] = None,
-        stock_repo: Optional[StockRepository] = None,
+        stock_repo: Optional[ai_stock.repositories.stock_repo.StockRepository] = None,
         db_manager: Optional[DatabaseManager] = None,
     ):
         self.repo = repo or DecisionSignalOutcomeRepository(db_manager)

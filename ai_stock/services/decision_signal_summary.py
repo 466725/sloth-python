@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from src.utils.sanitize import sanitize_decision_signal_payload, sanitize_decision_signal_text
+from ai_stock.utils.sanitize import sanitize_decision_signal_payload, sanitize_decision_signal_text
 
 
 SUMMARY_FIELDS = (

@@ -9,18 +9,18 @@ import math
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple, get_args
 
-from data_provider.base import canonical_stock_code, normalize_stock_code
+from ai_stock.stock_data.base import canonical_stock_code, normalize_stock_code
 from ai_stock.core.trading_calendar import MarketPhase
 from ai_stock.repositories import DecisionSignalRepository
-from ai_stock.repositories import PortfolioRepository
-from src.report_language import normalize_report_language
+from ai_stock.repositories.portfolio_repo import PortfolioRepository
+from ai_stock.report.report_language import normalize_report_language
 from ai_stock.schemas.decision_action import (
     DecisionAction,
     build_action_fields,
     localize_action_label,
 )
-from src.services.portfolio_service import VALID_MARKETS
-from src.storage import (
+from ai_stock.services.portfolio_service import VALID_MARKETS
+from ai_stock.storage import (
     AnalysisHistory,
     DatabaseManager,
     DecisionSignalRecord,
@@ -28,7 +28,7 @@ from src.storage import (
     utc_naive_now,
 )
 from ai_stock.utils.data_processing import parse_json_field
-from src.utils.sanitize import sanitize_decision_signal_payload, sanitize_decision_signal_text
+from ai_stock.utils.sanitize import sanitize_decision_signal_payload, sanitize_decision_signal_text
 
 
 SOURCE_TYPES = frozenset({"analysis", "agent", "alert", "market_review", "manual"})
@@ -342,8 +342,8 @@ class DecisionSignalService:
             if history_action is None:
                 return
 
-            from src.analyzer import AnalysisResult
-            from src.services.decision_signal_extractor import build_decision_signal_payload_from_report
+            from ai_stock.analyzer import AnalysisResult
+            from ai_stock.services.decision_signal_extractor import build_decision_signal_payload_from_report
 
             result = AnalysisResult(
                 code=getattr(record, "code", "") or "",
