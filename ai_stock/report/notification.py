@@ -18,21 +18,21 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple, TYPE_CHECKING
 from enum import Enum
 
-from src.config import Config, get_config
-from src.enums import ReportType
-from src.market_phase_summary import format_public_market_status_line, format_public_phase_pack_excerpt
-from src.services.decision_signal_summary import format_decision_signal_excerpt
-from src.notification_routing import (
+from ai_stock.config import Config, get_config
+from ai_stock.enums import ReportType
+from ai_stock.market_phase_summary import format_public_market_status_line, format_public_phase_pack_excerpt
+from ai_stock.services.decision_signal_summary import format_decision_signal_excerpt
+from ai_stock.report.notification_routing import (
     get_notification_route_config,
     split_notification_route_channels,
 )
-from src.notification_noise import (
+from ai_stock.report.notification_noise import (
     NotificationNoiseDecision,
     evaluate_notification_noise,
     record_notification_noise,
     release_notification_noise,
 )
-from src.report_language import (
+from ai_stock.report.report_language import (
     get_localized_stock_name,
     get_report_labels,
     get_signal_level,
@@ -44,9 +44,9 @@ from src.report_language import (
     normalize_report_language,
 )
 from bot.models import BotMessage
-from src.utils.sanitize import sanitize_diagnostic_text
+from ai_stock.utils.sanitize import sanitize_diagnostic_text
 from ai_stock.utils.data_processing import normalize_model_used
-from src.notification_sender import EmailSender
+from ai_stock.report import EmailSender
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +71,7 @@ def _safe_float(value: Any) -> Optional[float]:
         return None
 
 if TYPE_CHECKING:
-    from src.analyzer import AnalysisResult
+    from ai_stock.analyzer import AnalysisResult
 
 
 class NotificationChannel(Enum):
@@ -212,7 +212,7 @@ class NotificationService(EmailSender):
             return {"history_by_code": self._history_compare_cache[cache_key]}
 
         try:
-            from src.services.history_comparison_service import get_signal_changes_batch
+            from ai_stock.services.history_comparison_service import get_signal_changes_batch
 
             exclude_ids = {
                 r.code: r.query_id
@@ -657,7 +657,7 @@ class NotificationService(EmailSender):
         volume_analysis_label = "Volume" if report_language == "en" else "量能"
         news_heading = "News Flow" if report_language == "en" else "消息面"
         if getattr(config, 'report_renderer_enabled', False) and results:
-            from src.services.report_renderer import render
+            from ai_stock.services.report_renderer import render
             out = render(
                 platform='markdown',
                 results=results,
@@ -968,7 +968,7 @@ class NotificationService(EmailSender):
         report_language = self._get_report_language(results)
         labels = get_report_labels(report_language)
         if getattr(config, 'report_renderer_enabled', False) and results:
-            from src.services.report_renderer import render
+            from ai_stock.services.report_renderer import render
             out = render(
                 platform='wechat',
                 results=results,
@@ -1223,7 +1223,7 @@ class NotificationService(EmailSender):
         labels = get_report_labels(report_language)
         config = get_config()
         if getattr(config, 'report_renderer_enabled', False) and results:
-            from src.services.report_renderer import render
+            from ai_stock.services.report_renderer import render
             out = render(
                 platform='brief',
                 results=results,
@@ -1829,7 +1829,7 @@ class NotificationService(EmailSender):
             if ch.value in self._markdown_to_image_channels
         }
         if channels_needing_image:
-            from src.md2img import markdown_to_image
+            from ai_stock.md2img import markdown_to_image
             image_bytes = markdown_to_image(
                 content, max_chars=self._markdown_to_image_max_chars
             )
@@ -1838,7 +1838,7 @@ class NotificationService(EmailSender):
                             [ch.value for ch in channels_needing_image])
             elif channels_needing_image:
                 try:
-                    from src.config import get_config
+                    from ai_stock.config import get_config
                     engine = getattr(get_config(), "md2img_engine", "wkhtmltoimage")
                 except Exception:
                     engine = "wkhtmltoimage"
@@ -2063,7 +2063,7 @@ def send_daily_report(results: List[AnalysisResult]) -> bool:
 if __name__ == "__main__":
     # 测试代码
     logging.basicConfig(level=logging.DEBUG)
-    from src.analyzer import AnalysisResult
+    from ai_stock.analyzer import AnalysisResult
     
     # 模拟分析结果
     test_results = [
