@@ -74,3 +74,6 @@ robotframework-requests
 # Mobile Automation
 # Appium Python client for mobile UI automation demos.
 Appium-Python-Client>=6.0.0
+
+
+json-repair>=0.55.1         # JSON repair
