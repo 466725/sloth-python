@@ -13,11 +13,11 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from src.analyzer import AnalysisResult
-from src.config import get_config
-from src.market_phase_summary import format_public_market_status_line, format_public_phase_pack_excerpt
-from src.services.decision_signal_summary import format_decision_signal_excerpt
-from src.report_language import (
+from ai_stock.analyzer import AnalysisResult
+from ai_stock.config import get_config
+from ai_stock.market_phase_summary import format_public_market_status_line, format_public_phase_pack_excerpt
+from ai_stock.services.decision_signal_summary import format_decision_signal_excerpt
+from ai_stock.report.report_language import (
     get_localized_stock_name,
     get_report_labels,
     get_signal_level,

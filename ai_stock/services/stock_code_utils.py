@@ -8,7 +8,7 @@ from __future__ import annotations
 import re
 from typing import Optional
 
-from data_provider.base import canonical_stock_code, is_bse_code
+from ai_stock.stock_data.base import canonical_stock_code, is_bse_code
 
 
 # Known exchange prefixes (case-insensitive) and the digit lengths they accept.
@@ -125,7 +125,7 @@ def resolve_index_stock_code_for_analysis(raw: str) -> str:
         return ""
 
     if is_code_like(text):
-        from src.data.stock_index_loader import resolve_index_stock_code
+        from ai_stock.stock_data.stock_index_loader import resolve_index_stock_code
 
         resolved = resolve_index_stock_code(text)
         if resolved:
