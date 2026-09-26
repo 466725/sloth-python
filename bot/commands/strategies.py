@@ -44,12 +44,12 @@ class StrategiesCommand(BotCommand):
         show_active_only = bool(args and args[0].lower() in ("active", "激活", "已激活"))
 
         try:
-            from src.agent.factory import get_skill_manager
-            from src.config import get_config
+            from ai_stock.agent.factory import get_skill_manager
+            from ai_stock.config import get_config
 
             config = get_config()
             sm = get_skill_manager(config)
-            from src.agent.factory import DEFAULT_AGENT_SKILLS
+            from ai_stock.agent.factory import DEFAULT_AGENT_SKILLS
 
             # Derive activation status from config without mutating the skill
             # manager — this is a read-only listing command.

@@ -450,7 +450,7 @@ User: "analyze TSLA and NVDA using trend strategy"
         if " " in stripped or len(stripped) > 10:
             return False
 
-        from src.agent.orchestrator import _extract_stock_code
+        from ai_stock.agent.orchestrator import _extract_stock_code
 
         return bool(_extract_stock_code(stripped))
 
@@ -469,7 +469,7 @@ User: "analyze TSLA and NVDA using trend strategy"
 
         Returns ``BotResponse`` if a route was found, ``None`` otherwise.
         """
-        from src.config import get_config
+        from ai_stock.config import get_config
         config = get_config()
 
         if not getattr(config, 'agent_nl_routing', False):
@@ -540,7 +540,7 @@ User: "analyze TSLA and NVDA using trend strategy"
 
     def _try_nl_routing_sync(self, message: BotMessage) -> Optional[BotResponse]:
         """Synchronous companion to `_try_nl_routing` for legacy call sites."""
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
         if not getattr(config, 'agent_nl_routing', False):
@@ -605,7 +605,7 @@ User: "analyze TSLA and NVDA using trend strategy"
     async def _parse_intent_via_llm(text: str, config) -> Optional[dict]:
         """Call LLM to parse user intent.  Returns parsed dict or None on failure."""
         try:
-            from src.agent.llm_adapter import LLMToolAdapter
+            from ai_stock.agent.llm_adapter import LLMToolAdapter
 
             messages = [
                 {"role": "system", "content": CommandDispatcher._NL_PARSE_PROMPT},
@@ -628,7 +628,7 @@ User: "analyze TSLA and NVDA using trend strategy"
     def _parse_intent_via_llm_sync(text: str, config) -> Optional[dict]:
         """Synchronous variant for webhook/stream integrations."""
         try:
-            from src.agent.llm_adapter import LLMToolAdapter
+            from ai_stock.agent.llm_adapter import LLMToolAdapter
 
             messages = [
                 {"role": "system", "content": CommandDispatcher._NL_PARSE_PROMPT},
@@ -674,9 +674,9 @@ User: "analyze TSLA and NVDA using trend strategy"
     @classmethod
     def _resolve_stock_code_from_text(cls, text: str) -> Optional[str]:
         """Best-effort stock name/code resolution for NL-routed analysis requests."""
-        from data_provider.base import canonical_stock_code
-        from src.data.stock_mapping import STOCK_NAME_MAP
-        from src.services.name_to_code_resolver import resolve_name_to_code
+        from ai_stock.stock_data.base import canonical_stock_code
+        from ai_stock.stock_data.stock_mapping import STOCK_NAME_MAP
+        from ai_stock.services.name_to_code_resolver import resolve_name_to_code
 
         def _iter_candidates(raw_text: str) -> List[str]:
             candidates: List[str] = []
@@ -741,7 +741,7 @@ def get_dispatcher() -> CommandDispatcher:
     global _dispatcher
 
     if _dispatcher is None:
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
 

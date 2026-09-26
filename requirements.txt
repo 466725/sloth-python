@@ -84,3 +84,4 @@ efinance>=0.5.5             # Priority 0: East Money data source https://github.
 fastapi>=0.109.0            # Modern Python Web framework
 uvicorn[standard]>=0.27.0   # ASGI server
 python-multipart>=0.0.6     # FastAPI File/Form upload support
+PyNaCl>=1.5.0                  # Discord Interaction/Webhook Ed25519 signature verification

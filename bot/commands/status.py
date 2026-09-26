@@ -44,7 +44,7 @@ class StatusCommand(BotCommand):
     
     def execute(self, message: BotMessage, args: List[str]) -> BotResponse:
         """执行状态命令"""
-        from src.config import get_config
+        from ai_stock.config import get_config
         
         config = get_config()
         
@@ -58,7 +58,7 @@ class StatusCommand(BotCommand):
     
     def _collect_status(self, config) -> dict:
         """收集系统状态信息"""
-        from src.config import _uses_direct_env_provider, get_configured_llm_models
+        from ai_stock.config import _uses_direct_env_provider, get_configured_llm_models
 
         status = {
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),

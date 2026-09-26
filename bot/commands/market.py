@@ -82,15 +82,15 @@ class MarketCommand(BotCommand):
         )
 
     def _get_config(self):
-        from src.config import get_config
+        from ai_stock.config import get_config
         return get_config()
 
     def _try_acquire_market_review_lock(self, config):
-        from src.core.market_review_lock import try_acquire_market_review_lock
+        from ai_stock.core.market_review_lock import try_acquire_market_review_lock
         return try_acquire_market_review_lock(config)
 
     def _release_market_review_lock(self, lock_token: Optional[Any]) -> None:
-        from src.core.market_review_lock import release_market_review_lock
+        from ai_stock.core.market_review_lock import release_market_review_lock
         release_market_review_lock(lock_token)
 
     def _compute_market_review_override_region(self, config) -> Optional[str]:
@@ -98,7 +98,7 @@ class MarketCommand(BotCommand):
             return None
 
         try:
-            from src.core.trading_calendar import (
+            from ai_stock.core.trading_calendar import (
                 get_open_markets_today,
                 compute_effective_region,
             )
@@ -122,7 +122,7 @@ class MarketCommand(BotCommand):
         try:
             override_region = self._compute_market_review_override_region(config)
             if override_region == "":
-                from src.notification import NotificationService
+                from ai_stock.report.notification import NotificationService
                 notifier = NotificationService(source_message=message)
                 logger.info("[MarketCommand] 今日相关市场休市，跳过大盘复盘")
                 if notifier.is_available():
@@ -133,8 +133,8 @@ class MarketCommand(BotCommand):
                     )
                 return
 
-            from src.core.market_review_runtime import build_market_review_runtime
-            from src.core.market_review import run_market_review
+            from ai_stock.core.market_review_runtime import build_market_review_runtime
+            from ai_stock.core.market_review import run_market_review
 
             notifier, analyzer, search_service = build_market_review_runtime(
                 config,

@@ -17,9 +17,9 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from bot.commands.base import BotCommand
 from bot.models import BotMessage, BotResponse
-from data_provider.base import canonical_stock_code
-from src.config import get_config
-from src.storage import get_db
+from ai_stock.stock_data.base import canonical_stock_code
+from ai_stock.config import get_config
+from ai_stock.storage import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -124,7 +124,7 @@ class AskCommand(BotCommand):
     @staticmethod
     def _load_skills() -> List[object]:
         try:
-            from src.agent.factory import get_skill_manager
+            from ai_stock.agent.factory import get_skill_manager
 
             sm = get_skill_manager()
             return list(sm.list_skills())
@@ -135,7 +135,7 @@ class AskCommand(BotCommand):
     @classmethod
     def _get_default_skill_id(cls) -> str:
         try:
-            from src.agent.skills.defaults import get_primary_default_skill_id
+            from ai_stock.agent.skills.defaults import get_primary_default_skill_id
 
             return get_primary_default_skill_id(cls._load_skills())
         except Exception as e:
@@ -234,7 +234,7 @@ class AskCommand(BotCommand):
     ) -> BotResponse:
         """Analyze a single stock."""
         try:
-            from src.agent.factory import build_agent_executor
+            from ai_stock.agent.factory import build_agent_executor
 
             executor = build_agent_executor(config, skills=[skill_id] if skill_id else None)
             user_msg = self._build_user_message(code, skill_id, skill_text)
@@ -278,8 +278,8 @@ class AskCommand(BotCommand):
 
         def _run_one(stock_code: str) -> Tuple[str, Optional[Dict[str, Any]], Optional[str]]:
             try:
-                from src.agent.conversation import conversation_manager
-                from src.agent.factory import build_agent_executor
+                from ai_stock.agent.conversation import conversation_manager
+                from ai_stock.agent.factory import build_agent_executor
 
                 executor = build_agent_executor(config, skills=[skill_id] if skill_id else None)
                 user_msg = self._build_user_message(stock_code, skill_id, skill_text)
@@ -575,10 +575,10 @@ class AskCommand(BotCommand):
             return ""
 
         def _render_overlay() -> str:
-            from src.agent.agents.portfolio_agent import PortfolioAgent
-            from src.agent.factory import get_tool_registry
-            from src.agent.llm_adapter import LLMToolAdapter
-            from src.agent.protocols import AgentContext
+            from ai_stock.agent.agents.portfolio_agent import PortfolioAgent
+            from ai_stock.agent.factory import get_tool_registry
+            from ai_stock.agent.llm_adapter import LLMToolAdapter
+            from ai_stock.agent.protocols import AgentContext
 
             stock_opinions: Dict[str, Dict[str, Any]] = {}
             risk_flags: List[Dict[str, str]] = []

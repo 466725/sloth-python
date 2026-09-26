@@ -72,7 +72,7 @@ def handle_webhook(
     logger.info(f"[BotHandler] 收到 {platform_name} Webhook 请求")
 
     # 检查机器人功能是否启用
-    from src.config import get_config
+    from ai_stock.config import get_config
     config = get_config()
 
     if not getattr(config, 'bot_enabled', True):
@@ -149,7 +149,7 @@ async def handle_webhook_async(
     """
     logger.info(f"[BotHandler] 收到 {platform_name} Webhook 请求 (async)")
 
-    from src.config import get_config
+    from ai_stock.config import get_config
     config = get_config()
 
     if not getattr(config, 'bot_enabled', True):

@@ -52,7 +52,7 @@ class BatchCommand(BotCommand):
     
     def execute(self, message: BotMessage, args: List[str]) -> BotResponse:
         """执行批量分析命令"""
-        from src.config import get_config
+        from ai_stock.config import get_config
         
         config = get_config()
         config.refresh_stock_list()
@@ -99,7 +99,7 @@ class BatchCommand(BotCommand):
     def _run_batch_analysis(self, stock_list: List[str], message: BotMessage) -> None:
         """后台执行批量分析"""
         try:
-            from src.config import get_config
+            from ai_stock.config import get_config
             from main import StockAnalysisPipeline
             
             config = get_config()

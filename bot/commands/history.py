@@ -67,7 +67,7 @@ class HistoryCommand(BotCommand):
     def execute(self, message: BotMessage, args: List[str]) -> BotResponse:
         """Execute the history command."""
         try:
-            from src.storage import get_db
+            from ai_stock.storage import get_db
             db = get_db()
         except Exception as e:
             logger.error(f"History: storage unavailable: {e}")

@@ -15,7 +15,7 @@ from typing import List, Optional
 
 from bot.commands.base import BotCommand
 from bot.models import BotMessage, BotResponse
-from src.config import get_config
+from ai_stock.config import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -88,9 +88,9 @@ class ResearchCommand(BotCommand):
 
         # Run the research agent
         try:
-            from src.agent.research import ResearchAgent
-            from src.agent.factory import get_tool_registry
-            from src.agent.llm_adapter import LLMToolAdapter
+            from ai_stock.agent.research import ResearchAgent
+            from ai_stock.agent.factory import get_tool_registry
+            from ai_stock.agent.llm_adapter import LLMToolAdapter
 
             registry = get_tool_registry()
             llm_adapter = LLMToolAdapter(config)

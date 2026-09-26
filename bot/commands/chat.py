@@ -8,7 +8,7 @@ from typing import List, Optional
 
 from bot.commands.base import BotCommand
 from bot.models import BotMessage, BotResponse, ChatType
-from src.config import get_config
+from ai_stock.config import get_config
 
 logger = logging.getLogger(__name__)
 
