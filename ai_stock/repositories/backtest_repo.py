@@ -13,7 +13,7 @@ from typing import List, Optional, Tuple
 
 from sqlalchemy import and_, delete, desc, func, or_, select
 
-from src.storage import BacktestResult, BacktestSummary, DatabaseManager, AnalysisHistory
+from ai_stock.storage import BacktestResult, BacktestSummary, DatabaseManager, AnalysisHistory
 
 logger = logging.getLogger(__name__)
 

@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from sqlalchemy import and_, desc, func, or_, select
 
-from src.storage import (
+from ai_stock.storage import (
     DatabaseManager,
     DecisionSignalRecord,
     to_utc_naive_datetime,

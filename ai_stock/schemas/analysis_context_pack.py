@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Literal, Mapping, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator
 
-from src.utils.sanitize import redact_sensitive_mapping
+from ai_stock.utils.sanitize import redact_sensitive_mapping
 
 
 PACK_VERSION = "1.0"

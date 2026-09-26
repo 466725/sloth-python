@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from sqlalchemy import and_, delete, desc, func, select
 
-from src.storage import (
+from ai_stock.storage import (
     AlertCooldownRecord,
     AlertNotificationRecord,
     AlertRuleRecord,

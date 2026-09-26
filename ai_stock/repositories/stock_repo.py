@@ -16,7 +16,7 @@ from typing import Optional, List, Dict, Any
 import pandas as pd
 from sqlalchemy import and_, desc, select
 
-from src.storage import DatabaseManager, StockDaily
+from ai_stock.storage import DatabaseManager, StockDaily
 
 logger = logging.getLogger(__name__)
 

@@ -11,7 +11,7 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, Literal, Optional, TypedDict, get_args
 
-from src.report_language import normalize_report_language
+from ai_stock.report.report_language import normalize_report_language
 
 DecisionAction = Literal["buy", "add", "hold", "reduce", "sell", "watch", "avoid", "alert"]
 
