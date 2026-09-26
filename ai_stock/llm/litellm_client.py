@@ -2,7 +2,7 @@ import os
 from typing import List, Dict, Any, Optional
 from litellm import completion
 from tik_token import TokenUtils
-from config import settings
+from config.config import settings
 
 
 class LitellmClient:

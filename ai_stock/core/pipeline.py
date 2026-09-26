@@ -23,12 +23,12 @@ from typing import List, Dict, Any, Optional, Tuple, Callable
 
 import pandas as pd
 
-from src.config import FUNDAMENTAL_STAGE_TIMEOUT_SECONDS_DEFAULT, get_config, Config
-from src.storage import get_db
-from data_provider import DataFetcherManager
-from data_provider.base import is_bse_code, normalize_stock_code
-from data_provider.realtime_types import ChipDistribution
-from src.analyzer import (
+from ai_stock.config import FUNDAMENTAL_STAGE_TIMEOUT_SECONDS_DEFAULT, get_config, Config
+from ai_stock.storage import get_db
+from ai_stock.stock_data import DataFetcherManager
+from ai_stock.stock_data.base import is_bse_code, normalize_stock_code
+from ai_stock.stock_data.realtime_types import ChipDistribution
+from ai_stock.analyzer import (
     GeminiAnalyzer,
     AnalysisResult,
     fill_price_position_if_needed,
@@ -36,28 +36,28 @@ from src.analyzer import (
     populate_decision_action_fields,
     stabilize_decision_with_structure,
 )
-from src.notification import NotificationService, NotificationChannel
-from src.report_language import (
+from ai_stock.report.notification import NotificationService, NotificationChannel
+from ai_stock.report.report_language import (
     infer_decision_type_from_advice,
     localize_confidence_level,
     localize_operation_advice,
     localize_trend_prediction,
     normalize_report_language,
 )
-from src.search_service import SearchService
+from ai_stock.search_service import SearchService
 from ai_stock.analysis_context_pack_prompt import format_analysis_context_pack_prompt_section
-from src.analysis_context_pack_overview import render_analysis_context_pack_overview
-from src.market_phase_summary import MARKET_PHASE_SUMMARY_KEY, render_market_phase_summary
-from src.daily_market_context_guardrail import apply_daily_market_context_guardrail
-from src.phase_decision_guardrail import apply_phase_decision_guardrails
-from src.services.daily_market_context import (
+from ai_stock.analysis_context_pack_overview import render_analysis_context_pack_overview
+from ai_stock.market_phase_summary import MARKET_PHASE_SUMMARY_KEY, render_market_phase_summary
+from ai_stock.daily_market_context_guardrail import apply_daily_market_context_guardrail
+from ai_stock.phase_decision_guardrail import apply_phase_decision_guardrails
+from ai_stock.services.daily_market_context import (
     DailyMarketContext,
     DailyMarketContextService,
     format_daily_market_context_prompt_section,
 )
-from src.services.social_sentiment_service import SocialSentimentService
-from src.services.intelligence_service import IntelligenceService
-from src.services.analysis_context_builder import (
+from ai_stock.services.social_sentiment_service import SocialSentimentService
+from ai_stock.services.intelligence_service import IntelligenceService
+from ai_stock.services.analysis_context_builder import (
     AnalysisContextBuilder,
     PipelineAnalysisArtifacts,
 )
@@ -72,10 +72,10 @@ from ai_stock.services.run_diagnostics import (
     reset_run_diagnostic_context,
     sanitize_diagnostic_text,
 )
-from src.services.decision_signal_extractor import extract_and_persist_from_analysis_result
-from src.services.decision_signal_summary import summarize_decision_signal
-from src.enums import ReportType
-from src.stock_analyzer import StockTrendAnalyzer, TrendAnalysisResult
+from ai_stock.services.decision_signal_extractor import extract_and_persist_from_analysis_result
+from ai_stock.services.decision_signal_summary import summarize_decision_signal
+from ai_stock.enums import ReportType
+from ai_stock.stock_analyzer import StockTrendAnalyzer, TrendAnalysisResult
 from ai_stock.core.trading_calendar import (
     build_market_phase_context,
     get_effective_trading_date,
@@ -83,7 +83,7 @@ from ai_stock.core.trading_calendar import (
     get_market_now,
     is_market_open,
 )
-from data_provider.us_index_mapping import is_us_stock_code
+from ai_stock.stock_data.us_index_mapping import is_us_stock_code
 from bot.models import BotMessage
 
 
@@ -507,7 +507,7 @@ class StockAnalysisPipeline:
             # Step 3: 趋势分析（基于交易理念）— 在 Agent 分支之前执行，供两条路径共用
             trend_result: Optional[TrendAnalysisResult] = None
             try:
-                from src.services.history_loader import get_frozen_target_date
+                from ai_stock.services.history_loader import get_frozen_target_date
                 _mkt = get_market_for_stock(normalize_stock_code(code))
                 frozen = get_frozen_target_date()
                 end_date = frozen if frozen else get_market_now(_mkt).date()
@@ -1104,7 +1104,7 @@ class StockAnalysisPipeline:
 
     def _ensure_agent_history(self, code: str, min_days: int = 240) -> None:
         """Ensure at least *min_days* of K-line history is in DB for agent tools."""
-        from src.services.history_loader import get_frozen_target_date
+        from ai_stock.services.history_loader import get_frozen_target_date
 
         target = get_frozen_target_date()
         if target is None:
@@ -1142,7 +1142,7 @@ class StockAnalysisPipeline:
         使用 Agent 模式分析单只股票。
         """
         try:
-            from src.agent.factory import build_agent_executor
+            from ai_stock.agent.factory import build_agent_executor
             report_language = normalize_report_language(getattr(self.config, "report_language", "zh"))
 
             requested_skills = (
@@ -1289,7 +1289,7 @@ class StockAnalysisPipeline:
                 result.query_id = query_id
             # Agent weak integrity: placeholder fill only, no LLM retry
             if result and getattr(self.config, "report_integrity_enabled", False):
-                from src.analyzer import check_content_integrity, apply_placeholder_fill
+                from ai_stock.analyzer import check_content_integrity, apply_placeholder_fill
 
                 pass_integrity, missing = check_content_integrity(
                     result,
@@ -2696,7 +2696,7 @@ class StockAnalysisPipeline:
         """
         logger.info(f"========== 开始处理 {code} ==========")
 
-        from src.services.history_loader import set_frozen_target_date, reset_frozen_target_date
+        from ai_stock.services.history_loader import set_frozen_target_date, reset_frozen_target_date
         frozen_td = self._resolve_resume_target_date(code, current_time=current_time)
         token = set_frozen_target_date(frozen_td)
         effective_query_id = analysis_query_id or getattr(self, "query_id", None) or uuid.uuid4().hex
@@ -3176,7 +3176,7 @@ class StockAnalysisPipeline:
                         return
 
                 # Issue #455: Markdown 转图片（与 notification.send 逻辑一致）
-                from src.md2img import markdown_to_image
+                from ai_stock.md2img import markdown_to_image
 
                 channels_needing_image = {
                     ch for ch in channels

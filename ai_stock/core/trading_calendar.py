@@ -119,7 +119,7 @@ def get_market_for_stock(code: str) -> Optional[str]:
         return None
     code = (code or "").strip().upper()
 
-    from data_provider import is_us_stock_code, is_us_index_code, is_hk_stock_code
+    from ai_stock.stock_data import is_us_stock_code, is_us_index_code, is_hk_stock_code
 
     if is_us_stock_code(code) or is_us_index_code(code):
         return "us"
