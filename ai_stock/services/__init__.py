@@ -16,18 +16,18 @@
 def __getattr__(name: str):
     """延迟导入：仅在通过 src.services.X 访问时才加载对应子模块。"""
     _lazy_map = {
-        "AnalysisService": "src.services.analysis_service",
-        "BacktestService": "src.services.backtest_service",
-        "HistoryService": "src.services.history_service",
-        "StockService": "src.services.stock_service",
-        "TaskService": "src.services.task_service",
-        "get_task_service": "src.services.task_service",
+        "AnalysisService": "ai_stock.services.analysis_service",
+        "BacktestService": "ai_stock.services.backtest_service",
+        "HistoryService": "ai_stock.services.history_service",
+        "StockService": "ai_stock.services.stock_service",
+        "TaskService": "ai_stock.services.task_service",
+        "get_task_service": "ai_stock.services.task_service",
     }
     if name in _lazy_map:
         import importlib
         module = importlib.import_module(_lazy_map[name])
         return getattr(module, name)
-    raise AttributeError(f"module 'src.services' has no attribute {name!r}")
+    raise AttributeError(f"module 'ai_stock.services' has no attribute {name!r}")
 
 
 __all__ = [

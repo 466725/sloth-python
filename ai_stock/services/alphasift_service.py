@@ -25,8 +25,8 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple
 from fastapi import HTTPException, Request
 from pydantic import BaseModel, Field
 
-from src.auth import COOKIE_NAME, is_auth_enabled, refresh_auth_state, verify_session
-from src.config import Config, DEFAULT_ALPHASIFT_INSTALL_SPEC, get_configured_llm_models
+from ai_stock.auth import COOKIE_NAME, is_auth_enabled, refresh_auth_state, verify_session
+from ai_stock.config import Config, DEFAULT_ALPHASIFT_INSTALL_SPEC, get_configured_llm_models
 
 logger = logging.getLogger(__name__)
 
@@ -330,7 +330,7 @@ def _build_hotspot_event_routes_from_search(topic: str, config: Config) -> List[
     if not topic_text or not _has_configured_hotspot_news_source(config):
         return []
     try:
-        from src.search_service import SearchService
+        from ai_stock.search_service import SearchService
 
         service = SearchService(
             bocha_keys=getattr(config, "bocha_api_keys", None),
@@ -3118,20 +3118,20 @@ def _get_dsa_fetcher_manager() -> Any:
     if _DSA_FETCHER_MANAGER is None:
         with _DSA_FETCHER_MANAGER_LOCK:
             if _DSA_FETCHER_MANAGER is None:
-                from data_provider import DataFetcherManager
+                from ai_stock.stock_data import DataFetcherManager
 
                 _DSA_FETCHER_MANAGER = DataFetcherManager()
     return _DSA_FETCHER_MANAGER
 
 
 def _get_dsa_search_service() -> Any:
-    from src.search_service import get_search_service
+    from ai_stock.search_service import get_search_service
 
     return get_search_service()
 
 
 def get_dsa_daily_history(stock_code: str, *, lookback_days: int = 120) -> Tuple[Any, str]:
-    from src.services.history_loader import load_history_df
+    from ai_stock.services.history_loader import load_history_df
 
     normalized_code = _env_text(stock_code).zfill(6)
     days = max(int(lookback_days or 0), 30)

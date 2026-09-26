@@ -30,7 +30,7 @@ class DiscordPlatform(BotPlatform):
     """Discord 平台适配器"""
 
     def __init__(self):
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         config = get_config()
         self._interactions_public_key = (
@@ -245,7 +245,7 @@ class DiscordPlatform(BotPlatform):
 
         content = response.text if hasattr(response, "text") else str(response)
 
-        from src.formatters import chunk_content_by_max_words
+        from ai_stock.formatters import chunk_content_by_max_words
 
         try:
             chunks = chunk_content_by_max_words(

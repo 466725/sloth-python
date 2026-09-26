@@ -32,7 +32,7 @@ def _resolve_chat_session_id(message: BotMessage) -> str:
         return session_id
 
     try:
-        from src.storage import get_db
+        from ai_stock.storage import get_db
 
         db = get_db()
         legacy_exists = db.conversation_session_exists(legacy_session_id)
@@ -92,7 +92,7 @@ class ChatCommand(BotCommand):
         session_id = _resolve_chat_session_id(message)
         
         try:
-            from src.agent.factory import build_agent_executor
+            from ai_stock.agent.factory import build_agent_executor
             executor = build_agent_executor(config)
             result = executor.chat(message=user_message, session_id=session_id)
             

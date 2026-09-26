@@ -20,7 +20,7 @@ import subprocess
 import tempfile
 from typing import Optional
 
-from src.formatters import markdown_to_html_document
+from ai_stock.formatters import markdown_to_html_document
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +130,7 @@ def markdown_to_image(markdown_text: str, max_chars: int = 15000) -> Optional[by
         return None
 
     try:
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         engine = getattr(get_config(), "md2img_engine", "wkhtmltoimage")
     except Exception:
