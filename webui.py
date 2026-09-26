@@ -37,8 +37,8 @@ def main() -> int:
 
     try:
         import uvicorn
-        from src.config import setup_env
-        from src.logging_config import setup_logging
+        from ai_stock.config import setup_env
+        from ai_stock.logging_config import setup_logging
 
         setup_env()
         setup_logging(log_prefix="web_server")

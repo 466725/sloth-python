@@ -17,7 +17,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from src.services.notification_diagnostics import (  # noqa: E402
+from ai_stock.services.notification_diagnostics import (  # noqa: E402
     KEY_SPECS,
     P0_ACTIONS_ENV_KEYS,
     P3_ROUTE_ENV_KEYS,

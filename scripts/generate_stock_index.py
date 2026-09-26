@@ -59,7 +59,7 @@ def generate_stock_index_from_map() -> List[Dict[str, Any]]:
     Returns:
         List of stock index
     """
-    from src.data.stock_mapping import STOCK_NAME_MAP
+    from ai_stock.stock_data.stock_mapping import STOCK_NAME_MAP
 
     index = []
 
