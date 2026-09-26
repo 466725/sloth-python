@@ -20,30 +20,30 @@ from ai_stock.agent.events import (
     parse_event_alert_rules,
     validate_event_alert_rule,
 )
-from data_provider.base import normalize_stock_code
-from data_provider.us_index_mapping import is_us_index_code
-from src.analysis_context_pack_overview import (
+from ai_stock.stock_data.base import normalize_stock_code
+from ai_stock.stock_data.us_index_mapping import is_us_index_code
+from ai_stock.analysis_context_pack_overview import (
     ANALYSIS_CONTEXT_PACK_OVERVIEW_KEY,
     extract_analysis_context_pack_overview,
 )
 from ai_stock.core.trading_calendar import build_market_phase_context, get_market_for_stock
-from src.market_phase_summary import (
+from ai_stock.market_phase_summary import (
     format_public_phase_pack_excerpt,
     render_market_phase_summary,
 )
-from src.services.alert_service import AlertService
+from ai_stock.services.alert_service import AlertService
 from ai_stock.services.decision_signal_service import DecisionSignalService
-from src.services.decision_signal_summary import (
+from ai_stock.services.decision_signal_summary import (
     format_decision_signal_excerpt,
     summarize_decision_signal,
 )
-from src.services.history_service import HistoryService
-from src.services.market_light_service import normalize_market_region
+from ai_stock.services.history_service import HistoryService
+from ai_stock.services.market_light_service import normalize_market_region
 
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from src.notification import ChannelAttemptResult, NotificationDispatchResult
+    from ai_stock.report.notification import ChannelAttemptResult, NotificationDispatchResult
 
 ALERT_WORKER_FINGERPRINT_TTL_SECONDS = 24 * 60 * 60
 DEFAULT_DB_ALERT_COOLDOWN_SECONDS = 24 * 60 * 60
@@ -100,7 +100,7 @@ class AlertWorker:
 
     @staticmethod
     def _default_config_provider():
-        from src.config import get_config
+        from ai_stock.config import get_config
 
         return get_config()
 
@@ -635,7 +635,7 @@ class AlertWorker:
         return f"db_cooldown:{rule_key}"
 
     def _send_notification(self, runtime_rule: RuntimeAlertRule, result: Dict[str, Any]) -> "NotificationDispatchResult":
-        from src.notification import NotificationBuilder, NotificationService
+        from ai_stock.report.notification import NotificationBuilder, NotificationService
 
         notification_service = self.notifier or NotificationService()
         title = f"Event Alert | {self._display_target(runtime_rule)}"
@@ -662,7 +662,7 @@ class AlertWorker:
         try:
             return self._send_notification(runtime_rule, result)
         except Exception as exc:
-            from src.notification import ChannelAttemptResult, NotificationDispatchResult
+            from ai_stock.report.notification import ChannelAttemptResult, NotificationDispatchResult
 
             sanitized = self.service._sanitize_text(str(exc) or "notification failed")
             logger.warning(
@@ -723,7 +723,7 @@ class AlertWorker:
 
     @staticmethod
     def _synthetic_attempt_for_dispatch(dispatch: "NotificationDispatchResult") -> "ChannelAttemptResult":
-        from src.notification import ChannelAttemptResult
+        from ai_stock.report.notification import ChannelAttemptResult
 
         status = str(dispatch.status or "unknown")
         channel_by_status = {
@@ -801,7 +801,7 @@ class AlertWorker:
         if cooldown is None:
             return DBCooldownDecision()
 
-        from src.notification import ChannelAttemptResult, NotificationDispatchResult
+        from ai_stock.report.notification import ChannelAttemptResult, NotificationDispatchResult
 
         self._record_notification_attempts_safely(
             trigger_id,
@@ -827,7 +827,7 @@ class AlertWorker:
         return DBCooldownDecision(suppressed=True)
 
     def _record_cooldown_read_failure_suppression(self, trigger_id: Optional[int], exc: Exception) -> None:
-        from src.notification import ChannelAttemptResult, NotificationDispatchResult
+        from ai_stock.report.notification import ChannelAttemptResult, NotificationDispatchResult
 
         sanitized = self.service._sanitize_text(str(exc) or "cooldown read failed")
         self._record_notification_attempts_safely(

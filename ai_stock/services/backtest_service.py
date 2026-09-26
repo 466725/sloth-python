@@ -10,13 +10,13 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from sqlalchemy import and_, select
 
-from src.config import get_config
-from src.core.backtest_engine import OVERALL_SENTINEL_CODE, BacktestEngine, EvaluationConfig
-from src.market_phase_summary import extract_market_phase_summary, normalize_analysis_phase_bucket
+from ai_stock.config import get_config
+from ai_stock.core.backtest_engine import OVERALL_SENTINEL_CODE, BacktestEngine, EvaluationConfig
+from ai_stock.market_phase_summary import extract_market_phase_summary, normalize_analysis_phase_bucket
 from ai_stock.repositories import BacktestRepository
 from ai_stock.repositories import StockRepository
 from ai_stock.schemas.decision_action import build_action_fields
-from src.storage import BacktestResult, BacktestSummary, DatabaseManager
+from ai_stock.storage import BacktestResult, BacktestSummary, DatabaseManager
 from ai_stock.utils.data_processing import parse_json_field
 
 logger = logging.getLogger(__name__)
@@ -546,7 +546,7 @@ class BacktestService:
 
     def _try_fill_daily_data(self, *, code: str, analysis_date: date, eval_window_days: int) -> None:
         try:
-            from data_provider.base import DataFetcherManager
+            from ai_stock.stock_data.base import DataFetcherManager
 
             # fetch a window that covers start + forward bars
             end_date = analysis_date + timedelta(days=max(eval_window_days * 2, 30))

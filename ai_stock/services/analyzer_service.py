@@ -14,12 +14,12 @@ A股自选股智能分析系统 - 分析服务层
 import uuid
 from typing import List, Optional
 
-from src.analyzer import AnalysisResult
-from src.core.market_review import run_market_review
-from src.core.pipeline import StockAnalysisPipeline
-from src.config import Config, get_config
-from src.enums import ReportType
-from src.notification import NotificationService
+from ai_stock.analyzer import AnalysisResult
+from ai_stock.core.market_review import run_market_review
+from ai_stock.core.pipeline import StockAnalysisPipeline
+from ai_stock.config import Config, get_config
+from ai_stock.enums import ReportType
+from ai_stock.report.notification import NotificationService
 
 
 def analyze_stock(

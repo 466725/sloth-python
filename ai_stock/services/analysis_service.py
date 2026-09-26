@@ -16,14 +16,14 @@ import uuid
 from typing import Optional, Dict, Any, Callable, List
 
 from ai_stock.repositories import AnalysisRepository
-from src.report_language import (
+from ai_stock.report.report_language import (
     get_sentiment_label,
     get_localized_stock_name,
     localize_operation_advice,
     localize_trend_prediction,
     normalize_report_language,
 )
-from src.market_phase_summary import extract_market_phase_summary
+from ai_stock.market_phase_summary import extract_market_phase_summary
 from ai_stock.schemas.decision_action import build_action_fields
 from ai_stock.services.run_diagnostics import (
     activate_run_diagnostic_context,
@@ -82,9 +82,9 @@ class AnalysisService:
         try:
             self.last_error = None
             # 导入分析相关模块
-            from src.config import get_config
-            from src.core.pipeline import StockAnalysisPipeline
-            from src.enums import ReportType
+            from ai_stock.config import get_config
+            from ai_stock.core.pipeline import StockAnalysisPipeline
+            from ai_stock.enums import ReportType
             
             # 生成 query_id
             if query_id is None:

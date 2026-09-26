@@ -18,8 +18,8 @@ from ai_stock.agent.events import (
     _read_quote_float,
     validate_event_alert_rule,
 )
-from ai_stock.repositories import AlertRepository
-from src.services.alert_indicators import (
+from ai_stock.repositories.alert_repo import AlertRepository
+from ai_stock.services.alert_indicators import (
     TECHNICAL_ALERT_TYPES,
     TechnicalIndicatorAlert,
     compute_requested_days,
@@ -27,7 +27,7 @@ from src.services.alert_indicators import (
     normalize_indicator_parameters,
     threshold_for_indicator,
 )
-from src.services.portfolio_alerts import (
+from ai_stock.services.portfolio_alerts import (
     DRY_RUN_TARGET_TIMEOUT_SECONDS,
     DRY_RUN_TOTAL_TIMEOUT_SECONDS,
     PORTFOLIO_ALERT_TYPES,
@@ -47,7 +47,7 @@ from src.services.portfolio_alerts import (
     portfolio_effective_target,
     result_to_target_result,
 )
-from src.services.market_light_alerts import (
+from ai_stock.services.market_light_alerts import (
     MARKET_ALERT_TYPES,
     MARKET_LIGHT_DATA_SOURCE,
     MarketLightAlert,
@@ -55,21 +55,21 @@ from src.services.market_light_alerts import (
     make_market_light_payload,
     normalize_market_alert_parameters,
 )
-from src.services.market_light_service import normalize_market_region
-from src.services.decision_signal_summary import summarize_decision_signal
-from src.analysis_context_pack_overview import (
+from ai_stock.services.market_light_service import normalize_market_region
+from ai_stock.services.decision_signal_summary import summarize_decision_signal
+from ai_stock.analysis_context_pack_overview import (
     ANALYSIS_CONTEXT_PACK_OVERVIEW_KEY,
     extract_analysis_context_pack_overview,
 )
-from src.market_phase_summary import MARKET_PHASE_SUMMARY_KEY, extract_market_phase_summary
-from src.storage import (
+from ai_stock.market_phase_summary import MARKET_PHASE_SUMMARY_KEY, extract_market_phase_summary
+from ai_stock.storage import (
     AlertCooldownRecord,
     AlertNotificationRecord,
     AlertRuleRecord,
     AlertTriggerRecord,
     DatabaseManager,
 )
-from src.utils.sanitize import sanitize_diagnostic_text
+from ai_stock.utils.sanitize import sanitize_diagnostic_text
 
 
 LEGACY_RUNTIME_ALERT_TYPES = frozenset({"price_cross", "price_change_percent", "volume_spike"})
@@ -436,7 +436,7 @@ class AlertService:
 
     async def _evaluate_volume(self, rule: VolumeAlert) -> Dict[str, Any]:
         def _fetch_daily_data():
-            from data_provider import DataFetcherManager
+            from ai_stock.stock_data.base import DataFetcherManager
 
             return DataFetcherManager().get_daily_data(rule.stock_code, days=20)
 
@@ -531,7 +531,7 @@ class AlertService:
         cache_key = (rule.stock_code, requested_days)
 
         def _fetch_daily_data():
-            from data_provider import DataFetcherManager
+            from ai_stock.stock_data.base import DataFetcherManager
 
             return DataFetcherManager().get_daily_data(rule.stock_code, days=requested_days)
 
@@ -1024,7 +1024,7 @@ class AlertService:
 
         if data["target_scope"] in SYMBOL_BATCH_TARGET_SCOPES:
             if config is None:
-                from src.config import get_config
+                from ai_stock.config import get_config
 
                 config = get_config()
             try:
