@@ -7,11 +7,11 @@ from collections.abc import Mapping
 from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from ai_stock.analysis_context_pack_prompt import CORE_DEGRADED_STATUSES
-from src.market_phase_summary import render_market_phase_summary
-from src.report_language import normalize_report_language
+from ai_stock.market_phase_summary import render_market_phase_summary
+from ai_stock.report.report_language import normalize_report_language
 
 if TYPE_CHECKING:
-    from src.analyzer import AnalysisResult
+    from ai_stock.analyzer import AnalysisResult
 
 
 INTRADAY_PHASES = {"intraday", "lunch_break", "closing_auction"}
