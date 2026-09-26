@@ -14,7 +14,7 @@ from ai_stock.analysis_context_pack_prompt import (
     get_analysis_context_pack_block_labels,
     iter_analysis_context_pack_block_keys,
 )
-from src.market_phase_summary import MARKET_PHASE_SUMMARY_KEY
+from ai_stock.market_phase_summary import MARKET_PHASE_SUMMARY_KEY
 from ai_stock.schemas.analysis_context_pack import ContextFieldStatus
 
 
