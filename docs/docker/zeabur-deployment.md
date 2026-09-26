@@ -26,7 +26,7 @@
 
 确保你的仓库包含以下文件：
 
-- `.github/workflows/docker-publish.yml`（已自动创建）
+- `../../.github/workflows/disabled/docker-publish.yml`（已自动创建）
 - `docker/Dockerfile`（已存在）
 - 完整的项目代码
 
@@ -42,7 +42,7 @@
 
 ### 2.2 配置构建规则
 
-Zeabur 会自动检测 `.github/workflows/docker-publish.yml` 文件，并使用 GitHub Actions 构建镜像。
+Zeabur 会自动检测 `../../.github/workflows/disabled/docker-publish.yml` 文件，并使用 GitHub Actions 构建镜像。
 
 如果没有自动检测到，可以手动配置：
 

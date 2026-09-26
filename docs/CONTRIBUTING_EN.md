@@ -84,7 +84,7 @@ After opening a PR, CI will automatically run the following PR checks:
 | `docker-build` | Docker image build and key module import smoke test | ✅ |
 | `web-gate` | `npm run lint` + `npm run build` (triggered when `apps/dsa-web/` changes) | ✅ (when triggered) |
 
-Separately, the repository also has a non-blocking `network-smoke` workflow in `.github/workflows/network-smoke.yml`, but it is only triggered by `schedule` and `workflow_dispatch`, not by pull requests.
+Separately, the repository also has a non-blocking `network-smoke` workflow in `../.github/workflows/disabled/network-smoke.yml`, but it is only triggered by `schedule` and `workflow_dispatch`, not by pull requests.
 
 **Running checks locally:**
 

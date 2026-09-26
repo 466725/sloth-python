@@ -579,7 +579,7 @@ python main.py --workers 5            # Specify concurrency
 
 ### GitHub Actions Schedule
 
-Edit `.github/workflows/00-daily-analysis.yml`:
+Edit `../.github/workflows/disabled/00-daily-analysis.yml`:
 
 ```yaml
 schedule:

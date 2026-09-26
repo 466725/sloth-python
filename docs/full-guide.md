@@ -648,7 +648,7 @@ python main.py --workers 5            # 指定并发数
 
 ### GitHub Actions 定时
 
-编辑 `.github/workflows/00-daily-analysis.yml`:
+编辑 `../.github/workflows/disabled/00-daily-analysis.yml`:
 
 ```yaml
 schedule:

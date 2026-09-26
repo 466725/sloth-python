@@ -411,7 +411,7 @@ P8 不新增规则类型、API、表结构或 worker 行为；它把 P0-P7 已�
 
 ### GitHub Actions
 
-仓库自带 `.github/workflows/00-daily-analysis.yml` 是一次性分析 workflow，实际调用 `python main.py`、`python main.py --market-review` 或 `python main.py --no-market-review`，不运行 `--schedule` 后台 alert worker，也没有映射 `AGENT_EVENT_*` 变量。仅在 repository Secrets / Variables 中新增 `AGENT_EVENT_MONITOR_ENABLED` 或 `AGENT_EVENT_ALERT_RULES_JSON` 不会让默认 Actions 开始持续轮询告警。
+仓库自带 `../.github/workflows/disabled/00-daily-analysis.yml` 是一次性分析 workflow，实际调用 `python main.py`、`python main.py --market-review` 或 `python main.py --no-market-review`，不运行 `--schedule` 后台 alert worker，也没有映射 `AGENT_EVENT_*` 变量。仅在 repository Secrets / Variables 中新增 `AGENT_EVENT_MONITOR_ENABLED` 或 `AGENT_EVENT_ALERT_RULES_JSON` 不会让默认 Actions 开始持续轮询告警。
 
 如需 GitHub Actions 里的告警轮询，需要后续单独 PR 明确 schedule 启动方式、env 映射、规则来源和持久化数据库策略；P8 不改变现有 workflow。
 

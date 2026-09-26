@@ -63,7 +63,7 @@ powershell -ExecutionPolicy Bypass -File scripts\build-all.ps1
 
 仓库已支持通过 GitHub Actions 自动构建桌面端并上传到 GitHub Releases：
 
-- 工作流：`.github/workflows/desktop-release.yml`
+- 工作流：`../.github/workflows/disabled/desktop-release.yml`
 - 触发方式：
   - 推送语义化 tag（如 `v3.2.12`）后自动触发
   - 在 Actions 页面手动触发并指定 `release_tag`
