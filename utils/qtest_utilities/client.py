@@ -26,6 +26,7 @@ class QTestClient:
             url,
             json={"name": name, "test_case": {"id": test_case_id}},
             headers=self.headers,
+            timeout=500,
         )
         response.raise_for_status()
         return response.json().get("id")
@@ -41,5 +42,6 @@ class QTestClient:
             url,
             json={"status": status, "note": note},
             headers=self.headers,
+            timeout=500,
         )
         response.raise_for_status()
