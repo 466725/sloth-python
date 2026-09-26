@@ -22,14 +22,14 @@ import litellm
 from json_repair import repair_json
 from litellm import Router
 
-from src.agent.llm_adapter import (
+from agent.llm_adapter import (
     get_thinking_extra_body,
     resolve_fallback_litellm_wire_models,
     register_fallback_model_pricing,
 )
 from ai_stock.agent.provider_trace import resolved_model_provider_identity
-from src.agent.skills.defaults import CORE_TRADING_SKILL_POLICY_ZH
-from src.config import (
+from agent.skills.defaults import CORE_TRADING_SKILL_POLICY_ZH
+from ai_stock.config import (
     Config,
     extra_litellm_params,
     get_api_keys_for_model,
@@ -38,16 +38,16 @@ from src.config import (
     resolve_news_window_days,
 )
 from ai_stock.llm.generation_params import apply_litellm_generation_params
-from src.llm.errors import call_litellm_with_param_recovery
-from src.llm.usage import (
+from llm.errors import call_litellm_with_param_recovery
+from llm.usage import (
     attach_legacy_message_stability_audit,
     attach_message_hmacs,
     extract_usage_payload,
     normalize_litellm_usage,
 )
-from src.storage import persist_llm_usage
-from src.data.stock_mapping import STOCK_NAME_MAP
-from src.report_language import (
+from storage import persist_llm_usage
+from ai_stock.stock_data.stock_mapping import STOCK_NAME_MAP
+from ai_stock.report.report_language import (
     get_signal_level,
     get_no_data_text,
     get_placeholder_text,
@@ -60,10 +60,10 @@ from src.report_language import (
     normalize_report_language,
 )
 from ai_stock.schemas.decision_action import build_action_fields
-from src.schemas.report_schema import AnalysisReportSchema
-from src.market_context import detect_market, get_market_role, get_market_guidelines
-from src.services.daily_market_context import format_daily_market_context_prompt_section
-from src.market_phase_prompt import format_market_phase_prompt_section
+from schemas.report_schema import AnalysisReportSchema
+from market_context import detect_market, get_market_role, get_market_guidelines
+from services.daily_market_context import format_daily_market_context_prompt_section
+from market_phase_prompt import format_market_phase_prompt_section
 
 logger = logging.getLogger(__name__)
 
@@ -1520,7 +1520,7 @@ def get_stock_name_multi_source(
     # 3. 从数据源获取
     if data_manager is None:
         try:
-            from data_provider.base import DataFetcherManager
+            from ai_stock.stock_data.base import DataFetcherManager
             data_manager = DataFetcherManager()
         except Exception as e:
             logger.debug(f"无法初始化 DataFetcherManager: {e}")
@@ -2140,7 +2140,7 @@ class GeminiAnalyzer:
 
         resolved_state = getattr(self, "_resolved_prompt_state", None)
         if resolved_state is None:
-            from src.agent.factory import resolve_skill_prompt_state
+            from ai_stock.agent.factory import resolve_skill_prompt_state
 
             prompt_state = resolve_skill_prompt_state(
                 self._get_runtime_config(),

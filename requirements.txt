@@ -77,3 +77,4 @@ Appium-Python-Client>=6.0.0
 
 
 json-repair>=0.55.1         # JSON repair
+sqlalchemy>=2.0.0           # ORM database access

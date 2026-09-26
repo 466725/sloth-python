@@ -56,7 +56,7 @@ from sqlalchemy.orm import (
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from ai_stock.agent.provider_trace import PROVIDER_TRACE_RETENTION_LIMIT
-from src.config import get_config
+from ai_stock.config import get_config
 from ai_stock.utils.sniper_points import extract_sniper_points, parse_sniper_value
 
 logger = logging.getLogger(__name__)
@@ -68,7 +68,7 @@ INTELLIGENCE_ITEM_NULL_SCOPE_VALUE = "__dsa_null_scope__"
 Base = declarative_base()
 
 if TYPE_CHECKING:
-    from src.search_service import SearchResponse
+    from ai_stock.search_service import SearchResponse
 
 
 def utc_naive_now() -> datetime:
