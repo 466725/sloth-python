@@ -62,7 +62,7 @@ import logging
 import sys
 import time
 import uuid
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime, timezone
 
 from ai_stock.webui_frontend import prepare_webui_frontend_assets
 from ai_stock.config import get_config, Config
