@@ -54,38 +54,38 @@ from api.v1.schemas.history import (
     ReportDetails,
 )
 from api.v1.schemas.run_flow import RunFlowSnapshot
-from data_provider.base import canonical_stock_code, normalize_stock_code
-from src.data.stock_index_loader import resolve_index_stock_code
-from src.config import Config
-from src.core.market_review_lock import (
+from ai_stock.stock_data.base import canonical_stock_code, normalize_stock_code
+from ai_stock.stock_data.stock_index_loader import resolve_index_stock_code
+from ai_stock.config import Config
+from ai_stock.core.market_review_lock import (
     MarketReviewExecutionLock as _MarketReviewExecutionLock,
     market_review_lock_path,
     release_market_review_lock as _release_market_review_lock,
     try_acquire_market_review_lock as _try_acquire_market_review_lock,
 )
-from src.core.market_review_runtime import (
+from ai_stock.core.market_review_runtime import (
     build_market_review_runtime as _runtime_build_market_review_runtime,
 )
-from src.analysis_context_pack_overview import (
+from ai_stock.analysis_context_pack_overview import (
     extract_analysis_context_pack_overview,
     sanitize_context_snapshot_for_api,
 )
-from src.market_phase_summary import (
+from ai_stock.market_phase_summary import (
     extract_market_phase_summary,
     rebuild_market_phase_summary_for_stock_code,
 )
-from src.services.stock_code_utils import is_code_like, resolve_index_stock_code_for_analysis
-from src.report_language import get_localized_stock_name, normalize_report_language
-from src.schemas.decision_action import build_action_fields
-from src.services.name_to_code_resolver import resolve_name_to_code
-from src.services.task_queue import (
+from ai_stock.services.stock_code_utils import is_code_like, resolve_index_stock_code_for_analysis
+from ai_stock.report.report_language import get_localized_stock_name, normalize_report_language
+from ai_stock.schemas.decision_action import build_action_fields
+from ai_stock.services.name_to_code_resolver import resolve_name_to_code
+from ai_stock.services.task_queue import (
     get_task_queue,
     DuplicateTaskError,
     TaskStatus as TaskStatusEnum,
 )
-from src.services.run_diagnostics import build_run_diagnostic_summary
-from src.services.run_flow import build_task_run_flow_snapshot
-from src.utils.data_processing import (
+from ai_stock.services.run_diagnostics import build_run_diagnostic_summary
+from ai_stock.services.run_flow import build_task_run_flow_snapshot
+from ai_stock.utils.data_processing import (
     normalize_model_used,
     parse_json_field,
     extract_fundamental_detail_fields,
@@ -137,7 +137,7 @@ def _run_market_review_background(
     query_id: Optional[str] = None,
 ) -> None:
     """Run market review after the API response has been accepted."""
-    from src.core.market_review import run_market_review
+    from ai_stock.core.market_review import run_market_review
 
     runtime_config = config or get_config_dep()
     try:
@@ -420,7 +420,7 @@ def _handle_sync_analysis(
     直接执行分析，等待完成后返回结果
     """
     import uuid
-    from src.services.analysis_service import AnalysisService
+    from ai_stock.services.analysis_service import AnalysisService
     
     query_id = uuid.uuid4().hex
     
@@ -707,8 +707,8 @@ def _load_history_run_flow_by_query_id(
     fail_open: bool = False,
 ) -> Optional[RunFlowSnapshot]:
     try:
-        from src.storage import DatabaseManager
-        from src.services.history_service import HistoryService
+        from ai_stock.storage import DatabaseManager
+        from ai_stock.services.history_service import HistoryService
 
         service = HistoryService(DatabaseManager.get_instance())
         return service.resolve_and_get_run_flow(
@@ -1018,7 +1018,7 @@ def get_analysis_status(task_id: str) -> TaskStatus:
     
     # 2. 从数据库查询已完成的记录
     try:
-        from src.storage import DatabaseManager
+        from ai_stock.storage import DatabaseManager
         db = DatabaseManager.get_instance()
         records = db.get_analysis_history(query_id=task_id, limit=1)
 
@@ -1183,7 +1183,7 @@ def _load_sync_fundamental_sources(
     Load context_snapshot and fallback fundamental snapshot for sync analyze response.
     """
     try:
-        from src.storage import DatabaseManager
+        from ai_stock.storage import DatabaseManager
 
         db = DatabaseManager.get_instance()
         records = db.get_analysis_history(query_id=query_id, code=stock_code, limit=1)

@@ -21,8 +21,8 @@ from api.v1.schemas.intelligence import (
     IntelligenceSourceTemplateListResponse,
     IntelligenceSourceTestResponse,
 )
-from src.services.intelligence_service import IntelligenceService, IntelligenceServiceError
-from src.services.run_diagnostics import sanitize_diagnostic_text
+from ai_stock.services.intelligence_service import IntelligenceService, IntelligenceServiceError
+from ai_stock.services.run_diagnostics import sanitize_diagnostic_text
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

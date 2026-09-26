@@ -13,8 +13,8 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
-from src.config import get_config
-from src.services.agent_model_service import list_agent_model_deployments
+from ai_stock.config import get_config
+from ai_stock.services.agent_model_service import list_agent_model_deployments
 
 # Tool name -> Chinese display name mapping
 TOOL_DISPLAY_NAMES: Dict[str, str] = {
@@ -102,8 +102,8 @@ async def get_agent_models():
 
 
 def _build_skills_response(config) -> SkillsResponse:
-    from src.agent.factory import get_skill_manager
-    from src.agent.skills.defaults import get_primary_default_skill_id
+    from ai_stock.agent.factory import get_skill_manager
+    from ai_stock.agent.skills.defaults import get_primary_default_skill_id
 
     skill_manager = get_skill_manager(config)
     available_skills = sorted(
@@ -216,7 +216,7 @@ async def list_chat_sessions(limit: int = 50, user_id: Optional[str] = None):
             include the platform prefix, e.g. ``telegram_12345``,
             ``feishu_ou_abc``.
     """
-    from src.storage import get_db
+    from ai_stock.storage import get_db
     sessions = get_db().get_chat_sessions(
         limit=limit,
         session_prefix=user_id,
@@ -228,7 +228,7 @@ async def list_chat_sessions(limit: int = 50, user_id: Optional[str] = None):
 @router.get("/chat/sessions/{session_id}", response_model=SessionMessagesResponse)
 async def get_chat_session_messages(session_id: str, limit: int = 100):
     """获取单个会话的完整消息"""
-    from src.storage import get_db
+    from ai_stock.storage import get_db
     messages = get_db().get_conversation_messages(session_id, limit=limit)
     return SessionMessagesResponse(session_id=session_id, messages=messages)
 
@@ -236,7 +236,7 @@ async def get_chat_session_messages(session_id: str, limit: int = 100):
 @router.delete("/chat/sessions/{session_id}")
 async def delete_chat_session(session_id: str):
     """删除指定会话"""
-    from src.storage import get_db
+    from ai_stock.storage import get_db
     count = get_db().delete_conversation_session(session_id)
     return {"deleted": count}
 
@@ -254,7 +254,7 @@ async def send_chat_to_notification(request: SendChatRequest):
     Send chat session content to configured notification channels.
     Uses run_in_executor to avoid blocking the event loop.
     """
-    from src.notification import NotificationService
+    from ai_stock.report.notification import NotificationService
 
     loop = asyncio.get_running_loop()
     success = await loop.run_in_executor(
@@ -272,7 +272,7 @@ async def send_chat_to_notification(request: SendChatRequest):
 
 def _build_executor(config, skills: Optional[List[str]] = None):
     """Build and return a configured AgentExecutor (sync helper)."""
-    from src.agent.factory import build_agent_executor
+    from ai_stock.agent.factory import build_agent_executor
     return build_agent_executor(config, skills=skills)
 
 
@@ -325,9 +325,9 @@ async def agent_research(request: ResearchRequest):
         context = {"stock_code": request.stock_code}
 
     try:
-        from src.agent.research import ResearchAgent
-        from src.agent.factory import get_tool_registry
-        from src.agent.llm_adapter import LLMToolAdapter
+        from ai_stock.agent.research import ResearchAgent
+        from ai_stock.agent.factory import get_tool_registry
+        from ai_stock.agent.llm_adapter import LLMToolAdapter
 
         registry = get_tool_registry()
         llm_adapter = LLMToolAdapter(config)

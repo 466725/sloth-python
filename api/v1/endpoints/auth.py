@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 
 from api.deps import get_system_config_service
-from src.auth import (
+from ai_stock.auth import (
     COOKIE_NAME,
     SESSION_MAX_AGE_HOURS_DEFAULT,
     change_password,
@@ -31,8 +31,8 @@ from src.auth import (
     verify_stored_password,
     verify_session,
 )
-from src.config import Config, setup_env
-from src.core.config_manager import ConfigManager
+from ai_stock.config import Config, setup_env
+from ai_stock.core.config_manager import ConfigManager
 
 logger = logging.getLogger(__name__)
 

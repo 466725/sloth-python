@@ -34,27 +34,27 @@ from api.v1.schemas.history import (
 )
 from api.v1.schemas.common import ErrorResponse
 from api.v1.schemas.run_flow import RunFlowSnapshot
-from src.storage import DatabaseManager
-from src.report_language import (
+from ai_stock.storage import DatabaseManager
+from ai_stock.report.report_language import (
     get_sentiment_label,
     get_localized_stock_name,
     localize_operation_advice,
     localize_trend_prediction,
     normalize_report_language,
 )
-from src.services.history_service import HistoryService, MarkdownReportGenerationError
-from src.schemas.decision_action import build_action_fields
-from src.utils.data_processing import (
+from ai_stock.services.history_service import HistoryService, MarkdownReportGenerationError
+from ai_stock.schemas.decision_action import build_action_fields
+from ai_stock.utils.data_processing import (
     normalize_model_used,
     extract_fundamental_detail_fields,
     extract_board_detail_fields,
     extract_realtime_detail_fields,
 )
-from src.analysis_context_pack_overview import (
+from ai_stock.analysis_context_pack_overview import (
     extract_analysis_context_pack_overview,
     sanitize_context_snapshot_for_api,
 )
-from src.market_phase_summary import extract_market_phase_summary
+from ai_stock.market_phase_summary import extract_market_phase_summary
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,7 @@ def _normalize_code_for_grouping(code: str) -> str:
     Delegates to data_provider.base.normalize_stock_code which handles
     SH600519, 600519.SH, HK00700, 00700.HK, BJ920748, etc.
     """
-    from data_provider.base import normalize_stock_code
+    from ai_stock.stock_data.base import normalize_stock_code
     return normalize_stock_code(code or "")
 
 
@@ -257,7 +257,7 @@ def get_stock_bar(
 ) -> StockBarResponse:
     try:
         from datetime import date as date_type
-        from src.utils.data_processing import parse_json_field
+        from ai_stock.utils.data_processing import parse_json_field
 
         service = HistoryService(db_manager)
         start = date_type.fromisoformat(start_date) if start_date else None

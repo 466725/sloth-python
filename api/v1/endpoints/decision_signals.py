@@ -23,13 +23,13 @@ from api.v1.schemas.decision_signals import (
     DecisionSignalOutcomeStatsResponse,
     DecisionSignalStatusUpdateRequest,
 )
-from src.auth import COOKIE_NAME
-from src.services.decision_signal_service import (
+from ai_stock.auth import COOKIE_NAME
+from ai_stock.services.decision_signal_service import (
     DecisionSignalNotFoundError,
     DecisionSignalService,
     DecisionSignalStorageError,
 )
-from src.services.decision_signal_outcome_service import DecisionSignalOutcomeService
+from ai_stock.services.decision_signal_outcome_service import DecisionSignalOutcomeService
 
 
 logger = logging.getLogger(__name__)

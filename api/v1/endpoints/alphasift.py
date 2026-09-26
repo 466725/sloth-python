@@ -11,10 +11,10 @@ from pydantic import BaseModel, Field
 
 from api.deps import get_config_dep
 from api.v1.errors import api_error
-from src.config import Config
-from src.services.alphasift_service import AlphaSiftService
-from src.services.task_queue import TaskStatus as QueueTaskStatus
-from src.services.task_queue import get_task_queue
+from ai_stock.config import Config
+from ai_stock.services.alphasift_service import AlphaSiftService
+from ai_stock.services.task_queue import TaskStatus as QueueTaskStatus
+from ai_stock.services.task_queue import get_task_queue
 
 router = APIRouter()
 

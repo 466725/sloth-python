@@ -12,7 +12,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from src.auth import COOKIE_NAME, is_auth_enabled, verify_session
+from ai_stock.auth import COOKIE_NAME, is_auth_enabled, verify_session
 
 logger = logging.getLogger(__name__)
 

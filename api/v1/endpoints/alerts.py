@@ -19,7 +19,7 @@ from api.v1.schemas.alerts import (
     AlertTriggerListResponse,
 )
 from api.v1.schemas.common import ErrorResponse
-from src.services.alert_service import (
+from ai_stock.services.alert_service import (
     AlertNotFoundError,
     AlertService,
     AlertServiceError,

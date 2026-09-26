@@ -18,8 +18,8 @@ from api.v1.schemas.backtest import (
     PerformanceMetrics,
 )
 from api.v1.schemas.common import ErrorResponse
-from src.services.backtest_service import BacktestService
-from src.storage import DatabaseManager
+from ai_stock.services.backtest_service import BacktestService
+from ai_stock.storage import DatabaseManager
 
 logger = logging.getLogger(__name__)
 
