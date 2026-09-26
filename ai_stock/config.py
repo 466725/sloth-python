@@ -16,7 +16,7 @@ import os
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Tuple
-from urllib.parse import unquote, urlparse
+from urllib.parse import urlparse
 from dotenv import load_dotenv, dotenv_values
 from dataclasses import dataclass, field
 
@@ -30,10 +30,6 @@ from src.notification_noise import (
     is_supported_notification_severity,
     parse_notification_quiet_hours,
     validate_notification_timezone,
-)
-from src.notification_contracts import (
-    is_feishu_app_bot_configured,
-    is_feishu_static_configured,
 )
 from ai_stock.llm import generation_params as llm_generation_params
 
@@ -70,31 +66,6 @@ _FALSEY_ENV_VALUES = {"0", "false", "no", "off"}
 # These are compatibility examples; actual availability should be validated by Anspire console/model entitlement.
 ANSPIRE_LLM_BASE_URL_DEFAULT = "https://open-gateway.anspire.cn/v6"
 ANSPIRE_LLM_MODEL_DEFAULT = "Doubao-Seed-2.0-lite"
-
-
-def _has_ntfy_topic_endpoint(value: Optional[str]) -> bool:
-    """Return whether an ntfy URL points at a concrete topic endpoint."""
-    raw_url = (value or "").strip()
-    if not raw_url:
-        return False
-    parsed = urlparse(raw_url)
-    if parsed.scheme.lower() not in {"http", "https"} or not parsed.netloc:
-        return False
-    return any(unquote(segment).strip() for segment in parsed.path.split("/") if segment)
-
-
-def _has_gotify_base_url(value: Optional[str]) -> bool:
-    """Return whether a Gotify URL points at a server base URL, not /message."""
-    raw_url = (value or "").strip().rstrip("/")
-    if not raw_url:
-        return False
-    parsed = urlparse(raw_url)
-    if parsed.scheme.lower() not in {"http", "https"} or not parsed.netloc:
-        return False
-    if parsed.query or parsed.fragment:
-        return False
-    path_segments = [segment for segment in parsed.path.split("/") if segment]
-    return not (path_segments and path_segments[-1].lower() == "message")
 
 
 AGENT_MAX_STEPS_DEFAULT = 10
@@ -861,7 +832,7 @@ class Config:
     wechat_msg_type: str = "markdown"  # 企业微信消息类型，默认 markdown 类型
 
     # Markdown 转图片（Issue #289）：对不支持 Markdown 的渠道以图片发送
-    markdown_to_image_channels: List[str] = field(default_factory=list)  # 逗号分隔：telegram,wechat,custom,email
+    markdown_to_image_channels: List[str] = field(default_factory=list)  # Email inline-image reports only
     markdown_to_image_max_chars: int = 15000  # 超过此长度不转换，避免超大图片
     md2img_engine: str = "wkhtmltoimage"  # wkhtmltoimage | markdown-to-file (Issue #455, better emoji support)
 
@@ -1671,7 +1642,7 @@ class Config:
             markdown_to_image_channels=[
                 c.strip().lower()
                 for c in os.getenv('MARKDOWN_TO_IMAGE_CHANNELS', '').split(',')
-                if c.strip()
+                if c.strip().lower() == 'email'
             ],
             markdown_to_image_max_chars=parse_env_int(
                 os.getenv('MARKDOWN_TO_IMAGE_MAX_CHARS'),
@@ -2644,47 +2615,13 @@ class Config:
             ))
 
         # --- Notification channels ---
-        has_notification = bool(
-            self.wechat_webhook_url
-            or self.feishu_webhook_url
-            or (
-                (self.feishu_app_id or "")
-                and (self.feishu_app_secret or "")
-                and (self.feishu_chat_id or "")
-            )
-            or (self.telegram_bot_token and self.telegram_chat_id)
-            or (self.email_sender and self.email_password)
-            or (self.pushover_user_key and self.pushover_api_token)
-            or _has_ntfy_topic_endpoint(self.ntfy_url)
-            or (
-                self.gotify_url
-                and (self.gotify_token or "").strip()
-                and _has_gotify_base_url(self.gotify_url)
-            )
-            or self.pushplus_token
-            or self.serverchan3_sendkey
-            or self.custom_webhook_urls
-            or self.astrbot_url
-            or (self.discord_bot_token and self.discord_main_channel_id)
-            or self.discord_webhook_url
-            or self.slack_webhook_url
-            or (self.slack_bot_token and self.slack_channel_id)
-        )
+        has_notification = bool(self.email_sender and self.email_password)
 
         if not has_notification:
             issues.append(ConfigIssue(
                 severity="warning",
-                message="未配置通知渠道，将不发送推送通知",
-                field="WECHAT_WEBHOOK_URL",
-            ))
-
-        has_telegram_token = bool((self.telegram_bot_token or "").strip())
-        has_telegram_chat_id = bool((self.telegram_chat_id or "").strip())
-        if has_telegram_token != has_telegram_chat_id:
-            issues.append(ConfigIssue(
-                severity="error",
-                message="Telegram 通知配置不完整：TELEGRAM_BOT_TOKEN 和 TELEGRAM_CHAT_ID 必须同时配置。",
-                field="TELEGRAM_CHAT_ID" if has_telegram_token else "TELEGRAM_BOT_TOKEN",
+                message="未配置邮件通知，将不发送邮件",
+                field="EMAIL_SENDER",
             ))
 
         has_email_sender = bool((self.email_sender or "").strip())
@@ -2694,56 +2631,6 @@ class Config:
                 severity="error",
                 message="邮件通知配置不完整：EMAIL_SENDER 和 EMAIL_PASSWORD 必须同时配置。",
                 field="EMAIL_PASSWORD" if has_email_sender else "EMAIL_SENDER",
-            ))
-
-        def _warn_if_webhook_url_invalid(field: str, value: Optional[str]) -> None:
-            raw_url = (value or "").strip()
-            if not raw_url:
-                return
-            parsed = urlparse(raw_url)
-            if parsed.scheme.lower() in {"http", "https"} and parsed.netloc:
-                return
-            issues.append(ConfigIssue(
-                severity="warning",
-                message=f"{field} 看起来不是有效 URL，请确认是否以 http:// 或 https:// 开头。",
-                field=field,
-            ))
-
-        for field, value in (
-            ("WECHAT_WEBHOOK_URL", self.wechat_webhook_url),
-            ("FEISHU_WEBHOOK_URL", self.feishu_webhook_url),
-            ("DISCORD_WEBHOOK_URL", self.discord_webhook_url),
-            ("SLACK_WEBHOOK_URL", self.slack_webhook_url),
-            ("ASTRBOT_URL", self.astrbot_url),
-        ):
-            _warn_if_webhook_url_invalid(field, value)
-
-        for custom_url in self.custom_webhook_urls:
-            _warn_if_webhook_url_invalid("CUSTOM_WEBHOOK_URLS", custom_url)
-
-        if self.ntfy_url and not _has_ntfy_topic_endpoint(self.ntfy_url):
-            issues.append(ConfigIssue(
-                severity="error",
-                message="NTFY_URL 必须包含 topic path，例如 https://ntfy.sh/my-topic",
-                field="NTFY_URL",
-            ))
-
-        if self.gotify_url and not _has_gotify_base_url(self.gotify_url):
-            issues.append(ConfigIssue(
-                severity="error",
-                message="GOTIFY_URL 必须是 Gotify server base URL，不包含 /message，例如 https://gotify.example",
-                field="GOTIFY_URL",
-            ))
-
-        if (
-            self.gotify_url
-            and _has_gotify_base_url(self.gotify_url)
-            and not (self.gotify_token or "").strip()
-        ):
-            issues.append(ConfigIssue(
-                severity="warning",
-                message="已配置 GOTIFY_URL，但缺少 GOTIFY_TOKEN，Gotify 渠道不会启用",
-                field="GOTIFY_TOKEN",
             ))
 
         if self.notification_quiet_hours:
@@ -2784,39 +2671,6 @@ class Config:
                     "P4 不会发送每日摘要或持久化摘要内容。"
                 ),
                 field="NOTIFICATION_DAILY_DIGEST_ENABLED",
-            ))
-
-        has_feishu_app_id = bool((self.feishu_app_id or "").strip())
-        has_feishu_app_secret = bool((self.feishu_app_secret or "").strip())
-        has_feishu_app_credentials_complete = has_feishu_app_id and has_feishu_app_secret
-        has_feishu_app_credentials = has_feishu_app_id or has_feishu_app_secret
-        has_feishu_doc_token = bool((self.feishu_folder_token or "").strip())
-        has_feishu_full_cloud_doc_credentials = (
-            has_feishu_app_credentials_complete
-            and has_feishu_doc_token
-        )
-        has_feishu_stream_route = bool(self.feishu_stream_enabled and has_feishu_app_credentials_complete)
-        has_feishu_app_notification_route = is_feishu_app_bot_configured(self)
-        if (
-            has_feishu_app_credentials
-            and not has_feishu_full_cloud_doc_credentials
-            and not is_feishu_static_configured(self)
-            and not has_feishu_stream_route
-            and not has_feishu_app_notification_route
-        ):
-            suggestions = []
-            if has_feishu_app_credentials_complete:
-                suggestions.append("配置 FEISHU_CHAT_ID 开启 App Bot 主动推送")
-                suggestions.append("开启 FEISHU_STREAM_ENABLED 使用应用机器人事件订阅")
-            else:
-                suggestions.append("补齐 FEISHU_APP_ID / FEISHU_APP_SECRET 后配置 FEISHU_CHAT_ID 开启 App Bot 主动推送")
-            suggestions.append("配置 FEISHU_WEBHOOK_URL 使用自定义机器人 Webhook 推送")
-            issues.append(ConfigIssue(
-                severity="warning",
-                message="仅配置 FEISHU_APP_ID / FEISHU_APP_SECRET 不会开启飞书静态通知。"
-                        + " 请选择以下方式之一："
-                        + "；".join(suggestions) + "。",
-                field="FEISHU_CHAT_ID",
             ))
 
         # --- Deprecated field migration hints ---

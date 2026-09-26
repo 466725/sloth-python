@@ -42,7 +42,7 @@ _CATEGORY_DEFINITIONS: List[Dict[str, Any]] = [
     {
         "category": "notification",
         "title": "Notification",
-        "description": "Bot, webhook, and push channel related settings.",
+        "description": "Email delivery and report notification settings.",
         "display_order": 40,
     },
     {
@@ -81,6 +81,34 @@ WEB_SETTINGS_HIDDEN_FROM_UI = {
     "PROXY_HOST",
     "PROXY_PORT",
 }
+
+EMAIL_NOTIFICATION_SETTING_KEYS = frozenset(
+    {
+        "EMAIL_SENDER",
+        "EMAIL_PASSWORD",
+        "EMAIL_RECEIVERS",
+        "REPORT_SUMMARY_ONLY",
+        "REPORT_SHOW_LLM_MODEL",
+        "SINGLE_STOCK_NOTIFY",
+        "REPORT_TYPE",
+        "REPORT_LANGUAGE",
+        "REPORT_TEMPLATES_DIR",
+        "REPORT_RENDERER_ENABLED",
+        "REPORT_INTEGRITY_ENABLED",
+        "REPORT_INTEGRITY_RETRY",
+        "REPORT_HISTORY_COMPARE_N",
+        "MERGE_EMAIL_NOTIFICATION",
+        "NOTIFICATION_REPORT_CHANNELS",
+        "NOTIFICATION_ALERT_CHANNELS",
+        "NOTIFICATION_SYSTEM_ERROR_CHANNELS",
+        "NOTIFICATION_DEDUP_TTL_SECONDS",
+        "NOTIFICATION_COOLDOWN_SECONDS",
+        "NOTIFICATION_QUIET_HOURS",
+        "NOTIFICATION_TIMEZONE",
+        "NOTIFICATION_MIN_SEVERITY",
+        "NOTIFICATION_DAILY_DIGEST_ENABLED",
+    }
+)
 
 _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
     "STOCK_LIST": {
@@ -4499,6 +4527,11 @@ def build_schema_response() -> Dict[str, Any]:
 
     for key in sorted(_FIELD_DEFINITIONS.keys()):
         field = get_field_definition(key)
+        if (
+            field["category"] == "notification"
+            and key not in EMAIL_NOTIFICATION_SETTING_KEYS
+        ):
+            continue
         category_map[field["category"]]["fields"].append(field)
 
     categories = sorted(category_map.values(), key=lambda item: item["display_order"])

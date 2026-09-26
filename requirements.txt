@@ -45,6 +45,7 @@ akshare
 beautifulsoup4>=4.15.0,<5
 fake-useragent>=2.2.0
 lxml
+markdown2
 requests>=2.34.2,<3
 yfinance==1.7.0
 

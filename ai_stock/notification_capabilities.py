@@ -73,34 +73,6 @@ class RendererPreset:
 
 
 CHANNEL_PROFILES: Dict[str, ChannelProfile] = {
-    "wechat": ChannelProfile(
-        channel="wechat",
-        markdown="wechat_markdown",
-        default_mode="full_report",
-        max_text_bytes=4096,
-        supports_image=True,
-        supports_link=True,
-        notes="Enterprise WeChat receives the full report by default and relies on safe chunking.",
-    ),
-    "feishu": ChannelProfile(
-        channel="feishu",
-        markdown="lark_md",
-        default_mode="full_report",
-        max_text_bytes=20000,
-        supports_card=True,
-        supports_file=True,
-        supports_link=True,
-        notes="Feishu uses lark_md/card payloads and needs table fallbacks.",
-    ),
-    "telegram": ChannelProfile(
-        channel="telegram",
-        markdown="markdown_v2",
-        default_mode="full_report",
-        max_text_chars=4096,
-        supports_image=True,
-        supports_link=True,
-        notes="Telegram length limits are measured in UTF-16 code units.",
-    ),
     "email": ChannelProfile(
         channel="email",
         markdown="html",
@@ -109,68 +81,6 @@ CHANNEL_PROFILES: Dict[str, ChannelProfile] = {
         supports_file=True,
         supports_link=True,
         notes="Email remains the high-fidelity full-report carrier.",
-    ),
-    "pushover": ChannelProfile(
-        channel="pushover",
-        markdown="plain_text",
-        default_mode="plain_fallback",
-        max_text_chars=1024,
-        supports_link=True,
-    ),
-    "ntfy": ChannelProfile(
-        channel="ntfy",
-        markdown="plain_text",
-        default_mode="plain_fallback",
-        supports_link=True,
-    ),
-    "gotify": ChannelProfile(
-        channel="gotify",
-        markdown="markdown",
-        default_mode="full_report",
-        supports_link=True,
-    ),
-    "pushplus": ChannelProfile(
-        channel="pushplus",
-        markdown="markdown",
-        default_mode="full_report",
-        supports_link=True,
-    ),
-    "serverchan3": ChannelProfile(
-        channel="serverchan3",
-        markdown="markdown",
-        default_mode="full_report",
-        supports_link=True,
-    ),
-    "custom": ChannelProfile(
-        channel="custom",
-        markdown="channel_specific",
-        default_mode="full_report",
-        supports_image=True,
-        supports_link=True,
-        notes="Custom webhook payload shape can be configured by templates.",
-    ),
-    "discord": ChannelProfile(
-        channel="discord",
-        markdown="discord_markdown",
-        default_mode="full_report",
-        max_text_chars=2000,
-        supports_link=True,
-    ),
-    "slack": ChannelProfile(
-        channel="slack",
-        markdown="mrkdwn",
-        default_mode="full_report",
-        max_text_chars=39000,
-        supports_image=True,
-        supports_file=True,
-        supports_link=True,
-        notes="Slack sections should avoid splitting markdown blocks.",
-    ),
-    "astrbot": ChannelProfile(
-        channel="astrbot",
-        markdown="plain_text",
-        default_mode="plain_fallback",
-        supports_link=True,
     ),
     "unknown": ChannelProfile(
         channel="unknown",
@@ -182,45 +92,13 @@ CHANNEL_PROFILES: Dict[str, ChannelProfile] = {
 
 
 CHANNEL_RENDERER_PRESETS: Dict[str, RendererPreset] = {
-    "wechat": RendererPreset(
-        channel="wechat",
-        text_renderer="wecom_markdown",
-        markdown="wechat_markdown",
-        rich_renderer="wecom_card",
-        image_renderer="png_poster",
-        notes="Preset only; current runtime keeps the legacy WeCom dashboard text.",
-    ),
-    "feishu": RendererPreset(
-        channel="feishu",
-        text_renderer="feishu_lark_md",
-        markdown="lark_md",
-        rich_renderer="feishu_interactive_card",
-        image_renderer="png_poster",
-        notes="Preset only; native card rendering is not enabled by default.",
-    ),
-    "telegram": RendererPreset(
-        channel="telegram",
-        text_renderer="telegram_markdown_v2",
-        markdown="markdown_v2",
-        rich_renderer="telegram_html",
-        image_renderer="png_poster",
-        notes="Preset only; future renderer must handle Telegram escaping and UTF-16 length limits.",
-    ),
-    "dingtalk": RendererPreset(
-        channel="dingtalk",
-        text_renderer="dingtalk_markdown",
-        markdown="dingtalk_markdown",
-        rich_renderer="dingtalk_action_card",
-        image_renderer="png_poster",
-        notes="Preset only; DingTalk is not an active NotificationChannel in this runtime yet.",
-    ),
-    "slack": RendererPreset(
-        channel="slack",
-        text_renderer="slack_mrkdwn",
-        markdown="mrkdwn",
-        rich_renderer="slack_blocks",
-        image_renderer="png_poster",
-        notes="Preset only; current runtime keeps the legacy report text fallback.",
+    "email": RendererPreset(
+        channel="email",
+        text_renderer="email_html",
+        markdown="html",
+        rich_renderer="email_html",
+        image_renderer="inline_image",
+        enabled_by_default=True,
     ),
 }
 

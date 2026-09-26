@@ -7,12 +7,7 @@ A股自选股智能分析系统 - 通知层
 职责：
 1. 汇总分析结果生成日报
 2. 支持 Markdown 格式输出
-3. 多渠道推送（自动识别）：
-   - 企业微信 Webhook
-   - 飞书 Webhook
-   - Telegram Bot
-   - 邮件 SMTP
-   - Pushover（手机/桌面推送）
+3. 通过 SMTP 邮件发送报告和提醒
 """
 from __future__ import annotations
 
@@ -31,7 +26,6 @@ from src.notification_routing import (
     get_notification_route_config,
     split_notification_route_channels,
 )
-from src.notification_contracts import is_feishu_static_configured
 from src.notification_noise import (
     NotificationNoiseDecision,
     evaluate_notification_noise,
@@ -52,24 +46,7 @@ from src.report_language import (
 from bot.models import BotMessage
 from src.utils.sanitize import sanitize_diagnostic_text
 from ai_stock.utils.data_processing import normalize_model_used
-from src.notification_sender import (
-    AstrbotSender,
-    CustomWebhookSender,
-    DiscordSender,
-    EmailSender,
-    FeishuSender,
-    GotifySender,
-    NtfySender,
-    PushoverSender,
-    PushplusSender,
-    Serverchan3Sender,
-    SlackSender,
-    TelegramSender,
-    WechatSender,
-    WECHAT_IMAGE_MAX_BYTES,
-    resolve_gotify_message_endpoint,
-    resolve_ntfy_endpoint,
-)
+from src.notification_sender import EmailSender
 
 logger = logging.getLogger(__name__)
 
@@ -98,21 +75,22 @@ if TYPE_CHECKING:
 
 
 class NotificationChannel(Enum):
-    """通知渠道类型"""
-    WECHAT = "wechat"      # 企业微信
-    FEISHU = "feishu"      # 飞书
-    TELEGRAM = "telegram"  # Telegram
-    EMAIL = "email"        # 邮件
-    PUSHOVER = "pushover"  # Pushover（手机/桌面推送）
-    NTFY = "ntfy"          # ntfy
-    GOTIFY = "gotify"      # Gotify
-    PUSHPLUS = "pushplus"  # PushPlus（国内推送服务）
-    SERVERCHAN3 = "serverchan3"  # Server酱3（手机APP推送服务）
-    CUSTOM = "custom"      # 自定义 Webhook
-    DISCORD = "discord"    # Discord 机器人 (Bot)
-    SLACK = "slack"        # Slack
+    """Channel labels retained for old records; only EMAIL is supported."""
+
+    EMAIL = "email"
+    WECHAT = "wechat"
+    FEISHU = "feishu"
+    TELEGRAM = "telegram"
+    PUSHOVER = "pushover"
+    NTFY = "ntfy"
+    GOTIFY = "gotify"
+    PUSHPLUS = "pushplus"
+    SERVERCHAN3 = "serverchan3"
+    CUSTOM = "custom"
+    DISCORD = "discord"
+    SLACK = "slack"
     ASTRBOT = "astrbot"
-    UNKNOWN = "unknown"    # 未知
+    UNKNOWN = "unknown"
 
 
 @dataclass
@@ -147,69 +125,26 @@ class ChannelDetector:
     
     @staticmethod
     def get_channel_name(channel: NotificationChannel) -> str:
-        """获取渠道中文名称"""
-        names = {
-            NotificationChannel.WECHAT: "企业微信",
-            NotificationChannel.FEISHU: "飞书",
-            NotificationChannel.TELEGRAM: "Telegram",
-            NotificationChannel.EMAIL: "邮件",
-            NotificationChannel.PUSHOVER: "Pushover",
-            NotificationChannel.NTFY: "ntfy",
-            NotificationChannel.GOTIFY: "Gotify",
-            NotificationChannel.PUSHPLUS: "PushPlus",
-            NotificationChannel.SERVERCHAN3: "Server酱3",
-            NotificationChannel.CUSTOM: "自定义Webhook",
-            NotificationChannel.DISCORD: "Discord机器人",
-            NotificationChannel.SLACK: "Slack",
-            NotificationChannel.ASTRBOT: "ASTRBOT机器人",
-            NotificationChannel.UNKNOWN: "未知渠道",
-        }
-        return names.get(channel, "未知渠道")
+        """Return a user-facing name for the email channel."""
+
+        return "邮件" if channel == NotificationChannel.EMAIL else "未知渠道"
 
 
-class NotificationService(
-    AstrbotSender,
-    CustomWebhookSender,
-    DiscordSender,
-    EmailSender,
-    FeishuSender,
-    GotifySender,
-    NtfySender,
-    PushoverSender,
-    PushplusSender,
-    Serverchan3Sender,
-    SlackSender,
-    TelegramSender,
-    WechatSender
-):
+class NotificationService(EmailSender):
     """
     通知服务
     
-    职责：
-    1. 生成 Markdown 格式的分析日报
-    2. 向所有已配置的渠道推送消息（多渠道并发）
-    3. 支持本地保存日报
-    
-    支持的渠道：
-    - 企业微信 Webhook
-    - 飞书 Webhook
-    - Telegram Bot
-    - 邮件 SMTP
-    - Pushover（手机/桌面推送）
-    
-    注意：所有已配置的渠道都会收到推送
+    Generates Markdown reports and sends them through the configured email sender.
+    Reports can also be saved locally without sending.
     """
     
     def __init__(self, source_message: Optional[BotMessage] = None):
         """
-        初始化通知服务
-        
-        检测所有已配置的渠道，推送时会向所有渠道发送
+        Initialize the report and email notification service.
         """
         config = get_config()
         self._config = config
         self._source_message = source_message
-        self._context_channels: List[str] = []
 
         # Markdown 转图片（Issue #289）
         self._markdown_to_image_channels = set(
@@ -224,34 +159,14 @@ class NotificationService(
         self._report_show_llm_model = getattr(config, 'report_show_llm_model', True)
         self._history_compare_cache: Dict[Tuple[int, Tuple[Tuple[str, str], ...]], Dict[str, List[Dict[str, Any]]]] = {}
 
-        # 初始化各渠道
-        AstrbotSender.__init__(self, config)
-        CustomWebhookSender.__init__(self, config)
-        DiscordSender.__init__(self, config)
         EmailSender.__init__(self, config)
-        FeishuSender.__init__(self, config)
-        GotifySender.__init__(self, config)
-        NtfySender.__init__(self, config)
-        PushoverSender.__init__(self, config)
-        PushplusSender.__init__(self, config)
-        Serverchan3Sender.__init__(self, config)
-        SlackSender.__init__(self, config)
-        TelegramSender.__init__(self, config)
-        WechatSender.__init__(self, config)
 
-        # 检测所有已配置的渠道
+        # Email is the only supported notification transport.
         self._available_channels = self._detect_all_channels()
-        if self._extract_dingtalk_session_webhook() is not None:
-            self._context_channels.append("钉钉会话")
-        if self._extract_feishu_reply_info() is not None:
-            self._context_channels.append("飞书会话")
-
-        if not self._available_channels and not self._context_channels:
-            logger.warning("未配置有效的通知渠道，将不发送推送通知")
+        if not self._available_channels:
+            logger.warning("未配置邮件通知，将不发送推送通知")
         else:
-            channel_names = [ChannelDetector.get_channel_name(ch) for ch in self._available_channels]
-            channel_names.extend(self._context_channels)
-            logger.info(f"已配置 {len(channel_names)} 个通知渠道：{', '.join(channel_names)}")
+            logger.info("已配置邮件通知")
 
     def _normalize_report_type(self, report_type: Any) -> ReportType:
         """Normalize string/enum input into ReportType."""
@@ -380,106 +295,33 @@ class NotificationService(
     
     @staticmethod
     def detect_configured_channels(config: Config) -> List[NotificationChannel]:
-        """
-        Detect statically configured notification channels from Config.
-
-        This intentionally mirrors sender availability without instantiating
-        sender objects, so diagnostics and runtime use the same channel truth.
-        Runtime-only context channels are handled by instance methods.
-        """
-        channels = []
-
-        if getattr(config, "wechat_webhook_url", None):
-            channels.append(NotificationChannel.WECHAT)
-
-        if is_feishu_static_configured(config):
-            channels.append(NotificationChannel.FEISHU)
-
-        if (
-            getattr(config, "telegram_bot_token", None)
-            and getattr(config, "telegram_chat_id", None)
-        ):
-            channels.append(NotificationChannel.TELEGRAM)
-
+        """Return EMAIL only when SMTP credentials are configured."""
         if getattr(config, "email_sender", None) and getattr(config, "email_password", None):
-            channels.append(NotificationChannel.EMAIL)
-
-        if (
-            getattr(config, "pushover_user_key", None)
-            and getattr(config, "pushover_api_token", None)
-        ):
-            channels.append(NotificationChannel.PUSHOVER)
-
-        ntfy_server_url, ntfy_topic = resolve_ntfy_endpoint(getattr(config, "ntfy_url", None))
-        if ntfy_server_url and ntfy_topic:
-            channels.append(NotificationChannel.NTFY)
-
-        gotify_endpoint = resolve_gotify_message_endpoint(getattr(config, "gotify_url", None))
-        if gotify_endpoint and (getattr(config, "gotify_token", None) or "").strip():
-            channels.append(NotificationChannel.GOTIFY)
-
-        if getattr(config, "pushplus_token", None):
-            channels.append(NotificationChannel.PUSHPLUS)
-
-        if getattr(config, "serverchan3_sendkey", None):
-            channels.append(NotificationChannel.SERVERCHAN3)
-
-        if getattr(config, "custom_webhook_urls", None):
-            channels.append(NotificationChannel.CUSTOM)
-
-        if (
-            getattr(config, "discord_webhook_url", None)
-            or (
-                getattr(config, "discord_bot_token", None)
-                and getattr(config, "discord_main_channel_id", None)
-            )
-        ):
-            channels.append(NotificationChannel.DISCORD)
-
-        if (
-            getattr(config, "slack_webhook_url", None)
-            or (
-                getattr(config, "slack_bot_token", None)
-                and getattr(config, "slack_channel_id", None)
-            )
-        ):
-            channels.append(NotificationChannel.SLACK)
-
-        if getattr(config, "astrbot_url", None):
-            channels.append(NotificationChannel.ASTRBOT)
-
-        return channels
+            return [NotificationChannel.EMAIL]
+        return []
 
     def _detect_all_channels(self) -> List[NotificationChannel]:
-        """
-        检测所有已配置的渠道
-
-        Returns:
-            已配置的渠道列表
-        """
+        """Detect whether the email sender is configured."""
         return self.detect_configured_channels(self._config)
 
     def is_available(self) -> bool:
-        """检查通知服务是否可用（至少有一个渠道或上下文渠道）"""
-        return len(self._available_channels) > 0 or self._has_context_channel()
+        """Return whether SMTP notification is configured."""
+        return bool(self._available_channels)
     
     def get_available_channels(self) -> List[NotificationChannel]:
-        """获取所有已配置的渠道"""
-        return self._available_channels
+        """Return configured supported channels (email only)."""
+        return [channel for channel in self._available_channels if channel == NotificationChannel.EMAIL]
 
     def get_channels_for_route(
         self,
         route_type: Optional[str],
         channels: Optional[List[NotificationChannel]] = None,
     ) -> List[NotificationChannel]:
-        """Return channels allowed for a route type.
-
-        ``route_type=None`` keeps the legacy behavior and returns all supplied
-        static channels. Empty route config also keeps all supplied channels.
-        Non-empty route config that matches no enabled channel returns an empty
-        list.
-        """
-        target_channels = list(channels if channels is not None else self._available_channels)
+        """Return email if it is enabled for this route."""
+        configured_channels = channels if channels is not None else self._available_channels
+        target_channels = [
+            channel for channel in configured_channels if channel == NotificationChannel.EMAIL
+        ]
         if route_type is None:
             return target_channels
 
@@ -504,11 +346,8 @@ class NotificationService(
         return [channel for channel in target_channels if channel.value in allowed]
     
     def get_channel_names(self) -> str:
-        """获取所有已配置渠道的名称"""
-        names = [ChannelDetector.get_channel_name(ch) for ch in self._available_channels]
-        if self._has_context_channel():
-            names.append("钉钉会话")
-        return ', '.join(names)
+        """Return the configured email notification channel name."""
+        return ", ".join(ChannelDetector.get_channel_name(ch) for ch in self._available_channels)
 
     def evaluate_noise_control(
         self,
@@ -539,264 +378,25 @@ class NotificationService(
         """Release static-channel in-flight noise reservation after send failure."""
         release_notification_noise(decision)
 
-    # ===== Context channel =====
     def _has_context_channel(self) -> bool:
-        """判断是否存在基于消息上下文的临时渠道（如钉钉会话、飞书会话）"""
-        return (
-            self._extract_dingtalk_session_webhook() is not None
-            or self._extract_feishu_reply_info() is not None
-            or self._extract_telegram_context_chat_id() is not None
-        )
-
-    def _source_platform(self) -> str:
-        """Return normalized platform from the source bot message."""
-        platform = getattr(self._source_message, "platform", "")
-        if hasattr(platform, "value"):
-            platform = platform.value
-        return str(platform or "").lower()
-
-    def _extract_telegram_context_chat_id(self) -> Optional[str]:
-        """从来源消息中提取 Telegram 上下文 chat_id（用于异步回复）。"""
-        if not isinstance(self._source_message, BotMessage):
-            return None
-        if self._source_platform() != "telegram":
-            return None
-        raw_data = getattr(self._source_message, "raw_data", {}) or {}
-        for candidate in (
-            getattr(self._source_message, "chat_id", ""),
-            raw_data.get("chat_id"),
-            raw_data.get("message", {}).get("chat", {}).get("id") if isinstance(raw_data.get("message"), dict) else None,
-        ):
-            if isinstance(candidate, str) and candidate.strip():
-                return candidate.strip()
-            if candidate is not None and not isinstance(candidate, str):
-                candidate_text = str(candidate).strip()
-                if candidate_text:
-                    return candidate_text
-        return None
+        """Context-based report delivery is not supported."""
+        return False
 
     def should_broadcast_static_channels(self) -> bool:
-        """Whether static notification channels should receive this dispatch."""
-        return not self._has_context_channel()
-
-    def _extract_dingtalk_session_webhook(self) -> Optional[str]:
-        """从来源消息中提取钉钉会话 Webhook（用于 Stream 模式回复）"""
-        if not isinstance(self._source_message, BotMessage):
-            return None
-        raw_data = getattr(self._source_message, "raw_data", {}) or {}
-        if not isinstance(raw_data, dict):
-            return None
-        session_webhook = (
-            raw_data.get("_session_webhook")
-            or raw_data.get("sessionWebhook")
-            or raw_data.get("session_webhook")
-            or raw_data.get("session_webhook_url")
-        )
-        if not session_webhook and isinstance(raw_data.get("headers"), dict):
-            session_webhook = raw_data["headers"].get("sessionWebhook")
-        return session_webhook
-
-    def _extract_feishu_reply_info(self) -> Optional[Dict[str, str]]:
-        """
-        从来源消息中提取飞书回复信息（用于 Stream 模式回复）
-        
-        Returns:
-            包含 chat_id 的字典，或 None
-        """
-        if not isinstance(self._source_message, BotMessage):
-            return None
-        if getattr(self._source_message, "platform", "") != "feishu":
-            return None
-        chat_id = getattr(self._source_message, "chat_id", "")
-        if not chat_id:
-            return None
-        return {"chat_id": chat_id}
+        """Always use the configured email channel; no context transport exists."""
+        return True
 
     def send_to_context(self, content: str) -> bool:
-        """
-        向基于消息上下文的渠道发送消息（例如钉钉 Stream 会话）
-        
-        Args:
-            content: Markdown 格式内容
-        """
-        return self._send_via_source_context(content)
-    
-    def _send_via_source_context(self, content: str) -> bool:
-        """
-        使用消息上下文（如钉钉/飞书会话）发送一份报告
-        
-        主要用于从机器人 Stream 模式触发的任务，确保结果能回到触发的会话。
-        """
-        success = False
-        
-        # 尝试钉钉会话
-        session_webhook = self._extract_dingtalk_session_webhook()
-        if session_webhook:
-            try:
-                if self._send_dingtalk_chunked(session_webhook, content, max_bytes=20000):
-                    logger.info("已通过钉钉会话（Stream）推送报告")
-                    success = True
-                else:
-                    logger.error("钉钉会话（Stream）推送失败")
-            except Exception as e:
-                logger.error(f"钉钉会话（Stream）推送异常: {e}")
-
-        # 尝试飞书会话
-        feishu_info = self._extract_feishu_reply_info()
-        if feishu_info:
-            try:
-                if self._send_feishu_stream_reply(feishu_info["chat_id"], content):
-                    logger.info("已通过飞书会话（Stream）推送报告")
-                    success = True
-                else:
-                    logger.error("飞书会话（Stream）推送失败")
-            except Exception as e:
-                logger.error(f"飞书会话（Stream）推送异常: {e}")
-
-        # 尝试 Telegram 会话上下文（按来源 chat_id 回执）
-        telegram_chat_id = self._extract_telegram_context_chat_id()
-        if telegram_chat_id:
-            try:
-                if self.send_to_telegram(content, chat_id=telegram_chat_id):
-                    logger.info("已通过 Telegram 上下文会话推送报告")
-                    success = True
-                else:
-                    logger.error("Telegram 上下文会话推送失败")
-            except Exception as e:
-                logger.error(f"Telegram 上下文会话推送异常: {e}")
-
-        return success
-
-    def _send_feishu_stream_reply(self, chat_id: str, content: str) -> bool:
-        """
-        通过飞书 Stream 模式发送消息到指定会话
-        
-        Args:
-            chat_id: 飞书会话 ID
-            content: 消息内容
-            
-        Returns:
-            是否发送成功
-        """
-        try:
-            from bot.platforms.feishu_stream import FeishuReplyClient, FEISHU_SDK_AVAILABLE
-            if not FEISHU_SDK_AVAILABLE:
-                logger.warning("飞书 SDK 不可用，无法发送 Stream 回复")
-                return False
-            
-            from src.config import get_config
-            config = get_config()
-            
-            app_id = getattr(config, 'feishu_app_id', None)
-            app_secret = getattr(config, 'feishu_app_secret', None)
-            
-            if not app_id or not app_secret:
-                logger.warning("飞书 APP_ID 或 APP_SECRET 未配置")
-                return False
-            
-            # 创建回复客户端
-            reply_client = FeishuReplyClient(app_id, app_secret)
-            
-            # 飞书文本消息有长度限制，需要分批发送
-            max_bytes = getattr(config, 'feishu_max_bytes', 20000)
-            content_bytes = len(content.encode('utf-8'))
-            
-            if content_bytes > max_bytes:
-                return self._send_feishu_stream_chunked(reply_client, chat_id, content, max_bytes)
-            
-            return reply_client.send_to_chat(chat_id, content)
-            
-        except ImportError as e:
-            logger.error(f"导入飞书 Stream 模块失败: {e}")
-            return False
-        except Exception as e:
-            logger.error(f"飞书 Stream 回复异常: {e}")
-            return False
-
-    def _send_feishu_stream_chunked(
-        self, 
-        reply_client, 
-        chat_id: str, 
-        content: str, 
-        max_bytes: int
-    ) -> bool:
-        """
-        分批发送长消息到飞书（Stream 模式）
-        
-        Args:
-            reply_client: FeishuReplyClient 实例
-            chat_id: 飞书会话 ID
-            content: 完整消息内容
-            max_bytes: 单条消息最大字节数
-            
-        Returns:
-            是否全部发送成功
-        """
-        import time
-        
-        def get_bytes(s: str) -> int:
-            return len(s.encode('utf-8'))
-        
-        # 按段落或分隔线分割
-        if "\n---\n" in content:
-            sections = content.split("\n---\n")
-            separator = "\n---\n"
-        elif "\n### " in content:
-            parts = content.split("\n### ")
-            sections = [parts[0]] + [f"### {p}" for p in parts[1:]]
-            separator = "\n"
-        else:
-            # 按行分割
-            sections = content.split("\n")
-            separator = "\n"
-        
-        chunks = []
-        current_chunk = []
-        current_bytes = 0
-        separator_bytes = get_bytes(separator)
-        
-        for section in sections:
-            section_bytes = get_bytes(section) + separator_bytes
-            
-            if current_bytes + section_bytes > max_bytes:
-                if current_chunk:
-                    chunks.append(separator.join(current_chunk))
-                current_chunk = [section]
-                current_bytes = section_bytes
-            else:
-                current_chunk.append(section)
-                current_bytes += section_bytes
-        
-        if current_chunk:
-            chunks.append(separator.join(current_chunk))
-        
-        # 发送每个分块
-        success = True
-        for i, chunk in enumerate(chunks):
-            if i > 0:
-                time.sleep(0.5)  # 避免请求过快
-            
-            if not reply_client.send_to_chat(chat_id, chunk):
-                success = False
-                logger.error(f"飞书 Stream 分块 {i+1}/{len(chunks)} 发送失败")
-        
-        return success
+        """Context sends are disabled; use configured email notifications."""
+        return False
+        # 通过邮件发送
         
     def generate_daily_report(
         self,
         results: List[AnalysisResult],
         report_date: Optional[str] = None
     ) -> str:
-        """
-        生成 Markdown 格式的日报（详细版）
-
-        Args:
-            results: 分析结果列表
-            report_date: 报告日期（默认今天）
-
-        Returns:
-            Markdown 格式的日报内容
-        """
+        """Generate the detailed Markdown daily report."""
         if report_date is None:
             report_date = datetime.now().strftime('%Y-%m-%d')
         report_language = self._get_report_language(results)
@@ -1945,16 +1545,9 @@ class NotificationService(
         }
 
     def _append_fundamental_blocks(self, lines: List[str], result: AnalysisResult) -> None:
-        """Append 财务摘要 / 股东回报 / 关联板块 markdown blocks.
-
-        Each block is only rendered when at least one cell has data; this keeps
-        the email compact when the fundamental pipeline returned partial/failed
-        results (e.g. HK/US markets, ETF, or AkShare outages).
-        """
+        """Append financial, shareholder return, and related board sections."""
         blocks = self._get_fundamental_blocks(result)
-        report_language = self._get_report_language(result)
-        labels = get_report_labels(report_language)
-
+        labels = get_report_labels(self._get_report_language(result))
         self._append_financial_summary(lines, blocks, labels)
         self._append_shareholder_return(lines, blocks, labels)
         self._append_related_boards(lines, blocks, labels)
@@ -1978,7 +1571,7 @@ class NotificationService(
             "net_profit_yoy": self._format_percent(growth.get("net_profit_yoy")),
             "gross_margin": self._format_percent(growth.get("gross_margin")),
         }
-        if all(v == "N/A" for v in cells.values()):
+        if all(value == "N/A" for value in cells.values()):
             return
 
         lines.extend([
@@ -1990,7 +1583,6 @@ class NotificationService(
                 f"{labels['roe_label']} | {labels['revenue_yoy_label']} | "
                 f"{labels['net_profit_yoy_label']} | {labels['gross_margin_label']} |"
             ),
-            # 报告期居中，金额/比例右对齐 — 与现有市场快照风格保持一致
             "|:------:|-------:|-------:|-------:|------:|------:|------:|------:|",
             (
                 f"| {cells['report_date']} | {cells['revenue']} | {cells['net_profit']} | "
@@ -2008,25 +1600,19 @@ class NotificationService(
     ) -> None:
         dividend = blocks.get("dividend") or {}
         report = blocks.get("financial_report") or {}
-        # Dividends are paid in the trading currency (yfinance `info.currency`)
-        # which can differ from the financial-statement currency (e.g. HK ADRs
-        # often report `financialCurrency=CNY` but pay dividends in HKD).
-        dividend_currency = dividend.get("currency") if isinstance(dividend.get("currency"), str) else None
-        if not dividend_currency:
-            dividend_currency = report.get("currency") if isinstance(report.get("currency"), str) else None
+        currency = dividend.get("currency") if isinstance(dividend.get("currency"), str) else None
+        if not currency:
+            currency = report.get("currency") if isinstance(report.get("currency"), str) else None
         events = dividend.get("events") if isinstance(dividend.get("events"), list) else []
-        latest_event = events[0] if events else {}
-        if not isinstance(latest_event, dict):
-            latest_event = {}
-
-        ttm_event_count = dividend.get("ttm_event_count")
+        latest_event = events[0] if events and isinstance(events[0], dict) else {}
+        event_count = dividend.get("ttm_event_count")
         cells = {
-            "ttm_cash": self._format_per_share(dividend.get("ttm_cash_dividend_per_share"), dividend_currency),
-            "ttm_count": str(ttm_event_count) if isinstance(ttm_event_count, int) else "N/A",
+            "ttm_cash": self._format_per_share(dividend.get("ttm_cash_dividend_per_share"), currency),
+            "ttm_count": str(event_count) if isinstance(event_count, int) else "N/A",
             "ttm_yield": self._format_percent(dividend.get("ttm_dividend_yield_pct")),
             "latest_ex": self._format_text(latest_event.get("ex_dividend_date") or latest_event.get("event_date")),
         }
-        if all(v == "N/A" for v in cells.values()):
+        if all(value == "N/A" for value in cells.values()):
             return
 
         lines.extend([
@@ -2037,10 +1623,7 @@ class NotificationService(
                 f"{labels['ttm_dividend_yield_label']} | {labels['latest_ex_dividend_label']} |"
             ),
             "|---------------------:|----------:|--------:|:--------:|",
-            (
-                f"| {cells['ttm_cash']} | {cells['ttm_count']} | "
-                f"{cells['ttm_yield']} | {cells['latest_ex']} |"
-            ),
+            f"| {cells['ttm_cash']} | {cells['ttm_count']} | {cells['ttm_yield']} | {cells['latest_ex']} |",
             "",
         ])
 
@@ -2056,81 +1639,56 @@ class NotificationService(
 
         sector_signals: Dict[str, Tuple[str, Optional[float]]] = {}
         for item in blocks.get("sector_top") or []:
-            if not isinstance(item, dict):
-                continue
-            name = str(item.get("name") or "").strip()
-            if not name:
-                continue
-            sector_signals[name] = (labels["leading_board_label"], _safe_float(item.get("change_pct")))
+            if isinstance(item, dict) and str(item.get("name") or "").strip():
+                sector_signals[str(item["name"]).strip()] = (
+                    labels["leading_board_label"], _safe_float(item.get("change_pct"))
+                )
         for item in blocks.get("sector_bottom") or []:
             if not isinstance(item, dict):
                 continue
             name = str(item.get("name") or "").strip()
-            if not name or name in sector_signals:
-                continue
-            sector_signals[name] = (labels["lagging_board_label"], _safe_float(item.get("change_pct")))
+            if name and name not in sector_signals:
+                sector_signals[name] = (labels["lagging_board_label"], _safe_float(item.get("change_pct")))
 
-        # Pre-resolve rows so we know whether sector-signal columns carry any
-        # data — drop them entirely when every cell would be "--" (typical for
-        # HK/US where there's no 板块涨跌榜 feed) so the table stays compact.
-        prepared: List[Tuple[str, str, Optional[str], Optional[float]]] = []
+        prepared = []
         for raw in belong_boards[:5]:
             if not isinstance(raw, dict):
                 continue
             name = str(raw.get("name") or "").strip()
-            if not name:
-                continue
-            board_type = self._format_text(raw.get("type"))
-            status_text, change_pct = sector_signals.get(name, (None, None))
-            prepared.append((name, board_type, status_text, change_pct))
-
+            if name:
+                status, change = sector_signals.get(name, (None, None))
+                prepared.append((name, self._format_text(raw.get("type")), status, change))
         if not prepared:
             return
 
         has_sector_signal = any(status is not None for _, _, status, _ in prepared)
-
-        lines.append(f"### 🧩 {labels['related_boards_heading']}")
-        lines.append("")
+        lines.extend([f"### 🧩 {labels['related_boards_heading']}", ""])
         if has_sector_signal:
-            lines.append(
-                f"| {labels['board_name_label']} | {labels['board_type_label']} | "
-                f"{labels['board_status_label']} | {labels['board_change_pct_label']} |"
-            )
-            lines.append("|:-----|:----:|:------:|------:|")
-            for name, board_type, status_text, change_pct in prepared:
-                status = status_text if status_text is not None else "--"
-                change = "--" if change_pct is None else f"{change_pct:+.2f}%"
-                lines.append(f"| {name} | {board_type} | {status} | {change} |")
+            lines.extend([
+                f"| {labels['board_name_label']} | {labels['board_type_label']} | {labels['board_status_label']} | {labels['board_change_pct_label']} |",
+                "|:-----|:----:|:------:|------:|",
+            ])
+            for name, board_type, status, change in prepared:
+                lines.append(f"| {name} | {board_type} | {status or '--'} | {'--' if change is None else f'{change:+.2f}%'} |")
         else:
             if all(board_type == "N/A" for _, board_type, _, _ in prepared):
                 lines.append(" / ".join(name for name, _, _, _ in prepared))
-                lines.append("")
-                return
-            lines.append(f"| {labels['board_name_label']} | {labels['board_type_label']} |")
-            lines.append("|:-----|:----:|")
-            for name, board_type, _, _ in prepared:
-                lines.append(f"| {name} | {board_type} |")
+            else:
+                lines.extend([
+                    f"| {labels['board_name_label']} | {labels['board_type_label']} |",
+                    "|:-----|:----:|",
+                ])
+                lines.extend(f"| {name} | {board_type} |" for name, board_type, _, _ in prepared)
         lines.append("")
 
     def _should_use_image_for_channel(
         self, channel: NotificationChannel, image_bytes: Optional[bytes]
     ) -> bool:
-        """
-        Decide whether to send as image for the given channel (Issue #289).
-
-        Fallback rules (send as Markdown text instead of image):
-        - image_bytes is None: conversion failed / imgkit not installed / content over max_chars
-        - WeChat: image exceeds ~2MB limit
-        """
-        if channel.value not in self._markdown_to_image_channels or image_bytes is None:
-            return False
-        if channel == NotificationChannel.WECHAT and len(image_bytes) > WECHAT_IMAGE_MAX_BYTES:
-            logger.warning(
-                "企业微信图片超限 (%d bytes)，回退为 Markdown 文本发送",
-                len(image_bytes),
-            )
-            return False
-        return True
+        return bool(
+            channel == NotificationChannel.EMAIL
+            and channel.value in self._markdown_to_image_channels
+            and image_bytes is not None
+        )
 
     @staticmethod
     def _sanitize_notification_diagnostics(text: Any) -> str:
@@ -2145,50 +1703,16 @@ class NotificationService(
         email_stock_codes: Optional[List[str]],
         email_send_to_all: bool,
     ) -> bool:
-        use_image = self._should_use_image_for_channel(channel, image_bytes)
-        if channel == NotificationChannel.WECHAT:
-            if use_image:
-                return self._send_wechat_image(image_bytes)
-            return self.send_to_wechat(content)
-        if channel == NotificationChannel.FEISHU:
-            return self.send_to_feishu(content)
-        if channel == NotificationChannel.TELEGRAM:
-            if use_image:
-                return self._send_telegram_photo(image_bytes)
-            return self.send_to_telegram(content)
-        if channel == NotificationChannel.EMAIL:
-            receivers = None
-            if email_send_to_all and self._stock_email_groups:
-                receivers = self.get_all_email_receivers()
-            elif email_stock_codes and self._stock_email_groups:
-                receivers = self.get_receivers_for_stocks(email_stock_codes)
-            if use_image:
-                return self._send_email_with_inline_image(image_bytes, receivers=receivers)
-            return self.send_to_email(content, receivers=receivers)
-        if channel == NotificationChannel.PUSHOVER:
-            return self.send_to_pushover(content)
-        if channel == NotificationChannel.NTFY:
-            return self.send_to_ntfy(content)
-        if channel == NotificationChannel.GOTIFY:
-            return self.send_to_gotify(content)
-        if channel == NotificationChannel.PUSHPLUS:
-            return self.send_to_pushplus(content)
-        if channel == NotificationChannel.SERVERCHAN3:
-            return self.send_to_serverchan3(content)
-        if channel == NotificationChannel.CUSTOM:
-            if use_image:
-                return self._send_custom_webhook_image(image_bytes, fallback_content=content)
-            return self.send_to_custom(content)
-        if channel == NotificationChannel.DISCORD:
-            return self.send_to_discord(content)
-        if channel == NotificationChannel.SLACK:
-            if use_image:
-                return self._send_slack_image(image_bytes, fallback_content=content)
-            return self.send_to_slack(content)
-        if channel == NotificationChannel.ASTRBOT:
-            return self.send_to_astrbot(content)
-        logger.warning(f"不支持的通知渠道: {channel}")
-        return False
+        if channel != NotificationChannel.EMAIL:
+            return False
+        receivers = None
+        if email_send_to_all and self._stock_email_groups:
+            receivers = self.get_all_email_receivers()
+        elif email_stock_codes and self._stock_email_groups:
+            receivers = self.get_receivers_for_stocks(email_stock_codes)
+        if self._should_use_image_for_channel(channel, image_bytes):
+            return self._send_email_with_inline_image(image_bytes, receivers=receivers)
+        return self.send_to_email(content, receivers=receivers)
 
     def send_with_results(
         self,
@@ -2200,22 +1724,16 @@ class NotificationService(
         dedup_key: Optional[str] = None,
         cooldown_key: Optional[str] = None,
     ) -> NotificationDispatchResult:
-        """
-        Send a notification and return per-channel diagnostics.
+        """Send an email notification and return delivery diagnostics.
 
-        ``send()`` keeps the historical bool API and delegates here.
-
-        Fallback rules (Markdown-to-image, Issue #289):
-        - When image_bytes is None (conversion failed / imgkit not installed /
-          content over max_chars): all channels configured for image will send
-          as Markdown text instead.
-        - When WeChat image exceeds ~2MB: that channel falls back to Markdown text.
+        ``send()`` preserves the historical boolean API. Email image conversion
+        falls back to regular email content when conversion is unavailable.
 
         Args:
             content: 消息内容（Markdown 格式）
             email_stock_codes: 股票代码列表（可选，用于邮件渠道路由到对应分组邮箱，Issue #268）
             email_send_to_all: 邮件是否发往所有配置邮箱（用于大盘复盘等无股票归属的内容）
-            route_type: 通知路由类型；None 保持旧行为，report/alert/system_error 按配置过滤静态渠道
+            route_type: Notification route; supported channel selection is email only.
             severity: 通知严重级别；未设置时按路由类型推断
             dedup_key: 可选稳定去重 key；未设置时使用内容 hash
             cooldown_key: 可选冷却 key；未设置时使用路由/级别默认 key
@@ -2309,7 +1827,6 @@ class NotificationService(
         channels_needing_image = {
             ch for ch in target_channels
             if ch.value in self._markdown_to_image_channels
-            and ch not in {NotificationChannel.NTFY, NotificationChannel.GOTIFY}
         }
         if channels_needing_image:
             from src.md2img import markdown_to_image
@@ -2414,10 +1931,10 @@ class NotificationService(
         cooldown_key: Optional[str] = None,
     ) -> bool:
         """
-        统一发送接口 - 向所有已配置的渠道发送。
+        Send a report by email when email delivery is configured.
 
         Returns:
-            是否至少有一个渠道发送成功
+            Whether the email was sent successfully.
         """
         result = self.send_with_results(
             content,

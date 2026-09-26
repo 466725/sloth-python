@@ -11,19 +11,7 @@ from __future__ import annotations
 from typing import Dict, Iterable, List, Optional, Tuple
 
 ROUTABLE_NOTIFICATION_CHANNELS: Tuple[str, ...] = (
-    "wechat",
-    "feishu",
-    "telegram",
     "email",
-    "pushover",
-    "ntfy",
-    "gotify",
-    "pushplus",
-    "serverchan3",
-    "custom",
-    "discord",
-    "slack",
-    "astrbot",
 )
 ROUTABLE_NOTIFICATION_CHANNEL_SET = frozenset(ROUTABLE_NOTIFICATION_CHANNELS)
 
