@@ -17,15 +17,15 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 
-from src.config import get_config
-from src.report_language import normalize_report_language
-from src.search_service import SearchService
-from src.core.market_profile import get_profile, MarketProfile
-from src.core.market_strategy import get_market_strategy_blueprint
+from ai_stock.config import get_config
+from ai_stock.report.report_language import normalize_report_language
+from ai_stock.search_service import SearchService
+from ai_stock.core.market_profile import get_profile, MarketProfile
+from ai_stock.core.market_strategy import get_market_strategy_blueprint
 from ai_stock.schemas.market_light import MarketLightSnapshot
 from ai_stock.services.run_diagnostics import record_llm_run, record_llm_run_started
-from src.services.intelligence_service import IntelligenceService
-from data_provider.base import DataFetcherManager
+from ai_stock.services.intelligence_service import IntelligenceService
+from ai_stock.stock_data.base import DataFetcherManager
 
 logger = logging.getLogger(__name__)
 

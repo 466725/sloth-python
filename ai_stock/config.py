@@ -20,12 +20,12 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv, dotenv_values
 from dataclasses import dataclass, field
 
-from src.report_language import (
+from ai_stock.report.report_language import (
     is_supported_report_language_value,
     normalize_report_language,
 )
-from src.notification_routing import parse_notification_route_channels
-from src.notification_noise import (
+from ai_stock.report.notification_routing import parse_notification_route_channels
+from ai_stock.report.notification_noise import (
     NOTIFICATION_SEVERITIES,
     is_supported_notification_severity,
     parse_notification_quiet_hours,
@@ -2068,7 +2068,7 @@ class Config:
         Stock codes are canonicalized via normalize_stock_code so that
         runtime routing matches the same equivalence used in validation.
         """
-        from data_provider.base import normalize_stock_code
+        from ai_stock.stock_data.base import normalize_stock_code
 
         groups: dict = {}
         stock_re = re.compile(r'^STOCK_GROUP_(\d+)$', re.IGNORECASE)
@@ -2429,7 +2429,7 @@ class Config:
                 field="STOCK_LIST",
             ))
         elif self.stock_email_groups:
-            from data_provider.base import normalize_stock_code
+            from ai_stock.stock_data.base import normalize_stock_code
             configured_stock_set = {
                 normalize_stock_code(code)
                 for code in self.stock_list
