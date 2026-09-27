@@ -51,7 +51,8 @@ COPY *.py ./
 COPY api/ ./api/
 COPY ai_stock/stock_data/ ./data_provider/
 COPY bot/ ./bot/
-COPY ai_stock/ ./src/
+#COPY ai_stock/ ./src/
+COPY ai_stock/ ./ai_stock/
 COPY strategies/ ./strategies/
 COPY --from=web-builder /app/static ./static/
 COPY docker/entrypoint.sh /usr/local/bin/docker-entrypoint.sh

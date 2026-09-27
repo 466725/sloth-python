@@ -22,7 +22,7 @@ import litellm
 from json_repair import repair_json
 from litellm import Router
 
-from agent.llm_adapter import (
+from ai_stock.agent.llm_adapter import (
     get_thinking_extra_body,
     resolve_fallback_litellm_wire_models,
     register_fallback_model_pricing,

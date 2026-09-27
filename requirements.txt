@@ -85,6 +85,7 @@ fastapi>=0.109.0            # Modern Python Web framework
 uvicorn[standard]>=0.27.0   # ASGI server
 python-multipart>=0.0.6     # FastAPI File/Form upload support
 PyNaCl>=1.5.0                  # Discord Interaction/Webhook Ed25519 signature verification
+lxml[html-clean]
 
 # Built-in optional AlphaSift screening engine
 git+https://github.com/ZhuLinsen/alphasift.git@377049857cc04175dc3cca62121ee41adec6cdb8#egg=alphasift
