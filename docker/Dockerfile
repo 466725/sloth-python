@@ -49,9 +49,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 复制应用代码
 COPY *.py ./
 COPY api/ ./api/
-COPY data_provider/ ./data_provider/
+COPY ai_stock/stock_data/ ./data_provider/
 COPY bot/ ./bot/
-COPY src/ ./src/
+COPY ai_stock/ ./src/
 COPY strategies/ ./strategies/
 COPY --from=web-builder /app/static ./static/
 COPY docker/entrypoint.sh /usr/local/bin/docker-entrypoint.sh
