@@ -1,91 +1,133 @@
-# Project dependencies.
-#
-# Version policy:
-# - Keep lightweight/demo packages flexible unless the project depends on a
-#   specific API or behavior.
-# - Use lower bounds for tested minimum versions.
-# - Use major-version ceilings for libraries where breaking changes would have
-#   broad impact, such as HTTP, parsing, AI SDK, or numerical packages.
-# - Keep this file grouped by project area so new dependencies have an obvious
-#   home and reviews can spot accidental dependency creep.
-
-# Configuration And Serialization
-# Environment variable loading plus YAML parsing for strategy/config files.
-python-dotenv
+# ===================================
+# Core Configuration & Serialization
+# ===================================
+python-dotenv>=1.0.0
 PyYAML>=6.0.3,<7
 
-# AI, LLM, And Tokenization
-# Provider SDKs, routing layers, MCP support, embeddings, and token counting.
+# ===================================
+# AI, LLM & Language Models
+# ===================================
 anthropic
-litellm>=1.98.0,<1.98.1
+openai>=1.0.0
+litellm>=1.80.10,!=1.82.7,!=1.82.8,<2.0.0
 mcp
-openai
-tiktoken
+tiktoken>=0.8.0,<0.12.0
 voyageai
 
-# Data Science, Analysis, And Visualization
-# Numerical computing, machine learning, scientific utilities, and charts.
-matplotlib
+# ===================================
+# Data Processing & Analysis
+# ===================================
 numpy>=2.4.4,<3
-pyecharts
+pandas>=2.0.0
 scikit-learn
 scipy
 
-# Documents And Content Conversion
-# Markdown/document conversion used by document demos and utilities.
+# ===================================
+# Data Visualization
+# ===================================
+matplotlib
+pyecharts
+
+# ===================================
+# Document Processing & Content
+# ===================================
 markitdown[docx,pdf]>=0.1.7,<0.2.0
+markdown2>=2.4.0
+imgkit>=1.2.0
+pypinyin>=0.50.0
 
-# Database
-# MySQL connectivity helpers.
-mysql-connector-python
-
-# HTTP, Web Scraping, And Stock Data
-# HTTP clients, HTML/XML parsing, user-agent helpers, and market metadata fetchers.
-akshare
-beautifulsoup4>=4.15.0,<5
-fake-useragent>=2.2.0
-lxml
-markdown2
+# ===================================
+# Web Content Extraction
+# ===================================
 requests>=2.34.2,<3
-yfinance==1.7.0
+httpx[socks]
+beautifulsoup4>=4.15.0,<5
+lxml[html-clean]
+newspaper3k>=0.2.8
+fake-useragent>=2.2.0
 
-# Security And Network Utilities
-# Network scanning examples and related utility scripts.
+# ===================================
+# Data & Information Sources
+# ===================================
+akshare>=1.12.0
+efinance>=0.5.5
+tushare>=1.4.0
+pytdx>=1.72
+baostock>=0.8.0
+yfinance>=1.7.0
+longbridge>=0.2.77
+tickflow>=0.1.0
+tavily-python>=0.3.0
+google-search-results>=2.4.0
+
+# ===================================
+# Database & ORM
+# ===================================
+sqlalchemy>=2.0.0
+mysql-connector-python
+openpyxl>=3.1.0
+
+# ===================================
+# Scheduling & Time
+# ===================================
+schedule>=1.2.0
+exchange-calendars>=4.13.0
+
+# ===================================
+# Retry & Resilience
+# ===================================
+tenacity>=8.2.0
+
+# ===================================
+# Security & Network
+# ===================================
+PyNaCl>=1.5.0
 python-nmap
 
-# Browser, UI, And Game Automation
-# Browser automation and demo/game runtime dependencies.
+# ===================================
+# Web Framework & API
+# ===================================
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+jinja2>=3.1.0
+
+# ===================================
+# Browser & UI Automation
+# ===================================
 playwright
 pygame; python_version < "3.14"
+Appium-Python-Client>=6.0.0
 
-# Test Automation And Reporting
-# Pytest plugins, Allure reporting, and Robot Framework support.
-allure-pytest
-allure-python-commons
+# ===================================
+# Communication Platforms
+# ===================================
+discord.py>=2.0.0
+lark-oapi>=1.0.0
+dingtalk-stream>=0.24.3
+
+# ===================================
+# Testing & QA
+# ===================================
 pytest
 pytest-html
 pytest-rerunfailures
 pytest-result-log
+allure-pytest
+allure-python-commons
 robotframework~=7.5
 robotframework-datadriver
 robotframework-debuglibrary
 robotframework-requests
 
-# Mobile Automation
-# Appium Python client for mobile UI automation demos.
-Appium-Python-Client>=6.0.0
+# ===================================
+# Utilities
+# ===================================
+json-repair>=0.55.1
 
-
-json-repair>=0.55.1         # JSON repair
-sqlalchemy>=2.0.0           # ORM database access
-newspaper3k>=0.2.8          # Article extraction
-efinance>=0.5.5             # Priority 0: East Money data source https://github.com/Micro-sheep/efinance
-# FastAPI Web framework
-fastapi>=0.109.0            # Modern Python Web framework
-uvicorn[standard]>=0.27.0   # ASGI server
-python-multipart>=0.0.6     # FastAPI File/Form upload support
-PyNaCl>=1.5.0                  # Discord Interaction/Webhook Ed25519 signature verification
-lxml[html-clean]
-
-# Built-in optional AlphaSift screening engine
+# ===================================
+# Custom Packages
+# ===================================
 git+https://github.com/ZhuLinsen/alphasift.git@377049857cc04175dc3cca62121ee41adec6cdb8#egg=alphasift
+
+
