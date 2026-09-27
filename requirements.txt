@@ -97,7 +97,7 @@ jinja2>=3.1.0
 # ===================================
 playwright
 pygame; python_version < "3.14"
-Appium-Python-Client>=6.0.0
+Appium-Python-Client>=6.0.7
 
 # ===================================
 # Communication Platforms
