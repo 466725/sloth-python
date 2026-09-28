@@ -23,11 +23,14 @@ import logging
 from ai_stock.config import setup_env, get_config
 from ai_stock.logging_config import setup_logging
 
+# 从 api.app 导入应用实例
+from api.app import app  # noqa: E402
+
 # 初始化环境变量与日志
 setup_env()
 
-config = get_config()
-level_name = (config.log_level or "INFO").upper()
+CONFIG = get_config()
+level_name = (CONFIG.log_level or "INFO").upper()
 level = getattr(logging, level_name, logging.INFO)
 
 setup_logging(
@@ -36,12 +39,8 @@ setup_logging(
     extra_quiet_loggers=['uvicorn', 'fastapi'],
 )
 
-# 从 api.app 导入应用实例
-from api.app import app  # noqa: E402
-
 # 导出 app 供 uvicorn 使用
 __all__ = ['app']
-
 
 if __name__ == "__main__":
     import uvicorn
