@@ -19,7 +19,7 @@ Analyze your watchlist daily -> generate a decision dashboard -> push to Telegra
 
 [**Product Preview**](#-product-preview) · [**Key Features**](#-key-features) · [**Quick Start**](#-quick-start) · [**Sample Output**](#-sample-output) · [**Documentation Index**](./INDEX_EN.md) · [**Full Guide**](./full-guide_EN.md)
 
-English | [简体中文](../README.md) | [繁體中文](README_CHT.md)
+English | [简体中文](../README.md)
 
 </div>
 
@@ -43,7 +43,7 @@ English | [简体中文](../README.md) | [繁體中文](README_CHT.md)
 | Capability | Coverage |
 |------------|----------|
 | AI decision reports | Core conclusion, score, trend, entry/exit levels, risk alerts, catalysts, and action checklist |
-| Multi-market data | A-shares, Hong Kong, US, ETFs: quotes, K-lines, technical indicators, capital flow, chips, news, announcements, and fundamentals; Japanese/Korean (Yahoo `.T` / `.KS` / `.KQ`): currently MVP supports YFinance basic/quote + daily data and technical indicators only, while capital flow, dragon_tiger, boards, and related advanced blocks may return `not_supported` (see [market boundaries](market-support.md)) |
+| Multi-market data | A-shares, Hong Kong, US, ETFs: quotes, K-lines, technical indicators, capital flow, chips, news, announcements, and fundamentals; Japanese/Korean (Yahoo `.T` / `.KS` / `.KQ`): currently MVP supports YFinance basic/delayed quotes, daily data, and technical indicators only (see [market coverage](./full-guide_EN.md#what-dsa-does)) |
 | Web / desktop workspace | Manual analysis, task progress, history, full Markdown reports, backtest, portfolio, settings, and light/dark themes |
 | Agent strategy chat | Multi-turn Q&A with 15 built-in strategies across Web/Bot/API |
 | Smart import & autocomplete | Image, CSV/Excel, clipboard import; code/name/pinyin/alias autocomplete |
@@ -78,7 +78,7 @@ Open your forked repository, then go to `Settings` -> `Secrets and variables` ->
 
 **AI model configuration (configure at least one)**
 
-Start with one provider and one API key. For multi-model routing, image recognition, local models, or advanced routing, see the [LLM Config Guide](./LLM_CONFIG_GUIDE_EN.md).
+Start with one provider and one API key. For multi-model routing, image recognition, local models, and advanced routing, see [Model Configuration](./full-guide_EN.md#model-configuration).
 
 | Secret Name | Description | Required |
 |-------------|-------------|:--------:|
@@ -227,7 +227,7 @@ After configuring any available AI API key, the Web `/chat` page can use strateg
 - Supports follow-up questions, session export, notification sending, and background execution
 - Supports custom strategy files and experimental multi-agent orchestration
 
-> Agent parameters, `skill` naming compatibility, multi-agent mode, and budget guards are covered in the [Full Guide](./full-guide_EN.md#local-webui-management-interface) and [LLM Config Guide](./LLM_CONFIG_GUIDE_EN.md).
+> Agent parameters, `skill` naming compatibility, multi-agent mode, and budget guards are covered in the [Full Guide](./full-guide_EN.md#local-webui-management-interface) and [Model Configuration](./full-guide_EN.md#model-configuration).
 
 ## 🧩 Related Projects
 
@@ -263,7 +263,7 @@ After configuring any available AI API key, the Web `/chat` page can use strateg
 
 ## 📄 License
 
-[MIT License](../LICENSE) © 2026 ZhuLinsen
+[MIT License](https://opensource.org/license/mit) © 2026 ZhuLinsen
 
 If you use or build on this project, attribution with a link back to this repository is appreciated.
 

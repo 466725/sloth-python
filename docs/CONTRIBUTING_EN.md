@@ -103,7 +103,7 @@ npm run build
 
 ### Documentation Sync Rule
 
-When modifying a Chinese-language core document (e.g., `docs/full-guide.md`), your PR description **must state** whether the corresponding English document has been updated. If not updated, explain why.
+When modifying a Chinese-language core document (for example `docs/GUIDE.md`), state in the PR description whether the corresponding English guide (`docs/full-guide_EN.md`) was updated. If not, explain why.
 
 ## 📋 Priority Areas for Contribution
 
