@@ -112,6 +112,14 @@ class SystemConfigService:
         "ALPHASIFT_INSTALL_SPEC",
         "LLM_USAGE_HMAC_SECRET",
     }
+    _REMOVED_CONFIG_KEYS: Set[str] = {
+        "SNAPSHOT_SOURCE_PRIORITY",
+        "INDUSTRY_PROVIDER",
+        "INDUSTRY_PROVIDER_MAX_BOARDS",
+        "LLM_TIMEOUT_SEC",
+        "LLM_MAX_TOKENS",
+    }
+    _REMOVED_CONFIG_KEY_PREFIXES: Tuple[str, ...] = ("ALPHASIFT_",)
     _NOTIFICATION_TEST_CHANNELS: Tuple[str, ...] = ("email",)
     _NOTIFICATION_TEST_KEY_MAP: Dict[str, Tuple[str, str]] = {
         "EMAIL_SENDER": ("email_sender", "string"),
@@ -280,6 +288,12 @@ class SystemConfigService:
         all_keys = set(config_map.keys()) | registered_keys
         if include_schema:
             all_keys = self._get_schema_config_keys(config_map, registered_keys)
+        all_keys = {
+            key
+            for key in all_keys
+            if not key.upper().startswith(self._REMOVED_CONFIG_KEY_PREFIXES)
+            and key.upper() not in self._REMOVED_CONFIG_KEYS
+        }
 
         category_orders = {
             item["category"]: item["display_order"]

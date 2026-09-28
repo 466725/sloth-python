@@ -13,7 +13,6 @@ from typing import Any, Dict, List, Optional
 from ai_stock.config import (
     AGENT_CONTEXT_COMPRESSION_PROFILES,
     AGENT_MAX_STEPS_DEFAULT,
-    DEFAULT_ALPHASIFT_INSTALL_SPEC,
 )
 from ai_stock.report.notification_noise import NOTIFICATION_SEVERITIES
 from ai_stock.report.notification_routing import ROUTABLE_NOTIFICATION_CHANNELS
@@ -585,71 +584,6 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
         ],
         "warning_codes": [],
-    },
-    "ALPHASIFT_ENABLED": {
-        "title": "AlphaSift Screening",
-        "description": "Enable the built-in AlphaSift stock screening tab. Disabled by default. This switch only affects the AlphaSift screening path; it does not migrate, sanitize, or clear existing LLM/runtime fields in `.env`.",
-        "category": "data_source",
-        "data_type": "boolean",
-        "ui_control": "switch",
-        "is_sensitive": False,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": "false",
-        "options": [],
-        "validation": {},
-        "display_order": 17,
-        "help_key": "settings.data_source.ALPHASIFT_ENABLED",
-        "examples": [
-            "ALPHASIFT_ENABLED=false",
-            "ALPHASIFT_ENABLED=true",
-        ],
-        "docs": [
-            {
-                "label": "LiteLLM Providers（官方）",
-                "href": "https://docs.litellm.ai/docs/providers",
-            },
-            {
-                "label": "LiteLLM OpenAI-compatible（官方）",
-                "href": "https://docs.litellm.ai/docs/providers/openai_compatible",
-            },
-            {
-                "label": "OpenAI 请求与鉴权（官方）",
-                "href": "https://platform.openai.com/docs/api-reference/authentication",
-            },
-            {
-                "label": "AlphaSift 集成说明",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/alphasift-integration.md",
-            },
-        ],
-    },
-    "ALPHASIFT_INSTALL_SPEC": {
-        "title": "AlphaSift Install Spec",
-        "description": "Pinned AlphaSift pip source used for explicit repair installs and source verification. It is not used for normal runtime calls after startup dependency installation; runtime compatibility is built from DSA's resolved LLM/runtime context.",
-        "category": "data_source",
-        "data_type": "string",
-        "ui_control": "password",
-        "is_sensitive": True,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": DEFAULT_ALPHASIFT_INSTALL_SPEC,
-        "options": [],
-        "validation": {},
-        "display_order": 18,
-        "help_key": "settings.data_source.ALPHASIFT_INSTALL_SPEC",
-        "examples": [
-            f"ALPHASIFT_INSTALL_SPEC={DEFAULT_ALPHASIFT_INSTALL_SPEC}",
-        ],
-        "docs": [
-            {
-                "label": "requirements.txt（版本与依赖边界）",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/requirements.txt",
-            },
-            {
-                "label": "AlphaSift 集成说明",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/alphasift-integration.md",
-            },
-        ],
     },
     "REALTIME_SOURCE_PRIORITY": {
         "title": "Realtime Source Priority",

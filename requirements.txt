@@ -130,6 +130,5 @@ json-repair>=0.55.1
 # ===================================
 # Custom Packages
 # ===================================
-git+https://github.com/ZhuLinsen/alphasift.git@377049857cc04175dc3cca62121ee41adec6cdb8#egg=alphasift
 
 

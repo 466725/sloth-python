@@ -189,7 +189,7 @@ npm install
 npm run build
 ```
 
-2) 按现有脚本打包 Python 后端（脚本已内置 AlphaSift 依赖收集）
+2) 按现有脚本打包 Python 后端
 
 - Windows：
 
@@ -202,8 +202,6 @@ powershell -ExecutionPolicy Bypass -File scripts\build-backend.ps1
 ```bash
 bash scripts/build-backend-macos.sh
 ```
-
-该脚本会在安装依赖后执行 `--collect-all alphasift`，并校验打包产物中可导入 `alphasift.dsa_adapter`，避免分步命令遗漏内置 AlphaSift 模块。
 
 3) 打包 Electron 桌面应用
 
