@@ -6,7 +6,7 @@ from ai_stock.services.run_diagnostics import (
     current_diagnostic_snapshot,
     reset_run_diagnostic_context,
 )
-from data_provider.base import DataFetcherManager
+from ai_stock.stock_data.base import DataFetcherManager
 
 
 class _BoardFetcher:

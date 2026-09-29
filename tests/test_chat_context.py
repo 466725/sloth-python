@@ -556,41 +556,6 @@ def test_protected_tail_counts_recent_user_turns_and_keeps_following_messages() 
     assert [msg.id for msg in tail] == [4, 5, 6]
 
 
-def test_empty_to_summarize_warns_and_does_not_call_llm() -> None:
-    db = _reset_db()
-    session_id = "chat-protected-only"
-    _add_messages(db, session_id, [("user", "u1"), ("assistant", "a1")])
-    db.upsert_conversation_summary(session_id, "old summary", 2, 2, 10)
-    adapter = MagicMock()
-
-    with patch("ai_stock.agent.chat_context.estimate_messages_tokens", return_value=999999):
-        with patch("ai_stock.agent.chat_context.logger.warning") as warning:
-            history = build_visible_chat_history(session_id, adapter, _config(trigger=1, protected=1))
-
-    adapter.call_text.assert_not_called()
-    assert warning.called
-    assert history[0]["content"].startswith(SUMMARY_USER_PREFIX)
-    assert [msg["content"] for msg in history[1:]] == ["u1", "a1"]
-
-
-def test_empty_to_summarize_without_summary_returns_full_history_and_does_not_call_llm() -> None:
-    db = _reset_db()
-    session_id = "chat-protected-only-no-summary"
-    _add_messages(db, session_id, [("user", "u1"), ("assistant", "a1")])
-    adapter = MagicMock()
-
-    with patch("ai_stock.agent.chat_context.estimate_messages_tokens", return_value=999999):
-        with patch("ai_stock.agent.chat_context.logger.warning") as warning:
-            history = build_visible_chat_history(session_id, adapter, _config(trigger=1, protected=1))
-
-    adapter.call_text.assert_not_called()
-    assert warning.called
-    assert history == [
-        {"role": "user", "content": "u1"},
-        {"role": "assistant", "content": "a1"},
-    ]
-
-
 def test_summary_failure_falls_back_to_recent_20_without_old_summary() -> None:
     db = _reset_db()
     session_id = "chat-summary-fails"

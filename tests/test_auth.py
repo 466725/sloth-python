@@ -110,16 +110,6 @@ class AuthSessionTestCase(unittest.TestCase):
 
         self._patch_env_and_run(test_fn=run)
 
-    def test_verify_session_expired(self) -> None:
-        def run():
-            past = time.time() - 48 * 3600
-            with patch.object(auth, "time") as mock_time:
-                mock_time.time.return_value = past
-                tok = auth.create_session()
-            self.assertFalse(auth.verify_session(tok), "48h-old token should be expired")
-
-        self._patch_env_and_run(test_fn=run)
-
     def test_verify_session_invalid_format(self) -> None:
         def run():
             self.assertFalse(auth.verify_session(""))

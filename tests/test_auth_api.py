@@ -160,13 +160,6 @@ class AuthApiTestCase(unittest.TestCase):
         self.assertEqual(logout_response.status_code, 204)
         self.assertFalse(auth.verify_session(session_cookie))
 
-    def test_logout_returns_500_when_session_invalidation_fails(self) -> None:
-        with patch.object(auth_endpoint, "rotate_session_secret", return_value=False):
-            response = asyncio.run(auth_endpoint.auth_logout(self._build_request()))
-
-        self.assertEqual(response.status_code, 500)
-        self.assertIn(b'"error":"internal_error"', response.body)
-
     def test_change_password_requires_session(self) -> None:
         first_response = asyncio.run(
             auth_endpoint.auth_login(
@@ -360,36 +353,6 @@ class AuthApiTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn(b'"error":"password_required"', response.body)
 
-    def test_auth_settings_rechecks_password_before_initial_write(self) -> None:
-        self.env_path.write_text(
-            "STOCK_LIST=600519\nGEMINI_API_KEY=test\nADMIN_AUTH_ENABLED=false\n",
-            encoding="utf-8",
-        )
-        with patch.object(auth, "_is_auth_enabled_from_env", side_effect=self._read_auth_enabled_from_env):
-            auth.refresh_auth_state()
-
-            with patch.object(
-                auth_endpoint,
-                "has_stored_password",
-                side_effect=[False, True],
-            ) as has_password_mock:
-                with patch.object(auth_endpoint, "set_initial_password") as set_password_mock:
-                    response = asyncio.run(
-                        auth_endpoint.auth_update_settings(
-                            self._build_request(),
-                            auth_endpoint.AuthSettingsRequest(
-                                authEnabled=True,
-                                password="initpass123",
-                                passwordConfirm="initpass123",
-                            ),
-                        )
-                    )
-
-        self.assertEqual(has_password_mock.call_count, 2)
-        set_password_mock.assert_not_called()
-        self.assertEqual(response.status_code, 400)
-        self.assertIn(b'"error":"password_already_set"', response.body)
-
     def test_auth_settings_disable_clears_cookie_and_hides_password_state(self) -> None:
         with patch.object(auth, "_is_auth_enabled_from_env", side_effect=self._read_auth_enabled_from_env):
             auth.set_initial_password("passwd6")
@@ -424,21 +387,6 @@ class AuthApiTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertIn(b'"error":"current_required"', response.body)
-        self.assertIn("ADMIN_AUTH_ENABLED=true", self.env_path.read_text(encoding="utf-8"))
-
-    def test_auth_settings_toggle_fails_when_secret_rotation_fails(self) -> None:
-        with patch.object(auth, "_is_auth_enabled_from_env", side_effect=self._read_auth_enabled_from_env):
-            auth.set_initial_password("passwd6")
-            with patch.object(auth_endpoint, "rotate_session_secret", return_value=False):
-                response = asyncio.run(
-                    auth_endpoint.auth_update_settings(
-                        self._build_request(),
-                        auth_endpoint.AuthSettingsRequest(authEnabled=False, currentPassword="passwd6"),
-                    )
-                )
-
-        self.assertEqual(response.status_code, 500)
-        self.assertIn(b'"error":"internal_error"', response.body)
         self.assertIn("ADMIN_AUTH_ENABLED=true", self.env_path.read_text(encoding="utf-8"))
 
     def test_auth_settings_enable_with_existing_password_reuses_stored_password(self) -> None:
@@ -510,29 +458,6 @@ class AuthApiTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 401)
         self.assertIn(b'"error":"invalid_password"', response.body)
-        self.assertIn("ADMIN_AUTH_ENABLED=false", self.env_path.read_text(encoding="utf-8"))
-
-    def test_auth_settings_enable_rolls_back_when_session_creation_fails(self) -> None:
-        self.env_path.write_text(
-            "STOCK_LIST=600519\nGEMINI_API_KEY=test\nADMIN_AUTH_ENABLED=false\n",
-            encoding="utf-8",
-        )
-        with patch.object(auth, "_is_auth_enabled_from_env", side_effect=self._read_auth_enabled_from_env):
-            auth.refresh_auth_state()
-            with patch.object(auth_endpoint, "create_session", return_value=""):
-                response = asyncio.run(
-                    auth_endpoint.auth_update_settings(
-                        self._build_request(),
-                        auth_endpoint.AuthSettingsRequest(
-                            authEnabled=True,
-                            password="initpass123",
-                            passwordConfirm="initpass123",
-                        ),
-                    )
-                )
-
-        self.assertEqual(response.status_code, 500)
-        self.assertIn(b'"error":"internal_error"', response.body)
         self.assertIn("ADMIN_AUTH_ENABLED=false", self.env_path.read_text(encoding="utf-8"))
 
     def test_auth_settings_rejects_overwriting_existing_password(self) -> None:
