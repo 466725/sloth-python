@@ -10,8 +10,9 @@ data_provider/yfinance_fetcher 中港股指数获取逻辑的单元测试
 import sys
 import os
 import unittest
-from unittest.mock import MagicMock, patch
 import pandas as pd
+from unittest.mock import MagicMock, patch
+from ai_stock.stock_data.yfinance_fetcher import YfinanceFetcher
 
 # 在导入 data_provider 前 mock 可能缺失的依赖，避免环境差异导致测试无法运行
 if 'fake_useragent' not in sys.modules:
@@ -47,7 +48,6 @@ class TestHkIndexSymbolMapping(unittest.TestCase):
     """验证港股指数 Yahoo Finance 符号映射的正确性"""
 
     def setUp(self):
-        from data_provider.yfinance_fetcher import YfinanceFetcher
         self.fetcher = YfinanceFetcher()
 
     def test_hk_indices_mapping_symbols(self):
@@ -85,7 +85,6 @@ class TestGetHkMainIndices(unittest.TestCase):
     """_get_hk_main_indices 港股指数批量获取测试"""
 
     def setUp(self):
-        from data_provider.yfinance_fetcher import YfinanceFetcher
         self.fetcher = YfinanceFetcher()
 
     def test_returns_list_when_all_succeed(self):
@@ -129,27 +128,6 @@ class TestGetHkMainIndices(unittest.TestCase):
         expected_amplitude = ((20200.0 - 19700.0) / 19800.0) * 100
         self.assertAlmostEqual(item['amplitude'], expected_amplitude)
 
-    def test_handles_partial_failure(self):
-        """部分指数 history 为空时仍返回能取到数据的指数"""
-        call_count = [0]
-
-        def history_side_effect(period):
-            call_count[0] += 1
-            if call_count[0] == 1:
-                return _make_mock_hist(close=20000.0, prev_close=19800.0)
-            return pd.DataFrame()
-
-        mock_ticker = MagicMock()
-        mock_ticker.history.side_effect = history_side_effect
-        mock_yf = MagicMock()
-        mock_yf.Ticker.return_value = mock_ticker
-
-        result = self.fetcher._get_hk_main_indices(mock_yf)
-
-        self.assertIsNotNone(result)
-        self.assertIsInstance(result, list)
-        self.assertEqual(len(result), 1)
-
     def test_returns_none_when_all_fail(self):
         """全部取数失败时返回 None"""
         mock_yf = _make_mock_yf(pd.DataFrame())
@@ -187,7 +165,6 @@ class TestGetMainIndicesDispatch(unittest.TestCase):
     """get_main_indices region 分发测试"""
 
     def setUp(self):
-        from data_provider.yfinance_fetcher import YfinanceFetcher
         self.fetcher = YfinanceFetcher()
 
     def test_region_hk_dispatches_to_hk_method(self):

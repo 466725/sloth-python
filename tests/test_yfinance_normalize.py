@@ -3,7 +3,7 @@
 
 import pandas as pd
 
-from data_provider.yfinance_fetcher import YfinanceFetcher
+from ai_stock.stock_data.yfinance_fetcher import YfinanceFetcher
 
 
 def test_normalize_daily_data_recovers_unnamed_datetime_index_date_column() -> None:
