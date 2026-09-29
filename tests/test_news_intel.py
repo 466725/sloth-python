@@ -19,9 +19,9 @@ from unittest.mock import patch
 
 from sqlalchemy.exc import OperationalError
 
-from src.config import Config
-from src.storage import DatabaseManager, NewsIntel
-from src.search_service import SearchResponse, SearchResult
+from ai_stock.config import Config
+from ai_stock.storage import DatabaseManager, NewsIntel
+from ai_stock.search_service import SearchResponse, SearchResult
 
 
 class NewsIntelStorageTestCase(unittest.TestCase):
@@ -182,7 +182,7 @@ class NewsIntelStorageTestCase(unittest.TestCase):
 
         with patch.object(self.db, "get_session", side_effect=[first_session, second_session]):
             with patch.object(first_session, "execute", side_effect=stmt_exc):
-                with patch("src.storage.time.sleep") as mock_sleep:
+                with patch("ai_stock.storage.time.sleep") as mock_sleep:
                     saved_count = self.db.save_news_intel(
                         code="600519",
                         name="贵州茅台",

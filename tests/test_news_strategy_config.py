@@ -3,7 +3,7 @@
 
 import unittest
 
-from src.config import Config, resolve_news_window_days
+from ai_stock.config import Config, resolve_news_window_days
 
 
 class NewsStrategyConfigTestCase(unittest.TestCase):
