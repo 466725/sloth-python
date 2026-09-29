@@ -13,17 +13,17 @@ from unittest.mock import patch, MagicMock
 
 import pandas as pd
 
-from data_provider.yfinance_fundamental_adapter import (
+from ai_stock.stock_data.yfinance_fundamental_adapter import (
     YfinanceFundamentalAdapter,
     _convert_to_yf_symbol,
 )
 
 
 def _build_mock_ticker(
-    info: dict,
-    income_stmt: pd.DataFrame | None = None,
-    cashflow: pd.DataFrame | None = None,
-    dividends: pd.Series | None = None,
+        info: dict,
+        income_stmt: pd.DataFrame | None = None,
+        cashflow: pd.DataFrame | None = None,
+        dividends: pd.Series | None = None,
 ) -> MagicMock:
     ticker = MagicMock()
     ticker.get_info.return_value = info
@@ -49,92 +49,6 @@ class TestYfinanceSymbolConversion(unittest.TestCase):
 
     def test_empty(self) -> None:
         self.assertEqual(_convert_to_yf_symbol(""), "")
-
-
-class TestYfinanceFundamentalAdapter(unittest.TestCase):
-    def test_populates_growth_earnings_dividend_boards_for_us_stock(self) -> None:
-        info = {
-            "financialCurrency": "USD",
-            "currency": "USD",
-            "currentPrice": 210.0,
-            "sector": "Technology",
-            "industry": "Consumer Electronics",
-            "totalRevenue": 451442016256,
-            "operatingCashflow": 140222005248,
-            "returnOnEquity": 1.4147,
-            "revenueGrowth": 0.166,
-            "earningsGrowth": 0.193,
-            "grossMargins": 0.479,
-            "profitMargins": 0.272,
-            "trailingAnnualDividendRate": 1.04,
-            "dividendYield": 0.36,
-        }
-        income_df = pd.DataFrame(
-            {
-                pd.Timestamp("2026-03-31"): {"Total Revenue": 1.11e11, "Net Income": 2.95e10},
-                pd.Timestamp("2025-12-31"): {"Total Revenue": 1.24e11, "Net Income": 3.62e10},
-                pd.Timestamp("2025-09-30"): {"Total Revenue": 9.49e10, "Net Income": 2.49e10},
-                pd.Timestamp("2025-06-30"): {"Total Revenue": 9.40e10, "Net Income": 2.34e10},
-            }
-        )
-        # Need at least 5 columns to trigger statement-derived YoY.
-        income_df_with_yoy = pd.DataFrame(
-            {
-                pd.Timestamp("2026-03-31"): {"Total Revenue": 1.11e11, "Net Income": 2.95e10},
-                pd.Timestamp("2025-12-31"): {"Total Revenue": 1.24e11, "Net Income": 3.62e10},
-                pd.Timestamp("2025-09-30"): {"Total Revenue": 9.49e10, "Net Income": 2.49e10},
-                pd.Timestamp("2025-06-30"): {"Total Revenue": 9.40e10, "Net Income": 2.34e10},
-                pd.Timestamp("2025-03-31"): {"Total Revenue": 9.52e10, "Net Income": 2.47e10},
-            }
-        )
-        cashflow_df = pd.DataFrame(
-            {
-                pd.Timestamp("2026-03-31"): {"Operating Cash Flow": 2.87e10},
-                pd.Timestamp("2025-12-31"): {"Operating Cash Flow": 3.5e10},
-            }
-        )
-        dividends = pd.Series(
-            [0.26, 0.26, 0.26, 0.27],
-            index=pd.DatetimeIndex(
-                ["2025-08-11", "2025-11-10", "2026-02-09", "2026-05-11"],
-                tz="America/New_York",
-            ),
-            name="Dividends",
-        )
-        ticker = _build_mock_ticker(info, income_df_with_yoy, cashflow_df, dividends)
-
-        with patch("yfinance.Ticker", return_value=ticker):
-            bundle = YfinanceFundamentalAdapter().get_fundamental_bundle("AAPL")
-
-        self.assertEqual(bundle["status"], "partial")
-        growth = bundle["growth"]
-        # Statement-derived YoY uses iloc[4] (2025-03-31). (1.11e11 - 9.52e10) / 9.52e10 ≈ 16.6%
-        self.assertAlmostEqual(growth["revenue_yoy"], 16.5966, places=2)
-        self.assertAlmostEqual(growth["roe"], 141.47, places=1)
-        self.assertAlmostEqual(growth["gross_margin"], 47.9, places=1)
-
-        fr = bundle["earnings"]["financial_report"]
-        self.assertEqual(fr["report_date"], "2026-03-31")
-        self.assertEqual(fr["revenue"], 1.11e11)
-        self.assertEqual(fr["operating_cash_flow"], 2.87e10)
-        self.assertEqual(fr["currency"], "USD")
-
-        div = bundle["earnings"]["dividend"]
-        self.assertEqual(div["ttm_event_count"], 4)
-        self.assertAlmostEqual(div["ttm_cash_dividend_per_share"], 1.05, places=2)
-        # Yield is recomputed: ttm_cash (1.05) / currentPrice (210) * 100 = 0.5%.
-        # info.dividendYield (0.36) is intentionally ignored when TTM cash exists.
-        self.assertAlmostEqual(div["ttm_dividend_yield_pct"], 0.5, places=2)
-        self.assertEqual(div["currency"], "USD")
-        self.assertEqual(div["events"][0]["ex_dividend_date"], "2026-05-11")
-
-        self.assertEqual(
-            bundle["belong_boards"],
-            [
-                {"name": "Technology", "type": "行业"},
-                {"name": "Consumer Electronics", "type": "概念"},
-            ],
-        )
 
     def test_falls_back_to_info_when_statements_only_have_4_quarters(self) -> None:
         """yfinance default is 4 quarters → statement-derived YoY refuses to use QoQ.

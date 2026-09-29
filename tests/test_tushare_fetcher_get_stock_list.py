@@ -16,15 +16,17 @@ import importlib.util
 import os
 import sys
 import unittest
+import pandas as pd
 from unittest.mock import MagicMock, patch
+
+from ai_stock.stock_data.base import DataFetchError, RateLimitError
+from ai_stock.stock_data.tushare_fetcher import TushareFetcher
+
+from tests.litellm_stub import ensure_litellm_stub
 
 _PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
-
-import pandas as pd
-
-from tests.litellm_stub import ensure_litellm_stub
 
 ensure_litellm_stub()
 
@@ -38,9 +40,6 @@ if not json_repair_available and "json_repair" not in sys.modules:
 
 if "fake_useragent" not in sys.modules:
     sys.modules["fake_useragent"] = MagicMock()
-
-from data_provider.base import DataFetchError, RateLimitError
-from data_provider.tushare_fetcher import TushareFetcher
 
 try:
     from dotenv import load_dotenv
@@ -202,7 +201,6 @@ class TestTushareFetcherFetchRawData(unittest.TestCase):
     def test_convert_stock_code_normalizes(self) -> None:
         fetcher = self._make_fetcher()
         self.assertEqual(fetcher._convert_stock_code("HK00700"), "HK00700")
-    
 
     def test_convert_stock_code_for_tushare_normalizes_hk(self) -> None:
         fetcher = self._make_fetcher()
