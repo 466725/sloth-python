@@ -16,8 +16,8 @@ if "newspaper" not in sys.modules:
     mock_np.Config = MagicMock()
     sys.modules["newspaper"] = mock_np
 
-from src.search_service import SearchResponse, SearchResult, SearchService
-from src.services.run_diagnostics import (
+from ai_stock.search_service import SearchResponse, SearchResult, SearchService
+from ai_stock.services.run_diagnostics import (
     activate_run_diagnostic_context,
     current_diagnostic_snapshot,
     reset_run_diagnostic_context,
@@ -25,12 +25,12 @@ from src.services.run_diagnostics import (
 
 
 def _result(
-    title: str,
-    published_date: str | None,
-    *,
-    snippet: str = "snippet",
-    url: str | None = None,
-    source: str = "example.com",
+        title: str,
+        published_date: str | None,
+        *,
+        snippet: str = "snippet",
+        url: str | None = None,
+        source: str = "example.com",
 ) -> SearchResult:
     return SearchResult(
         title=title,
@@ -54,11 +54,11 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
     """Tests for strategy window and strict published_date filtering."""
 
     def _create_service_with_mock_provider(
-        self,
-        *,
-        news_max_age_days: int = 3,
-        news_strategy_profile: str = "short",
-        response: SearchResponse | None = None,
+            self,
+            *,
+            news_max_age_days: int = 3,
+            news_strategy_profile: str = "short",
+            response: SearchResponse | None = None,
     ):
         service = SearchService(
             bocha_keys=["dummy_key"],
@@ -68,7 +68,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
         )
         mock_search = MagicMock(
             return_value=response
-            or _response([_result("default", datetime.now().date().isoformat())])
+                         or _response([_result("default", datetime.now().date().isoformat())])
         )
         service._providers[0].search = mock_search
         return service, mock_search
@@ -1439,7 +1439,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
             ),
         )
 
-        with patch("src.search_service.time.sleep"):
+        with patch("ai_stock.search_service.time.sleep"):
             intel = service.search_comprehensive_intel(
                 stock_code="00700.HK",
                 stock_name="腾讯控股",
@@ -1845,8 +1845,8 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
         fresh_iso = fresh_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         for stock_code, stock_name, expected_lang, expected_country, title, description in (
-            ("600519", "贵州茅台", "zh-hans", "CN", "中文资讯", "中文摘要"),
-            ("AAPL", "Apple", "en", "US", "Apple earnings beat", "English summary"),
+                ("600519", "贵州茅台", "zh-hans", "CN", "中文资讯", "中文摘要"),
+                ("AAPL", "Apple", "en", "US", "Apple earnings beat", "English summary"),
         ):
             with self.subTest(stock_code=stock_code):
                 fake_response = MagicMock()
@@ -1864,7 +1864,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
                     }
                 }
 
-                with patch("src.search_service.requests.get", return_value=fake_response) as mock_get:
+                with patch("ai_stock.search_service.requests.get", return_value=fake_response) as mock_get:
                     service = SearchService(
                         brave_keys=["dummy_key"],
                         searxng_public_instances_enabled=False,
@@ -1895,7 +1895,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
             _response([_result("old", old), _result("fresh", fresh)]),
             _response([_result("analysis_unknown", None), _result("analysis_dated", analysis_text)]),
         ]
-        with patch("src.search_service.time.sleep"):
+        with patch("ai_stock.search_service.time.sleep"):
             intel = service.search_comprehensive_intel(
                 stock_code="600519",
                 stock_name="贵州茅台",
@@ -1934,7 +1934,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
             _response([_result("earnings", None)]),
         ]
 
-        with patch("src.search_service.time.sleep"):
+        with patch("ai_stock.search_service.time.sleep"):
             intel = service.search_comprehensive_intel(
                 stock_code="600519",
                 stock_name="贵州茅台",
@@ -1981,7 +1981,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
             ]),
         ]
 
-        with patch("src.search_service.time.sleep"):
+        with patch("ai_stock.search_service.time.sleep"):
             intel = service.search_comprehensive_intel(
                 stock_code="600519",
                 stock_name="贵州茅台",
@@ -2017,7 +2017,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
             _response([_result("risk_unknown", None)]),
         ]
 
-        with patch("src.search_service.time.sleep"):
+        with patch("ai_stock.search_service.time.sleep"):
             intel = service.search_comprehensive_intel(
                 stock_code="510300",
                 stock_name="沪深300ETF",
@@ -2046,7 +2046,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
             _response([_result("risk_unknown", None)]),
         ]
 
-        with patch("src.search_service.time.sleep"):
+        with patch("ai_stock.search_service.time.sleep"):
             intel = service.search_comprehensive_intel(
                 stock_code="600519",
                 stock_name="贵州茅台",
@@ -2074,7 +2074,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
             _response([_result("announcement_item", fresh_text)]),
         ]
 
-        with patch("src.search_service.time.sleep"):
+        with patch("ai_stock.search_service.time.sleep"):
             intel = service.search_comprehensive_intel(
                 stock_code="600519",
                 stock_name="贵州茅台",
@@ -2104,7 +2104,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
             _response([_result("old_announcement", old), _result("fresh_announcement", fresh_text)]),
         ]
 
-        with patch("src.search_service.time.sleep"):
+        with patch("ai_stock.search_service.time.sleep"):
             intel = service.search_comprehensive_intel(
                 stock_code="600519",
                 stock_name="贵州茅台",
@@ -2133,7 +2133,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
             _response([_result("announcement_item", fresh_text)]),
         ]
 
-        with patch("src.search_service.time.sleep"):
+        with patch("ai_stock.search_service.time.sleep"):
             intel = service.search_comprehensive_intel(
                 stock_code="510300",
                 stock_name="沪深300ETF",
