@@ -44,7 +44,7 @@ def test_log_format_includes_logger_name(tmp_path, monkeypatch):
 
     setup_logging(log_prefix="stock_analysis", log_dir=str(tmp_path), debug=False)
 
-    logging.getLogger("src.sample").info("logger context smoke")
+    logging.getLogger("ai_stock.sample").info("logger context smoke")
 
     debug_log_text = _read_debug_log(tmp_path)
     assert " | ai_stock.sample | " in debug_log_text
@@ -63,7 +63,7 @@ def test_litellm_debug_is_quiet_by_default_and_empty_env(tmp_path, monkeypatch, 
     for logger_name in LITELLM_LOGGERS:
         logging.getLogger(logger_name).debug("%s token debug should be filtered", logger_name)
     logging.getLogger("LiteLLM").warning("litellm warning should remain")
-    logging.getLogger("src.sample").debug("project debug should remain")
+    logging.getLogger("ai_stock.sample").debug("project debug should remain")
 
     debug_log_text = _read_debug_log(tmp_path)
 

@@ -14,7 +14,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
     def tearDown(self):
         Config.reset_instance()
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_load_from_env_reads_tickflow_api_key(
         self, _mock_parse_litellm_yaml, _mock_setup_env
@@ -31,7 +31,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
 
         self.assertEqual(config.tickflow_api_key, "tf-secret")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_load_from_env_keeps_default_behavior_without_tickflow_api_key(
         self, _mock_parse_litellm_yaml, _mock_setup_env
@@ -51,7 +51,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
             "tencent,akshare_sina,efinance,akshare_em",
         )
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_load_from_env_uses_stable_fundamental_timeout_defaults(
         self, _mock_parse_litellm_yaml, _mock_setup_env
@@ -68,7 +68,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
         self.assertEqual(config.fundamental_stage_timeout_seconds, 8.0)
         self.assertEqual(config.fundamental_fetch_timeout_seconds, 3.0)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_alphasift_install_spec_defaults_only_when_env_missing(
         self, _mock_parse_litellm_yaml, _mock_setup_env
@@ -78,7 +78,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
 
         self.assertEqual(config.alphasift_install_spec, DEFAULT_ALPHASIFT_INSTALL_SPEC)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_news_intel_envs_do_not_change_llm_runtime_contract(
         self,
@@ -129,7 +129,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
         else:
             self.fail("ALPHASIFT_INSTALL_SPEC missing from .env.example")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_alphasift_install_spec_honors_explicit_empty(
         self, _mock_parse_litellm_yaml, _mock_setup_env
@@ -143,7 +143,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
 
         self.assertEqual(config.alphasift_install_spec, "")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_schedule_run_immediately_falls_back_to_legacy_run_immediately(
         self,
@@ -160,7 +160,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
         self.assertFalse(config.schedule_run_immediately)
         self.assertFalse(config.run_immediately)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_schedule_run_immediately_prefers_schedule_specific_setting(
         self,
@@ -178,7 +178,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
         self.assertTrue(config.schedule_run_immediately)
         self.assertFalse(config.run_immediately)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_empty_legacy_run_immediately_stays_false_when_schedule_alias_is_unset(
         self,
@@ -195,7 +195,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
         self.assertFalse(config.schedule_run_immediately)
         self.assertFalse(config.run_immediately)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_empty_schedule_run_immediately_stays_false_without_falling_back(
         self,
@@ -274,7 +274,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
 
         self.assertEqual(config.schedule_time, "18:00")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_news_intel_env_vars_do_not_affect_llm_layer(
         self,
@@ -306,7 +306,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
         self.assertEqual(config.news_intel_max_items_per_source, 75)
         self.assertEqual(config.newsnow_base_url, "https://newsnow.example.com/base")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_report_language_prefers_preexisting_process_env_over_env_file(
         self,
@@ -329,7 +329,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
 
         self.assertEqual(config.report_language, "en")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_report_language_uses_env_file_when_process_env_is_absent(
         self,
@@ -351,7 +351,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
 
         self.assertEqual(config.report_language, "en")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_report_show_llm_model_defaults_true_and_can_be_disabled(
         self,
@@ -370,7 +370,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
             config = Config._load_from_env()
         self.assertFalse(config.report_show_llm_model)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_market_review_color_scheme_defaults_and_accepts_red_up(
         self,
@@ -385,7 +385,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
             config = Config._load_from_env()
         self.assertEqual(config.market_review_color_scheme, "red_up")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_daily_market_context_enabled_defaults_on_and_can_disable(
         self,
@@ -545,12 +545,12 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
         )
 
     def test_parse_report_language_accepts_known_alias_without_warning(self) -> None:
-        with self.assertNoLogs("src.config", level="WARNING"):
+        with self.assertNoLogs("ai_stock.config", level="WARNING"):
             parsed = Config._parse_report_language("zh-cn")
 
         self.assertEqual(parsed, "zh")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_invalid_numeric_env_values_fall_back_to_defaults(
         self,
@@ -572,7 +572,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
         self.assertEqual(config.max_workers, 3)
         self.assertEqual(config.webui_port, 8000)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_stock_email_groups_support_case_insensitive_env_names(
         self,
@@ -598,7 +598,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
             ],
         )
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_stock_email_groups_normalize_codes_at_parse_time(
         self,

@@ -55,7 +55,7 @@ class IntelligenceServiceTestCase(unittest.TestCase):
         DatabaseManager.reset_instance()
         self.service = IntelligenceService()
         self._dns_patcher = patch(
-            "src.services.intelligence_service.socket.getaddrinfo",
+            "ai_stock.services.intelligence_service.socket.getaddrinfo",
             side_effect=self._mock_getaddrinfo,
         )
         self._dns_patcher.start()
@@ -134,7 +134,7 @@ class IntelligenceServiceTestCase(unittest.TestCase):
             "name": "market-feed", "url": "https://feeds.example.com/rss.xml",
             "source_type": "rss", "scope_type": "market", "market": "cn",
         })
-        with patch("src.services.intelligence_service.requests.get", return_value=self._mock_response()):
+        with patch("ai_stock.services.intelligence_service.requests.get", return_value=self._mock_response()):
             first = self.service.fetch_source(source["id"])
             second = self.service.fetch_source(source["id"])
         self.assertEqual(first["fetched_count"], 2)
@@ -151,7 +151,7 @@ class IntelligenceServiceTestCase(unittest.TestCase):
             "name": "secret-feed", "url": secret_url, "scope_type": "market",
         })
 
-        with patch("src.services.intelligence_service.requests.get", return_value=self._mock_http_error_response(secret_url)):
+        with patch("ai_stock.services.intelligence_service.requests.get", return_value=self._mock_http_error_response(secret_url)):
             with self.assertRaises(IntelligenceServiceError) as ctx:
                 self.service.fetch_source(source["id"])
 
@@ -174,7 +174,7 @@ class IntelligenceServiceTestCase(unittest.TestCase):
             "market": "cn",
         })
 
-        with patch("src.services.intelligence_service.requests.get", return_value=self._mock_http_error_response(secret_url)):
+        with patch("ai_stock.services.intelligence_service.requests.get", return_value=self._mock_http_error_response(secret_url)):
             with self.assertRaises(IntelligenceServiceError) as ctx:
                 self.service.fetch_source(source["id"])
 
@@ -208,7 +208,7 @@ class IntelligenceServiceTestCase(unittest.TestCase):
             if "bad" in url:
                 raise RuntimeError("network token=secret should not leak")
             return self._mock_response()
-        with patch("src.services.intelligence_service.requests.get", side_effect=fake_get):
+        with patch("ai_stock.services.intelligence_service.requests.get", side_effect=fake_get):
             result = self.service.fetch_enabled_sources()
         self.assertEqual(result["source_count"], 2)
         self.assertEqual(result["saved_count"], 2)
@@ -227,7 +227,7 @@ class IntelligenceServiceTestCase(unittest.TestCase):
                 "market": "cn",
             })
 
-        with patch("src.services.intelligence_service.requests.get", side_effect=lambda *_args, **_kwargs: self._mock_response()):
+        with patch("ai_stock.services.intelligence_service.requests.get", side_effect=lambda *_args, **_kwargs: self._mock_response()):
             result = self.service.fetch_enabled_sources()
 
         self.assertEqual(result["source_count"], 150)
@@ -249,7 +249,7 @@ class IntelligenceServiceTestCase(unittest.TestCase):
         response.raise_for_status.return_value = None
         response.iter_content.return_value = [NO_URL_LINK_FIXTURE]
 
-        with patch("src.services.intelligence_service.requests.get", return_value=response):
+        with patch("ai_stock.services.intelligence_service.requests.get", return_value=response):
             result = self.service.fetch_source(source["id"])
 
         self.assertEqual(result["fetched_count"], 1)
@@ -270,7 +270,7 @@ class IntelligenceServiceTestCase(unittest.TestCase):
         response.raise_for_status.return_value = None
         response.iter_content.return_value = [BAD_ITEM_LINK_FIXTURE]
 
-        with patch("src.services.intelligence_service.requests.get", return_value=response):
+        with patch("ai_stock.services.intelligence_service.requests.get", return_value=response):
             result = self.service.fetch_source(source["id"])
 
         self.assertEqual(result["fetched_count"], 1)
@@ -294,7 +294,7 @@ class IntelligenceServiceTestCase(unittest.TestCase):
             "market": "cn",
         })
 
-        with patch("src.services.intelligence_service.requests.get", return_value=self._mock_json_response()):
+        with patch("ai_stock.services.intelligence_service.requests.get", return_value=self._mock_json_response()):
             result = self.service.fetch_source(source["id"])
 
         self.assertEqual(result["fetched_count"], 2)
@@ -338,7 +338,7 @@ class IntelligenceServiceTestCase(unittest.TestCase):
             "market": "cn",
         })
         response = self._mock_response(source_url="https://feeds.example.com/shared.xml")
-        with patch("src.services.intelligence_service.requests.get", return_value=response):
+        with patch("ai_stock.services.intelligence_service.requests.get", return_value=response):
             market_result = self.service.fetch_source(market["id"])
             symbol_result = self.service.fetch_source(symbol["id"])
 
@@ -357,7 +357,7 @@ class IntelligenceServiceTestCase(unittest.TestCase):
             "scope_type": "market",
         })
 
-        with patch("src.services.intelligence_service.requests.get", side_effect=[
+        with patch("ai_stock.services.intelligence_service.requests.get", side_effect=[
             self._mock_response_with_redirects(source_url="https://feeds.example.com/rss.xml", next_url="http://localhost/evil.xml"),
             self._mock_response(source_url="http://localhost/evil.xml"),
         ]):
@@ -371,7 +371,7 @@ class IntelligenceServiceTestCase(unittest.TestCase):
             "scope_type": "market",
         })
 
-        with patch("src.services.intelligence_service.requests.get", side_effect=[
+        with patch("ai_stock.services.intelligence_service.requests.get", side_effect=[
             self._mock_response_with_redirects(source_url="https://feeds.example.com/rss.xml", next_url="/next.xml"),
             self._mock_response(source_url="https://feeds.example.com/next.xml"),
         ]):
@@ -394,7 +394,7 @@ class IntelligenceServiceTestCase(unittest.TestCase):
         large_response.raise_for_status.return_value = None
         large_response.iter_content.return_value = [b"x" * (2 * 1024 * 1024 + 1)]
 
-        with patch("src.services.intelligence_service.requests.get", return_value=large_response):
+        with patch("ai_stock.services.intelligence_service.requests.get", return_value=large_response):
             with self.assertRaises(IntelligenceServiceError):
                 self.service.fetch_source(source["id"])
 

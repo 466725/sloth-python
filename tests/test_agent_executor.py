@@ -208,11 +208,11 @@ class TestAgentExecutor(unittest.TestCase):
 
         with patch.object(executor, "_run_loop", side_effect=fake_run_loop):
             with patch(
-                "src.agent.executor.build_agent_chat_context_bundle",
+                "ai_stock.agent.executor.build_agent_chat_context_bundle",
                 return_value=SimpleNamespace(context_messages=compressed_history, diagnostics={}),
             ):
-                with patch("src.agent.conversation.conversation_manager.get_or_create"):
-                    with patch("src.agent.conversation.conversation_manager.add_message"):
+                with patch("ai_stock.agent.conversation.conversation_manager.get_or_create"):
+                    with patch("ai_stock.agent.conversation.conversation_manager.add_message"):
                         executor.chat(
                             "当前问题",
                             "session-1",
@@ -256,11 +256,11 @@ class TestAgentExecutor(unittest.TestCase):
 
         with patch.object(executor, "_run_loop", side_effect=fake_run_loop):
             with patch(
-                "src.agent.executor.build_agent_chat_context_bundle",
+                "ai_stock.agent.executor.build_agent_chat_context_bundle",
                 return_value=SimpleNamespace(context_messages=[], diagnostics={}),
             ):
-                with patch("src.agent.conversation.conversation_manager.get_or_create"):
-                    with patch("src.agent.conversation.conversation_manager.add_message"):
+                with patch("ai_stock.agent.conversation.conversation_manager.get_or_create"):
+                    with patch("ai_stock.agent.conversation.conversation_manager.add_message"):
                         executor.chat("换成 AAPL 看看，不考虑 600519", "session-1", context=stale_context)
 
         history_context = "\n".join(
@@ -288,11 +288,11 @@ class TestAgentExecutor(unittest.TestCase):
 
         with patch.object(executor, "_run_loop", side_effect=fake_run_loop):
             with patch(
-                "src.agent.executor.build_agent_chat_context_bundle",
+                "ai_stock.agent.executor.build_agent_chat_context_bundle",
                 return_value=SimpleNamespace(context_messages=[], diagnostics={}),
             ):
-                with patch("src.agent.conversation.conversation_manager.get_or_create"):
-                    with patch("src.agent.conversation.conversation_manager.add_message"):
+                with patch("ai_stock.agent.conversation.conversation_manager.get_or_create"):
+                    with patch("ai_stock.agent.conversation.conversation_manager.add_message"):
                         executor.chat(
                             "继续看",
                             "session-1",
@@ -352,7 +352,7 @@ class TestAgentExecutor(unittest.TestCase):
             model="openai/gpt-test",
         )
 
-        with patch("src.agent.runner._persist_usage") as persist_usage:
+        with patch("ai_stock.agent.runner._persist_usage") as persist_usage:
             result = run_agent_loop(
                 messages=[{"role": "user", "content": "Analyze"}],
                 tool_registry=registry,
@@ -378,7 +378,7 @@ class TestAgentExecutor(unittest.TestCase):
             model="openai/gpt-test",
         )
 
-        with patch("src.agent.runner._persist_usage") as persist_usage:
+        with patch("ai_stock.agent.runner._persist_usage") as persist_usage:
             result = run_agent_loop(
                 messages=[{"role": "user", "content": "Analyze"}],
                 tool_registry=registry,
@@ -402,7 +402,7 @@ class TestAgentExecutor(unittest.TestCase):
             model="openai/gpt-test",
         )
 
-        with patch("src.agent.runner._persist_usage") as persist_usage:
+        with patch("ai_stock.agent.runner._persist_usage") as persist_usage:
             result = run_agent_loop(
                 messages=[{"role": "user", "content": "Analyze"}],
                 tool_registry=registry,
@@ -427,7 +427,7 @@ class TestAgentExecutor(unittest.TestCase):
             model="openai/gpt-test",
         )
 
-        with patch("src.agent.runner._persist_usage") as persist_usage:
+        with patch("ai_stock.agent.runner._persist_usage") as persist_usage:
             result = run_agent_loop(
                 messages=[{"role": "user", "content": "Analyze"}],
                 tool_registry=registry,
@@ -964,11 +964,11 @@ class TestAgentExecutor(unittest.TestCase):
 
         with patch.object(executor, "_run_loop", side_effect=fake_run_loop):
             with patch(
-                "src.agent.executor.build_agent_chat_context_bundle",
+                "ai_stock.agent.executor.build_agent_chat_context_bundle",
                 return_value=SimpleNamespace(context_messages=[], diagnostics={}),
             ):
-                with patch("src.agent.conversation.conversation_manager.get_or_create"):
-                    with patch("src.agent.conversation.conversation_manager.add_message"):
+                with patch("ai_stock.agent.conversation.conversation_manager.get_or_create"):
+                    with patch("ai_stock.agent.conversation.conversation_manager.add_message"):
                         executor.chat(
                             "当前问题",
                             "session-market-context",
@@ -1235,8 +1235,8 @@ class TestAgentExecutor(unittest.TestCase):
         ]
         db = SimpleNamespace(save_agent_provider_turn=MagicMock(side_effect=RuntimeError("db down")))
 
-        with patch("src.agent.executor.get_db", return_value=db):
-            with self.assertLogs("src.agent.executor", level="WARNING") as logs:
+        with patch("ai_stock.agent.executor.get_db", return_value=db):
+            with self.assertLogs("ai_stock.agent.executor", level="WARNING") as logs:
                 executor._persist_provider_trace(
                     session_id="executor-trace-fail-open",
                     run_id="run-1",
@@ -1649,7 +1649,7 @@ class TestAgentExecutor(unittest.TestCase):
         adapter.call_with_tools.side_effect = _capture_timeout
 
         executor = AgentExecutor(registry, adapter, max_steps=2, timeout_seconds=1.0)
-        with patch("src.agent.runner.time.time", return_value=1000.0):
+        with patch("ai_stock.agent.runner.time.time", return_value=1000.0):
             result = executor.run("Analyze 600519")
 
         self.assertTrue(result.success)
@@ -1669,7 +1669,7 @@ class TestAgentExecutor(unittest.TestCase):
         )
 
         with patch(
-            "src.agent.runner._remaining_timeout_seconds",
+            "ai_stock.agent.runner._remaining_timeout_seconds",
             side_effect=[9.0, 9.0, 7.5, 7.5],
         ):
             result = run_agent_loop(

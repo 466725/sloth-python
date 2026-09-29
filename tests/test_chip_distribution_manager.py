@@ -47,7 +47,7 @@ def _run_with_chip_diagnostics(manager: DataFetcherManager):
         event_sink=flow_events.append,
     )
     try:
-        with patch("src.config.get_config", return_value=SimpleNamespace(enable_chip_distribution=True)):
+        with patch("ai_stock.config.get_config", return_value=SimpleNamespace(enable_chip_distribution=True)):
             chip = manager.get_chip_distribution("600519")
         diagnostics = current_diagnostic_snapshot()
     finally:

@@ -239,7 +239,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertGreater(saved, 0)
 
         service = HistoryService(self.db)
-        with patch("src.services.history_service.resolve_index_stock_code", return_value="005930.KS"):
+        with patch("ai_stock.services.history_service.resolve_index_stock_code", return_value="005930.KS"):
             listing = service.get_history_list(page=1, limit=5)
             detail = service.resolve_and_get_detail("query_kr_bare")
 
@@ -279,7 +279,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertGreater(saved, 0)
 
         service = HistoryService(self.db)
-        with patch("src.services.history_service.resolve_index_stock_code", return_value="005930.KS"):
+        with patch("ai_stock.services.history_service.resolve_index_stock_code", return_value="005930.KS"):
             items = service.get_history_list(page=1, limit=5)["items"]
 
         self.assertEqual(items[0]["stock_code"], "005930.KS")
@@ -324,7 +324,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             0,
         )
 
-        with patch("src.services.history_service.resolve_index_stock_code", side_effect=lambda code: "005930.KS" if str(code).split(".", 1)[0] == "005930" else None):
+        with patch("ai_stock.services.history_service.resolve_index_stock_code", side_effect=lambda code: "005930.KS" if str(code).split(".", 1)[0] == "005930" else None):
             listing = HistoryService(self.db).get_history_list(stock_code="005930.KS", page=1, limit=10)
             stock_bar = get_stock_bar(
                 start_date=None,
@@ -970,7 +970,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertEqual(report.meta.current_price, 200.0)
         self.assertEqual(report.meta.change_pct, 1.23)
 
-    @patch("src.auth.is_auth_enabled", return_value=False)
+    @patch("ai_stock.auth.is_auth_enabled", return_value=False)
     def test_history_detail_ignores_non_dict_realtime_quote_raw(self, mock_auth) -> None:
         """GET /api/v1/history/{id} should tolerate truthy non-dict realtime_quote_raw."""
         if TestClient is None or create_app is None:
@@ -1201,7 +1201,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             self.assertEqual(row.id, saved)
             record_id = row.id
 
-        with patch("src.services.history_service.resolve_index_stock_code", return_value="005930.KS"):
+        with patch("ai_stock.services.history_service.resolve_index_stock_code", return_value="005930.KS"):
             report = get_history_detail(str(record_id), db_manager=self.db)
 
         self.assertEqual(report.meta.stock_code, "005930.KS")
@@ -1965,7 +1965,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
                 1,
             )
 
-    @patch("src.auth.is_auth_enabled", return_value=False)
+    @patch("ai_stock.auth.is_auth_enabled", return_value=False)
     def test_delete_history_api_deletes_selected_records(self, mock_auth) -> None:
         """DELETE /api/v1/history should remove only the requested records."""
         if TestClient is None or create_app is None:

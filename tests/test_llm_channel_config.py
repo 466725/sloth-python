@@ -26,7 +26,7 @@ from ai_stock.services.system_config_service import SystemConfigService
 
 
 class LLMChannelConfigTestCase(unittest.TestCase):
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_anspire_key_enables_openai_compatible_legacy_model(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -45,7 +45,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(params["model"], "__legacy_openai__")
         self.assertEqual(params["api_base"], ANSPIRE_LLM_BASE_URL_DEFAULT)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_anspire_legacy_overrides_stale_openai_base_url(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -61,7 +61,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         params = config.llm_model_list[0]["litellm_params"]
         self.assertEqual(params["api_base"], ANSPIRE_LLM_BASE_URL_DEFAULT)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_anspire_channel_reuses_shared_key_and_defaults(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -79,7 +79,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         params = config.llm_model_list[0]["litellm_params"]
         self.assertEqual(params["api_base"], ANSPIRE_LLM_BASE_URL_DEFAULT)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_blank_anspire_channel_enabled_uses_shared_disable_flag(
         self,
@@ -100,7 +100,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(config.llm_channels, [])
         self.assertEqual(config.llm_model_list, [])
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_disabled_anspire_channel_does_not_fall_back_to_legacy(
         self,
@@ -120,7 +120,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(config.llm_channels, [])
         self.assertEqual(config.llm_model_list, [])
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_protocol_prefixes_bare_model_names(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -139,7 +139,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(config.llm_channels[0]["models"], ["deepseek/deepseek-chat"])
         self.assertEqual(config.llm_model_list[0]["litellm_params"]["model"], "deepseek/deepseek-chat")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_openai_compatible_channel_prefixes_non_provider_slash_models(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -158,7 +158,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
             ["openai/Qwen/Qwen3-8B", "openai/deepseek-ai/DeepSeek-V3"],
         )
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_alias_prefixed_models_are_canonicalized_once(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -174,7 +174,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(config.llm_channels[0]["models"], ["vertex_ai/gemini-2.5-flash"])
         self.assertEqual(config.llm_model_list[0]["litellm_params"]["model"], "vertex_ai/gemini-2.5-flash")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_minimax_prefixed_models_are_not_rewritten_for_openai_compatible_channels(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -191,7 +191,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(config.llm_channels[0]["models"], ["minimax/MiniMax-M1"])
         self.assertEqual(config.llm_model_list[0]["litellm_params"]["model"], "minimax/MiniMax-M1")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_disabled_channel_is_skipped(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -208,7 +208,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(config.llm_channels, [])
         self.assertEqual(config.llm_model_list, [])
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_local_ollama_channel_can_skip_api_key(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -227,7 +227,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(params["model"], "ollama/llama3.2")
         self.assertNotIn("api_key", params)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_llm_temperature_falls_back_to_legacy_provider_temperature(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -241,9 +241,9 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(config.litellm_model, "gemini/gemini-3.1-pro-preview")
         self.assertAlmostEqual(config.llm_temperature, 0.15)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
-    @patch("src.config.logger.warning")
+    @patch("ai_stock.config.logger.warning")
     def test_deepseek_key_defaults_to_legacy_chat_model_with_deprecation_warning(
         self,
         mock_warning,
@@ -264,9 +264,9 @@ class LLMChannelConfigTestCase(unittest.TestCase):
             "please migrate to deepseek-v4-flash."
         )
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
-    @patch("src.config.logger.warning")
+    @patch("ai_stock.config.logger.warning")
     def test_explicit_deepseek_litellm_model_is_preserved(
         self,
         mock_warning,
@@ -284,9 +284,9 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(config.litellm_model, "deepseek/deepseek-chat")
         mock_warning.assert_not_called()
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
-    @patch("src.config.logger.warning")
+    @patch("ai_stock.config.logger.warning")
     def test_deepseek_key_does_not_warn_when_channels_take_precedence(
         self,
         mock_warning,
@@ -307,7 +307,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(config.llm_models_source, "llm_channels")
         mock_warning.assert_not_called()
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(
         Config,
         "_parse_litellm_yaml",
@@ -321,7 +321,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
             }
         ],
     )
-    @patch("src.config.logger.warning")
+    @patch("ai_stock.config.logger.warning")
     def test_deepseek_key_does_not_warn_when_litellm_yaml_takes_precedence(
         self,
         mock_warning,
@@ -339,7 +339,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(config.llm_models_source, "litellm_config")
         mock_warning.assert_not_called()
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_llm_temperature_prefers_unified_setting_when_present(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -353,7 +353,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
 
         self.assertAlmostEqual(config.llm_temperature, 0.35)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_llm_temperature_falls_back_to_openai_temperature(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -370,7 +370,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
 
         self.assertAlmostEqual(config.llm_temperature, 0.42)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_llm_temperature_falls_back_to_any_legacy_when_provider_mismatch(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -387,7 +387,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
 
         self.assertAlmostEqual(config.llm_temperature, 0.55)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_llm_temperature_ignores_invalid_value(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -401,7 +401,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
 
         self.assertAlmostEqual(config.llm_temperature, 0.25)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_kimi_k26_keeps_raw_configured_temperature(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -520,7 +520,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertTrue(directive.omit_temperature)
         self.assertNotIn("temperature", call_kwargs)
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_local_openai_compatible_channel_defaults_to_openai_protocol(self, _mock_parse_yaml, _mock_setup_env) -> None:
         """Localhost channels without explicit protocol should default to openai, not ollama."""
@@ -538,7 +538,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(params["model"], "openai/my-model")
         self.assertEqual(config.llm_channels[0]["protocol"], "openai")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_agent_model_empty_inherits_primary_model(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -553,7 +553,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(config.agent_litellm_model, "")
         self.assertEqual(get_effective_agent_primary_model(config), "openai/gpt-4o-mini")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_agent_model_without_provider_prefix_is_normalized(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -568,7 +568,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(config.agent_litellm_model, "openai/deepseek-chat")
         self.assertEqual(get_effective_agent_primary_model(config), "openai/deepseek-chat")
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_agent_models_to_try_are_deduped_in_order(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -586,7 +586,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
             ["openai/gpt-4o-mini", "gemini/gemini-2.5-flash"],
         )
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_agent_models_to_try_dedupes_semantically_equivalent_openai_models(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
@@ -604,7 +604,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
             ["openai/gpt-4o-mini"],
         )
 
-    @patch("src.config.setup_env")
+    @patch("ai_stock.config.setup_env")
     @patch.object(
         Config,
         "_parse_litellm_yaml",
@@ -690,7 +690,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
                 self.assertTrue(SystemConfigService._is_valid_llm_base_url(value), msg=value)
                 self.assertTrue(SystemConfigService._is_safe_base_url(value), msg=value)
 
-    @patch("src.services.system_config_service.requests.get")
+    @patch("ai_stock.services.system_config_service.requests.get")
     def test_discover_llm_channel_models_blocks_parser_differential_url(self, mock_get) -> None:
         service = SystemConfigService(manager=Mock())
 
@@ -706,7 +706,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         self.assertEqual(payload["details"]["reason"], "invalid_url")
         mock_get.assert_not_called()
 
-    @patch("src.services.system_config_service.requests.get")
+    @patch("ai_stock.services.system_config_service.requests.get")
     def test_discover_llm_channel_models_blocks_unicode_metadata_alias(self, mock_get) -> None:
         service = SystemConfigService(manager=Mock())
 
@@ -727,7 +727,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
                 self.assertEqual(payload["details"]["reason"], "ssrf_blocked")
                 mock_get.assert_not_called()
 
-    @patch("src.services.system_config_service.requests.get")
+    @patch("ai_stock.services.system_config_service.requests.get")
     def test_discover_llm_channel_models_blocks_numeric_metadata_alias(self, mock_get) -> None:
         service = SystemConfigService(manager=Mock())
 

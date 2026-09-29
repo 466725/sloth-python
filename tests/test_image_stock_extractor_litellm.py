@@ -82,44 +82,44 @@ def _make_jpeg_bytes() -> bytes:
 class TestResolveVisionModel:
     def test_uses_vision_model_first(self):
         cfg = _cfg(vision_model="gemini/gemini-2.0-flash", openai_vision_model="openai/gpt-4o")
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg):
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg):
             assert _resolve_vision_model() == "gemini/gemini-2.0-flash"
 
     def test_uses_openai_vision_model_first(self):
         cfg = _cfg(vision_model="", openai_vision_model="openai/gpt-4o", litellm_model="gemini/gemini-2.5-flash")
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg):
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg):
             assert _resolve_vision_model() == "openai/gpt-4o"
 
     def test_falls_back_to_litellm_model(self):
         cfg = _cfg(openai_vision_model=None, litellm_model="gemini/gemini-2.5-flash")
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg):
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg):
             assert _resolve_vision_model() == "gemini/gemini-2.5-flash"
 
     def test_infers_gemini_from_api_keys(self):
         cfg = _cfg(openai_vision_model=None, litellm_model="", gemini_api_keys=[_GEMINI_KEY])
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg):
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg):
             assert _resolve_vision_model() == "gemini/gemini-3.1-pro-preview"
 
     def test_infers_anthropic_when_no_gemini_key(self):
         cfg = _cfg(openai_vision_model=None, litellm_model="", gemini_api_keys=[], anthropic_api_keys=[_ANTHROPIC_KEY])
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg):
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg):
             result = _resolve_vision_model()
             assert result.startswith("anthropic/")
 
     def test_infers_openai_when_only_openai_key(self):
         cfg = _cfg(openai_vision_model=None, litellm_model="", openai_api_keys=[_OPENAI_KEY])
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg):
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg):
             result = _resolve_vision_model()
             assert result.startswith("openai/")
 
     def test_keeps_gemini3_vision_model(self):
         cfg = _cfg(openai_vision_model="gemini/gemini-3.1-pro-preview")
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg):
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg):
             assert _resolve_vision_model() == "gemini/gemini-3.1-pro-preview"
 
     def test_returns_empty_when_no_model_and_no_keys(self):
         cfg = _cfg(openai_vision_model=None, litellm_model="", gemini_api_keys=[], anthropic_api_keys=[], openai_api_keys=[])
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg):
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg):
             assert _resolve_vision_model() == ""
 
 
@@ -166,8 +166,8 @@ class TestCallLitellmVision:
 
     def test_calls_litellm_with_image(self):
         cfg = _cfg(openai_vision_model=None, litellm_model="", gemini_api_keys=[_GEMINI_KEY])
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg), \
-             patch("src.services.image_stock_extractor.litellm.completion",
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg), \
+             patch("ai_stock.services.image_stock_extractor.litellm.completion",
                    return_value=self._good_response()) as mock_comp:
             result = _call_litellm_vision("base64data", "image/jpeg")
             assert result == '["600519"]'
@@ -182,8 +182,8 @@ class TestCallLitellmVision:
             openai_api_keys=[_OPENAI_KEY],
             openai_base_url="https://aihubmix.com/v1",
         )
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg), \
-             patch("src.services.image_stock_extractor.litellm.completion",
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg), \
+             patch("ai_stock.services.image_stock_extractor.litellm.completion",
                    return_value=self._good_response()) as mock_comp:
             _call_litellm_vision("b64", "image/jpeg")
             kwargs = mock_comp.call_args[1]
@@ -192,13 +192,13 @@ class TestCallLitellmVision:
 
     def test_raises_when_model_not_configured(self):
         cfg = _cfg(openai_vision_model=None, litellm_model="", gemini_api_keys=[], anthropic_api_keys=[], openai_api_keys=[])
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg):
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg):
             with pytest.raises(ValueError, match="未配置 Vision API"):
                 _call_litellm_vision("b64", "image/jpeg")
 
     def test_raises_when_no_key_for_model(self):
         cfg = _cfg(openai_vision_model="openai/gpt-4o-mini", openai_api_keys=[])
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg):
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg):
             with pytest.raises(ValueError, match="No API key found"):
                 _call_litellm_vision("b64", "image/jpeg")
 
@@ -206,8 +206,8 @@ class TestCallLitellmVision:
         cfg = _cfg(gemini_api_keys=[_GEMINI_KEY])
         empty_resp = MagicMock()
         empty_resp.choices = []
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg), \
-             patch("src.services.image_stock_extractor.litellm.completion",
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg), \
+             patch("ai_stock.services.image_stock_extractor.litellm.completion",
                    return_value=empty_resp):
             with pytest.raises(ValueError, match="returned empty response"):
                 _call_litellm_vision("b64", "image/jpeg")
@@ -303,8 +303,8 @@ class TestExtractStockCodesFromImage:
     def test_returns_items_and_raw(self):
         cfg = _cfg(gemini_api_keys=[_GEMINI_KEY])
         jpeg = _make_jpeg_bytes()
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg), \
-             patch("src.services.image_stock_extractor.litellm.completion",
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg), \
+             patch("ai_stock.services.image_stock_extractor.litellm.completion",
                    return_value=self._good_vision_response()):
             items, raw = extract_stock_codes_from_image(jpeg, "image/jpeg")
             codes = [i[0] for i in items]
@@ -329,8 +329,8 @@ class TestExtractStockCodesFromImage:
     def test_wraps_litellm_error_message(self):
         cfg = _cfg(gemini_api_keys=[_GEMINI_KEY])
         jpeg = _make_jpeg_bytes()
-        with patch("src.services.image_stock_extractor.get_config", return_value=cfg), \
-             patch("src.services.image_stock_extractor.litellm.completion",
+        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg), \
+             patch("ai_stock.services.image_stock_extractor.litellm.completion",
                    side_effect=RuntimeError("network down")):
             with pytest.raises(ValueError, match="Vision API 调用失败"):
                 extract_stock_codes_from_image(jpeg, "image/jpeg")

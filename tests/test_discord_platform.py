@@ -12,7 +12,7 @@ from bot.platforms.discord import DiscordPlatform
 
 def _make_platform(public_key: str) -> DiscordPlatform:
     with patch(
-        "src.config.get_config",
+        "ai_stock.config.get_config",
         return_value=SimpleNamespace(
             discord_interactions_public_key=public_key,
         ),

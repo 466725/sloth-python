@@ -95,8 +95,8 @@ class _FakeRiskService:
 
 
 class TestGetPortfolioSnapshotTool(unittest.TestCase):
-    @patch("src.services.portfolio_service.PortfolioService", _FakePortfolioService)
-    @patch("src.services.portfolio_risk_service.PortfolioRiskService", _FakeRiskService)
+    @patch("ai_stock.services.portfolio_service.PortfolioService", _FakePortfolioService)
+    @patch("ai_stock.services.portfolio_risk_service.PortfolioRiskService", _FakeRiskService)
     def test_default_returns_compact_snapshot_and_risk(self) -> None:
         result = _handle_get_portfolio_snapshot(account_id=1)
         self.assertEqual(result["status"], "ok")
@@ -110,8 +110,8 @@ class TestGetPortfolioSnapshotTool(unittest.TestCase):
         self.assertEqual(account["position_count"], 2)
         self.assertEqual(account["top_positions"][0]["symbol"], "600519")
 
-    @patch("src.services.portfolio_service.PortfolioService", _FakePortfolioService)
-    @patch("src.services.portfolio_risk_service.PortfolioRiskService", _FakeRiskService)
+    @patch("ai_stock.services.portfolio_service.PortfolioService", _FakePortfolioService)
+    @patch("ai_stock.services.portfolio_risk_service.PortfolioRiskService", _FakeRiskService)
     def test_include_positions_and_disable_risk(self) -> None:
         result = _handle_get_portfolio_snapshot(
             account_id=1,

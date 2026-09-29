@@ -78,13 +78,13 @@ class MarketCommandRegionFilterTestCase(unittest.TestCase):
             patch.dict(
                 sys.modules,
                 {
-                    "src.config": config_module,
-                    "src.notification": notification_module,
-                    "src.core.market_review": market_review_module,
-                    "src.core.market_review_runtime": runtime_module,
-                    "src.search_service": search_module,
-                    "src.analyzer": analyzer_module,
-                    "src.core.trading_calendar": trading_calendar_module,
+                    "ai_stock.config": config_module,
+                    "ai_stock.notification": notification_module,
+                    "ai_stock.core.market_review": market_review_module,
+                    "ai_stock.core.market_review_runtime": runtime_module,
+                    "ai_stock.search_service": search_module,
+                    "ai_stock.analyzer": analyzer_module,
+                    "ai_stock.core.trading_calendar": trading_calendar_module,
                 },
             )
         ]

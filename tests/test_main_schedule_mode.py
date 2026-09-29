@@ -111,7 +111,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
         return _DummyConfig(**defaults)
 
     def test_public_webui_bind_warns_when_auth_is_disabled(self) -> None:
-        with patch("src.auth.is_auth_enabled", return_value=False), \
+        with patch("ai_stock.auth.is_auth_enabled", return_value=False), \
              patch("main.logger.warning") as warning_log:
             main._warn_if_public_webui_without_auth("0.0.0.0")
 
@@ -120,7 +120,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
         self.assertEqual(warning_log.call_args.args[1], "0.0.0.0")
 
     def test_loopback_webui_bind_does_not_warn_when_auth_is_disabled(self) -> None:
-        with patch("src.auth.is_auth_enabled", return_value=False), \
+        with patch("ai_stock.auth.is_auth_enabled", return_value=False), \
              patch("main.logger.warning") as warning_log:
             main._warn_if_public_webui_without_auth("127.0.0.1")
 
@@ -172,7 +172,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
              patch("main.setup_logging"), \
              patch("main.run_full_analysis") as run_full_analysis, \
              patch("main.logger.warning") as warning_log, \
-             patch("src.scheduler.run_with_schedule", side_effect=fake_run_with_schedule):
+             patch("ai_stock.scheduler.run_with_schedule", side_effect=fake_run_with_schedule):
             exit_code = main.main()
 
         self.assertEqual(exit_code, 0)
@@ -230,7 +230,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
              patch("main._build_schedule_time_provider", return_value=lambda: "09:30"), \
              patch("main.setup_logging"), \
              patch("main.run_full_analysis") as run_full_analysis, \
-             patch("src.scheduler.run_with_schedule", side_effect=fake_run_with_schedule):
+             patch("ai_stock.scheduler.run_with_schedule", side_effect=fake_run_with_schedule):
             exit_code = main.main()
 
         self.assertEqual(exit_code, 0)
@@ -271,8 +271,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
              patch("main._build_schedule_time_provider", return_value=lambda: "18:00"), \
              patch("main.setup_logging"), \
              patch("main.run_full_analysis") as run_full_analysis, \
-             patch("src.services.alert_worker.AlertWorker", return_value=worker) as worker_cls, \
-             patch("src.scheduler.run_with_schedule", side_effect=fake_run_with_schedule):
+             patch("ai_stock.services.alert_worker.AlertWorker", return_value=worker) as worker_cls, \
+             patch("ai_stock.scheduler.run_with_schedule", side_effect=fake_run_with_schedule):
             exit_code = main.main()
 
         self.assertEqual(exit_code, 0)
@@ -320,8 +320,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
              patch("main._build_schedule_time_provider", return_value=lambda: "18:00"), \
              patch("main.setup_logging"), \
              patch("main.run_full_analysis") as run_full_analysis, \
-             patch("src.services.alert_worker.AlertWorker", return_value=worker) as worker_cls, \
-             patch("src.scheduler.run_with_schedule", side_effect=fake_run_with_schedule):
+             patch("ai_stock.services.alert_worker.AlertWorker", return_value=worker) as worker_cls, \
+             patch("ai_stock.scheduler.run_with_schedule", side_effect=fake_run_with_schedule):
             exit_code = main.main()
 
         self.assertEqual(exit_code, 0)
@@ -341,11 +341,11 @@ class MainScheduleModeTestCase(unittest.TestCase):
              patch("main.start_api_server") as start_api_server, \
              patch("main.run_full_analysis") as run_full_analysis, \
              patch(
-                 "src.services.notification_diagnostics.run_notification_diagnostics",
+                 "ai_stock.services.notification_diagnostics.run_notification_diagnostics",
                  return_value=diagnostic_result,
              ) as run_diagnostics, \
              patch(
-                 "src.services.notification_diagnostics.format_notification_diagnostics",
+                 "ai_stock.services.notification_diagnostics.format_notification_diagnostics",
                  return_value="通知配置诊断",
              ), \
              patch("builtins.print") as print_output:
@@ -438,7 +438,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
              patch("main.start_api_server", side_effect=RuntimeError("port busy")), \
              patch("main.start_bot_stream_clients") as start_bots, \
              patch("main.run_full_analysis") as run_full_analysis, \
-             patch("src.scheduler.run_with_schedule", side_effect=fake_run_with_schedule), \
+             patch("ai_stock.scheduler.run_with_schedule", side_effect=fake_run_with_schedule), \
              patch("main.logger.error") as error_log:
             exit_code = main.main()
 
@@ -549,7 +549,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
             "_INITIAL_PROCESS_ENV",
             {},
         ), patch(
-            "src.core.config_manager.ConfigManager.read_config_map",
+            "ai_stock.core.config_manager.ConfigManager.read_config_map",
             side_effect=RuntimeError("boom"),
         ):
             provider = main._build_schedule_time_provider("18:00")
@@ -567,7 +567,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
             "_INITIAL_PROCESS_ENV",
             {"SCHEDULE_TIME": "18:00"},
         ), patch(
-            "src.core.config_manager.ConfigManager.read_config_map",
+            "ai_stock.core.config_manager.ConfigManager.read_config_map",
             side_effect=AssertionError("should not read .env when process env override exists"),
         ):
             provider = main._build_schedule_time_provider("09:30")
@@ -585,7 +585,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
             "_INITIAL_PROCESS_ENV",
             {},
         ), patch(
-            "src.core.config_manager.ConfigManager.read_config_map",
+            "ai_stock.core.config_manager.ConfigManager.read_config_map",
             return_value={},
         ):
             provider = main._build_schedule_time_provider("09:30")
@@ -602,7 +602,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
             "_INITIAL_PROCESS_ENV",
             {},
         ), patch(
-            "src.core.config_manager.ConfigManager.read_config_map",
+            "ai_stock.core.config_manager.ConfigManager.read_config_map",
             return_value={"SCHEDULE_TIME": "  "},
         ):
             provider = main._build_schedule_time_provider("09:30")
@@ -655,8 +655,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
         self.assertIsNotNone(lock_token)
         try:
             with patch.object(main, "_refresh_stock_index_cache_for_analysis", side_effect=refresh_index) as refresh, \
-                 patch("src.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
-                 patch("src.core.market_review.run_market_review") as run_market_review:
+                 patch("ai_stock.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
+                 patch("ai_stock.core.market_review.run_market_review") as run_market_review:
                 main.run_full_analysis(config, args, [])
         finally:
             release_market_review_lock(lock_token)
@@ -688,9 +688,9 @@ class MainScheduleModeTestCase(unittest.TestCase):
 
         with patch.object(main, "_refresh_stock_index_cache_for_analysis") as refresh, \
              patch("main._compute_trading_day_filter", return_value=([], "cn", False)), \
-             patch("src.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
+             patch("ai_stock.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
              patch("main._prime_daily_market_context") as prime_context, \
-             patch("src.core.market_review.run_market_review") as run_market_review:
+             patch("ai_stock.core.market_review.run_market_review") as run_market_review:
             main.run_full_analysis(config, args, [])
 
         self.assertFalse(pipeline_kwargs["daily_market_context_allow_generate"])
@@ -719,7 +719,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
 
         with patch.object(main, "_refresh_stock_index_cache_for_analysis") as refresh, \
              patch("main._compute_trading_day_filter", return_value=([], "cn", False)), \
-             patch("src.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
+             patch("ai_stock.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
              patch("main._prime_daily_market_context", side_effect=[("", ""), ("缓存摘要", "完整复盘")]) as prime_context, \
              patch("main._run_market_review_with_shared_lock", return_value=SimpleNamespace(report="大盘复盘")) as run_with_lock:
             main.run_full_analysis(config, args, [])
@@ -759,10 +759,10 @@ class MainScheduleModeTestCase(unittest.TestCase):
         with patch.object(main, "_refresh_stock_index_cache_for_analysis") as refresh, \
              patch("main._compute_trading_day_filter", return_value=([], "cn", False)), \
              patch("main._resolve_daily_market_context_target_date", side_effect=resolve_target_date), \
-             patch("src.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
+             patch("ai_stock.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
              patch("main._prime_daily_market_context", return_value=("大盘退潮，高风险，建议观望，仓位上限30%。", "完整复盘正文")) as prime_context, \
              patch("main._run_market_review_with_shared_lock") as run_with_lock, \
-             patch("src.core.market_review.run_market_review") as run_market_review:
+             patch("ai_stock.core.market_review.run_market_review") as run_market_review:
             main.run_full_analysis(config, args, [])
 
         self.assertTrue(pipeline_kwargs["daily_market_context_allow_generate"])
@@ -823,10 +823,10 @@ class MainScheduleModeTestCase(unittest.TestCase):
         with patch.object(main, "_refresh_stock_index_cache_for_analysis") as refresh, \
              patch("main._compute_trading_day_filter", return_value=([], "cn,us", False)), \
              patch("main._resolve_daily_market_context_target_date", return_value=target_date), \
-             patch("src.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
+             patch("ai_stock.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
              patch("main._prime_daily_market_context", return_value=("A股缓存摘要", "")) as prime_context, \
              patch("main._run_market_review_with_shared_lock", return_value="多市场复盘") as run_with_lock, \
-             patch("src.core.market_review.run_market_review") as run_market_review:
+             patch("ai_stock.core.market_review.run_market_review") as run_market_review:
             main.run_full_analysis(config, args, [])
 
         self.assertTrue(pipeline_kwargs["daily_market_context_allow_generate"])
@@ -879,7 +879,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
         service.get_context.return_value = context
 
         with patch(
-            "src.services.daily_market_context.DailyMarketContextService",
+            "ai_stock.services.daily_market_context.DailyMarketContextService",
             return_value=service,
         ) as service_cls:
             summary, full_report = main._prime_daily_market_context(
@@ -928,7 +928,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
         service.get_context.return_value = context
 
         with patch(
-            "src.services.daily_market_context.DailyMarketContextService",
+            "ai_stock.services.daily_market_context.DailyMarketContextService",
             return_value=service,
         ):
             summary, full_report = main._prime_daily_market_context(
@@ -975,10 +975,10 @@ class MainScheduleModeTestCase(unittest.TestCase):
         with patch.object(main, "_refresh_stock_index_cache_for_analysis") as refresh, \
              patch("main._compute_trading_day_filter", return_value=([], "cn", False)), \
              patch("main._resolve_daily_market_context_target_date", return_value=target_date), \
-             patch("src.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
+             patch("ai_stock.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
              patch("main._prime_daily_market_context", return_value=("", "")) as prime_context, \
              patch("main._run_market_review_with_shared_lock", side_effect=run_with_lock) as run_with_lock_mock, \
-             patch("src.core.market_review.run_market_review") as run_market_review:
+             patch("ai_stock.core.market_review.run_market_review") as run_market_review:
             main.run_full_analysis(config, args, [])
 
         self.assertTrue(pipeline_kwargs["daily_market_context_allow_generate"])
@@ -1042,13 +1042,13 @@ class MainScheduleModeTestCase(unittest.TestCase):
         with patch.object(main, "_refresh_stock_index_cache_for_analysis") as refresh, \
              patch("main._compute_trading_day_filter", return_value=([], "cn", False)), \
              patch("main._resolve_daily_market_context_target_date", return_value=target_date), \
-             patch("src.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
+             patch("ai_stock.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
              patch(
                  "main._prime_daily_market_context",
                  side_effect=[("", ""), ("", ""), runtime_context],
              ) as prime_context, \
              patch("main._run_market_review_with_shared_lock") as run_with_lock, \
-             patch("src.core.market_review.run_market_review") as run_market_review:
+             patch("ai_stock.core.market_review.run_market_review") as run_market_review:
             main.run_full_analysis(config, args, [])
 
         self.assertTrue(pipeline_kwargs["daily_market_context_allow_generate"])
@@ -1111,13 +1111,13 @@ class MainScheduleModeTestCase(unittest.TestCase):
             patch.object(main, "_refresh_stock_index_cache_for_analysis") as refresh,
             patch("main._compute_trading_day_filter", return_value=([], "cn", False)),
             patch("main._resolve_daily_market_context_target_date", return_value=target_date),
-            patch("src.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline),
+            patch("ai_stock.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline),
             patch(
                 "main._prime_daily_market_context",
                 side_effect=[("", ""), ("", ""), runtime_context],
             ) as prime_context,
             patch("main._run_market_review_with_shared_lock") as run_with_lock,
-            patch("src.core.market_review.run_market_review") as run_market_review,
+            patch("ai_stock.core.market_review.run_market_review") as run_market_review,
         ):
             main.run_full_analysis(config, args, [])
 
@@ -1157,13 +1157,13 @@ class MainScheduleModeTestCase(unittest.TestCase):
         with patch.object(main, "_refresh_stock_index_cache_for_analysis") as refresh, \
              patch("main._compute_trading_day_filter", return_value=([], "cn", False)), \
              patch("main._resolve_daily_market_context_target_date", return_value=target_date), \
-             patch("src.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
+             patch("ai_stock.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
              patch(
                 "main._prime_daily_market_context",
                 return_value=("大盘退潮，高风险，建议观望。", "## 完整大盘复盘\n市场结构偏弱，建议保守。"),
              ) as prime_context, \
              patch("main._run_market_review_with_shared_lock") as run_with_lock, \
-             patch("src.core.market_review.run_market_review") as run_market_review:
+             patch("ai_stock.core.market_review.run_market_review") as run_market_review:
             main.run_full_analysis(config, args, [])
 
         self.assertTrue(pipeline_kwargs["daily_market_context_allow_generate"])
@@ -1225,11 +1225,11 @@ class MainScheduleModeTestCase(unittest.TestCase):
         with patch.object(main, "_refresh_stock_index_cache_for_analysis") as refresh, \
              patch("main._compute_trading_day_filter", return_value=([], "cn", False)), \
              patch("main._resolve_daily_market_context_target_date", return_value=target_date), \
-             patch("src.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
+             patch("ai_stock.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
              patch("main._prime_daily_market_context", return_value=("", "")) as prime_context, \
              patch("main._run_market_review_with_shared_lock", side_effect=run_with_lock) as run_with_lock_mock, \
              patch("time.sleep") as sleep, \
-             patch("src.core.market_review.run_market_review") as run_market_review:
+             patch("ai_stock.core.market_review.run_market_review") as run_market_review:
             main.run_full_analysis(config, args, [])
 
         self.assertTrue(pipeline_kwargs["daily_market_context_allow_generate"])
@@ -1306,7 +1306,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
         with patch.object(main, "_refresh_stock_index_cache_for_analysis") as refresh, \
              patch("main._compute_trading_day_filter", return_value=([], "cn", False)), \
              patch("main._resolve_daily_market_context_target_date", return_value=target_date), \
-             patch("src.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
+             patch("ai_stock.core.pipeline.StockAnalysisPipeline", side_effect=build_pipeline), \
              patch(
                 "main._prime_daily_market_context",
                 return_value=(
@@ -1315,7 +1315,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
                 ),
              ) as prime_context, \
              patch("main._run_market_review_with_shared_lock") as run_with_lock, \
-             patch("src.core.market_review.run_market_review") as run_market_review:
+             patch("ai_stock.core.market_review.run_market_review") as run_market_review:
             main.run_full_analysis(config, args, [])
 
         self.assertTrue(pipeline_kwargs["daily_market_context_allow_generate"])
@@ -1368,8 +1368,8 @@ class MainScheduleModeTestCase(unittest.TestCase):
         )
         run_review = MagicMock(return_value="复盘结果")
 
-        with patch("src.core.market_review_lock.try_acquire_market_review_lock", return_value=object()) as acquire_lock, \
-             patch("src.core.market_review_lock.release_market_review_lock") as release_lock:
+        with patch("ai_stock.core.market_review_lock.try_acquire_market_review_lock", return_value=object()) as acquire_lock, \
+             patch("ai_stock.core.market_review_lock.release_market_review_lock") as release_lock:
             result = main._run_market_review_with_shared_lock(
                 config,
                 run_review,
@@ -1401,7 +1401,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
         regional_service = MagicMock()
         regional_service.get_context.return_value = context
 
-        with patch("src.services.daily_market_context.DailyMarketContextService", return_value=regional_service) as service_cls:
+        with patch("ai_stock.services.daily_market_context.DailyMarketContextService", return_value=regional_service) as service_cls:
             summary, full_report = main._prime_daily_market_context(
                 config,
                 pipeline=pipeline,
@@ -1448,10 +1448,10 @@ class MainScheduleModeTestCase(unittest.TestCase):
         with patch.object(main, "_refresh_stock_index_cache_for_analysis"), \
              patch.object(main, "_compute_trading_day_filter", return_value=(["600519"], "cn", False)), \
              patch("main._resolve_daily_market_context_target_date", return_value=target_date), \
-             patch("src.core.pipeline.StockAnalysisPipeline", return_value=pipeline), \
+             patch("ai_stock.core.pipeline.StockAnalysisPipeline", return_value=pipeline), \
              patch("main._prime_daily_market_context", return_value=("", "")), \
              patch("main._run_market_review_with_shared_lock", return_value="market report") as run_with_lock, \
-             patch("src.core.market_review.run_market_review") as run_market_review:
+             patch("ai_stock.core.market_review.run_market_review") as run_market_review:
             main.run_full_analysis(config, args, ["600519"])
 
         pipeline.run.assert_called_once()
@@ -1477,16 +1477,16 @@ class MainScheduleModeTestCase(unittest.TestCase):
              patch("main.setup_logging"), \
              patch("main._run_market_review_with_shared_lock") as run_with_lock, \
              patch(
-                 "src.core.market_review_runtime.build_market_review_runtime",
+                 "ai_stock.core.market_review_runtime.build_market_review_runtime",
                  return_value=(
                     runtime_notifier,
                     runtime_analyzer,
                     runtime_search_service,
                  ),
              ) as runtime_builder, \
-             patch("src.core.market_review.run_market_review") as run_market_review, \
-             patch("src.core.trading_calendar.get_open_markets_today", return_value={"cn", "us"}), \
-             patch("src.core.trading_calendar.compute_effective_region", return_value="cn,us"):
+             patch("ai_stock.core.market_review.run_market_review") as run_market_review, \
+             patch("ai_stock.core.trading_calendar.get_open_markets_today", return_value={"cn", "us"}), \
+             patch("ai_stock.core.trading_calendar.compute_effective_region", return_value="cn,us"):
             exit_code = main.main()
 
         self.assertEqual(exit_code, 0)
@@ -1592,7 +1592,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
         with patch("main.parse_arguments", return_value=args), \
              patch("main.get_config", return_value=config), \
              patch("main.setup_logging"), \
-             patch.dict("sys.modules", {"src.core.pipeline": None}):
+             patch.dict("sys.modules", {"ai_stock.core.pipeline": None}):
             exit_code = main.main()
 
         self.assertEqual(exit_code, 1)
@@ -1604,7 +1604,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
         main._env_bootstrapped = False
 
         with patch("main._bootstrap_environment", wraps=main._bootstrap_environment) as mock_boot, \
-             patch("src.core.pipeline.StockAnalysisPipeline", create=True, new_callable=lambda: type("FakePipeline", (), {})):
+             patch("ai_stock.core.pipeline.StockAnalysisPipeline", create=True, new_callable=lambda: type("FakePipeline", (), {})):
             try:
                 _ = main.StockAnalysisPipeline
             except Exception:

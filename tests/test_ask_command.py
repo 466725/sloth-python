@@ -119,9 +119,9 @@ class TestAskCommandMultiStock(unittest.TestCase):
                     dashboard=TestAskCommandMultiStock._dashboard(code),
                 )
 
-        with patch("src.agent.factory.build_agent_executor", return_value=FakeExecutor()):
+        with patch("ai_stock.agent.factory.build_agent_executor", return_value=FakeExecutor()):
             with patch.object(command, "_build_portfolio_section", return_value="## 组合视角\n组合摘要"):
-                with patch("src.agent.conversation.conversation_manager"):
+                with patch("ai_stock.agent.conversation.conversation_manager"):
                     response = command._analyze_multi(config, message, ["600519", "000858"], None, "")
 
         self.assertTrue(response.markdown)
@@ -179,9 +179,9 @@ class TestAskCommandMultiStock(unittest.TestCase):
             }
             return SimpleNamespace(success=True)
 
-        with patch("src.agent.factory.get_tool_registry", return_value=MagicMock()):
-            with patch("src.agent.llm_adapter.LLMToolAdapter", return_value=MagicMock()):
-                with patch("src.agent.agents.portfolio_agent.PortfolioAgent.run", new=fake_run):
+        with patch("ai_stock.agent.factory.get_tool_registry", return_value=MagicMock()):
+            with patch("ai_stock.agent.llm_adapter.LLMToolAdapter", return_value=MagicMock()):
+                with patch("ai_stock.agent.agents.portfolio_agent.PortfolioAgent.run", new=fake_run):
                     text = command._build_portfolio_section(SimpleNamespace(), ["600519", "000858"], results)
 
         self.assertIn("## 组合视角", text)
@@ -213,9 +213,9 @@ class TestAskCommandMultiStock(unittest.TestCase):
             return SimpleNamespace(success=True)
 
         started_at = time.monotonic()
-        with patch("src.agent.factory.get_tool_registry", return_value=MagicMock()):
-            with patch("src.agent.llm_adapter.LLMToolAdapter", return_value=MagicMock()):
-                with patch("src.agent.agents.portfolio_agent.PortfolioAgent.run", new=slow_run):
+        with patch("ai_stock.agent.factory.get_tool_registry", return_value=MagicMock()):
+            with patch("ai_stock.agent.llm_adapter.LLMToolAdapter", return_value=MagicMock()):
+                with patch("ai_stock.agent.agents.portfolio_agent.PortfolioAgent.run", new=slow_run):
                     text = command._build_portfolio_section(
                         SimpleNamespace(),
                         ["600519", "000858"],
@@ -242,9 +242,9 @@ class TestAskCommandMultiStock(unittest.TestCase):
                     error="Failed to parse dashboard JSON from agent response",
                 )
 
-        with patch("src.agent.factory.build_agent_executor", return_value=FakeExecutor()):
+        with patch("ai_stock.agent.factory.build_agent_executor", return_value=FakeExecutor()):
             with patch.object(command, "_build_portfolio_section", return_value=""):
-                with patch("src.agent.conversation.conversation_manager"):
+                with patch("ai_stock.agent.conversation.conversation_manager"):
                     response = command._analyze_multi(config, message, ["600519", "000858"], None, "")
 
         self.assertIn("600519 自由文本分析", response.text)
@@ -264,9 +264,9 @@ class TestAskCommandMultiStock(unittest.TestCase):
                     dashboard=TestAskCommandMultiStock._dashboard(code),
                 )
 
-        with patch("src.agent.factory.build_agent_executor", return_value=FakeExecutor()):
+        with patch("ai_stock.agent.factory.build_agent_executor", return_value=FakeExecutor()):
             with patch.object(command, "_build_portfolio_section", return_value=""):
-                with patch("src.agent.conversation.conversation_manager") as mock_cm:
+                with patch("ai_stock.agent.conversation.conversation_manager") as mock_cm:
                     command._analyze_multi(config, message, ["600519", "000858"], None, "")
 
         assistant_messages = [
@@ -294,9 +294,9 @@ class TestAskCommandMultiStock(unittest.TestCase):
                 )
 
         with patch("bot.commands.ask.get_db", side_effect=lambda: call_order.append("db")) as mock_get_db:
-            with patch("src.agent.factory.build_agent_executor", return_value=FakeExecutor()):
+            with patch("ai_stock.agent.factory.build_agent_executor", return_value=FakeExecutor()):
                 with patch.object(command, "_build_portfolio_section", return_value=""):
-                    with patch("src.agent.conversation.conversation_manager") as mock_cm:
+                    with patch("ai_stock.agent.conversation.conversation_manager") as mock_cm:
                         mock_cm.add_message.side_effect = lambda *args, **kwargs: call_order.append("history")
                         command._analyze_multi(config, message, ["600519", "000858"], None, "")
 
@@ -334,7 +334,7 @@ class TestAskCommandMultiStock(unittest.TestCase):
                 captured["context"] = context
                 return SimpleNamespace(success=True, content="analysis ok")
 
-        with patch("src.agent.factory.build_agent_executor", return_value=FakeExecutor()):
+        with patch("ai_stock.agent.factory.build_agent_executor", return_value=FakeExecutor()):
             with patch.object(command, "_resolve_skill_name", return_value="缠论"):
                 response = command._analyze_single(config, message, "600519", "chan_theory", "")
 
@@ -349,7 +349,7 @@ class TestAskCommandSilentExceptionFix(unittest.TestCase):
 
     def test_load_skills_logs_warning_and_returns_empty_list(self):
         boom = RuntimeError("skill manager unavailable")
-        with patch("src.agent.factory.get_skill_manager", side_effect=boom):
+        with patch("ai_stock.agent.factory.get_skill_manager", side_effect=boom):
             with self.assertLogs("bot.commands.ask", level="WARNING") as cm:
                 result = AskCommand._load_skills()
         self.assertEqual(result, [])
@@ -358,7 +358,7 @@ class TestAskCommandSilentExceptionFix(unittest.TestCase):
     def test_get_default_skill_id_logs_warning_and_returns_empty_string(self):
         boom = RuntimeError("defaults unavailable")
         with patch.object(AskCommand, "_load_skills", return_value=[]):
-            with patch("src.agent.skills.defaults.get_primary_default_skill_id", side_effect=boom):
+            with patch("ai_stock.agent.skills.defaults.get_primary_default_skill_id", side_effect=boom):
                 with self.assertLogs("bot.commands.ask", level="WARNING") as cm:
                     result = AskCommand._get_default_skill_id()
         self.assertEqual(result, "")

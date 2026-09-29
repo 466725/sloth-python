@@ -53,7 +53,7 @@ class TestGetCapitalFlowContract(unittest.TestCase):
     def test_ok_response_shape(self) -> None:
         """Happy path: key fields are present and values match the source data."""
         with patch(
-            "src.agent.tools.data_tools._get_fetcher_manager",
+            "ai_stock.agent.tools.data_tools._get_fetcher_manager",
             return_value=_DummyManagerOk(),
         ):
             result = _handle_get_capital_flow("600519")
@@ -73,7 +73,7 @@ class TestGetCapitalFlowContract(unittest.TestCase):
     def test_not_supported_for_non_cn_or_etf(self) -> None:
         """ETF / non-CN stocks return status=not_supported with an explanatory note."""
         with patch(
-            "src.agent.tools.data_tools._get_fetcher_manager",
+            "ai_stock.agent.tools.data_tools._get_fetcher_manager",
             return_value=_DummyManagerNotSupported(),
         ):
             result = _handle_get_capital_flow("510300")
@@ -85,7 +85,7 @@ class TestGetCapitalFlowContract(unittest.TestCase):
     def test_exception_path_formatting(self) -> None:
         """Fetch errors are caught and returned with status=error."""
         with patch(
-            "src.agent.tools.data_tools._get_fetcher_manager",
+            "ai_stock.agent.tools.data_tools._get_fetcher_manager",
             return_value=_DummyManagerRaises(),
         ):
             result = _handle_get_capital_flow("600519")

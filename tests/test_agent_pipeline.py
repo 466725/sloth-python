@@ -130,7 +130,7 @@ class TestAgentConfig(unittest.TestCase):
             ),
         ]
 
-        with patch("src.config.setup_env"), patch.object(Config, "_parse_litellm_yaml", return_value=[]):
+        with patch("ai_stock.config.setup_env"), patch.object(Config, "_parse_litellm_yaml", return_value=[]):
             for env, expected_models in test_cases:
                 with self.subTest(expected_models=expected_models), patch.dict(os.environ, env, clear=True):
                     Config._instance = None
@@ -156,10 +156,10 @@ class TestAgentConfig(unittest.TestCase):
             captured["cfg"] = cfg
             return MagicMock()
 
-        fake_llm_module = types.ModuleType("src.agent.llm_adapter")
+        fake_llm_module = types.ModuleType("ai_stock.agent.llm_adapter")
         fake_llm_module.LLMToolAdapter = _mock_llm_adapter
 
-        fake_executor_module = types.ModuleType("src.agent.executor")
+        fake_executor_module = types.ModuleType("ai_stock.agent.executor")
         fake_executor_cls = MagicMock(return_value=MagicMock())
         fake_executor_module.AgentExecutor = fake_executor_cls
 
@@ -181,10 +181,10 @@ class TestAgentConfig(unittest.TestCase):
 
         with patch.dict(sys.modules, {
             "litellm": MagicMock(),
-            "src.agent.llm_adapter": fake_llm_module,
-            "src.agent.executor": fake_executor_module,
+            "ai_stock.agent.llm_adapter": fake_llm_module,
+            "ai_stock.agent.executor": fake_executor_module,
         }):
-            factory_module = importlib.import_module("src.agent.factory")
+            factory_module = importlib.import_module("ai_stock.agent.factory")
             with patch.object(factory_module, "get_skill_manager", return_value=skill_manager), \
                  patch.object(factory_module, "get_tool_registry", return_value=MagicMock()):
                 factory_module.build_agent_executor(provided_config)
@@ -219,10 +219,10 @@ class TestAgentConfig(unittest.TestCase):
             captured["cfg"] = cfg
             return MagicMock()
 
-        fake_llm_module = types.ModuleType("src.agent.llm_adapter")
+        fake_llm_module = types.ModuleType("ai_stock.agent.llm_adapter")
         fake_llm_module.LLMToolAdapter = _mock_llm_adapter
 
-        fake_orchestrator_module = types.ModuleType("src.agent.orchestrator")
+        fake_orchestrator_module = types.ModuleType("ai_stock.agent.orchestrator")
         fake_orchestrator_cls = MagicMock(return_value=MagicMock())
         fake_orchestrator_module.AgentOrchestrator = fake_orchestrator_cls
 
@@ -244,11 +244,11 @@ class TestAgentConfig(unittest.TestCase):
 
         with patch.dict(sys.modules, {
             "litellm": MagicMock(),
-            "src.agent.llm_adapter": fake_llm_module,
-            "src.agent.orchestrator": fake_orchestrator_module,
-            "src.agent.executor": MagicMock(),
+            "ai_stock.agent.llm_adapter": fake_llm_module,
+            "ai_stock.agent.orchestrator": fake_orchestrator_module,
+            "ai_stock.agent.executor": MagicMock(),
         }):
-            factory_module = importlib.import_module("src.agent.factory")
+            factory_module = importlib.import_module("ai_stock.agent.factory")
             with patch.object(factory_module, "get_skill_manager", return_value=skill_manager), \
                  patch.object(factory_module, "get_tool_registry", return_value=MagicMock()):
                 factory_module.build_agent_executor(provided_config)
@@ -282,10 +282,10 @@ class TestAgentConfig(unittest.TestCase):
             captured["cfg"] = cfg
             return MagicMock()
 
-        fake_llm_module = types.ModuleType("src.agent.llm_adapter")
+        fake_llm_module = types.ModuleType("ai_stock.agent.llm_adapter")
         fake_llm_module.LLMToolAdapter = _mock_llm_adapter
 
-        fake_executor_module = types.ModuleType("src.agent.executor")
+        fake_executor_module = types.ModuleType("ai_stock.agent.executor")
         fake_executor_cls = MagicMock(return_value=MagicMock())
         fake_executor_module.AgentExecutor = fake_executor_cls
 
@@ -305,13 +305,13 @@ class TestAgentConfig(unittest.TestCase):
         ]
         skill_manager.get_skill_instructions.return_value = "测试指令"
 
-        with self.assertLogs("src.agent.factory", level="WARNING") as logs:
+        with self.assertLogs("ai_stock.agent.factory", level="WARNING") as logs:
             with patch.dict(sys.modules, {
                 "litellm": MagicMock(),
-                "src.agent.llm_adapter": fake_llm_module,
-                "src.agent.executor": fake_executor_module,
+                "ai_stock.agent.llm_adapter": fake_llm_module,
+                "ai_stock.agent.executor": fake_executor_module,
             }):
-                factory_module = importlib.import_module("src.agent.factory")
+                factory_module = importlib.import_module("ai_stock.agent.factory")
                 with patch.object(factory_module, "get_skill_manager", return_value=skill_manager), \
                      patch.object(factory_module, "get_tool_registry", return_value=MagicMock()):
                     factory_module.build_agent_executor(provided_config)
@@ -360,18 +360,18 @@ class TestAgentFactorySkillBaseline(unittest.TestCase):
         skill_manager.list_skills.return_value = skill_catalog
         skill_manager.get_skill_instructions.return_value = instructions
 
-        fake_llm_module = types.ModuleType("src.agent.llm_adapter")
+        fake_llm_module = types.ModuleType("ai_stock.agent.llm_adapter")
         fake_llm_module.LLMToolAdapter = MagicMock(return_value=MagicMock())
-        fake_executor_module = types.ModuleType("src.agent.executor")
+        fake_executor_module = types.ModuleType("ai_stock.agent.executor")
         fake_executor_cls = MagicMock(return_value=MagicMock())
         fake_executor_module.AgentExecutor = fake_executor_cls
 
         with patch.dict(sys.modules, {
             "litellm": MagicMock(),
-            "src.agent.llm_adapter": fake_llm_module,
-            "src.agent.executor": fake_executor_module,
+            "ai_stock.agent.llm_adapter": fake_llm_module,
+            "ai_stock.agent.executor": fake_executor_module,
         }):
-            factory_module = importlib.import_module("src.agent.factory")
+            factory_module = importlib.import_module("ai_stock.agent.factory")
 
             with patch.object(factory_module, "get_skill_manager", return_value=skill_manager), \
                  patch.object(factory_module, "get_tool_registry", return_value=MagicMock()):
@@ -2155,7 +2155,7 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertIsNotNone(executor.tool_registry)
         self.assertIsNotNone(executor.llm_adapter)
 
-    @patch("src.agent.llm_adapter.Router")
+    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_call_completion_uses_effective_agent_models_order(self, _mock_router):
         """call_completion should use Agent effective model chain in order."""
         mock_cfg = MagicMock()
@@ -2188,7 +2188,7 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertEqual(calls, ["openai/gpt-4o-mini", "anthropic/claude-3-5-sonnet-20241022"])
         self.assertEqual(result.content, "ok")
 
-    @patch("src.agent.llm_adapter.Router")
+    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_normalizes_kimi_k26_temperature(self, _mock_router):
         """Agent direct LiteLLM calls should not send unsupported temperatures to Kimi K2.6."""
         mock_cfg = SimpleNamespace(
@@ -2219,7 +2219,7 @@ class TestAgentConstructionChain(unittest.TestCase):
             usage=SimpleNamespace(prompt_tokens=1, completion_tokens=2, total_tokens=3),
         )
 
-        with patch("src.agent.llm_adapter.litellm.completion", return_value=response) as mock_completion:
+        with patch("ai_stock.agent.llm_adapter.litellm.completion", return_value=response) as mock_completion:
             result = adapter._call_litellm_model(
                 [{"role": "user", "content": "hi"}],
                 [],
@@ -2230,7 +2230,7 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertEqual(result.content, "agent ok")
         self.assertEqual(mock_completion.call_args.kwargs["temperature"], 1.0)
 
-    @patch("src.agent.llm_adapter.Router")
+    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_normalizes_kimi_k26_temperature_for_yaml_alias(self, _mock_router):
         """Agent direct LiteLLM calls should normalize through routed YAML aliases."""
         mock_cfg = SimpleNamespace(
@@ -2266,7 +2266,7 @@ class TestAgentConstructionChain(unittest.TestCase):
             usage=SimpleNamespace(prompt_tokens=1, completion_tokens=2, total_tokens=3),
         )
 
-        with patch("src.agent.llm_adapter.litellm.completion", return_value=response) as mock_completion:
+        with patch("ai_stock.agent.llm_adapter.litellm.completion", return_value=response) as mock_completion:
             result = adapter._call_litellm_model(
                 [{"role": "user", "content": "hi"}],
                 [],
@@ -2277,7 +2277,7 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertEqual(result.content, "agent ok")
         self.assertEqual(mock_completion.call_args.kwargs["temperature"], 1.0)
 
-    @patch("src.agent.llm_adapter.Router")
+    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_normalizes_kimi_k26_temperature_for_non_thinking_yaml_alias(self, _mock_router):
         """Agent direct LiteLLM calls should honor non-thinking Kimi YAML overrides."""
         mock_cfg = SimpleNamespace(
@@ -2316,7 +2316,7 @@ class TestAgentConstructionChain(unittest.TestCase):
             usage=SimpleNamespace(prompt_tokens=1, completion_tokens=2, total_tokens=3),
         )
 
-        with patch("src.agent.llm_adapter.litellm.completion", return_value=response) as mock_completion:
+        with patch("ai_stock.agent.llm_adapter.litellm.completion", return_value=response) as mock_completion:
             result = adapter._call_litellm_model(
                 [{"role": "user", "content": "hi"}],
                 [],
@@ -2327,7 +2327,7 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertEqual(result.content, "agent ok")
         self.assertEqual(mock_completion.call_args.kwargs["temperature"], 0.6)
 
-    @patch("src.agent.llm_adapter.Router")
+    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_omits_temperature_for_gpt5_family(self, _mock_router):
         """Agent direct LiteLLM calls should omit temperature for strict default-temperature models."""
         mock_cfg = SimpleNamespace(
@@ -2358,7 +2358,7 @@ class TestAgentConstructionChain(unittest.TestCase):
             usage=SimpleNamespace(prompt_tokens=1, completion_tokens=2, total_tokens=3),
         )
 
-        with patch("src.agent.llm_adapter.litellm.completion", return_value=response) as mock_completion:
+        with patch("ai_stock.agent.llm_adapter.litellm.completion", return_value=response) as mock_completion:
             result = adapter._call_litellm_model(
                 [{"role": "user", "content": "hi"}],
                 [],
@@ -2369,7 +2369,7 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertEqual(result.content, "agent ok")
         self.assertNotIn("temperature", mock_completion.call_args.kwargs)
 
-    @patch("src.agent.llm_adapter.Router")
+    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_recovers_from_unsupported_temperature(self, _mock_router):
         """Agent direct LiteLLM calls should retry once with a request-scoped parameter repair."""
         from ai_stock.llm.generation_params import clear_litellm_generation_param_recovery_cache
@@ -2403,7 +2403,7 @@ class TestAgentConstructionChain(unittest.TestCase):
             usage=SimpleNamespace(prompt_tokens=1, completion_tokens=2, total_tokens=3),
         )
 
-        with patch("src.agent.llm_adapter.litellm.completion") as mock_completion:
+        with patch("ai_stock.agent.llm_adapter.litellm.completion") as mock_completion:
             mock_completion.side_effect = [
                 RuntimeError("Unsupported parameter: temperature is not supported"),
                 response,
@@ -2419,7 +2419,7 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertEqual(mock_completion.call_args_list[0].kwargs["temperature"], 0.2)
         self.assertNotIn("temperature", mock_completion.call_args_list[1].kwargs)
 
-    @patch("src.agent.llm_adapter.Router")
+    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_legacy_router_recovery_cache_is_scoped_to_endpoint(self, mock_router):
         """Legacy multi-key Router recoveries should not leak across base URLs."""
         from ai_stock.llm.generation_params import clear_litellm_generation_param_recovery_cache
@@ -2493,7 +2493,7 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertNotIn("temperature", strict_router.completion.call_args_list[1].kwargs)
         self.assertEqual(flex_router.completion.call_args.kwargs["temperature"], 0.2)
 
-    @patch("src.agent.llm_adapter.Router")
+    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_fallback_does_not_leak_kimi_fixed_temperature(self, _mock_router):
         """Non-Kimi fallbacks should keep the requested temperature after a Kimi failure."""
         mock_cfg = SimpleNamespace(
@@ -2530,7 +2530,7 @@ class TestAgentConstructionChain(unittest.TestCase):
                 raise RuntimeError("primary failed")
             return response
 
-        with patch("src.agent.llm_adapter.litellm.completion", side_effect=fake_completion):
+        with patch("ai_stock.agent.llm_adapter.litellm.completion", side_effect=fake_completion):
             result = adapter.call_completion(
                 messages=[{"role": "user", "content": "hi"}],
                 tools=[],
@@ -2543,7 +2543,7 @@ class TestAgentConstructionChain(unittest.TestCase):
             [("openai/kimi-k2.6", 1.0), ("openai/gpt-4o-mini", 0.2)],
         )
 
-    @patch("src.agent.llm_adapter.Router")
+    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_recomputes_timeout_for_each_fallback_attempt(self, _mock_router):
         """Each fallback model attempt should receive only the remaining timeout budget."""
         mock_cfg = MagicMock()
@@ -2571,7 +2571,7 @@ class TestAgentConstructionChain(unittest.TestCase):
 
         adapter._call_litellm_model = MagicMock(side_effect=fake_call)
 
-        with patch("src.agent.llm_adapter.time.time", side_effect=[0.0, 0.0, 7.0, 7.0]):
+        with patch("ai_stock.agent.llm_adapter.time.time", side_effect=[0.0, 0.0, 7.0, 7.0]):
             result = adapter.call_completion(
                 messages=[{"role": "user", "content": "hi"}],
                 tools=[],
@@ -2582,7 +2582,7 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertEqual(timeouts[0], ("openai/gpt-4o-mini", 10.0))
         self.assertEqual(timeouts[1], ("anthropic/claude-3-5-sonnet-20241022", 3.0))
 
-    @patch("src.agent.llm_adapter.Router")
+    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_rate_limit_backoff_is_bounded_by_remaining_timeout(self, _mock_router):
         """Rate-limit backoff should sleep, but never longer than the remaining timeout budget."""
         mock_cfg = MagicMock()
@@ -2623,10 +2623,10 @@ class TestAgentConstructionChain(unittest.TestCase):
 
         adapter._call_litellm_model = MagicMock(side_effect=fake_call)
 
-        with patch("src.agent.llm_adapter.litellm.RateLimitError", FakeRateLimitError), \
-             patch("src.agent.llm_adapter.logger.warning"), \
-             patch("src.agent.llm_adapter.time.time", side_effect=fake_time), \
-             patch("src.agent.llm_adapter.time.sleep", side_effect=fake_sleep) as mock_sleep:
+        with patch("ai_stock.agent.llm_adapter.litellm.RateLimitError", FakeRateLimitError), \
+             patch("ai_stock.agent.llm_adapter.logger.warning"), \
+             patch("ai_stock.agent.llm_adapter.time.time", side_effect=fake_time), \
+             patch("ai_stock.agent.llm_adapter.time.sleep", side_effect=fake_sleep) as mock_sleep:
             result = adapter.call_completion(
                 messages=[{"role": "user", "content": "hi"}],
                 tools=[],
@@ -2644,7 +2644,7 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertAlmostEqual(sleep_calls[0], expected_backoff)
         self.assertAlmostEqual(clock["value"], 8.0 + expected_backoff)
 
-    @patch("src.agent.llm_adapter.Router")
+    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_context_window_error_skips_sleep(self, _mock_router):
         """Context-window errors should continue fallback immediately without backoff."""
         mock_cfg = MagicMock()
@@ -2673,15 +2673,15 @@ class TestAgentConstructionChain(unittest.TestCase):
         adapter._call_litellm_model = MagicMock(side_effect=fake_call)
 
         with patch(
-            "src.agent.llm_adapter.litellm.ContextWindowExceededError",
+            "ai_stock.agent.llm_adapter.litellm.ContextWindowExceededError",
             FakeContextWindowExceededError,
-        ), patch("src.agent.llm_adapter.time.sleep") as mock_sleep:
+        ), patch("ai_stock.agent.llm_adapter.time.sleep") as mock_sleep:
             result = adapter.call_completion(messages=[{"role": "user", "content": "hi"}], tools=[])
 
         self.assertEqual(result.content, "ok")
         mock_sleep.assert_not_called()
 
-    @patch("src.agent.llm_adapter.Router")
+    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_reports_rate_limit_suffix_when_any_fallback_hit_limit(self, _mock_router):
         """Final error should note earlier rate limiting even if the last error differs."""
         mock_cfg = MagicMock()
@@ -2712,12 +2712,12 @@ class TestAgentConstructionChain(unittest.TestCase):
 
         adapter._call_litellm_model = MagicMock(side_effect=fake_call)
 
-        with patch("src.agent.llm_adapter.litellm.RateLimitError", FakeRateLimitError), \
+        with patch("ai_stock.agent.llm_adapter.litellm.RateLimitError", FakeRateLimitError), \
              patch(
-                 "src.agent.llm_adapter.litellm.ContextWindowExceededError",
+                 "ai_stock.agent.llm_adapter.litellm.ContextWindowExceededError",
                  FakeContextWindowExceededError,
              ), \
-             patch("src.agent.llm_adapter.time.sleep") as mock_sleep:
+             patch("ai_stock.agent.llm_adapter.time.sleep") as mock_sleep:
             result = adapter.call_completion(messages=[{"role": "user", "content": "hi"}], tools=[])
 
         self.assertEqual(result.provider, "error")
@@ -2725,7 +2725,7 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertIn("window exceeded", result.content)
         mock_sleep.assert_not_called()
 
-    @patch("src.agent.llm_adapter.Router")
+    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_reports_missing_configuration_without_generic_none_error(self, _mock_router):
         """Missing Agent model config should return a stable, actionable error message."""
         mock_cfg = SimpleNamespace(

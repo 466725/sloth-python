@@ -381,7 +381,7 @@ def test_over_trigger_generates_summary_and_updates_covered_message_id() -> None
         usage={"prompt_tokens": 1, "completion_tokens": 2, "total_tokens": 3},
     )
 
-    with patch("src.agent.chat_context.estimate_messages_tokens", return_value=999999):
+    with patch("ai_stock.agent.chat_context.estimate_messages_tokens", return_value=999999):
         history = build_visible_chat_history(session_id, adapter, _config(trigger=1, protected=1))
 
     summary = db.get_conversation_summary(session_id)
@@ -412,8 +412,8 @@ def test_summary_compression_does_not_persist_agent_usage_without_provider_usage
         usage={},
     )
 
-    with patch("src.agent.chat_context.estimate_messages_tokens", return_value=999999):
-        with patch("src.agent.chat_context.persist_llm_usage") as persist_usage:
+    with patch("ai_stock.agent.chat_context.estimate_messages_tokens", return_value=999999):
+        with patch("ai_stock.agent.chat_context.persist_llm_usage") as persist_usage:
             history = build_visible_chat_history(session_id, adapter, _config(trigger=1, protected=1))
 
     assert history[0]["content"].startswith(SUMMARY_USER_PREFIX)
@@ -443,8 +443,8 @@ def test_summary_compression_does_not_persist_metadata_only_provider_usage() -> 
         ),
     )
 
-    with patch("src.agent.chat_context.estimate_messages_tokens", return_value=999999):
-        with patch("src.agent.chat_context.persist_llm_usage") as persist_usage:
+    with patch("ai_stock.agent.chat_context.estimate_messages_tokens", return_value=999999):
+        with patch("ai_stock.agent.chat_context.persist_llm_usage") as persist_usage:
             history = build_visible_chat_history(session_id, adapter, _config(trigger=1, protected=1))
 
     assert history[0]["content"].startswith(SUMMARY_USER_PREFIX)
@@ -472,8 +472,8 @@ def test_summary_compression_persists_invalid_provider_usage_diagnostics() -> No
         usage=usage,
     )
 
-    with patch("src.agent.chat_context.estimate_messages_tokens", return_value=999999):
-        with patch("src.agent.chat_context.persist_llm_usage") as persist_usage:
+    with patch("ai_stock.agent.chat_context.estimate_messages_tokens", return_value=999999):
+        with patch("ai_stock.agent.chat_context.persist_llm_usage") as persist_usage:
             history = build_visible_chat_history(session_id, adapter, _config(trigger=1, protected=1))
 
     assert history[0]["content"].startswith(SUMMARY_USER_PREFIX)
@@ -502,8 +502,8 @@ def test_summary_compression_persists_agent_usage_with_provider_usage() -> None:
         usage=usage,
     )
 
-    with patch("src.agent.chat_context.estimate_messages_tokens", return_value=999999):
-        with patch("src.agent.chat_context.persist_llm_usage") as persist_usage:
+    with patch("ai_stock.agent.chat_context.estimate_messages_tokens", return_value=999999):
+        with patch("ai_stock.agent.chat_context.persist_llm_usage") as persist_usage:
             history = build_visible_chat_history(session_id, adapter, _config(trigger=1, protected=1))
 
     assert history[0]["content"].startswith(SUMMARY_USER_PREFIX)
@@ -528,7 +528,7 @@ def test_second_request_only_summarizes_incremental_unprotected_messages() -> No
     adapter = MagicMock()
     adapter.call_text.return_value = SimpleNamespace(content="new summary", provider="openai", model="m", usage={})
 
-    with patch("src.agent.chat_context.estimate_messages_tokens", return_value=999999):
+    with patch("ai_stock.agent.chat_context.estimate_messages_tokens", return_value=999999):
         build_visible_chat_history(session_id, adapter, _config(trigger=1, protected=1))
 
     payload = adapter.call_text.call_args.args[0][1]["content"]
@@ -563,8 +563,8 @@ def test_empty_to_summarize_warns_and_does_not_call_llm() -> None:
     db.upsert_conversation_summary(session_id, "old summary", 2, 2, 10)
     adapter = MagicMock()
 
-    with patch("src.agent.chat_context.estimate_messages_tokens", return_value=999999):
-        with patch("src.agent.chat_context.logger.warning") as warning:
+    with patch("ai_stock.agent.chat_context.estimate_messages_tokens", return_value=999999):
+        with patch("ai_stock.agent.chat_context.logger.warning") as warning:
             history = build_visible_chat_history(session_id, adapter, _config(trigger=1, protected=1))
 
     adapter.call_text.assert_not_called()
@@ -579,8 +579,8 @@ def test_empty_to_summarize_without_summary_returns_full_history_and_does_not_ca
     _add_messages(db, session_id, [("user", "u1"), ("assistant", "a1")])
     adapter = MagicMock()
 
-    with patch("src.agent.chat_context.estimate_messages_tokens", return_value=999999):
-        with patch("src.agent.chat_context.logger.warning") as warning:
+    with patch("ai_stock.agent.chat_context.estimate_messages_tokens", return_value=999999):
+        with patch("ai_stock.agent.chat_context.logger.warning") as warning:
             history = build_visible_chat_history(session_id, adapter, _config(trigger=1, protected=1))
 
     adapter.call_text.assert_not_called()
@@ -598,7 +598,7 @@ def test_summary_failure_falls_back_to_recent_20_without_old_summary() -> None:
     adapter = MagicMock()
     adapter.call_text.return_value = SimpleNamespace(content="", provider="error", model="", usage={})
 
-    with patch("src.agent.chat_context.estimate_messages_tokens", return_value=999999):
+    with patch("ai_stock.agent.chat_context.estimate_messages_tokens", return_value=999999):
         history = build_visible_chat_history(session_id, adapter, _config(trigger=1, protected=1))
 
     assert len(history) == 20
@@ -613,7 +613,7 @@ def test_summary_failure_with_old_summary_returns_candidate() -> None:
     adapter = MagicMock()
     adapter.call_text.return_value = SimpleNamespace(content="", provider="error", model="", usage={})
 
-    with patch("src.agent.chat_context.estimate_messages_tokens", return_value=999999):
+    with patch("ai_stock.agent.chat_context.estimate_messages_tokens", return_value=999999):
         history = build_visible_chat_history(session_id, adapter, _config(trigger=1, protected=1))
 
     assert history[0]["content"].startswith(SUMMARY_USER_PREFIX)
@@ -621,5 +621,5 @@ def test_summary_failure_with_old_summary_returns_candidate() -> None:
 
 
 def test_token_estimator_falls_back_to_character_heuristic() -> None:
-    with patch("src.agent.chat_context.get_effective_agent_primary_model", side_effect=RuntimeError("no model")):
+    with patch("ai_stock.agent.chat_context.get_effective_agent_primary_model", side_effect=RuntimeError("no model")):
         assert estimate_text_tokens("abcdefg", _config()) == math.ceil(7 / 3)

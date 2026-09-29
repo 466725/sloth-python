@@ -27,7 +27,7 @@ class IntelligenceApiTestCase(unittest.TestCase):
         Config._instance = None
         DatabaseManager.reset_instance()
         self._dns_patcher = patch(
-            "src.services.intelligence_service.socket.getaddrinfo",
+            "ai_stock.services.intelligence_service.socket.getaddrinfo",
             return_value=[(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 0))],
         )
         self._dns_patcher.start()
@@ -64,7 +64,7 @@ class IntelligenceApiTestCase(unittest.TestCase):
         create_resp = self.client.post("/api/v1/intelligence/sources", json={"name": "api-feed", "url": "https://feeds.example.com/rss.xml", "source_type": "rss", "scope_type": "market", "market": "cn"})
         self.assertEqual(create_resp.status_code, 200)
         source_id = create_resp.json()["id"]
-        with patch("src.services.intelligence_service.requests.get", return_value=self._mock_response()):
+        with patch("ai_stock.services.intelligence_service.requests.get", return_value=self._mock_response()):
             fetch_resp = self.client.post(f"/api/v1/intelligence/sources/{source_id}/fetch")
         self.assertEqual(fetch_resp.status_code, 200)
         self.assertEqual(fetch_resp.json()["saved_count"], 1)
@@ -122,7 +122,7 @@ class IntelligenceApiTestCase(unittest.TestCase):
         create_resp = self.client.post("/api/v1/intelligence/sources", json={"name": "api-feed", "url": "https://feeds.example.com/rss.xml", "source_type": "rss", "scope_type": "market", "market": "cn"})
         self.assertEqual(create_resp.status_code, 200)
         source_id = create_resp.json()["id"]
-        with patch("src.services.intelligence_service.IntelligenceService.fetch_source", side_effect=RuntimeError("token=secret api_key=abc12345")):
+        with patch("ai_stock.services.intelligence_service.IntelligenceService.fetch_source", side_effect=RuntimeError("token=secret api_key=abc12345")):
             fetch_resp = self.client.post(f"/api/v1/intelligence/sources/{source_id}/fetch")
 
         self.assertEqual(fetch_resp.status_code, 500)
@@ -134,7 +134,7 @@ class IntelligenceApiTestCase(unittest.TestCase):
         create_resp = self.client.post("/api/v1/intelligence/sources", json={"name": "api-feed", "url": "https://feeds.example.com/rss.xml", "source_type": "rss", "scope_type": "market", "market": "cn"})
         self.assertEqual(create_resp.status_code, 200)
         source_id = create_resp.json()["id"]
-        with patch("src.services.intelligence_service.IntelligenceService.fetch_source", side_effect=RuntimeError("unexpected runtime assertion failure: pipeline context exhausted")):
+        with patch("ai_stock.services.intelligence_service.IntelligenceService.fetch_source", side_effect=RuntimeError("unexpected runtime assertion failure: pipeline context exhausted")):
             fetch_resp = self.client.post(f"/api/v1/intelligence/sources/{source_id}/fetch")
 
         self.assertEqual(fetch_resp.status_code, 500)
@@ -171,7 +171,7 @@ class IntelligenceApiTestCase(unittest.TestCase):
             ("fetch", lambda: self.client.post(f"/api/v1/intelligence/sources/{source_id}/fetch")),
         ]
         with patch(
-            "src.services.intelligence_service.requests.get",
+            "ai_stock.services.intelligence_service.requests.get",
             side_effect=lambda url, **_kwargs: self._mock_http_error_response(url),
         ):
             for endpoint, send_request in requests_to_check:
@@ -204,7 +204,7 @@ class IntelligenceApiTestCase(unittest.TestCase):
             ("fetch", lambda: self.client.post(f"/api/v1/intelligence/sources/{source_id}/fetch")),
         ]
         with patch(
-            "src.services.intelligence_service.requests.get",
+            "ai_stock.services.intelligence_service.requests.get",
             side_effect=lambda url, **_kwargs: self._mock_http_error_response(url),
         ):
             for endpoint, send_request in requests_to_check:

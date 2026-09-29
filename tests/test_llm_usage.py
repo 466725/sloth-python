@@ -1825,7 +1825,7 @@ class TestLLMUsageMigration(unittest.TestCase):
                 Connection,
                 "exec_driver_sql",
                 new=flaky_exec_driver_sql,
-            ), patch("src.storage.time.sleep") as sleep_mock:
+            ), patch("ai_stock.storage.time.sleep") as sleep_mock:
                 DatabaseManager(db_url=f"sqlite:///{db_path}")
 
             self.assertTrue(lock_fired["value"])

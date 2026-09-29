@@ -270,7 +270,7 @@ class AlertApiTestCase(unittest.TestCase):
             self.assertEqual(created["parameters"], parameters)
 
     def test_p5_technical_indicator_rules_skip_legacy_event_validator(self) -> None:
-        with patch("src.services.alert_service.validate_event_alert_rule") as legacy_validator:
+        with patch("ai_stock.services.alert_service.validate_event_alert_rule") as legacy_validator:
             created = self._create_rule({
                 "name": "RSI threshold",
                 "alert_type": "rsi_threshold",
@@ -280,7 +280,7 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(created["alert_type"], "rsi_threshold")
         legacy_validator.assert_not_called()
 
-        with patch("src.services.alert_service.validate_event_alert_rule") as legacy_validator:
+        with patch("ai_stock.services.alert_service.validate_event_alert_rule") as legacy_validator:
             self._create_rule({
                 "name": "Legacy price cross",
                 "alert_type": "price_cross",
@@ -388,7 +388,7 @@ class AlertApiTestCase(unittest.TestCase):
         async def _quote(_monitor, stock_code):
             return SimpleNamespace(price=11.0 if stock_code == "600519" else 9.0)
 
-        with patch("src.agent.events.EventMonitor._get_realtime_quote", new=_quote):
+        with patch("ai_stock.agent.events.EventMonitor._get_realtime_quote", new=_quote):
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
         self.assertEqual(resp.status_code, 200, resp.text)
@@ -412,8 +412,8 @@ class AlertApiTestCase(unittest.TestCase):
             await asyncio.sleep(0.05)
             return SimpleNamespace(price=11.0)
 
-        with patch("src.services.alert_service.DRY_RUN_TARGET_TIMEOUT_SECONDS", 0.001), patch(
-            "src.agent.events.EventMonitor._get_realtime_quote",
+        with patch("ai_stock.services.alert_service.DRY_RUN_TARGET_TIMEOUT_SECONDS", 0.001), patch(
+            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
             new=_slow_quote,
         ):
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
@@ -559,9 +559,9 @@ class AlertApiTestCase(unittest.TestCase):
         async def _run_inline(func, *args, **kwargs):
             return func(*args, **kwargs)
 
-        with patch("src.services.market_light_alerts.get_open_markets_today", return_value={"cn"}), patch(
-            "src.services.market_light_alerts.build_current_snapshot", return_value=snapshot
-        ) as build_snapshot, patch("src.services.alert_service.asyncio.to_thread", new=_run_inline):
+        with patch("ai_stock.services.market_light_alerts.get_open_markets_today", return_value={"cn"}), patch(
+            "ai_stock.services.market_light_alerts.build_current_snapshot", return_value=snapshot
+        ) as build_snapshot, patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
         self.assertEqual(resp.status_code, 200, resp.text)
@@ -584,7 +584,7 @@ class AlertApiTestCase(unittest.TestCase):
         rule = self._create_rule()
 
         with patch(
-            "src.agent.events.EventMonitor._get_realtime_quote",
+            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
             new=AsyncMock(return_value=SimpleNamespace(price=1800.0)),
         ) as quote:
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
@@ -603,7 +603,7 @@ class AlertApiTestCase(unittest.TestCase):
         rule = self._create_rule()
 
         with patch(
-            "src.agent.events.EventMonitor._get_realtime_quote",
+            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
             new=AsyncMock(return_value=SimpleNamespace(price=1700.0)),
         ):
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
@@ -620,7 +620,7 @@ class AlertApiTestCase(unittest.TestCase):
         async def _raise_quote_error(_stock_code):
             raise RuntimeError("token=secret-token failed at https://example.com/webhook")
 
-        with patch("src.agent.events.EventMonitor._get_realtime_quote", new=_raise_quote_error):
+        with patch("ai_stock.agent.events.EventMonitor._get_realtime_quote", new=_raise_quote_error):
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
         self.assertEqual(resp.status_code, 200, resp.text)
@@ -640,7 +640,7 @@ class AlertApiTestCase(unittest.TestCase):
         )
 
         with patch(
-            "src.agent.events.EventMonitor._get_realtime_quote",
+            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
             new=AsyncMock(return_value={"pct_chg": " -3.25% "}),
         ):
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
@@ -666,7 +666,7 @@ class AlertApiTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("src.services.alert_service.asyncio.to_thread", new=_run_inline):
+             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
         self.assertEqual(resp.status_code, 200, resp.text)
@@ -690,7 +690,7 @@ class AlertApiTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("src.services.alert_service.asyncio.to_thread", new=_run_inline):
+             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
         self.assertEqual(resp.status_code, 200, resp.text)
@@ -744,7 +744,7 @@ class AlertApiTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("src.services.alert_service.asyncio.to_thread", new=_run_inline):
+             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             triggered_resp = self.client.post(f"/api/v1/alerts/rules/{triggered_rule['id']}/test")
             not_triggered_resp = self.client.post(f"/api/v1/alerts/rules/{not_triggered_rule['id']}/test")
             error_resp = self.client.post(f"/api/v1/alerts/rules/{error_rule['id']}/test")
@@ -764,7 +764,7 @@ class AlertApiTestCase(unittest.TestCase):
         rule = self._create_rule()
 
         with patch(
-            "src.agent.events.EventMonitor._get_realtime_quote",
+            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
             new=AsyncMock(return_value=None),
         ):
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")

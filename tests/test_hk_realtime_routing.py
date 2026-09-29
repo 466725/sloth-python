@@ -31,7 +31,7 @@ class _DummyFetcher:
 class TestHKRealtimeRouting(unittest.TestCase):
     """Ensure HK realtime lookup does not fan out into A-share sources."""
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_manager_routes_hk_suffix_only_to_akshare_once(self, mock_get_config):
         mock_get_config.return_value = SimpleNamespace(
             enable_realtime_quote=True,

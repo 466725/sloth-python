@@ -39,7 +39,7 @@ class HistoryNewsFallbackTestCase(unittest.TestCase):
 
         svc = HistoryService(db_manager=mock_db)
         fake_cfg = SimpleNamespace(news_max_age_days=30, news_strategy_profile="short")
-        with patch("src.services.history_service.get_config", return_value=fake_cfg):
+        with patch("ai_stock.services.history_service.get_config", return_value=fake_cfg):
             result = svc._fallback_news_by_analysis_context("q-1", limit=20)
 
         self.assertEqual([item.title for item in result], ["fresh"])
@@ -67,7 +67,7 @@ class HistoryNewsFallbackTestCase(unittest.TestCase):
 
         svc = HistoryService(db_manager=mock_db)
         fake_cfg = SimpleNamespace(news_max_age_days=30, news_strategy_profile="short")
-        with patch("src.services.history_service.get_config", return_value=fake_cfg):
+        with patch("ai_stock.services.history_service.get_config", return_value=fake_cfg):
             result = svc._fallback_news_by_analysis_context("q-1", limit=20)
 
         self.assertEqual([item.title for item in result], ["valid_near_analysis_date"])

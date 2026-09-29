@@ -116,7 +116,7 @@ class TestLongbridgeAuthSelection(unittest.TestCase):
             longbridge_oauth_client_id=oauth_client_id,
         )
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_is_available_with_oauth_client_id(self, mock_get_config):
         mock_get_config.return_value = self._config(oauth_client_id="client-1")
 
@@ -124,7 +124,7 @@ class TestLongbridgeAuthSelection(unittest.TestCase):
 
         self.assertTrue(fetcher._is_available())
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_oauth_uses_token_cache_without_legacy_fallback(self, mock_get_config):
         mock_get_config.return_value = self._config(oauth_client_id="client-1")
         modules = self._install_mock_longbridge()
@@ -156,7 +156,7 @@ class TestLongbridgeAuthSelection(unittest.TestCase):
         mock_config.from_apikey_env.assert_not_called()
         mock_quote_context.assert_called_once_with("oauth-config")
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_oauth_uses_app_key_as_client_id_when_access_token_missing(self, mock_get_config):
         mock_get_config.return_value = self._config(app_key="app-key", app_secret="app-secret")
         modules = self._install_mock_longbridge()
@@ -189,7 +189,7 @@ class TestLongbridgeAuthSelection(unittest.TestCase):
         mock_config.from_apikey.assert_not_called()
         mock_quote_context.assert_called_once_with("oauth-config")
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_oauth_without_cache_does_not_call_legacy_when_legacy_incomplete(self, mock_get_config):
         mock_get_config.return_value = self._config(oauth_client_id="client-1")
         modules = self._install_mock_longbridge()
@@ -217,7 +217,7 @@ class TestLongbridgeAuthSelection(unittest.TestCase):
         mock_config.from_apikey_env.assert_not_called()
         mock_config.from_apikey.assert_not_called()
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_oauth_sdk_without_oauth_api_fails_closed_with_clear_log(self, mock_get_config):
         mock_get_config.return_value = self._config(oauth_client_id="client-1")
         mock_lb_module = types.ModuleType("longbridge")
@@ -249,7 +249,7 @@ class TestLongbridgeAuthSelection(unittest.TestCase):
         self.assertIn("不支持 OAuth 2.0", "\n".join(logs.output))
         mock_quote_context.assert_not_called()
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_oauth_invalid_cache_content_skips_oauth_reauth_and_fails_closed(self, mock_get_config):
         mock_get_config.return_value = self._config(oauth_client_id="client-1")
         modules = self._install_mock_longbridge()
@@ -278,7 +278,7 @@ class TestLongbridgeAuthSelection(unittest.TestCase):
         mock_config.from_apikey_env.assert_not_called()
         mock_config.from_apikey.assert_not_called()
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_oauth_overwrites_invalid_cache_from_base64_secret(self, mock_get_config):
         mock_get_config.return_value = self._config(oauth_client_id="client-1")
         modules = self._install_mock_longbridge()
@@ -313,7 +313,7 @@ class TestLongbridgeAuthSelection(unittest.TestCase):
         mock_config.from_apikey_env.assert_not_called()
         mock_config.from_apikey.assert_not_called()
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_oauth_replaces_existing_cache_when_base64_secret_differs(self, mock_get_config):
         mock_get_config.return_value = self._config(oauth_client_id="client-1")
         modules = self._install_mock_longbridge()
@@ -347,7 +347,7 @@ class TestLongbridgeAuthSelection(unittest.TestCase):
         mock_config.from_apikey_env.assert_not_called()
         mock_config.from_apikey.assert_not_called()
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_oauth_callback_reauth_request_fails_closed_in_headless(self, mock_get_config):
         mock_get_config.return_value = self._config(oauth_client_id="client-1")
         modules = self._install_mock_longbridge()
@@ -381,7 +381,7 @@ class TestLongbridgeAuthSelection(unittest.TestCase):
         mock_config.from_apikey_env.assert_not_called()
         mock_config.from_apikey.assert_not_called()
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_oauth_restores_token_cache_from_base64_secret(self, mock_get_config):
         mock_get_config.return_value = self._config(oauth_client_id="client-1")
         modules = self._install_mock_longbridge()
@@ -412,7 +412,7 @@ class TestLongbridgeAuthSelection(unittest.TestCase):
         self.assertEqual(ctx, "quote-context")
         mock_config.from_oauth.assert_called_once_with("oauth-token")
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_oauth_failure_can_fallback_to_complete_legacy_credentials(self, mock_get_config):
         mock_get_config.return_value = self._config(
             app_key="app-key",

@@ -27,7 +27,7 @@ class ConversationManagerThreadSafetyTestCase(unittest.TestCase):
             for idx in range(6)
         ]
 
-        with patch("src.agent.conversation.ConversationSession.add_message", autospec=True):
+        with patch("ai_stock.agent.conversation.ConversationSession.add_message", autospec=True):
             for thread in threads:
                 thread.start()
             start.set()

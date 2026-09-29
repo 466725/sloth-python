@@ -98,7 +98,7 @@ class TestFetcherSourceOptimization(unittest.TestCase):
                 end_date="2026-05-08",
             )
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_manager_skips_unconfigured_optional_fetchers(self, mock_get_config):
         mock_get_config.return_value = SimpleNamespace(
             tushare_token="",
@@ -155,7 +155,7 @@ class TestFetcherSourceOptimization(unittest.TestCase):
         mock_tushare.assert_not_called()
         mock_longbridge.assert_not_called()
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_manager_enables_longbridge_with_oauth_client_id(self, mock_get_config):
         mock_get_config.return_value = SimpleNamespace(
             tushare_token="",
@@ -194,7 +194,7 @@ class TestFetcherSourceOptimization(unittest.TestCase):
         self.assertIn("TencentFetcher", manager.available_fetchers)
         mock_longbridge.assert_called_once()
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_us_realtime_route_skips_temporarily_unavailable_longbridge(self, mock_get_config):
         mock_get_config.return_value = SimpleNamespace(
             enable_realtime_quote=True,
@@ -220,7 +220,7 @@ class TestFetcherSourceOptimization(unittest.TestCase):
         yfinance.get_realtime_quote.assert_called_once_with("AAPL")
         longbridge.get_realtime_quote.assert_not_called()
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_us_realtime_route_marks_longbridge_fallback_when_secondary_succeeds(self, mock_get_config):
         mock_get_config.return_value = SimpleNamespace(
             enable_realtime_quote=True,
@@ -250,7 +250,7 @@ class TestFetcherSourceOptimization(unittest.TestCase):
         longbridge.get_realtime_quote.assert_called_once_with("AAPL")
         yfinance.get_realtime_quote.assert_called_once_with("AAPL")
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_us_daily_route_skips_temporarily_unavailable_longbridge(self, mock_get_config):
         mock_get_config.return_value = SimpleNamespace(
             longbridge_app_key="app-key",
@@ -277,7 +277,7 @@ class TestFetcherSourceOptimization(unittest.TestCase):
         yfinance.get_daily_data.assert_called_once()
         longbridge.get_daily_data.assert_not_called()
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_hk_daily_route_skips_temporarily_unavailable_longbridge(self, mock_get_config):
         mock_get_config.return_value = SimpleNamespace(
             longbridge_app_key="app-key",
@@ -305,7 +305,7 @@ class TestFetcherSourceOptimization(unittest.TestCase):
         longbridge.get_daily_data.assert_not_called()
 
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_daily_source_health_skips_repeatedly_failing_source(self, mock_get_config):
         mock_get_config.return_value = SimpleNamespace()
         DataFetcherManager.reset_daily_source_health()
@@ -338,7 +338,7 @@ class TestFetcherSourceOptimization(unittest.TestCase):
         finally:
             DataFetcherManager.reset_daily_source_health()
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_daily_source_health_does_not_skip_source_after_empty_results(self, mock_get_config):
         mock_get_config.return_value = SimpleNamespace()
         DataFetcherManager.reset_daily_source_health()
@@ -371,7 +371,7 @@ class TestFetcherSourceOptimization(unittest.TestCase):
         finally:
             DataFetcherManager.reset_daily_source_health()
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_daily_source_health_does_not_preconsume_half_open_fallback(self, mock_get_config):
         mock_get_config.return_value = SimpleNamespace()
         DataFetcherManager.reset_daily_source_health()
@@ -411,7 +411,7 @@ class TestFetcherSourceOptimization(unittest.TestCase):
         finally:
             DataFetcherManager.reset_daily_source_health()
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_daily_source_health_releases_half_open_probe_after_empty_result(self, mock_get_config):
         mock_get_config.return_value = SimpleNamespace()
         DataFetcherManager.reset_daily_source_health()

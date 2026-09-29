@@ -458,7 +458,7 @@ class TestBuiltinToolDefinitions(unittest.TestCase):
         svc = MagicMock()
         svc.get_skill_summary.return_value = None
 
-        with patch("src.agent.tools.backtest_tools._get_backtest_service", return_value=svc):
+        with patch("ai_stock.agent.tools.backtest_tools._get_backtest_service", return_value=svc):
             payload = _handle_get_skill_backtest_summary(skill_id="bull_trend", eval_window_days=20)
 
         svc.get_skill_summary.assert_called_once_with("bull_trend", eval_window_days=20)
@@ -503,7 +503,7 @@ class TestBuiltinToolDefinitions(unittest.TestCase):
             "computed_at": "2026-03-20T07:00:00+00:00",
         }
 
-        with patch("src.agent.tools.backtest_tools._get_backtest_service", return_value=svc):
+        with patch("ai_stock.agent.tools.backtest_tools._get_backtest_service", return_value=svc):
             payload = _handle_get_skill_backtest_summary(skill_id="bull_trend", eval_window_days=20)
 
         self.assertEqual(
@@ -533,7 +533,7 @@ class TestBuiltinToolDefinitions(unittest.TestCase):
         svc.get_skill_summary.side_effect = RuntimeError("db path: /tmp/secret.db")
         svc.get_summary.side_effect = RuntimeError("db path: /tmp/secret.db")
 
-        with patch("src.agent.tools.backtest_tools._get_backtest_service", return_value=svc):
+        with patch("ai_stock.agent.tools.backtest_tools._get_backtest_service", return_value=svc):
             skill_payload = _handle_get_skill_backtest_summary(skill_id="bull_trend")
             stock_payload = _handle_get_stock_backtest_summary(stock_code="600519")
 
@@ -909,7 +909,7 @@ class TestSkillAgent(unittest.TestCase):
             allowed_tools=["Read", "Grep"],
         )
 
-        with patch("src.agent.factory.get_skill_manager") as mock_get_skill_manager:
+        with patch("ai_stock.agent.factory.get_skill_manager") as mock_get_skill_manager:
             mock_get_skill_manager.return_value.get.return_value = skill
             agent = SkillAgent(skill_id="bundle_skill", tool_registry=MagicMock(), llm_adapter=MagicMock())
 

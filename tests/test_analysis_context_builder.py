@@ -534,10 +534,10 @@ def test_builder_module_stays_zero_fetch_and_zero_storage_import(monkeypatch) ->
         "data_provider",
         "fetcher_manager",
         "search_service",
-        "src.storage",
-        "src.services.search_service",
-        "src.repositories",
-        "src.database",
+        "ai_stock.storage",
+        "ai_stock.services.search_service",
+        "ai_stock.repositories",
+        "ai_stock.database",
     )
     real_import = builtins.__import__
 

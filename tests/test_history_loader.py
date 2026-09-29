@@ -32,7 +32,7 @@ class HistoryLoaderTestCase(unittest.TestCase):
     # ------------------------------------------------------------------
     # DB hit path
     # ------------------------------------------------------------------
-    @patch("src.storage.get_db")
+    @patch("ai_stock.storage.get_db")
     def test_returns_db_data_when_sufficient(self, mock_get_db):
         from ai_stock.services.history_loader import load_history_df
 
@@ -59,8 +59,8 @@ class HistoryLoaderTestCase(unittest.TestCase):
     # ------------------------------------------------------------------
     # DB miss → DFM fallback
     # ------------------------------------------------------------------
-    @patch("src.services.history_loader._get_fetcher_manager")
-    @patch("src.storage.get_db")
+    @patch("ai_stock.services.history_loader._get_fetcher_manager")
+    @patch("ai_stock.storage.get_db")
     def test_falls_back_to_dfm_when_db_empty(self, mock_get_db, mock_get_fm):
         from ai_stock.services.history_loader import load_history_df
 
@@ -82,7 +82,7 @@ class HistoryLoaderTestCase(unittest.TestCase):
     # ------------------------------------------------------------------
     # ContextVar integration
     # ------------------------------------------------------------------
-    @patch("src.storage.get_db")
+    @patch("ai_stock.storage.get_db")
     def test_uses_frozen_target_date_from_contextvar(self, mock_get_db):
         from ai_stock.services.history_loader import (
             load_history_df,
@@ -111,7 +111,7 @@ class HistoryLoaderTestCase(unittest.TestCase):
     # ------------------------------------------------------------------
     # normalize_stock_code fallback for prefixed codes
     # ------------------------------------------------------------------
-    @patch("src.storage.get_db")
+    @patch("ai_stock.storage.get_db")
     def test_uses_normalize_fallback_for_prefixed_code(self, mock_get_db):
         from ai_stock.services.history_loader import load_history_df
 
@@ -136,8 +136,8 @@ class HistoryLoaderTestCase(unittest.TestCase):
     # ------------------------------------------------------------------
     # Both paths fail gracefully
     # ------------------------------------------------------------------
-    @patch("src.services.history_loader._get_fetcher_manager")
-    @patch("src.storage.get_db")
+    @patch("ai_stock.services.history_loader._get_fetcher_manager")
+    @patch("ai_stock.storage.get_db")
     def test_graceful_when_both_fail(self, mock_get_db, mock_get_fm):
         from ai_stock.services.history_loader import load_history_df
 

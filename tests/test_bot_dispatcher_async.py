@@ -103,7 +103,7 @@ class TestCommandDispatcherAsync(unittest.IsolatedAsyncioTestCase):
             "bot.dispatcher.asyncio.to_thread",
             new=AsyncMock(side_effect=lambda func, *args, **kwargs: func(*args, **kwargs)),
         ) as to_thread:
-            with patch("src.agent.llm_adapter.LLMToolAdapter") as adapter_cls:
+            with patch("ai_stock.agent.llm_adapter.LLMToolAdapter") as adapter_cls:
                 adapter = MagicMock()
                 adapter.call_text.return_value = fake_response
                 adapter_cls.return_value = adapter
@@ -127,7 +127,7 @@ class TestCommandDispatcherAsync(unittest.IsolatedAsyncioTestCase):
             litellm_model="gemini/test-model",
         )
 
-        with patch("src.config.get_config", return_value=config):
+        with patch("ai_stock.config.get_config", return_value=config):
             with patch.object(dispatcher, "_parse_intent_via_llm", new=AsyncMock(return_value={
                 "intent": "analysis",
                 "codes": ["600519"],
@@ -152,9 +152,9 @@ class TestCommandDispatcherAsync(unittest.IsolatedAsyncioTestCase):
             litellm_model="gemini/test-model",
         )
 
-        with patch("src.config.get_config", return_value=config):
+        with patch("ai_stock.config.get_config", return_value=config):
             with patch(
-                "src.services.name_to_code_resolver._get_akshare_name_to_code"
+                "ai_stock.services.name_to_code_resolver._get_akshare_name_to_code"
             ) as mock_akshare:
                 with patch.object(
                     dispatcher,
@@ -212,7 +212,7 @@ class TestHandleWebhookAsync(unittest.IsolatedAsyncioTestCase):
         fake_config = MagicMock()
         fake_config.bot_enabled = True
 
-        with patch("src.config.get_config", return_value=fake_config), \
+        with patch("ai_stock.config.get_config", return_value=fake_config), \
              patch("bot.handler.get_platform", return_value=fake_platform), \
              patch("bot.handler.get_dispatcher") as mock_get_disp:
             mock_dispatcher = MagicMock()
@@ -229,7 +229,7 @@ class TestHandleWebhookAsync(unittest.IsolatedAsyncioTestCase):
         fake_config = MagicMock()
         fake_config.bot_enabled = False
 
-        with patch("src.config.get_config", return_value=fake_config):
+        with patch("ai_stock.config.get_config", return_value=fake_config):
             result = await handle_webhook_async("feishu", {}, b'{}')
 
         # WebhookResponse.success() returns status_code 200
@@ -248,8 +248,8 @@ class TestChatCommandCompatibility(unittest.TestCase):
         db.conversation_session_exists.side_effect = lambda session_id: session_id == "feishu_u1"
 
         with patch("bot.commands.chat.get_config", return_value=config), \
-             patch("src.storage.get_db", return_value=db), \
-             patch("src.agent.factory.build_agent_executor", return_value=executor):
+             patch("ai_stock.storage.get_db", return_value=db), \
+             patch("ai_stock.agent.factory.build_agent_executor", return_value=executor):
             response = command.execute(_make_message("/chat hello"), ["hello"])
 
         self.assertEqual(response.text, "ok")
@@ -270,8 +270,8 @@ class TestChatCommandCompatibility(unittest.TestCase):
         message.chat_id = "group-1"
 
         with patch("bot.commands.chat.get_config", return_value=config), \
-             patch("src.storage.get_db", return_value=db), \
-             patch("src.agent.factory.build_agent_executor", return_value=executor):
+             patch("ai_stock.storage.get_db", return_value=db), \
+             patch("ai_stock.agent.factory.build_agent_executor", return_value=executor):
             response = command.execute(message, ["hello"])
 
         self.assertEqual(response.text, "ok")
@@ -290,7 +290,7 @@ class TestHistoryCommandCompatibility(unittest.TestCase):
         message.chat_type = ChatType.GROUP
         message.chat_id = "group-1"
 
-        with patch("src.storage.get_db", return_value=db):
+        with patch("ai_stock.storage.get_db", return_value=db):
             response = command.execute(message, ["clear"])
 
         self.assertIn("1 条消息", response.text)

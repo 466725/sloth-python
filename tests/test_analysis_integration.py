@@ -30,7 +30,7 @@ def disable_auth():
     """Keep analysis integration tests independent from local auth env state."""
     auth._auth_enabled = None
     with patch("api.middlewares.auth.is_auth_enabled", return_value=False), \
-         patch("src.auth.is_auth_enabled", return_value=False):
+         patch("ai_stock.auth.is_auth_enabled", return_value=False):
         yield
     auth._auth_enabled = None
 

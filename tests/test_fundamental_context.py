@@ -61,7 +61,7 @@ class TestFundamentalContext(unittest.TestCase):
             "source_chain": [],
             "errors": [],
         }
-        with patch("src.config.get_config", return_value=cfg), \
+        with patch("ai_stock.config.get_config", return_value=cfg), \
                 patch.object(manager, "get_realtime_quote", return_value=None), \
                 patch(
                     "data_provider.yfinance_fundamental_adapter.YfinanceFundamentalAdapter.get_fundamental_bundle",
@@ -130,7 +130,7 @@ class TestFundamentalContext(unittest.TestCase):
             "source_chain": ["growth:yfinance.info"],
             "errors": [],
         }
-        with patch("src.config.get_config", return_value=cfg), \
+        with patch("ai_stock.config.get_config", return_value=cfg), \
                 patch.object(manager, "get_realtime_quote", return_value=quote), \
                 patch(
                     "data_provider.yfinance_fundamental_adapter.YfinanceFundamentalAdapter.get_fundamental_bundle",
@@ -184,7 +184,7 @@ class TestFundamentalContext(unittest.TestCase):
             "source_chain": [],
             "errors": [],
         }
-        with patch("src.config.get_config", return_value=cfg), \
+        with patch("ai_stock.config.get_config", return_value=cfg), \
                 patch.object(manager, "get_realtime_quote", return_value=quote), \
                 patch(
                     "data_provider.fundamental_adapter.AkshareFundamentalAdapter.get_fundamental_bundle",
@@ -234,7 +234,7 @@ class TestFundamentalContext(unittest.TestCase):
             circ_mv=7.0e10,
             source=SimpleNamespace(value="tencent"),
         )
-        with patch("src.config.get_config", return_value=cfg), \
+        with patch("ai_stock.config.get_config", return_value=cfg), \
                 patch.object(manager, "get_realtime_quote", return_value=quote), \
                 patch("data_provider.fundamental_adapter.AkshareFundamentalAdapter.get_fundamental_bundle", return_value={
                     "growth": {"revenue_yoy": 10.1, "net_profit_yoy": 8.5},
@@ -270,7 +270,7 @@ class TestFundamentalContext(unittest.TestCase):
             circ_mv=7.0e10,
             source=SimpleNamespace(value="tencent"),
         )
-        with patch("src.config.get_config", return_value=cfg), \
+        with patch("ai_stock.config.get_config", return_value=cfg), \
                 patch.object(manager, "get_realtime_quote", return_value=quote), \
                 patch("data_provider.fundamental_adapter.AkshareFundamentalAdapter.get_fundamental_bundle", return_value={
                     "status": "partial",
@@ -312,7 +312,7 @@ class TestFundamentalContext(unittest.TestCase):
             circ_mv=7.0e10,
             source=SimpleNamespace(value="tencent"),
         )
-        with patch("src.config.get_config", return_value=cfg), \
+        with patch("ai_stock.config.get_config", return_value=cfg), \
                 patch.object(manager, "get_realtime_quote", return_value=quote), \
                 patch("data_provider.fundamental_adapter.AkshareFundamentalAdapter.get_fundamental_bundle", return_value={
                     "status": "partial",
@@ -374,7 +374,7 @@ class TestFundamentalContext(unittest.TestCase):
             budgets["boards"] = budget_seconds
             return {"status": "not_supported", "source_chain": [], "errors": [], "data": {}}
 
-        with patch("src.config.get_config", return_value=cfg), \
+        with patch("ai_stock.config.get_config", return_value=cfg), \
                 patch.object(manager, "get_realtime_quote", return_value=quote), \
                 patch(
                     "data_provider.fundamental_adapter.AkshareFundamentalAdapter.get_fundamental_bundle",
@@ -458,7 +458,7 @@ class TestFundamentalContext(unittest.TestCase):
             "source_chain": [],
             "errors": [],
         }
-        with patch("src.config.get_config", return_value=cfg), \
+        with patch("ai_stock.config.get_config", return_value=cfg), \
                 patch.object(manager, "get_realtime_quote", return_value=quote), \
                 patch(
                     "data_provider.fundamental_adapter.AkshareFundamentalAdapter.get_fundamental_bundle",
@@ -487,7 +487,7 @@ class TestFundamentalContext(unittest.TestCase):
             fundamental_fetch_timeout_seconds=0.8,
             fundamental_retry_max=1,
         )
-        with patch("src.config.get_config", return_value=cfg), \
+        with patch("ai_stock.config.get_config", return_value=cfg), \
                 patch.object(manager, "_get_sector_rankings_with_meta", return_value=([], [], [], "all failed")):
             ctx = manager.get_board_context("600519", budget_seconds=0.5)
         self.assertEqual(ctx["status"], "failed")
@@ -502,7 +502,7 @@ class TestFundamentalContext(unittest.TestCase):
             fundamental_fetch_timeout_seconds=0.8,
             fundamental_retry_max=1,
         )
-        with patch("src.config.get_config", return_value=cfg), \
+        with patch("ai_stock.config.get_config", return_value=cfg), \
                 patch(
                     "data_provider.fundamental_adapter.AkshareFundamentalAdapter.get_capital_flow",
                     return_value={

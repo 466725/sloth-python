@@ -785,7 +785,7 @@ def test_holding_only_uses_cached_positions_and_stock_code_variants(client_and_d
         )
 
     with patch(
-        "src.services.portfolio_service.PortfolioService.get_portfolio_snapshot",
+        "ai_stock.services.portfolio_service.PortfolioService.get_portfolio_snapshot",
         side_effect=AssertionError("holding_only must not replay portfolio snapshots"),
     ):
         holding_resp = client.get(
@@ -802,7 +802,7 @@ def test_holding_only_uses_cached_positions_and_stock_code_variants(client_and_d
     }
 
     with patch(
-        "src.services.portfolio_service.PortfolioService.get_portfolio_snapshot",
+        "ai_stock.services.portfolio_service.PortfolioService.get_portfolio_snapshot",
         side_effect=AssertionError("holding_only must not replay portfolio snapshots"),
     ):
         all_active_resp = client.get(
@@ -819,7 +819,7 @@ def test_holding_only_uses_cached_positions_and_stock_code_variants(client_and_d
     }
 
     with patch(
-        "src.services.portfolio_service.PortfolioService.get_portfolio_snapshot",
+        "ai_stock.services.portfolio_service.PortfolioService.get_portfolio_snapshot",
         side_effect=AssertionError("holding_only must not replay portfolio snapshots"),
     ):
         inactive_holding_resp = client.get(

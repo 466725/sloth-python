@@ -71,7 +71,7 @@ class AuthStatusSetupStateTestCase(unittest.TestCase):
         """Scenario: Auth disabled and no password set."""
         request = _make_request()
         with patch("api.v1.endpoints.auth.is_auth_enabled", return_value=False):
-            with patch("src.auth.is_auth_enabled", return_value=False):
+            with patch("ai_stock.auth.is_auth_enabled", return_value=False):
                 data = asyncio.run(auth_status(request))
                 self.assertEqual(data["setupState"], "no_password")
                 self.assertFalse(data["authEnabled"])
@@ -82,7 +82,7 @@ class AuthStatusSetupStateTestCase(unittest.TestCase):
         request = _make_request()
 
         with patch("api.v1.endpoints.auth.is_auth_enabled", return_value=False):
-            with patch("src.auth.is_auth_enabled", return_value=False):
+            with patch("ai_stock.auth.is_auth_enabled", return_value=False):
                 data = asyncio.run(auth_status(request))
                 self.assertEqual(data["setupState"], "password_retained")
                 self.assertFalse(data["authEnabled"])
@@ -94,7 +94,7 @@ class AuthStatusSetupStateTestCase(unittest.TestCase):
         request = _make_request()
 
         with patch("api.v1.endpoints.auth.is_auth_enabled", return_value=True):
-            with patch("src.auth.is_auth_enabled", return_value=True):
+            with patch("ai_stock.auth.is_auth_enabled", return_value=True):
                 data = asyncio.run(auth_status(request))
                 self.assertEqual(data["setupState"], "enabled")
                 self.assertTrue(data["authEnabled"])
@@ -110,7 +110,7 @@ class AuthStatusSetupStateTestCase(unittest.TestCase):
         )
 
         with patch("api.v1.endpoints.auth.is_auth_enabled") as mock_endpoint_enabled:
-            with patch("src.auth.is_auth_enabled") as mock_src_enabled:
+            with patch("ai_stock.auth.is_auth_enabled") as mock_src_enabled:
                 mock_src_enabled.return_value = False
                 mock_endpoint_enabled.return_value = False
 
