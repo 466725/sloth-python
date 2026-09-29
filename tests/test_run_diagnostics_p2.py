@@ -15,8 +15,8 @@ from fastapi import HTTPException
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from api.v1.endpoints.history import get_history_diagnostics
-from src.services.history_service import HistoryService
-from src.services.run_diagnostics import build_run_diagnostic_summary, sanitize_diagnostic_text
+from ai_stock.services.history_service import HistoryService
+from ai_stock.services.run_diagnostics import build_run_diagnostic_summary, sanitize_diagnostic_text
 
 
 def _diagnostic_snapshot() -> dict:
@@ -446,10 +446,10 @@ class RunDiagnosticsP2TestCase(unittest.TestCase):
         self.assertIn("\"api_key\": \"<redacted>\"", copy_text)
         self.assertIn("http://<redacted>:<redacted>@proxy.example.com", copy_text)
         for leaked in (
-            "sk-env-secret",
-            "sk-json-secret",
-            "proxy_user",
-            "proxy_pass",
+                "sk-env-secret",
+                "sk-json-secret",
+                "proxy_user",
+                "proxy_pass",
         ):
             self.assertNotIn(leaked, copy_text)
 
@@ -471,13 +471,13 @@ class RunDiagnosticsP2TestCase(unittest.TestCase):
         self.assertIn("http://<redacted>:<redacted>@proxy.example.com", sanitized)
         self.assertIn("Authorization=<redacted>", sanitized)
         for leaked in (
-            "sk-env-secret",
-            "sk-json-secret",
-            "sk-raw-secret",
-            "raw-token-secret",
-            "proxy_user",
-            "proxy_pass",
-            "sk-auth-secret",
+                "sk-env-secret",
+                "sk-json-secret",
+                "sk-raw-secret",
+                "raw-token-secret",
+                "proxy_user",
+                "proxy_pass",
+                "sk-auth-secret",
         ):
             self.assertNotIn(leaked, sanitized)
 

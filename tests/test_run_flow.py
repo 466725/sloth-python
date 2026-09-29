@@ -17,11 +17,11 @@ ensure_litellm_stub()
 
 from api.v1.endpoints.analysis import get_task_run_flow
 from api.v1.endpoints.history import get_history_run_flow
-from src.services.run_flow import (
+from ai_stock.services.run_flow import (
     build_history_run_flow_snapshot,
     build_task_run_flow_snapshot,
 )
-from src.services.run_diagnostics import (
+from ai_stock.services.run_diagnostics import (
     activate_run_diagnostic_context,
     current_diagnostic_snapshot,
     record_llm_run,
@@ -31,7 +31,7 @@ from src.services.run_diagnostics import (
     record_provider_run_started,
     reset_run_diagnostic_context,
 )
-from src.services.task_queue import AnalysisTaskQueue, TaskInfo, TaskStatus
+from ai_stock.services.task_queue import AnalysisTaskQueue, TaskInfo, TaskStatus
 
 
 def _overview(*, blocks: list[dict]) -> dict:
@@ -169,12 +169,12 @@ def _diagnostics(*, with_fallback: bool = False, unsafe: bool = False) -> dict:
 
 
 def _history_record(
-    *,
-    context_snapshot: dict | None,
-    raw_result: dict | None = None,
-    code: str = "600519",
-    name: str = "贵州茅台",
-    report_type: str = "detailed",
+        *,
+        context_snapshot: dict | None,
+        raw_result: dict | None = None,
+        code: str = "600519",
+        name: str = "贵州茅台",
+        report_type: str = "detailed",
 ) -> SimpleNamespace:
     return SimpleNamespace(
         id=7,
@@ -195,7 +195,8 @@ class _FakeHistoryDb:
     def get_analysis_history_by_id(self, record_id: int):
         return self.record if self.record is not None and record_id == self.record.id else None
 
-    def get_latest_analysis_by_query_id(self, query_id: str, *, code: str | None = None, report_type: str | None = None):
+    def get_latest_analysis_by_query_id(self, query_id: str, *, code: str | None = None,
+                                        report_type: str | None = None):
         if self.record is None or query_id != self.record.query_id:
             return None
         if code is not None and self.record.code != code:
@@ -215,7 +216,8 @@ class _FakeMarketReviewDb:
         self.saved_context_snapshot = kwargs.get("context_snapshot")
         return self.save_result
 
-    def get_latest_analysis_by_query_id(self, query_id: str, *, code: str | None = None, report_type: str | None = None):
+    def get_latest_analysis_by_query_id(self, query_id: str, *, code: str | None = None,
+                                        report_type: str | None = None):
         _ = (query_id, code, report_type)
         return SimpleNamespace(id=42)
 
@@ -776,7 +778,8 @@ class RunFlowTestCase(unittest.TestCase):
         self.assertIn("新闻舆情 · Tavily", node_labels)
         self.assertIn("新闻舆情 · SearXNG", node_labels)
         self.assertTrue(any(edge["kind"] == "fallback" for edge in edge_payload))
-        self.assertTrue(any(event.type == "provider_run" and event.node_id.endswith("searxng_2") for event in snapshot.events))
+        self.assertTrue(
+            any(event.type == "provider_run" and event.node_id.endswith("searxng_2") for event in snapshot.events))
 
     def test_degraded_context_blocks_do_not_increment_fallback_count(self) -> None:
         diagnostics = _diagnostics()
@@ -833,8 +836,8 @@ class RunFlowTestCase(unittest.TestCase):
         record = _history_record(context_snapshot=context_snapshot)
 
         with patch(
-            "src.services.run_flow._local_timezone",
-            return_value=timezone(timedelta(hours=8)),
+                "ai_stock.services.run_flow._local_timezone",
+                return_value=timezone(timedelta(hours=8)),
         ):
             snapshot = build_history_run_flow_snapshot(record)
 
@@ -881,10 +884,10 @@ class RunFlowTestCase(unittest.TestCase):
         self.assertIn("deepseek-chat", payload)
         self.assertIn("litellm", payload)
         for leaked in (
-            "base_url",
-            "api_key",
-            "llm.example.com",
-            "sk-runtime-secret",
+                "base_url",
+                "api_key",
+                "llm.example.com",
+                "sk-runtime-secret",
         ):
             self.assertNotIn(leaked, payload)
 
@@ -1072,7 +1075,7 @@ class RunFlowTestCase(unittest.TestCase):
         self.assertEqual(notification.attempts, 0)
 
     def test_market_review_persist_records_diagnostics_with_saved_history_id(self) -> None:
-        from src.core.market_review import _persist_market_review_history
+        from ai_stock.core.market_review import _persist_market_review_history
 
         fake_db = _FakeMarketReviewDb(save_result=42)
         config = SimpleNamespace(report_language="zh")
@@ -1084,7 +1087,7 @@ class RunFlowTestCase(unittest.TestCase):
             trigger_source="api",
         )
         try:
-            with patch("src.storage.DatabaseManager.get_instance", return_value=fake_db):
+            with patch("ai_stock.storage.DatabaseManager.get_instance", return_value=fake_db):
                 saved = _persist_market_review_history(
                     review_report="大盘复盘报告",
                     markdown_report="# 大盘复盘报告",
@@ -1111,8 +1114,8 @@ class RunFlowTestCase(unittest.TestCase):
 
         queue = SimpleNamespace(get_task=lambda task_id: None)
         with patch("api.v1.endpoints.analysis.get_task_queue", return_value=queue), patch(
-            "api.v1.endpoints.analysis._load_history_run_flow_by_query_id",
-            return_value=None,
+                "api.v1.endpoints.analysis._load_history_run_flow_by_query_id",
+                return_value=None,
         ):
             with self.assertRaises(HTTPException) as task_ctx:
                 get_task_run_flow("missing-task")
@@ -1130,8 +1133,8 @@ class RunFlowTestCase(unittest.TestCase):
         queue = SimpleNamespace(get_task=lambda task_id: task)
 
         with patch("api.v1.endpoints.analysis.get_task_queue", return_value=queue), patch(
-            "api.v1.endpoints.analysis._load_history_run_flow_by_query_id",
-            return_value=None,
+                "api.v1.endpoints.analysis._load_history_run_flow_by_query_id",
+                return_value=None,
         ) as load_history:
             snapshot = get_task_run_flow("query-flow")
 
@@ -1155,8 +1158,8 @@ class RunFlowTestCase(unittest.TestCase):
         queue = SimpleNamespace(get_task=lambda task_id: task)
 
         with patch("api.v1.endpoints.analysis.get_task_queue", return_value=queue), patch(
-            "api.v1.endpoints.analysis._load_history_run_flow_by_query_id",
-            return_value=None,
+                "api.v1.endpoints.analysis._load_history_run_flow_by_query_id",
+                return_value=None,
         ) as load_history:
             snapshot = get_task_run_flow("market-query-flow")
 
@@ -1189,11 +1192,11 @@ class RunFlowTestCase(unittest.TestCase):
         payload = json.dumps(snapshot.model_dump(mode="json", by_alias=True), ensure_ascii=False)
 
         for leaked in (
-            "sk-secret",
-            "secret-token",
-            "hooks.example.com/webhook",
-            "full-user-prompt",
-            "/home/activer",
+                "sk-secret",
+                "secret-token",
+                "hooks.example.com/webhook",
+                "full-user-prompt",
+                "/home/activer",
         ):
             self.assertNotIn(leaked, payload)
         self.assertIn("<redacted>", payload)
