@@ -15,7 +15,7 @@ if "newspaper" not in sys.modules:
     mock_np.Config = MagicMock()
     sys.modules["newspaper"] = mock_np
 
-from src.search_service import SerpAPISearchProvider
+from ai_stock.search_service import SerpAPISearchProvider
 
 
 class _FakeGoogleSearch:
@@ -53,18 +53,18 @@ class TestSerpAPISearchProvider(unittest.TestCase):
         long_snippet = "这是一段已经足够长的摘要。 " * 12
 
         with self._patch_serpapi(
-            {
-                "organic_results": [
-                    {
-                        "title": "Long summary result",
-                        "link": "https://example.com/long-summary",
-                        "snippet": long_snippet,
-                        "source": "Example",
-                        "date": "2026-03-20",
-                    }
-                ]
-            }
-        ), patch("src.search_service.fetch_url_content") as mock_fetch:
+                {
+                    "organic_results": [
+                        {
+                            "title": "Long summary result",
+                            "link": "https://example.com/long-summary",
+                            "snippet": long_snippet,
+                            "source": "Example",
+                            "date": "2026-03-20",
+                        }
+                    ]
+                }
+        ), patch("ai_stock.search_service.fetch_url_content") as mock_fetch:
             resp = provider.search("阿里巴巴 财报", max_results=3)
 
         self.assertTrue(resp.success)
@@ -78,29 +78,29 @@ class TestSerpAPISearchProvider(unittest.TestCase):
         provider = SerpAPISearchProvider(["dummy_key"])
 
         with self._patch_serpapi(
-            {
-                "organic_results": [
-                    {
-                        "title": "Structured summary result",
-                        "link": "https://example.com/structured-summary",
-                        "source": "Example",
-                        "rich_snippet": {
-                            "top": {
-                                "extensions": [
-                                    "Q4 revenue grows 22% year over year and margin keeps improving",
-                                    "Management raises full-year guidance after demand stays strong",
-                                ]
+                {
+                    "organic_results": [
+                        {
+                            "title": "Structured summary result",
+                            "link": "https://example.com/structured-summary",
+                            "source": "Example",
+                            "rich_snippet": {
+                                "top": {
+                                    "extensions": [
+                                        "Q4 revenue grows 22% year over year and margin keeps improving",
+                                        "Management raises full-year guidance after demand stays strong",
+                                    ]
+                                },
+                                "bottom": {
+                                    "extensions": [
+                                        "Brokerages lift target prices and keep overweight ratings",
+                                    ]
+                                },
                             },
-                            "bottom": {
-                                "extensions": [
-                                    "Brokerages lift target prices and keep overweight ratings",
-                                ]
-                            },
-                        },
-                    }
-                ]
-            }
-        ), patch("src.search_service.fetch_url_content") as mock_fetch:
+                        }
+                    ]
+                }
+        ), patch("ai_stock.search_service.fetch_url_content") as mock_fetch:
             resp = provider.search("阿里巴巴 财报", max_results=3)
 
         self.assertTrue(resp.success)
@@ -113,30 +113,30 @@ class TestSerpAPISearchProvider(unittest.TestCase):
         provider = SerpAPISearchProvider(["dummy_key"])
 
         with self._patch_serpapi(
-            {
-                "organic_results": [
-                    {
-                        "title": "Detected extensions result",
-                        "link": "https://example.com/detected-extensions",
-                        "source": "Example",
-                        "rich_snippet": {
-                            "top": {
-                                "detected_extensions": {
-                                    "price": "$125.30",
-                                    "updated_at": "1 hour ago",
-                                }
+                {
+                    "organic_results": [
+                        {
+                            "title": "Detected extensions result",
+                            "link": "https://example.com/detected-extensions",
+                            "source": "Example",
+                            "rich_snippet": {
+                                "top": {
+                                    "detected_extensions": {
+                                        "price": "$125.30",
+                                        "updated_at": "1 hour ago",
+                                    }
+                                },
+                                "bottom": {
+                                    "detected_extensions": {
+                                        "rating": 4.5,
+                                        "votes": 1200,
+                                    }
+                                },
                             },
-                            "bottom": {
-                                "detected_extensions": {
-                                    "rating": 4.5,
-                                    "votes": 1200,
-                                }
-                            },
-                        },
-                    }
-                ]
-            }
-        ), patch("src.search_service.fetch_url_content") as mock_fetch:
+                        }
+                    ]
+                }
+        ), patch("ai_stock.search_service.fetch_url_content") as mock_fetch:
             resp = provider.search("阿里巴巴 财报", max_results=3)
 
         self.assertTrue(resp.success)
@@ -151,29 +151,29 @@ class TestSerpAPISearchProvider(unittest.TestCase):
         provider = SerpAPISearchProvider(["dummy_key"])
 
         with self._patch_serpapi(
-            {
-                "organic_results": [
-                    {
-                        "title": "Zero-like extensions result",
-                        "link": "https://example.com/zero-like-extensions",
-                        "source": "Example",
-                        "rich_snippet": {
-                            "top": {
-                                "detected_extensions": {
-                                    "price": 0,
-                                    "market_open": False,
-                                }
+                {
+                    "organic_results": [
+                        {
+                            "title": "Zero-like extensions result",
+                            "link": "https://example.com/zero-like-extensions",
+                            "source": "Example",
+                            "rich_snippet": {
+                                "top": {
+                                    "detected_extensions": {
+                                        "price": 0,
+                                        "market_open": False,
+                                    }
+                                },
+                                "bottom": {
+                                    "detected_extensions": {
+                                        "votes": 0,
+                                    }
+                                },
                             },
-                            "bottom": {
-                                "detected_extensions": {
-                                    "votes": 0,
-                                }
-                            },
-                        },
-                    }
-                ]
-            }
-        ), patch("src.search_service.fetch_url_content") as mock_fetch:
+                        }
+                    ]
+                }
+        ), patch("ai_stock.search_service.fetch_url_content") as mock_fetch:
             resp = provider.search("阿里巴巴 财报", max_results=3)
 
         self.assertTrue(resp.success)
@@ -187,23 +187,23 @@ class TestSerpAPISearchProvider(unittest.TestCase):
         provider = SerpAPISearchProvider(["dummy_key"])
 
         with self._patch_serpapi(
-            {
-                "organic_results": [
-                    {
-                        "title": "Malformed detected extensions result",
-                        "link": "https://example.com/malformed-detected-extensions",
-                        "snippet": "摘要过短",
-                        "source": "Example",
-                        "rich_snippet": {
-                            "top": {
-                                "detected_extensions": True,
+                {
+                    "organic_results": [
+                        {
+                            "title": "Malformed detected extensions result",
+                            "link": "https://example.com/malformed-detected-extensions",
+                            "snippet": "摘要过短",
+                            "source": "Example",
+                            "rich_snippet": {
+                                "top": {
+                                    "detected_extensions": True,
+                                },
                             },
-                        },
-                    }
-                ]
-            }
+                        }
+                    ]
+                }
         ), patch(
-            "src.search_service.fetch_url_content",
+            "ai_stock.search_service.fetch_url_content",
             return_value="网页正文补充信息 " * 40,
         ) as mock_fetch:
             resp = provider.search("阿里巴巴 财报", max_results=3)
@@ -222,21 +222,21 @@ class TestSerpAPISearchProvider(unittest.TestCase):
         long_enough_snippet = "已有摘要，足够避免补抓。 " * 16
 
         with self._patch_serpapi(
-            {
-                "organic_results": [
-                    {
-                        "title": "Malformed rich snippet",
-                        "link": "https://example.com/malformed-rich-snippet",
-                        "snippet": long_enough_snippet,
-                        "source": "Example",
-                        "rich_snippet": {
-                            "top": "unexpected string payload",
-                            "bottom": ["unexpected", "list"],
-                        },
-                    }
-                ]
-            }
-        ), patch("src.search_service.fetch_url_content") as mock_fetch:
+                {
+                    "organic_results": [
+                        {
+                            "title": "Malformed rich snippet",
+                            "link": "https://example.com/malformed-rich-snippet",
+                            "snippet": long_enough_snippet,
+                            "source": "Example",
+                            "rich_snippet": {
+                                "top": "unexpected string payload",
+                                "bottom": ["unexpected", "list"],
+                            },
+                        }
+                    ]
+                }
+        ), patch("ai_stock.search_service.fetch_url_content") as mock_fetch:
             resp = provider.search("阿里巴巴 财报", max_results=3)
 
         self.assertTrue(resp.success)
@@ -248,27 +248,27 @@ class TestSerpAPISearchProvider(unittest.TestCase):
         provider = SerpAPISearchProvider(["dummy_key"])
 
         with self._patch_serpapi(
-            {
-                "organic_results": [
-                    {
-                        "title": "Malformed extensions payload",
-                        "link": "https://example.com/malformed-extensions",
-                        "source": "Example",
-                        "rich_snippet": {
-                            "top": {
-                                "extensions": True,
-                            },
-                            "bottom": {
-                                "extensions": 1,
-                                "detected_extensions": {
-                                    "rating": 4.5,
+                {
+                    "organic_results": [
+                        {
+                            "title": "Malformed extensions payload",
+                            "link": "https://example.com/malformed-extensions",
+                            "source": "Example",
+                            "rich_snippet": {
+                                "top": {
+                                    "extensions": True,
+                                },
+                                "bottom": {
+                                    "extensions": 1,
+                                    "detected_extensions": {
+                                        "rating": 4.5,
+                                    },
                                 },
                             },
-                        },
-                    }
-                ]
-            }
-        ), patch("src.search_service.fetch_url_content") as mock_fetch:
+                        }
+                    ]
+                }
+        ), patch("ai_stock.search_service.fetch_url_content") as mock_fetch:
             resp = provider.search("阿里巴巴 财报", max_results=3)
 
         self.assertTrue(resp.success)
@@ -307,30 +307,30 @@ class TestSerpAPISearchProvider(unittest.TestCase):
         provider = SerpAPISearchProvider(["dummy_key"])
 
         with self._patch_serpapi(
-            {
-                "organic_results": [
-                    {
-                        "title": "Need extra context",
-                        "link": "https://example.com/need-extra-context",
-                        "snippet": "摘要过短",
-                        "source": "Example",
-                    },
-                    {
-                        "title": "Second short result",
-                        "link": "https://example.com/second-short",
-                        "snippet": "也很短",
-                        "source": "Example",
-                    },
-                    {
-                        "title": "Third short result",
-                        "link": "https://example.com/third-short",
-                        "snippet": "还是很短",
-                        "source": "Example",
-                    },
-                ]
-            }
+                {
+                    "organic_results": [
+                        {
+                            "title": "Need extra context",
+                            "link": "https://example.com/need-extra-context",
+                            "snippet": "摘要过短",
+                            "source": "Example",
+                        },
+                        {
+                            "title": "Second short result",
+                            "link": "https://example.com/second-short",
+                            "snippet": "也很短",
+                            "source": "Example",
+                        },
+                        {
+                            "title": "Third short result",
+                            "link": "https://example.com/third-short",
+                            "snippet": "还是很短",
+                            "source": "Example",
+                        },
+                    ]
+                }
         ), patch(
-            "src.search_service.fetch_url_content",
+            "ai_stock.search_service.fetch_url_content",
             return_value="网页正文补充信息 " * 40,
         ) as mock_fetch:
             resp = provider.search("阿里巴巴 财报", max_results=3)
@@ -349,30 +349,30 @@ class TestSerpAPISearchProvider(unittest.TestCase):
         provider = SerpAPISearchProvider(["dummy_key"])
 
         with self._patch_serpapi(
-            {
-                "organic_results": [
-                    {
-                        "title": "PDF attachment",
-                        "link": "https://example.com/report.PDF?download=1",
-                        "snippet": "附件摘要很短",
-                        "source": "Example",
-                    },
-                    {
-                        "title": "HTML article",
-                        "link": "https://example.com/article",
-                        "snippet": "正文摘要也短",
-                        "source": "Example",
-                    },
-                    {
-                        "title": "Third short result",
-                        "link": "https://example.com/third-short",
-                        "snippet": "还是很短",
-                        "source": "Example",
-                    },
-                ]
-            }
+                {
+                    "organic_results": [
+                        {
+                            "title": "PDF attachment",
+                            "link": "https://example.com/report.PDF?download=1",
+                            "snippet": "附件摘要很短",
+                            "source": "Example",
+                        },
+                        {
+                            "title": "HTML article",
+                            "link": "https://example.com/article",
+                            "snippet": "正文摘要也短",
+                            "source": "Example",
+                        },
+                        {
+                            "title": "Third short result",
+                            "link": "https://example.com/third-short",
+                            "snippet": "还是很短",
+                            "source": "Example",
+                        },
+                    ]
+                }
         ), patch(
-            "src.search_service.fetch_url_content",
+            "ai_stock.search_service.fetch_url_content",
             return_value="网页正文补充信息 " * 40,
         ) as mock_fetch:
             resp = provider.search("阿里巴巴 财报", max_results=3)
@@ -391,30 +391,30 @@ class TestSerpAPISearchProvider(unittest.TestCase):
         provider = SerpAPISearchProvider(["dummy_key"])
 
         with self._patch_serpapi(
-            {
-                "organic_results": [
-                    {
-                        "title": "Attachment behind download endpoint",
-                        "link": "https://example.com/download?file=report.pdf",
-                        "snippet": "附件摘要很短",
-                        "source": "Example",
-                    },
-                    {
-                        "title": "HTML article",
-                        "link": "https://example.com/article",
-                        "snippet": "正文摘要也短",
-                        "source": "Example",
-                    },
-                    {
-                        "title": "Third short result",
-                        "link": "https://example.com/third-short",
-                        "snippet": "还是很短",
-                        "source": "Example",
-                    },
-                ]
-            }
+                {
+                    "organic_results": [
+                        {
+                            "title": "Attachment behind download endpoint",
+                            "link": "https://example.com/download?file=report.pdf",
+                            "snippet": "附件摘要很短",
+                            "source": "Example",
+                        },
+                        {
+                            "title": "HTML article",
+                            "link": "https://example.com/article",
+                            "snippet": "正文摘要也短",
+                            "source": "Example",
+                        },
+                        {
+                            "title": "Third short result",
+                            "link": "https://example.com/third-short",
+                            "snippet": "还是很短",
+                            "source": "Example",
+                        },
+                    ]
+                }
         ), patch(
-            "src.search_service.fetch_url_content",
+            "ai_stock.search_service.fetch_url_content",
             return_value="网页正文补充信息 " * 40,
         ) as mock_fetch:
             resp = provider.search("阿里巴巴 财报", max_results=3)
@@ -433,24 +433,24 @@ class TestSerpAPISearchProvider(unittest.TestCase):
         provider = SerpAPISearchProvider(["dummy_key"])
 
         with self._patch_serpapi(
-            {
-                "organic_results": [
-                    {
-                        "title": "HTML article with media param",
-                        "link": "https://example.com/article?thumbnail=cover.jpg",
-                        "snippet": "摘要过短",
-                        "source": "Example",
-                    },
-                    {
-                        "title": "Second short result",
-                        "link": "https://example.com/second-short",
-                        "snippet": "也很短",
-                        "source": "Example",
-                    },
-                ]
-            }
+                {
+                    "organic_results": [
+                        {
+                            "title": "HTML article with media param",
+                            "link": "https://example.com/article?thumbnail=cover.jpg",
+                            "snippet": "摘要过短",
+                            "source": "Example",
+                        },
+                        {
+                            "title": "Second short result",
+                            "link": "https://example.com/second-short",
+                            "snippet": "也很短",
+                            "source": "Example",
+                        },
+                    ]
+                }
         ), patch(
-            "src.search_service.fetch_url_content",
+            "ai_stock.search_service.fetch_url_content",
             return_value="网页正文补充信息 " * 40,
         ) as mock_fetch:
             resp = provider.search("阿里巴巴 财报", max_results=2)
@@ -468,24 +468,24 @@ class TestSerpAPISearchProvider(unittest.TestCase):
         provider = SerpAPISearchProvider(["dummy_key"])
 
         with self._patch_serpapi(
-            {
-                "organic_results": [
-                    {
-                        "title": "Malformed link result",
-                        "link": {"href": "https://example.com/broken"},
-                        "snippet": "摘要过短",
-                        "source": "Example",
-                    },
-                    {
-                        "title": "HTML article",
-                        "link": "https://example.com/article",
-                        "snippet": "正文摘要也短",
-                        "source": "Example",
-                    },
-                ]
-            }
+                {
+                    "organic_results": [
+                        {
+                            "title": "Malformed link result",
+                            "link": {"href": "https://example.com/broken"},
+                            "snippet": "摘要过短",
+                            "source": "Example",
+                        },
+                        {
+                            "title": "HTML article",
+                            "link": "https://example.com/article",
+                            "snippet": "正文摘要也短",
+                            "source": "Example",
+                        },
+                    ]
+                }
         ), patch(
-            "src.search_service.fetch_url_content",
+            "ai_stock.search_service.fetch_url_content",
             return_value="网页正文补充信息 " * 40,
         ) as mock_fetch:
             resp = provider.search("阿里巴巴 财报", max_results=2)
@@ -503,24 +503,24 @@ class TestSerpAPISearchProvider(unittest.TestCase):
         provider = SerpAPISearchProvider(["dummy_key"])
 
         with self._patch_serpapi(
-            {
-                "organic_results": [
-                    {
-                        "title": "Slow result",
-                        "link": "https://example.com/slow",
-                        "snippet": "摘要过短",
-                        "source": "Example",
-                    },
-                    {
-                        "title": "Another short result",
-                        "link": "https://example.com/another-short",
-                        "snippet": "仍然很短",
-                        "source": "Example",
-                    },
-                ]
-            }
+                {
+                    "organic_results": [
+                        {
+                            "title": "Slow result",
+                            "link": "https://example.com/slow",
+                            "snippet": "摘要过短",
+                            "source": "Example",
+                        },
+                        {
+                            "title": "Another short result",
+                            "link": "https://example.com/another-short",
+                            "snippet": "仍然很短",
+                            "source": "Example",
+                        },
+                    ]
+                }
         ), patch(
-            "src.search_service.fetch_url_content",
+            "ai_stock.search_service.fetch_url_content",
             side_effect=TimeoutError("slow site"),
         ) as mock_fetch:
             resp = provider.search("阿里巴巴 财报", max_results=2)
