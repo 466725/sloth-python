@@ -5,7 +5,7 @@ import threading
 import time
 import unittest
 
-from data_provider.realtime_types import CircuitBreaker, RealtimeSource, UnifiedRealtimeQuote
+from ai_stock.stock_data.realtime_types import CircuitBreaker, RealtimeSource, UnifiedRealtimeQuote
 
 
 class UnifiedRealtimeQuoteMetadataTestCase(unittest.TestCase):

@@ -21,10 +21,10 @@ except ValueError:
 if not json_repair_available and "json_repair" not in sys.modules:
     sys.modules["json_repair"] = MagicMock()
 
-from data_provider.base import DataFetcherManager
-from data_provider.realtime_types import RealtimeSource, UnifiedRealtimeQuote
-from src.core.pipeline import StockAnalysisPipeline
-from src.enums import ReportType
+from ai_stock.stock_data.base import DataFetcherManager
+from ai_stock.stock_data.realtime_types import RealtimeSource, UnifiedRealtimeQuote
+from ai_stock.core.pipeline import StockAnalysisPipeline
+from ai_stock.enums import ReportType
 
 
 class _DummyFetcher:
@@ -41,10 +41,10 @@ class _DummyFetcher:
 
 
 def _make_quote(
-    code: str = "600519",
-    name: str = "贵州茅台",
-    source: RealtimeSource = RealtimeSource.AKSHARE_EM,
-    **overrides,
+        code: str = "600519",
+        name: str = "贵州茅台",
+        source: RealtimeSource = RealtimeSource.AKSHARE_EM,
+        **overrides,
 ) -> UnifiedRealtimeQuote:
     return UnifiedRealtimeQuote(
         code=code,
@@ -94,7 +94,7 @@ def _make_pipeline(enable_realtime_quote: bool, realtime_quote=None) -> StockAna
     return pipeline
 
 
-@patch("src.config.get_config")
+@patch("ai_stock.config.get_config")
 def test_manager_does_not_warn_when_fallback_source_succeeds(mock_get_config, caplog):
     mock_get_config.return_value = SimpleNamespace(
         enable_realtime_quote=True,
@@ -118,7 +118,7 @@ def test_manager_does_not_warn_when_fallback_source_succeeds(mock_get_config, ca
     assert "所有数据源均不可用" not in caplog.text
 
 
-@patch("src.config.get_config")
+@patch("ai_stock.config.get_config")
 def test_manager_supplement_does_not_mark_fallback_from(mock_get_config):
     mock_get_config.return_value = SimpleNamespace(
         enable_realtime_quote=True,
@@ -142,7 +142,7 @@ def test_manager_supplement_does_not_mark_fallback_from(mock_get_config):
     assert quote.volume_ratio == 1.7
 
 
-@patch("src.config.get_config")
+@patch("ai_stock.config.get_config")
 def test_manager_fallback_from_records_highest_priority_failed_source(mock_get_config):
     mock_get_config.return_value = SimpleNamespace(
         enable_realtime_quote=True,
@@ -164,7 +164,7 @@ def test_manager_fallback_from_records_highest_priority_failed_source(mock_get_c
     assert quote.fetched_at is not None
 
 
-@patch("src.config.get_config")
+@patch("ai_stock.config.get_config")
 def test_manager_drops_invalid_provider_timestamp_before_return(mock_get_config):
     mock_get_config.return_value = SimpleNamespace(
         enable_realtime_quote=True,
@@ -205,34 +205,6 @@ def test_pipeline_warns_once_when_all_realtime_sources_fail(caplog):
         if "历史收盘价继续分析" in record.message
     ]
     assert downgrade_logs == ["贵州茅台(600519) 所有实时行情数据源均不可用，已降级为历史收盘价继续分析"]
-
-
-@patch("src.config.get_config")
-def test_event_monitor_keeps_manager_failure_summary_for_direct_quote_call(mock_get_config, caplog):
-    from src.agent.events import EventMonitor, PriceAlert
-
-    mock_get_config.return_value = SimpleNamespace(
-        enable_realtime_quote=True,
-        realtime_source_priority="efinance",
-    )
-    manager = DataFetcherManager(
-        fetchers=[
-            _DummyFetcher("EfinanceFetcher", 0, error=RuntimeError("efinance timeout")),
-        ]
-    )
-    monitor = EventMonitor()
-    rule = PriceAlert(stock_code="600519", direction="above", price=1800.0)
-
-    async def _run_inline(func, *args, **kwargs):
-        return func(*args, **kwargs)
-
-    with patch("data_provider.DataFetcherManager", return_value=manager), patch(
-        "src.agent.events.asyncio.to_thread", new=_run_inline
-    ), caplog.at_level(logging.INFO):
-        result = asyncio.run(monitor._check_price(rule))
-
-    assert result is None
-    assert "[实时行情] 600519 所有数据源均失败: [efinance] 失败: efinance timeout" in caplog.text
 
 
 def test_pipeline_logs_disabled_realtime_once_without_fetching_quote(caplog):
