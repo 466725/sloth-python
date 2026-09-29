@@ -3,7 +3,7 @@
 
 import json
 
-from src.market_phase_summary import (
+from ai_stock.market_phase_summary import (
     MARKET_PHASE_SUMMARY_KEY,
     extract_market_phase_summary,
     format_public_market_status_line,

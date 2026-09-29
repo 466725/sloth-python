@@ -7,7 +7,7 @@ import json
 import unittest
 from unittest.mock import patch
 
-from src.services.market_light_alerts import (
+from ai_stock.services.market_light_alerts import (
     MarketLightAlert,
     evaluate_market_light_alert,
     normalize_market_alert_parameters,
@@ -88,7 +88,7 @@ class MarketLightAlertsTestCase(unittest.TestCase):
         )
         current = _snapshot(trade_date="2026-03-07", score=55, data_quality="partial", breadth_available=False)
 
-        with patch("src.services.market_light_alerts.load_previous_snapshot", return_value=previous):
+        with patch("ai_stock.services.market_light_alerts.load_previous_snapshot", return_value=previous):
             result = evaluate_market_light_alert(
                 self._rule("market_light_score_drop", {"min_drop": 10.0}),
                 current_snapshot=current,
@@ -104,7 +104,7 @@ class MarketLightAlertsTestCase(unittest.TestCase):
         self.assertEqual(diagnostics["missing_dimensions"], ["breadth", "limit"])
 
     def test_score_drop_without_previous_snapshot_is_skipped(self) -> None:
-        with patch("src.services.market_light_alerts.load_previous_snapshot", return_value=None):
+        with patch("ai_stock.services.market_light_alerts.load_previous_snapshot", return_value=None):
             result = evaluate_market_light_alert(
                 self._rule("market_light_score_drop", {"min_drop": 10.0}),
                 current_snapshot=_snapshot(),
@@ -115,7 +115,7 @@ class MarketLightAlertsTestCase(unittest.TestCase):
 
     def test_score_drop_previous_snapshot_parse_error_is_degraded(self) -> None:
         with patch(
-            "src.services.market_light_alerts.load_previous_snapshot",
+            "ai_stock.services.market_light_alerts.load_previous_snapshot",
             side_effect=ValueError("invalid persisted market light snapshot"),
         ):
             result = evaluate_market_light_alert(

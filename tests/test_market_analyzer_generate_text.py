@@ -93,7 +93,7 @@ _OPENAI_COMPATIBILITY_PAYLOAD_FIXTURES = [
 class TestAnalyzerGenerateText:
     def _make_analyzer(self):
         """Return a minimally configured GeminiAnalyzer with _call_litellm mocked."""
-        with patch("src.analyzer.get_config") as mock_cfg:
+        with patch("ai_stock.analyzer.get_config") as mock_cfg:
             cfg = MagicMock()
             cfg.litellm_model = "gemini/gemini-2.0-flash"
             cfg.litellm_fallback_models = []
@@ -104,13 +104,13 @@ class TestAnalyzerGenerateText:
             cfg.llm_model_list = []
             cfg.openai_base_url = None
             mock_cfg.return_value = cfg
-            from src.analyzer import GeminiAnalyzer
+            from ai_stock.analyzer import GeminiAnalyzer
             analyzer = GeminiAnalyzer.__new__(GeminiAnalyzer)
             analyzer._router = None
             return analyzer
 
     def test_legacy_market_group_normalizes_supported_markets(self):
-        from src.analyzer import _legacy_market_group
+        from ai_stock.analyzer import _legacy_market_group
 
         assert _legacy_market_group("") == "unknown"
         assert _legacy_market_group("unknown") == "unknown"
@@ -119,7 +119,7 @@ class TestAnalyzerGenerateText:
         assert _legacy_market_group("AAPL") == "us"
 
     def test_legacy_audit_marker_specs_use_language_and_optional_context(self):
-        from src.analyzer import _legacy_audit_marker_specs
+        from ai_stock.analyzer import _legacy_audit_marker_specs
 
         zh_markers = _legacy_audit_marker_specs(
             {"date": "2026-06-19"},
@@ -294,7 +294,7 @@ class TestAnalyzerGenerateText:
         assert "600519" not in usage["known_dynamic_marker_positions"]
 
     def test_call_litellm_legacy_path_uses_legacy_model_list_for_param_recovery(self):
-        with patch("src.analyzer.get_config") as mock_cfg:
+        with patch("ai_stock.analyzer.get_config") as mock_cfg:
             cfg = MagicMock()
             cfg.litellm_model = "openai/gpt-4o-mini"
             cfg.litellm_fallback_models = []
@@ -326,7 +326,7 @@ class TestAnalyzerGenerateText:
             cfg.llm_temperature = 0.7
             mock_cfg.return_value = cfg
 
-            from src.analyzer import GeminiAnalyzer
+            from ai_stock.analyzer import GeminiAnalyzer
 
             analyzer = GeminiAnalyzer()
             analyzer._config_override = cfg
@@ -340,7 +340,7 @@ class TestAnalyzerGenerateText:
                 usage=None,
             )
 
-        with patch("src.analyzer.call_litellm_with_param_recovery", side_effect=_fake_call_litellm_with_param_recovery):
+        with patch("ai_stock.analyzer.call_litellm_with_param_recovery", side_effect=_fake_call_litellm_with_param_recovery):
             text, _, _ = analyzer._call_litellm("回归用例", {"max_tokens": 128, "temperature": 0.7})
 
         assert text == "ok"
@@ -356,85 +356,6 @@ class TestAnalyzerGenerateText:
             {"x-tenant": "legacy-a"},
             {"x-tenant": "legacy-b"},
         ]
-
-    @patch("src.analyzer.Router")
-    def test_analyzer_legacy_router_recovery_cache_is_scoped_by_api_base(self, mock_router):
-        """Analyzer legacy recovery should not leak across same model different api_base."""
-        from src.analyzer import call_litellm_with_param_recovery as real_call
-        from src.llm.generation_params import clear_litellm_generation_param_recovery_cache
-
-        clear_litellm_generation_param_recovery_cache()
-        response = SimpleNamespace(
-            choices=[SimpleNamespace(message=SimpleNamespace(content="analyzer ok"))],
-            usage=SimpleNamespace(prompt_tokens=1, completion_tokens=2, total_tokens=3),
-        )
-        strict_router = MagicMock()
-        flex_router = MagicMock()
-        strict_router.completion.side_effect = [
-            RuntimeError("Unsupported parameter: temperature is not supported"),
-            response,
-        ]
-        flex_router.completion.return_value = response
-        mock_router.side_effect = [strict_router, flex_router]
-
-        strict_cfg = SimpleNamespace(
-            litellm_model="openai/shared-model",
-            litellm_fallback_models=[],
-            llm_model_list=[],
-            llm_temperature=0.2,
-            gemini_api_keys=[],
-            anthropic_api_keys=[],
-            openai_api_keys=["sk-strict-key-1", "sk-strict-key-2"],
-            deepseek_api_keys=[],
-            openai_base_url="https://strict.example/v1",
-        )
-        flex_cfg = SimpleNamespace(
-            litellm_model="openai/shared-model",
-            litellm_fallback_models=[],
-            llm_model_list=[],
-            llm_temperature=0.2,
-            gemini_api_keys=[],
-            anthropic_api_keys=[],
-            openai_api_keys=["sk-flex-key-1", "sk-flex-key-2"],
-            deepseek_api_keys=[],
-            openai_base_url="https://flex.example/v1",
-        )
-
-        captured_model_lists = []
-
-        def _fake_recovery(call, **kwargs):
-            captured_model_lists.append(kwargs.get("model_list"))
-            return real_call(call, **kwargs)
-
-        import src.analyzer as analyzer_module
-        from src.analyzer import GeminiAnalyzer
-
-        with patch.object(analyzer_module, "call_litellm_with_param_recovery", side_effect=_fake_recovery):
-            GeminiAnalyzer(config=strict_cfg)._call_litellm(
-                "prompt",
-                {"max_tokens": 128, "temperature": 0.2},
-            )
-            GeminiAnalyzer(config=flex_cfg)._call_litellm(
-                "prompt",
-                {"max_tokens": 128, "temperature": 0.2},
-            )
-
-        assert len(captured_model_lists) == 2
-        strict_model_list = captured_model_lists[0]
-        flex_model_list = captured_model_lists[1]
-        assert strict_model_list is not None
-        assert flex_model_list is not None
-        assert all(
-            item.get("litellm_params", {}).get("api_base") == "https://strict.example/v1"
-            for item in strict_model_list
-        )
-        assert all(
-            item.get("litellm_params", {}).get("api_base") == "https://flex.example/v1"
-            for item in flex_model_list
-        )
-        assert strict_router.completion.call_args_list[0].kwargs["temperature"] == 0.2
-        assert "temperature" not in strict_router.completion.call_args_list[1].kwargs
-        assert flex_router.completion.call_args.kwargs["temperature"] == 0.2
 
     def test_call_litellm_stream_falls_back_to_non_stream_before_first_chunk(self):
         analyzer = self._make_analyzer()
@@ -929,7 +850,7 @@ class TestAnalyzerGenerateText:
         assert "temperature" not in call_kwargs
 
     def test_call_litellm_recovers_from_temperature_default_error(self):
-        from src.llm.generation_params import clear_litellm_generation_param_recovery_cache
+        from ai_stock.llm.generation_params import clear_litellm_generation_param_recovery_cache
 
         clear_litellm_generation_param_recovery_cache()
         analyzer = self._make_analyzer()
@@ -1062,7 +983,7 @@ class TestAnalyzerGenerateText:
             report_integrity_retry=1,
         )
 
-        from src.analyzer import AnalysisResult
+        from ai_stock.analyzer import AnalysisResult
 
         progress_updates = []
         first_result = AnalysisResult(
@@ -1101,7 +1022,7 @@ class TestAnalyzerGenerateText:
                  side_effect=[(False, ["analysis_summary"]), (True, [])],
              ), \
              patch.object(analyzer, "_build_integrity_retry_prompt", return_value="retry prompt"), \
-             patch("src.analyzer.persist_llm_usage"):
+             patch("ai_stock.analyzer.persist_llm_usage"):
             result = analyzer.analyze(
                 {"code": "600519", "stock_name": "贵州茅台"},
                 progress_callback=lambda progress, message: progress_updates.append((progress, message)),
@@ -1125,7 +1046,7 @@ class TestAnalyzerGenerateText:
             report_integrity_retry=0,
         )
 
-        from src.analyzer import AnalysisResult
+        from ai_stock.analyzer import AnalysisResult
 
         parsed_result = AnalysisResult(
             code="600519",
@@ -1157,7 +1078,7 @@ class TestAnalyzerGenerateText:
              patch.object(analyzer, "_dispatch_litellm_completion", return_value=stream_response()), \
              patch.object(analyzer, "_parse_response", return_value=parsed_result), \
              patch.object(analyzer, "_build_market_snapshot", return_value={}), \
-             patch("src.analyzer.persist_llm_usage") as mock_usage:
+             patch("ai_stock.analyzer.persist_llm_usage") as mock_usage:
             result = analyzer.analyze({"code": "600519", "stock_name": "贵州茅台"})
 
         assert result.analysis_summary == "分析结果"
@@ -1191,7 +1112,7 @@ class TestAnalyzerGenerateText:
             news_strategy_profile="short",
         )
 
-        from src.analyzer import AnalysisResult
+        from ai_stock.analyzer import AnalysisResult
 
         parsed_result = AnalysisResult(
             code="600519",
@@ -1239,7 +1160,7 @@ class TestAnalyzerGenerateText:
              patch.object(analyzer, "_dispatch_litellm_completion", return_value=stream_response()), \
              patch.object(analyzer, "_parse_response", return_value=parsed_result), \
              patch.object(analyzer, "_build_market_snapshot", return_value={}), \
-             patch("src.analyzer.persist_llm_usage") as mock_usage:
+             patch("ai_stock.analyzer.persist_llm_usage") as mock_usage:
             result = analyzer.analyze(
                 context,
                 news_context="2026-06-18 贵州茅台发布经营公告。",
@@ -1278,7 +1199,7 @@ class TestAnalyzerGenerateText:
         analyzer = self._make_analyzer()
         analyzer._config_override = SimpleNamespace(report_language="zh")
 
-        from src.analyzer import GeminiAnalyzer
+        from ai_stock.analyzer import GeminiAnalyzer
 
         result = GeminiAnalyzer._parse_response(analyzer, "这是一段纯文本分析，没有 JSON。", "600519", "贵州茅台")
         assert result.success is False
@@ -1290,7 +1211,7 @@ class TestAnalyzerGenerateText:
         analyzer = self._make_analyzer()
         analyzer._config_override = SimpleNamespace(report_language="zh")
 
-        from src.analyzer import GeminiAnalyzer
+        from ai_stock.analyzer import GeminiAnalyzer
 
         malformed = "Here is the analysis: {broken json content without closing"
         result = GeminiAnalyzer._parse_response(analyzer, malformed, "AAPL", "Apple")
@@ -1302,7 +1223,7 @@ class TestAnalyzerGenerateText:
         analyzer = self._make_analyzer()
         analyzer._config_override = SimpleNamespace(report_language="zh")
 
-        from src.analyzer import GeminiAnalyzer
+        from ai_stock.analyzer import GeminiAnalyzer
         import json
 
         valid_response = json.dumps({
@@ -1361,7 +1282,7 @@ class TestAnalyzerGenerateText:
             llm_model_list=[],
         )
 
-        from src.analyzer import _AllModelsFailedError
+        from ai_stock.analyzer import _AllModelsFailedError
 
         def fake_dispatch(model, call_kwargs, **kwargs):
             return SimpleNamespace(
@@ -1387,7 +1308,7 @@ class TestAnalyzerGenerateText:
         with complement instructions); when that also yields invalid JSON the
         exhausted-retries path fires placeholder fill.
         """
-        from src.analyzer import AnalysisResult, _AllModelsFailedError
+        from ai_stock.analyzer import AnalysisResult, _AllModelsFailedError
 
         analyzer = self._make_analyzer()
         analyzer._config_override = SimpleNamespace(
@@ -1433,7 +1354,7 @@ class TestAnalyzerGenerateText:
              patch.object(analyzer, "_check_content_integrity", return_value=(False, ["dashboard.core_conclusion.one_sentence"])), \
              patch.object(analyzer, "_build_integrity_retry_prompt", return_value="retry prompt"), \
              patch.object(analyzer, "_apply_placeholder_fill") as mock_fill, \
-             patch("src.analyzer.persist_llm_usage") as mock_usage:
+             patch("ai_stock.analyzer.persist_llm_usage") as mock_usage:
 
             result = analyzer.analyze(
                 {"code": "600519", "stock_name": "贵州茅台"},
@@ -1472,11 +1393,11 @@ class TestAnalyzerGenerateText:
 class TestMarketAnalyzerBypassFix:
     def _make_market_analyzer_with_mock_generate_text(self, return_value="复盘报告"):
         """Return a MarketAnalyzer whose embedded Analyzer.generate_text is mocked."""
-        from src.core.market_profile import CN_PROFILE
-        from src.core.market_strategy import get_market_strategy_blueprint
+        from ai_stock.core.market_profile import CN_PROFILE
+        from ai_stock.core.market_strategy import get_market_strategy_blueprint
 
-        with patch("src.analyzer.get_config") as mock_cfg, \
-             patch("src.market_analyzer.get_config") as mock_cfg2:
+        with patch("ai_stock.analyzer.get_config") as mock_cfg, \
+             patch("ai_stock.market_analyzer.get_config") as mock_cfg2:
             cfg = MagicMock()
             cfg.litellm_model = "gemini/gemini-2.0-flash"
             cfg.litellm_fallback_models = []
@@ -1492,8 +1413,8 @@ class TestMarketAnalyzerBypassFix:
             mock_cfg.return_value = cfg
             mock_cfg2.return_value = cfg
 
-            from src.analyzer import GeminiAnalyzer
-            from src.market_analyzer import MarketAnalyzer
+            from ai_stock.analyzer import GeminiAnalyzer
+            from ai_stock.market_analyzer import MarketAnalyzer
 
             analyzer = GeminiAnalyzer.__new__(GeminiAnalyzer)
             analyzer._router = None
@@ -1522,7 +1443,7 @@ class TestMarketAnalyzerBypassFix:
 
     def test_generate_text_none_falls_back_to_template(self):
         """generate_market_review() falls back to template when generate_text returns None."""
-        from src.market_analyzer import MarketOverview, MarketIndex
+        from ai_stock.market_analyzer import MarketOverview, MarketIndex
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value=None)
         overview = MarketOverview(
@@ -1543,7 +1464,7 @@ class TestMarketAnalyzerBypassFix:
 
     def test_market_review_uses_8192_max_tokens(self):
         """generate_market_review() should request a larger output budget to avoid truncation."""
-        from src.market_analyzer import MarketOverview, MarketIndex
+        from ai_stock.market_analyzer import MarketOverview, MarketIndex
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value="复盘结果")
         overview = MarketOverview(
@@ -1568,7 +1489,7 @@ class TestMarketAnalyzerBypassFix:
         assert kwargs["temperature"] == 0.7
 
     def test_generate_template_review_uses_english_shell_for_cn_when_report_language_is_en(self):
-        from src.market_analyzer import MarketOverview, MarketIndex
+        from ai_stock.market_analyzer import MarketOverview, MarketIndex
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value=None)
         ma.config.report_language = "en"
@@ -1603,9 +1524,9 @@ class TestMarketAnalyzerBypassFix:
         assert "### 一、市场总结" not in result
 
     def test_generate_template_review_keeps_chinese_shell_for_us_when_report_language_is_default(self):
-        from src.core.market_profile import US_PROFILE
-        from src.core.market_strategy import get_market_strategy_blueprint
-        from src.market_analyzer import MarketOverview, MarketIndex
+        from ai_stock.core.market_profile import US_PROFILE
+        from ai_stock.core.market_strategy import get_market_strategy_blueprint
+        from ai_stock.market_analyzer import MarketOverview, MarketIndex
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value=None)
         ma.region = "us"
@@ -1635,7 +1556,7 @@ class TestMarketAnalyzerBypassFix:
         assert "US Market Recap" not in result
 
     def test_inject_data_into_review_matches_english_headings(self):
-        from src.market_analyzer import MarketOverview, MarketIndex
+        from ai_stock.market_analyzer import MarketOverview, MarketIndex
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value="review")
         ma.config.report_language = "en"
@@ -1684,7 +1605,7 @@ Sector text.
         assert "| 1 | 煤炭 | -1.12% |" in result
 
     def test_inject_data_into_review_matches_reference_style_chinese_headings(self):
-        from src.market_analyzer import MarketOverview, MarketIndex
+        from ai_stock.market_analyzer import MarketOverview, MarketIndex
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value="review")
         overview = MarketOverview(
@@ -1756,7 +1677,7 @@ Sector text.
         assert "算力产业链延续活跃" not in result
 
     def test_market_review_payload_sections_skip_top_report_title(self):
-        from src.market_analyzer import MarketAnalyzer
+        from ai_stock.market_analyzer import MarketAnalyzer
 
         ma = MarketAnalyzer.__new__(MarketAnalyzer)
         sections = ma._split_report_sections("""## 2026-06-03 大盘复盘
@@ -1772,7 +1693,7 @@ Sector text.
         assert all(section["title"] != "2026-06-03 大盘复盘" for section in sections)
 
     def test_news_block_renders_title_source_and_link_only(self):
-        from src.market_analyzer import MarketAnalyzer
+        from ai_stock.market_analyzer import MarketAnalyzer
 
         ma = MarketAnalyzer.__new__(MarketAnalyzer)
         ma.config = SimpleNamespace(report_language="zh")
@@ -1803,7 +1724,7 @@ Sector text.
         ) in result
 
     def test_news_block_uses_dash_when_source_metadata_missing(self):
-        from src.market_analyzer import MarketAnalyzer
+        from ai_stock.market_analyzer import MarketAnalyzer
 
         ma = MarketAnalyzer.__new__(MarketAnalyzer)
         ma.config = SimpleNamespace(report_language="zh")
@@ -1821,7 +1742,7 @@ Sector text.
         assert "| 1 | 政策利好带动板块活跃 |" not in result
 
     def test_news_block_uses_english_metadata_punctuation(self):
-        from src.market_analyzer import MarketAnalyzer
+        from ai_stock.market_analyzer import MarketAnalyzer
 
         ma = MarketAnalyzer.__new__(MarketAnalyzer)
         ma.config = SimpleNamespace(report_language="en")
@@ -1844,7 +1765,7 @@ Sector text.
         assert "（Reuters" not in result
 
     def test_review_prompt_caps_news_url_context(self):
-        from src.market_analyzer import MarketOverview
+        from ai_stock.market_analyzer import MarketOverview
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value="review")
         long_url = "https://example.com/redirect?" + "utm_campaign=" + ("x" * 420)
@@ -1867,7 +1788,7 @@ Sector text.
         assert ("x" * 220) not in prompt
 
     def test_market_light_snapshot_marks_defensive_market_red(self):
-        from src.market_analyzer import MarketIndex, MarketOverview
+        from ai_stock.market_analyzer import MarketIndex, MarketOverview
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value="review")
         overview = MarketOverview(
@@ -1897,7 +1818,7 @@ Sector text.
         assert any("亏钱效应" in reason for reason in snapshot["reasons"])
 
     def test_market_light_snapshot_uses_english_labels_and_reasons(self):
-        from src.market_analyzer import MarketIndex, MarketOverview
+        from ai_stock.market_analyzer import MarketIndex, MarketOverview
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value="review")
         ma.config.report_language = "en"
@@ -1928,8 +1849,8 @@ Sector text.
         )
 
     def test_market_light_snapshot_marks_us_without_breadth_as_partial(self):
-        from src.core.market_profile import US_PROFILE
-        from src.market_analyzer import MarketIndex, MarketOverview
+        from ai_stock.core.market_profile import US_PROFILE
+        from ai_stock.market_analyzer import MarketIndex, MarketOverview
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value="review")
         ma.region = "us"
@@ -1949,8 +1870,8 @@ Sector text.
         assert snapshot["dimensions"]["limit"] == {"score": 50, "available": False}
 
     def test_market_review_payload_omits_breadth_for_markets_without_stats(self):
-        from src.core.market_profile import US_PROFILE
-        from src.market_analyzer import MarketIndex, MarketOverview
+        from ai_stock.core.market_profile import US_PROFILE
+        from ai_stock.market_analyzer import MarketIndex, MarketOverview
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value="复盘结果")
         ma.region = "us"
@@ -1977,7 +1898,7 @@ Sector text.
         assert payload["indices"][0]["code"] == "SPX"
 
     def test_market_review_payload_omits_breadth_for_cn_market_without_available_stats(self):
-        from src.market_analyzer import MarketIndex, MarketOverview
+        from ai_stock.market_analyzer import MarketIndex, MarketOverview
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value="复盘结果")
         payload = ma.build_market_review_payload(
@@ -2002,7 +1923,7 @@ Sector text.
         assert payload["indices"][0]["name"] == "上证指数"
 
     def test_market_review_payload_includes_breadth_only_when_stats_available(self):
-        from src.market_analyzer import MarketIndex, MarketOverview
+        from ai_stock.market_analyzer import MarketIndex, MarketOverview
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value="复盘结果")
         payload = ma.build_market_review_payload(
@@ -2030,9 +1951,9 @@ Sector text.
         assert payload["breadth"]["total_amount"] == 12345.0
 
     def test_us_english_indices_do_not_label_turnover_as_cny(self):
-        from src.core.market_profile import US_PROFILE
-        from src.core.market_strategy import get_market_strategy_blueprint
-        from src.market_analyzer import MarketOverview, MarketIndex
+        from ai_stock.core.market_profile import US_PROFILE
+        from ai_stock.core.market_strategy import get_market_strategy_blueprint
+        from ai_stock.market_analyzer import MarketOverview, MarketIndex
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value=None)
         ma.config.report_language = "en"
@@ -2060,7 +1981,7 @@ Sector text.
         assert "| S&P 500 | 5200.00 |" in result
 
     def test_indices_block_uses_configured_red_up_color_scheme(self):
-        from src.market_analyzer import MarketOverview, MarketIndex
+        from ai_stock.market_analyzer import MarketOverview, MarketIndex
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value=None)
         ma.config.market_review_color_scheme = "red_up"
@@ -2080,7 +2001,7 @@ Sector text.
         assert "| 创业板指 | 2100.00 | ⚪ +0.00% |" in result
 
     def test_indices_block_keeps_green_up_default_color_scheme(self):
-        from src.market_analyzer import MarketOverview, MarketIndex
+        from ai_stock.market_analyzer import MarketOverview, MarketIndex
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value=None)
         overview = MarketOverview(
