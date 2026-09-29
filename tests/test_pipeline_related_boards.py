@@ -4,7 +4,7 @@
 import unittest
 from unittest.mock import MagicMock
 
-from src.core.pipeline import StockAnalysisPipeline
+from ai_stock.core.pipeline import StockAnalysisPipeline
 
 
 class PipelineRelatedBoardsTestCase(unittest.TestCase):

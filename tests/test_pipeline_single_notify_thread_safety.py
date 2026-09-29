@@ -16,8 +16,8 @@ from tests.litellm_stub import ensure_litellm_stub
 
 ensure_litellm_stub()
 
-from src.analyzer import AnalysisResult
-from src.core.pipeline import StockAnalysisPipeline
+from ai_stock.analyzer import AnalysisResult
+from ai_stock.core.pipeline import StockAnalysisPipeline
 
 
 def _make_result(code: str) -> AnalysisResult:
@@ -59,13 +59,13 @@ class _CriticalSectionTrackingNotifier:
         return f"single:{result.code}"
 
     def _send(
-        self,
-        content: str,
-        email_stock_codes=None,
-        route_type=None,
-        severity=None,
-        dedup_key=None,
-        cooldown_key=None,
+            self,
+            content: str,
+            email_stock_codes=None,
+            route_type=None,
+            severity=None,
+            dedup_key=None,
+            cooldown_key=None,
     ) -> bool:
         stock_code = (email_stock_codes or ["unknown"])[0]
         self._enter("send", stock_code)

@@ -17,9 +17,9 @@ from tests.litellm_stub import ensure_litellm_stub
 
 ensure_litellm_stub()
 
-from src.analyzer import AnalysisResult
-from src.core.pipeline import StockAnalysisPipeline
-from src.enums import ReportType
+from ai_stock.analyzer import AnalysisResult
+from ai_stock.core.pipeline import StockAnalysisPipeline
+from ai_stock.enums import ReportType
 
 
 class _TrackingNotifier:
@@ -43,13 +43,13 @@ class _TrackingNotifier:
         self.send = MagicMock(side_effect=self._send)
 
     def _send(
-        self,
-        content,
-        email_stock_codes=None,
-        route_type=None,
-        severity=None,
-        dedup_key=None,
-        cooldown_key=None,
+            self,
+            content,
+            email_stock_codes=None,
+            route_type=None,
+            severity=None,
+            dedup_key=None,
+            cooldown_key=None,
     ):
         with self._lock:
             self._inflight += 1
@@ -103,7 +103,8 @@ class TestPipelineSingleStockNotify(unittest.TestCase):
         pipeline = self._build_batch_pipeline()
         worker_calls = []
 
-        def _process(code, skip_analysis=False, single_stock_notify=False, report_type=None, analysis_query_id=None, current_time=None):
+        def _process(code, skip_analysis=False, single_stock_notify=False, report_type=None, analysis_query_id=None,
+                     current_time=None):
             worker_calls.append((code, single_stock_notify, threading.current_thread().name))
             if single_stock_notify:
                 pipeline.notifier.send(f"worker:{code}", email_stock_codes=[code])
