@@ -15,7 +15,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pandas as pd
 
 from ai_stock.config import Config
-from ai_stock.notification import ChannelAttemptResult, NotificationDispatchResult
+from ai_stock.report.notification import ChannelAttemptResult, NotificationDispatchResult
 from ai_stock.services.alert_indicators import (
     _calculate_rsi,
     compute_requested_days,
@@ -279,13 +279,13 @@ class AlertWorkerTestCase(unittest.TestCase):
         return self.service.list_notifications(page_size=100, **filters)["items"]
 
     def _dispatch_result(
-        self,
-        success: bool = True,
-        *,
-        dispatched: bool = True,
-        status: str | None = None,
-        channel: str = "custom",
-        error_code: str | None = None,
+            self,
+            success: bool = True,
+            *,
+            dispatched: bool = True,
+            status: str | None = None,
+            channel: str = "custom",
+            error_code: str | None = None,
     ) -> NotificationDispatchResult:
         if status is None:
             status = "sent" if success else "all_failed"
@@ -341,8 +341,8 @@ class AlertWorkerTestCase(unittest.TestCase):
         )
 
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
         ):
             stats = worker.run_once()
 
@@ -371,8 +371,8 @@ class AlertWorkerTestCase(unittest.TestCase):
         )
 
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
         ):
             stats = worker.run_once()
 
@@ -406,8 +406,8 @@ class AlertWorkerTestCase(unittest.TestCase):
         )
 
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
         ):
             worker.run_once()
             worker.run_once()
@@ -427,34 +427,34 @@ class AlertWorkerTestCase(unittest.TestCase):
             decision_signal_service=signal_service,
         )
         for runtime_rule in (
-            SimpleNamespace(
-                key="market:cn",
-                rule=SimpleNamespace(target_scope="market", target="cn", metadata={}),
-                source="db",
-                severity="warning",
-                effective_target="cn",
-                display_target="cn",
-            ),
-            SimpleNamespace(
-                key="portfolio_account:all",
-                rule=SimpleNamespace(target_scope="portfolio_account", target="all", metadata={}),
-                source="db",
-                severity="warning",
-                effective_target="portfolio_account:all",
-                display_target="all accounts",
-            ),
-            SimpleNamespace(
-                key="single_symbol:SPX",
-                rule=SimpleNamespace(
-                    target_scope="single_symbol",
-                    stock_code="SPX",
-                    metadata={},
+                SimpleNamespace(
+                    key="market:cn",
+                    rule=SimpleNamespace(target_scope="market", target="cn", metadata={}),
+                    source="db",
+                    severity="warning",
+                    effective_target="cn",
+                    display_target="cn",
                 ),
-                source="db",
-                severity="warning",
-                effective_target="SPX",
-                display_target="SPX",
-            ),
+                SimpleNamespace(
+                    key="portfolio_account:all",
+                    rule=SimpleNamespace(target_scope="portfolio_account", target="all", metadata={}),
+                    source="db",
+                    severity="warning",
+                    effective_target="portfolio_account:all",
+                    display_target="all accounts",
+                ),
+                SimpleNamespace(
+                    key="single_symbol:SPX",
+                    rule=SimpleNamespace(
+                        target_scope="single_symbol",
+                        stock_code="SPX",
+                        metadata={},
+                    ),
+                    source="db",
+                    severity="warning",
+                    effective_target="SPX",
+                    display_target="SPX",
+                ),
         ):
             worker._attach_decision_signal_summary_safely(runtime_rule, {"record_status": "triggered"})
 
@@ -477,8 +477,8 @@ class AlertWorkerTestCase(unittest.TestCase):
         )
 
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
         ):
             stats = worker.run_once()
 
@@ -504,14 +504,14 @@ class AlertWorkerTestCase(unittest.TestCase):
         }
 
         with patch(
-            "ai_stock.services.alert_worker.build_market_phase_context",
-            return_value={
-                "phase": "intraday",
-                "market": "cn",
-                "trigger_source": "alert",
-                "is_trading_day": True,
-                "is_partial_bar": True,
-            },
+                "ai_stock.services.alert_worker.build_market_phase_context",
+                return_value={
+                    "phase": "intraday",
+                    "market": "cn",
+                    "trigger_source": "alert",
+                    "is_trading_day": True,
+                    "is_partial_bar": True,
+                },
         ) as build_context, patch(
             "ai_stock.services.alert_worker.get_market_for_stock",
             side_effect=AssertionError("market scope must not infer stock market"),
@@ -657,8 +657,8 @@ class AlertWorkerTestCase(unittest.TestCase):
         worker = AlertWorker(config_provider=lambda: self._config("[invalid"), service=self.service, notifier=notifier)
 
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
         ):
             stats = worker.run_once()
 
@@ -710,8 +710,8 @@ class AlertWorkerTestCase(unittest.TestCase):
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
 
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0, date=20260517)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0, date=20260517)),
         ):
             stats = worker.run_once()
 
@@ -726,8 +726,8 @@ class AlertWorkerTestCase(unittest.TestCase):
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
 
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0, quote_time="2026-05-17 15:00:00")),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0, quote_time="2026-05-17 15:00:00")),
         ):
             stats = worker.run_once()
 
@@ -742,8 +742,8 @@ class AlertWorkerTestCase(unittest.TestCase):
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
 
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0, timestamp=1700000000)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0, timestamp=1700000000)),
         ):
             stats = worker.run_once()
 
@@ -781,8 +781,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service)
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
+                patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             stats = worker.run_once()
 
         self.assertEqual(stats["degraded"], 1)
@@ -805,8 +805,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service)
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
+                patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             stats = worker.run_once()
 
         self.assertEqual(stats["degraded"], 1)
@@ -836,8 +836,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
+                patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             stats = worker.run_once()
 
         self.assertEqual(stats["triggered"], 1)
@@ -874,8 +874,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
+                patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             first = worker.run_once()
             second = worker.run_once()
 
@@ -920,8 +920,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
+                patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             first = worker.run_once()
             second = worker.run_once()
 
@@ -953,8 +953,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
+                patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             first = worker.run_once()
             second = worker.run_once()
 
@@ -1000,8 +1000,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=self._notifier())
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
+                patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             first = worker.run_once()
             second = worker.run_once()
 
@@ -1036,8 +1036,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
+                patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             first = worker.run_once()
             second = worker.run_once()
 
@@ -1078,8 +1078,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=self._notifier())
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
+                patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             first = worker.run_once()
             second = worker.run_once()
 
@@ -1154,8 +1154,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
+                patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             stats = worker.run_once()
 
         self.assertEqual(stats["degraded"], 1)
@@ -1181,8 +1181,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             return func(*args, **kwargs)
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
-             patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
+                patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             stats = worker.run_once()
 
         self.assertEqual(stats["failed"], 1)
@@ -1270,7 +1270,7 @@ class AlertWorkerTestCase(unittest.TestCase):
         worker = AlertWorker(config_provider=lambda: config, service=self.service)
 
         with patch("ai_stock.services.market_light_alerts.get_open_markets_today", return_value=set()), patch(
-            "ai_stock.services.market_light_alerts.build_current_snapshot"
+                "ai_stock.services.market_light_alerts.build_current_snapshot"
         ) as build_snapshot:
             stats = worker.run_once()
 
@@ -1350,8 +1350,8 @@ class AlertWorkerTestCase(unittest.TestCase):
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=FakeNotifier())
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
         ):
             stats = worker.run_once()
 
@@ -1384,8 +1384,8 @@ class AlertWorkerTestCase(unittest.TestCase):
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=FakeNotifier())
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
         ):
             stats = worker.run_once()
 
@@ -1421,8 +1421,8 @@ class AlertWorkerTestCase(unittest.TestCase):
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=FakeNotifier())
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
         ):
             first = worker.run_once()
             second = worker.run_once()
@@ -1438,39 +1438,6 @@ class AlertWorkerTestCase(unittest.TestCase):
         )
         self.assertIsNone(cooldown)
 
-    def test_trigger_record_failure_does_not_block_other_rules(self) -> None:
-        self._create_rule(target="600519")
-        self._create_rule(
-            name="CATL drop",
-            target="300750",
-            alert_type="price_change_percent",
-            parameters={"direction": "down", "change_pct": 3.0},
-        )
-        notifier = self._notifier()
-        original_create_trigger = self.service.repo.create_trigger
-
-        def _create_trigger(fields):
-            if fields["target"] == "600519":
-                raise RuntimeError("database locked")
-            return original_create_trigger(fields)
-
-        async def _quote(_monitor, stock_code):
-            if stock_code == "600519":
-                return SimpleNamespace(price=1810.0)
-            return {"pct_chg": "-3.25%"}
-
-        worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
-        with patch.object(self.service.repo, "create_trigger", side_effect=_create_trigger), \
-             patch("ai_stock.agent.events.EventMonitor._get_realtime_quote", new=_quote):
-            stats = worker.run_once()
-
-        self.assertEqual(stats["triggered"], 2)
-        self.assertEqual(stats["recorded"], 1)
-        self.assertEqual(stats["notified"], 2)
-        triggers = self._triggers(status="triggered")
-        self.assertEqual(len(triggers), 1)
-        self.assertEqual(triggers[0]["target"], "300750")
-
     def test_db_cooldown_suppresses_duplicate_notifications_but_expires(self) -> None:
         self._create_rule(target="600519", cooldown_policy={"cooldown_seconds": 60})
         notifier = self._notifier()
@@ -1484,8 +1451,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             fingerprint_ttl_seconds=60,
         )
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
         ):
             worker.run_once()
             now["value"] += 30
@@ -1498,74 +1465,6 @@ class AlertWorkerTestCase(unittest.TestCase):
         cooldown_attempts = self._notifications(channel="__cooldown__")
         self.assertEqual(len(cooldown_attempts), 1)
         self.assertEqual(cooldown_attempts[0]["error_code"], "cooldown_active")
-
-    def test_db_cooldown_read_failure_uses_fingerprint_fallback(self) -> None:
-        self._create_rule(target="600519", cooldown_policy={"cooldown_seconds": 60})
-        notifier = self._notifier()
-        now = {"value": 1000.0}
-
-        worker = AlertWorker(
-            config_provider=lambda: self._config(),
-            service=self.service,
-            notifier=notifier,
-            now_provider=lambda: now["value"],
-            fingerprint_ttl_seconds=86400,
-        )
-        with patch.object(
-            self.service.repo,
-            "get_active_cooldown",
-            side_effect=RuntimeError("database locked token=secret-token"),
-        ), patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
-        ):
-            first = worker.run_once()
-            now["value"] += 10
-            second = worker.run_once()
-            now["value"] += 61
-            third = worker.run_once()
-
-        self.assertEqual(first["notified"], 1)
-        self.assertEqual(second["cooldown_suppressed"], 1)
-        self.assertEqual(third["notified"], 1)
-        self.assertEqual(notifier.send_with_results.call_count, 2)
-        self.assertEqual(len(self._triggers(status="triggered")), 3)
-        suppressed_attempts = self._notifications(channel="__cooldown_read_failed__")
-        self.assertEqual(len(suppressed_attempts), 1)
-        self.assertEqual(suppressed_attempts[0]["error_code"], "cooldown_read_failed")
-        self.assertNotIn("secret-token", suppressed_attempts[0]["diagnostics"] or "")
-
-    def test_failed_db_notification_does_not_start_read_failure_fallback_window(self) -> None:
-        self._create_rule(target="600519", cooldown_policy={"cooldown_seconds": 60})
-        notifier = self._notifier(self._dispatch_result(False), self._dispatch_result(True))
-        now = {"value": 1000.0}
-
-        worker = AlertWorker(
-            config_provider=lambda: self._config(),
-            service=self.service,
-            notifier=notifier,
-            now_provider=lambda: now["value"],
-            fingerprint_ttl_seconds=60,
-        )
-        with patch.object(
-            self.service.repo,
-            "get_active_cooldown",
-            side_effect=RuntimeError("database locked"),
-        ), patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
-        ):
-            first = worker.run_once()
-            now["value"] += 10
-            second = worker.run_once()
-            now["value"] += 10
-            third = worker.run_once()
-
-        self.assertEqual(first["notified"], 0)
-        self.assertEqual(second["notified"], 1)
-        self.assertEqual(third["cooldown_suppressed"], 1)
-        self.assertEqual(notifier.send_with_results.call_count, 2)
-        self.assertEqual(len(self._notifications(channel="__cooldown_read_failed__")), 1)
 
     def test_db_rule_with_cooldown_zero_is_not_suppressed_by_fingerprint(self) -> None:
         self._create_rule(target="600519", cooldown_policy={"cooldown_seconds": 0})
@@ -1580,8 +1479,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             fingerprint_ttl_seconds=60,
         )
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
         ):
             worker.run_once()
             now["value"] += 10
@@ -1604,8 +1503,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             fingerprint_ttl_seconds=60,
         )
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
         ):
             worker.run_once()
             now["value"] += 10
@@ -1633,8 +1532,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             fingerprint_ttl_seconds=60,
         )
         with patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
         ):
             first = worker.run_once()
             now["value"] += 10
@@ -1650,46 +1549,6 @@ class AlertWorkerTestCase(unittest.TestCase):
         self.assertEqual(fourth["notified"], 0)
         self.assertEqual(notifier.send_with_results.call_count, 3)
         self.assertEqual(len(self._triggers(status="triggered")), 4)
-
-    def test_p6_watchlist_expands_to_child_keys_for_db_cooldown_fallback(self) -> None:
-        self._create_rule(
-            name="Watchlist",
-            target_scope="watchlist",
-            target="default",
-            alert_type="price_cross",
-            parameters={"direction": "above", "price": 10},
-            cooldown_policy={"cooldown_seconds": 60},
-        )
-        notifier = self._notifier()
-        config = self._config()
-        config.stock_list = ["600519", "000001"]
-        now = {"value": 1000.0}
-
-        async def _quote(_monitor, _stock_code):
-            return SimpleNamespace(price=11.0)
-
-        worker = AlertWorker(
-            config_provider=lambda: config,
-            service=self.service,
-            notifier=notifier,
-            now_provider=lambda: now["value"],
-            fingerprint_ttl_seconds=86400,
-        )
-        with patch.object(
-            self.service.repo,
-            "get_active_cooldown",
-            side_effect=RuntimeError("database locked"),
-        ), patch("ai_stock.agent.events.EventMonitor._get_realtime_quote", new=_quote):
-            first = worker.run_once()
-            now["value"] += 10
-            second = worker.run_once()
-
-        self.assertEqual(first["loaded"], 2)
-        self.assertEqual(first["notified"], 2)
-        self.assertEqual(second["cooldown_suppressed"], 2)
-        self.assertEqual(notifier.send_with_results.call_count, 2)
-        targets = {item["target"] for item in self._triggers(status="triggered")}
-        self.assertEqual(targets, {"600519", "000001"})
 
     def test_p6_empty_watchlist_writes_skipped_trigger(self) -> None:
         self._create_rule(

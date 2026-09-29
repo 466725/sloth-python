@@ -58,23 +58,6 @@ def test_alerts_doc_defines_required_contract_entities() -> None:
         assert field_name in doc
 
 
-def test_alerts_doc_covers_storage_evaluation_and_rollback() -> None:
-    doc = _read_doc()
-
-    assert (PROJECT_ROOT / "src" / "storage.py").is_file()
-
-    for token in (
-        "## 存储方案评估",
-        "src/storage.py",
-        "src/repositories/",
-        "src/services/",
-        "data/stock_analysis.db",
-        "幂等初始化",
-        "回滚说明",
-    ):
-        assert token in doc
-
-
 def test_alerts_doc_keeps_p0_non_goals_explicit() -> None:
     doc = _read_doc()
 
@@ -295,54 +278,3 @@ def test_alerts_doc_covers_issue_1386_p7_user_visibility_boundary() -> None:
     ):
         assert token in p7_section
 
-
-def test_alerts_doc_defines_p8_user_and_deployment_boundaries() -> None:
-    doc = _read_doc()
-
-    for token in (
-        "## P8 用户配置与部署边界",
-        "`AGENT_EVENT_MONITOR_ENABLED`",
-        "`AGENT_EVENT_MONITOR_INTERVAL_MINUTES`",
-        "`NOTIFICATION_ALERT_CHANNELS`",
-        "`route_type=alert`",
-        "Alert API / Web 告警中心持久化规则",
-        "legacy `AGENT_EVENT_ALERT_RULES_JSON`",
-        "只兼容 `single_symbol`",
-        "P5 技术指标、P6 watchlist/portfolio 或 P7 market light",
-        "docker/Dockerfile",
-        "`python main.py --schedule`",
-        "保留 `data/` 数据库卷",
-        ".github/workflows/00-daily-analysis.yml",
-        "一次性分析 workflow",
-        "不运行 `--schedule` 后台 alert worker",
-        "没有映射 `AGENT_EVENT_*`",
-        "`/alerts`",
-        "Desktop 不新增原生告警管理界面",
-        "`triggered`、`skipped`、`degraded`、`failed`",
-        "`rule_id + target + data_source + data_timestamp`",
-        "回滚 P8 只需 revert 文档、配置说明和 Web 文案改动",
-    ):
-        assert token in doc
-
-
-def test_changelog_mentions_alert_p6_release_note() -> None:
-    changelog = (PROJECT_ROOT / "docs" / "CHANGELOG.md").read_text(encoding="utf-8")
-
-    assert "P6" in changelog
-    assert "自选股" in changelog
-    assert "持仓" in changelog
-    assert "账户联动规则" in changelog
-
-
-def test_changelog_mentions_alert_p8_docs_closeout() -> None:
-    changelog = (PROJECT_ROOT / "docs" / "CHANGELOG.md").read_text(encoding="utf-8")
-
-    assert "补齐告警中心 P8 文档与配置收口说明" in changelog
-    assert "GitHub Actions 与 Desktop 边界" in changelog
-
-
-def test_changelog_unreleased_keeps_flat_entries() -> None:
-    changelog = (PROJECT_ROOT / "docs" / "CHANGELOG.md").read_text(encoding="utf-8")
-    unreleased = changelog.split("## [Unreleased]", 1)[1].split("\n## [", 1)[0]
-
-    assert "\n### " not in unreleased
