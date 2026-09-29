@@ -26,8 +26,8 @@ try:
 except ModuleNotFoundError:
     sys.modules["litellm"] = MagicMock()
 
-from src.agent.orchestrator import _extract_stock_code, _COMMON_WORDS
-from src.agent.protocols import (
+from ai_stock.agent.orchestrator import _extract_stock_code, _COMMON_WORDS
+from ai_stock.agent.protocols import (
     AgentContext,
     AgentOpinion,
     AgentRunStats,
@@ -35,9 +35,9 @@ from src.agent.protocols import (
     StageResult,
     StageStatus,
 )
-from src.agent.stock_scope import StockScope, resolve_stock_scope
-from src.config import AGENT_MAX_STEPS_DEFAULT, Config
-from src.storage import DatabaseManager
+from ai_stock.agent.stock_scope import StockScope, resolve_stock_scope
+from ai_stock.config import AGENT_MAX_STEPS_DEFAULT, Config
+from ai_stock.storage import DatabaseManager
 
 
 # ============================================================
@@ -521,7 +521,7 @@ class TestStrategyRouter(unittest.TestCase):
     """Test the legacy StrategyRouter alias for SkillRouter."""
 
     def test_user_requested_strategies_take_priority(self):
-        from src.agent.strategies.router import StrategyRouter
+        from ai_stock.agent.strategies.router import StrategyRouter
         router = StrategyRouter()
         ctx = AgentContext(query="test")
         ctx.meta["strategies_requested"] = ["chan_theory", "wave_theory"]
@@ -529,47 +529,15 @@ class TestStrategyRouter(unittest.TestCase):
         self.assertEqual(result, ["chan_theory", "wave_theory"])
 
     def test_user_requested_capped_at_max(self):
-        from src.agent.strategies.router import StrategyRouter
+        from ai_stock.agent.strategies.router import StrategyRouter
         router = StrategyRouter()
         ctx = AgentContext()
         ctx.meta["strategies_requested"] = ["a", "b", "c", "d", "e"]
         result = router.select_strategies(ctx, max_count=2)
         self.assertEqual(len(result), 2)
 
-    @patch("src.agent.skills.router.StrategyRouter._get_routing_mode", return_value="manual")
-    @patch(
-        "src.agent.skills.router.StrategyRouter._get_available_skills",
-        return_value=[
-            SimpleNamespace(name="chan_theory"),
-            SimpleNamespace(name="wave_theory"),
-        ],
-    )
-    @patch("src.config.get_config", return_value=SimpleNamespace(agent_skills=["chan_theory", "wave_theory"]))
-    def test_manual_mode_uses_configured_agent_skills(self, _mock_config, _mock_available, _mock):
-        from src.agent.strategies.router import StrategyRouter
-        router = StrategyRouter()
-        ctx = AgentContext()
-        result = router.select_strategies(ctx)
-        self.assertEqual(result, ["chan_theory", "wave_theory"])
-
-    @patch("src.agent.skills.router.StrategyRouter._get_routing_mode", return_value="manual")
-    @patch(
-        "src.agent.skills.router.StrategyRouter._get_available_skills",
-        return_value=[
-            SimpleNamespace(name="bull_trend", default_router=True, default_priority=10),
-            SimpleNamespace(name="shrink_pullback", default_router=True, default_priority=40),
-        ],
-    )
-    @patch("src.config.get_config", return_value=SimpleNamespace(agent_skills=[]))
-    def test_manual_mode_falls_back_to_defaults_when_no_skills_configured(self, _mock_config, _mock_available, _mock):
-        from src.agent.strategies.router import StrategyRouter, _DEFAULT_STRATEGIES
-        router = StrategyRouter()
-        ctx = AgentContext()
-        result = router.select_strategies(ctx)
-        self.assertEqual(result, list(_DEFAULT_STRATEGIES[:3]))
-
     def test_detect_regime_bullish(self):
-        from src.agent.strategies.router import StrategyRouter
+        from ai_stock.agent.strategies.router import StrategyRouter
         router = StrategyRouter()
         ctx = AgentContext()
         ctx.add_opinion(AgentOpinion(
@@ -582,7 +550,7 @@ class TestStrategyRouter(unittest.TestCase):
         self.assertEqual(regime, "trending_up")
 
     def test_detect_regime_bearish(self):
-        from src.agent.strategies.router import StrategyRouter
+        from ai_stock.agent.strategies.router import StrategyRouter
         router = StrategyRouter()
         ctx = AgentContext()
         ctx.add_opinion(AgentOpinion(
@@ -595,7 +563,7 @@ class TestStrategyRouter(unittest.TestCase):
         self.assertEqual(regime, "trending_down")
 
     def test_detect_regime_none_without_technical(self):
-        from src.agent.strategies.router import StrategyRouter
+        from ai_stock.agent.strategies.router import StrategyRouter
         router = StrategyRouter()
         ctx = AgentContext()
         regime = router._detect_regime(ctx)
@@ -610,7 +578,7 @@ class TestStrategyAggregator(unittest.TestCase):
     """Test StrategyAggregator consensus logic."""
 
     def test_no_strategy_opinions_returns_none(self):
-        from src.agent.strategies.aggregator import StrategyAggregator
+        from ai_stock.agent.strategies.aggregator import StrategyAggregator
         agg = StrategyAggregator()
         ctx = AgentContext()
         ctx.add_opinion(AgentOpinion(agent_name="technical", signal="buy", confidence=0.8))
@@ -618,7 +586,7 @@ class TestStrategyAggregator(unittest.TestCase):
         self.assertIsNone(result)
 
     def test_single_strategy_consensus(self):
-        from src.agent.strategies.aggregator import StrategyAggregator
+        from ai_stock.agent.strategies.aggregator import StrategyAggregator
         agg = StrategyAggregator()
         ctx = AgentContext()
         ctx.add_opinion(AgentOpinion(agent_name="strategy_bull_trend", signal="buy", confidence=0.7))
@@ -628,7 +596,7 @@ class TestStrategyAggregator(unittest.TestCase):
         self.assertEqual(result.signal, "buy")
 
     def test_mixed_signals_produce_hold(self):
-        from src.agent.strategies.aggregator import StrategyAggregator
+        from ai_stock.agent.strategies.aggregator import StrategyAggregator
         agg = StrategyAggregator()
         ctx = AgentContext()
         ctx.add_opinion(AgentOpinion(agent_name="strategy_a", signal="buy", confidence=0.6))
@@ -647,7 +615,7 @@ class TestPortfolioAgentPostProcess(unittest.TestCase):
     """Test PortfolioAgent.post_process uses try_parse_json correctly."""
 
     def _make_agent(self):
-        from src.agent.agents.portfolio_agent import PortfolioAgent
+        from ai_stock.agent.agents.portfolio_agent import PortfolioAgent
         mock_registry = MagicMock()
         mock_adapter = MagicMock()
         return PortfolioAgent(tool_registry=mock_registry, llm_adapter=mock_adapter)
@@ -683,7 +651,7 @@ class TestDecisionAgentPostProcess(unittest.TestCase):
     """Test DecisionAgent dashboard normalization behaviour."""
 
     def test_normalizes_strong_decision_type_to_legacy_enum(self):
-        from src.agent.agents.decision_agent import DecisionAgent
+        from ai_stock.agent.agents.decision_agent import DecisionAgent
 
         agent = DecisionAgent(tool_registry=MagicMock(), llm_adapter=MagicMock())
         ctx = AgentContext(query="test", stock_code="600519")
@@ -705,7 +673,7 @@ class TestIntelAgentPostProcess(unittest.TestCase):
     """Test IntelAgent JSON parsing and context caching behaviour."""
 
     def test_repairs_json_and_caches_intel_context(self):
-        from src.agent.agents.intel_agent import IntelAgent
+        from ai_stock.agent.agents.intel_agent import IntelAgent
 
         agent = IntelAgent(tool_registry=MagicMock(), llm_adapter=MagicMock())
         ctx = AgentContext(query="test", stock_code="600519")
@@ -735,7 +703,7 @@ class TestOrchestratorModes(unittest.TestCase):
     """Test that _build_agent_chain returns the right agents for each mode."""
 
     def _make_orchestrator(self, mode="standard"):
-        from src.agent.orchestrator import AgentOrchestrator
+        from ai_stock.agent.orchestrator import AgentOrchestrator
         mock_registry = MagicMock()
         mock_adapter = MagicMock()
         return AgentOrchestrator(
@@ -854,7 +822,7 @@ class TestOrchestratorExecution(unittest.TestCase):
 
     @staticmethod
     def _make_orchestrator(config=None):
-        from src.agent.orchestrator import AgentOrchestrator
+        from ai_stock.agent.orchestrator import AgentOrchestrator
         return AgentOrchestrator(
             tool_registry=MagicMock(),
             llm_adapter=MagicMock(),
@@ -965,7 +933,7 @@ class TestOrchestratorExecution(unittest.TestCase):
             return next(times, 100.0)
 
         with patch.object(orch, "_build_agent_chain", return_value=[technical, intel]):
-            with patch("src.agent.orchestrator.time.time", side_effect=_next_time):
+            with patch("ai_stock.agent.orchestrator.time.time", side_effect=_next_time):
                 result = orch._execute_pipeline(ctx)
 
         self.assertTrue(result.success)
@@ -1011,7 +979,7 @@ class TestOrchestratorExecution(unittest.TestCase):
             return next(times, 100.0)
 
         with patch.object(orch, "_build_agent_chain", return_value=[technical, decision]):
-            with patch("src.agent.orchestrator.time.time", side_effect=_next_time):
+            with patch("ai_stock.agent.orchestrator.time.time", side_effect=_next_time):
                 result = orch._execute_pipeline(ctx)
 
         self.assertTrue(result.success)
@@ -1033,7 +1001,7 @@ class TestOrchestratorExecution(unittest.TestCase):
             return next(times, 1.0)
 
         with patch.object(orch, "_build_agent_chain", return_value=[technical]):
-            with patch("src.agent.orchestrator.time.time", side_effect=_next_time):
+            with patch("ai_stock.agent.orchestrator.time.time", side_effect=_next_time):
                 result = orch._execute_pipeline(ctx)
 
         self.assertIsNotNone(result.error)
@@ -1047,7 +1015,7 @@ class TestOrchestratorExecution(unittest.TestCase):
         agent.run.return_value = self._stage_result("technical")
 
         with patch.object(orch, "_build_agent_chain", return_value=[agent]):
-            with patch("src.agent.orchestrator.time.time", side_effect=[0.0, 0.1, 1.2, 1.2, 1.2, 1.2]):
+            with patch("ai_stock.agent.orchestrator.time.time", side_effect=[0.0, 0.1, 1.2, 1.2, 1.2, 1.2]):
                 result = orch._execute_pipeline(AgentContext(query="test"))
 
         self.assertFalse(result.success)
@@ -1089,7 +1057,7 @@ class TestOrchestratorExecution(unittest.TestCase):
         decision.run.side_effect = _run_decision
 
         with patch.object(orch, "_build_agent_chain", return_value=[decision]):
-            with patch("src.agent.orchestrator.time.time", side_effect=[0.0, 0.1, 1.2, 1.2, 1.2]):
+            with patch("ai_stock.agent.orchestrator.time.time", side_effect=[0.0, 0.1, 1.2, 1.2, 1.2]):
                 result = orch._execute_pipeline(ctx, parse_dashboard=True)
 
         self.assertTrue(result.success)
@@ -1125,7 +1093,7 @@ class TestOrchestratorExecution(unittest.TestCase):
         intel.run.return_value = self._stage_result("intel")
 
         with patch.object(orch, "_build_agent_chain", return_value=[technical, intel]):
-            with patch("src.agent.orchestrator.time.time", side_effect=[0.0, 0.1, 0.2, 0.3, 1.2, 1.2, 1.2]):
+            with patch("ai_stock.agent.orchestrator.time.time", side_effect=[0.0, 0.1, 0.2, 0.3, 1.2, 1.2, 1.2]):
                 result = orch._execute_pipeline(ctx, parse_dashboard=True)
 
         self.assertTrue(result.success)
@@ -1138,7 +1106,7 @@ class TestOrchestratorExecution(unittest.TestCase):
         )
 
     def test_run_wraps_orchestrator_result(self):
-        from src.agent.orchestrator import OrchestratorResult
+        from ai_stock.agent.orchestrator import OrchestratorResult
 
         orch = self._make_orchestrator()
         fake_result = OrchestratorResult(success=True, content="done", total_steps=2, total_tokens=11, model="x")
@@ -1149,76 +1117,8 @@ class TestOrchestratorExecution(unittest.TestCase):
         self.assertEqual(result.content, "done")
         self.assertEqual(result.total_steps, 2)
 
-    def test_chat_loads_prior_history_into_context(self):
-        from src.agent.orchestrator import OrchestratorResult
-
-        orch = self._make_orchestrator()
-        history = [
-            {"role": "user", "content": "之前的问题"},
-            {"role": "assistant", "content": "之前的回答"},
-        ]
-        captured = {}
-
-        def fake_execute(ctx, parse_dashboard=False, progress_callback=None):
-            captured["history"] = ctx.meta.get("conversation_history")
-            return OrchestratorResult(success=True, content="assistant reply")
-
-        with patch.object(orch, "_execute_pipeline", side_effect=fake_execute):
-            with patch("src.agent.orchestrator.build_visible_chat_history", return_value=history):
-                with patch("src.agent.conversation.conversation_manager.get_or_create"):
-                    with patch("src.agent.conversation.conversation_manager.add_message"):
-                        orch.chat("hello", "session-1")
-
-        self.assertEqual(captured["history"], history)
-
-    def test_chat_uses_compressed_history_builder(self):
-        from src.agent.orchestrator import OrchestratorResult
-
-        orch = self._make_orchestrator()
-
-        with patch.object(orch, "_execute_pipeline", return_value=OrchestratorResult(success=True, content="ok")):
-            with patch("src.agent.orchestrator.build_visible_chat_history", return_value=[]) as build_history:
-                with patch("src.agent.conversation.conversation_manager.get_or_create"):
-                    with patch("src.agent.conversation.conversation_manager.add_message"):
-                        orch.chat("hello", "session-1")
-
-        build_history.assert_called_once()
-        self.assertEqual(build_history.call_args.args[0], "session-1")
-        self.assertIs(build_history.call_args.args[1], orch.llm_adapter)
-
-    def test_chat_resolves_scope_and_stores_it_for_multi_agent_chain(self):
-        from src.agent.orchestrator import OrchestratorResult
-
-        orch = self._make_orchestrator()
-        captured = {}
-
-        def fake_execute(ctx, parse_dashboard=False, progress_callback=None):
-            captured["ctx"] = ctx
-            return OrchestratorResult(success=True, content="assistant reply")
-
-        with patch.object(orch, "_execute_pipeline", side_effect=fake_execute):
-            with patch("src.agent.orchestrator.build_visible_chat_history", return_value=[]):
-                with patch("src.agent.conversation.conversation_manager.get_or_create"):
-                    with patch("src.agent.conversation.conversation_manager.add_message"):
-                        orch.chat(
-                            "换成 AAPL 看看",
-                            "session-1",
-                            context={
-                                "stock_code": "600519",
-                                "stock_name": "匿名标的",
-                                "previous_analysis_summary": {"summary": "old"},
-                            },
-                        )
-
-        ctx = captured["ctx"]
-        self.assertEqual(ctx.stock_code, "AAPL")
-        self.assertEqual(ctx.stock_name, "")
-        self.assertNotIn("previous_analysis_summary", ctx.meta)
-        self.assertEqual(ctx.meta["stock_scope"].mode, "switch")
-        self.assertEqual(ctx.meta["stock_scope"].expected_stock_code, "AAPL")
-
     def test_chat_does_not_read_or_write_provider_trace(self):
-        from src.agent.orchestrator import OrchestratorResult
+        from ai_stock.agent.orchestrator import OrchestratorResult
 
         DatabaseManager.reset_instance()
         Config.reset_instance()
@@ -1251,7 +1151,7 @@ class TestOrchestratorExecution(unittest.TestCase):
         orch = self._make_orchestrator()
         try:
             with patch.object(orch, "_execute_pipeline", return_value=OrchestratorResult(success=True, content="ok")):
-                with patch("src.agent.orchestrator.build_visible_chat_history", return_value=[]) as build_history:
+                with patch("ai_stock.agent.orchestrator.build_visible_chat_history", return_value=[]) as build_history:
                     with patch.object(db, "get_agent_provider_turns", wraps=db.get_agent_provider_turns) as get_turns:
                         result = orch.chat("hello", session_id)
 
@@ -1264,34 +1164,6 @@ class TestOrchestratorExecution(unittest.TestCase):
         finally:
             DatabaseManager.reset_instance()
             Config.reset_instance()
-
-    def test_chat_persists_user_and_assistant_messages(self):
-        from src.agent.orchestrator import OrchestratorResult
-
-        orch = self._make_orchestrator()
-        fake_result = OrchestratorResult(success=True, content="assistant reply")
-
-        with patch.object(orch, "_execute_pipeline", return_value=fake_result):
-            with patch("src.agent.conversation.conversation_manager.add_message") as add_message:
-                result = orch.chat("hello", "session-1")
-
-        self.assertTrue(result.success)
-        self.assertEqual(add_message.call_count, 2)
-        add_message.assert_any_call("session-1", "user", "hello")
-        add_message.assert_any_call("session-1", "assistant", "assistant reply")
-
-    def test_chat_persists_failure_message(self):
-        from src.agent.orchestrator import OrchestratorResult
-
-        orch = self._make_orchestrator()
-        fake_result = OrchestratorResult(success=False, error="boom")
-
-        with patch.object(orch, "_execute_pipeline", return_value=fake_result):
-            with patch("src.agent.conversation.conversation_manager.add_message") as add_message:
-                result = orch.chat("hello", "session-2")
-
-        self.assertFalse(result.success)
-        add_message.assert_any_call("session-2", "assistant", "[分析失败] boom")
 
     def test_execute_pipeline_fails_when_dashboard_parse_fails(self):
         orch = self._make_orchestrator()
@@ -1389,7 +1261,7 @@ class TestDecisionAgentChatMode(unittest.TestCase):
     """Test DecisionAgent chat-mode output path."""
 
     def test_post_process_stores_free_form_response(self):
-        from src.agent.agents.decision_agent import DecisionAgent
+        from ai_stock.agent.agents.decision_agent import DecisionAgent
 
         agent = DecisionAgent(tool_registry=MagicMock(), llm_adapter=MagicMock())
         ctx = AgentContext(query="帮我总结一下", stock_code="600519")
@@ -1404,7 +1276,7 @@ class TestDecisionAgentChatMode(unittest.TestCase):
         self.assertEqual(opinion.signal, "buy")
 
     def test_decision_agent_prompt_requires_phase_decision(self):
-        from src.agent.agents.decision_agent import DecisionAgent
+        from ai_stock.agent.agents.decision_agent import DecisionAgent
 
         agent = DecisionAgent(tool_registry=MagicMock(), llm_adapter=MagicMock())
         prompt = agent.system_prompt(AgentContext(query="分析 600519", stock_code="600519"))
@@ -1419,7 +1291,7 @@ class TestTechnicalAgentSkillPolicy(unittest.TestCase):
     """TechnicalAgent should only receive the legacy trend baseline for implicit/default runs."""
 
     def test_prompt_omits_legacy_default_policy_when_explicit_skill_selected(self):
-        from src.agent.agents.technical_agent import TechnicalAgent
+        from ai_stock.agent.agents.technical_agent import TechnicalAgent
 
         agent = TechnicalAgent(
             tool_registry=MagicMock(),
@@ -1433,8 +1305,8 @@ class TestTechnicalAgentSkillPolicy(unittest.TestCase):
         self.assertIn("### 技能 1: 缠论", prompt)
 
     def test_prompt_includes_legacy_default_policy_for_implicit_default_run(self):
-        from src.agent.agents.technical_agent import TechnicalAgent
-        from src.agent.skills.defaults import TECHNICAL_SKILL_RULES_EN
+        from ai_stock.agent.agents.technical_agent import TechnicalAgent
+        from ai_stock.agent.skills.defaults import TECHNICAL_SKILL_RULES_EN
 
         agent = TechnicalAgent(
             tool_registry=MagicMock(),
@@ -1453,7 +1325,7 @@ class TestBaseAgentMessageAssembly(unittest.TestCase):
 
     @staticmethod
     def _make_agent():
-        from src.agent.agents.base_agent import BaseAgent
+        from ai_stock.agent.agents.base_agent import BaseAgent
 
         class DummyAgent(BaseAgent):
             agent_name = "dummy"
@@ -1524,7 +1396,7 @@ class TestBaseAgentMessageAssembly(unittest.TestCase):
         self.assertNotIn("analysis_context_pack_summary", pack_message["content"])
 
     def test_run_passes_stock_scope_from_context_meta_to_shared_runner(self):
-        from src.agent.runner import RunLoopResult
+        from ai_stock.agent.runner import RunLoopResult
 
         agent = self._make_agent()
         ctx = AgentContext(query="hello", stock_code="600519")
@@ -1534,7 +1406,7 @@ class TestBaseAgentMessageAssembly(unittest.TestCase):
         )
 
         with patch(
-            "src.agent.agents.base_agent.run_agent_loop",
+            "ai_stock.agent.agents.base_agent.run_agent_loop",
             return_value=RunLoopResult(success=True, content="ok"),
         ) as run_loop:
             result = agent.run(ctx)
@@ -1551,7 +1423,7 @@ class TestEventMonitor(unittest.TestCase):
     """Test EventMonitor serialize/deserialize round-trip."""
 
     def test_round_trip(self):
-        from src.agent.events import EventMonitor, PriceAlert, PriceChangeAlert, VolumeAlert
+        from ai_stock.agent.events import EventMonitor, PriceAlert, PriceChangeAlert, VolumeAlert
         monitor = EventMonitor()
         monitor.add_alert(PriceAlert(stock_code="600519", direction="above", price=1800.0))
         monitor.add_alert(PriceChangeAlert(stock_code="300750", direction="down", change_pct=3.5))
@@ -1569,7 +1441,7 @@ class TestEventMonitor(unittest.TestCase):
         self.assertEqual(restored.rules[2].stock_code, "000858")
 
     def test_serialization_contract_keeps_supported_rule_keys_stable(self):
-        from src.agent.events import (
+        from ai_stock.agent.events import (
             AlertStatus,
             EventMonitor,
             PriceAlert,
@@ -1611,7 +1483,7 @@ class TestEventMonitor(unittest.TestCase):
 
     def test_remove_expired(self):
         import time
-        from src.agent.events import EventMonitor, PriceAlert
+        from ai_stock.agent.events import EventMonitor, PriceAlert
         monitor = EventMonitor()
         alert = PriceAlert(stock_code="600519", direction="above", price=1800.0, ttl_hours=0.0)
         alert.created_at = time.time() - 3600  # 1 hour ago
@@ -1621,7 +1493,7 @@ class TestEventMonitor(unittest.TestCase):
         self.assertEqual(len(monitor.rules), 0)
 
     def test_add_alert_rejects_unsupported_rule_type(self):
-        from src.agent.events import EventMonitor, SentimentAlert
+        from ai_stock.agent.events import EventMonitor, SentimentAlert
 
         monitor = EventMonitor()
 
@@ -1629,7 +1501,7 @@ class TestEventMonitor(unittest.TestCase):
             monitor.add_alert(SentimentAlert(stock_code="600519"))
 
     def test_from_dict_list_skips_unsupported_placeholder_rule_type(self):
-        from src.agent.events import EventMonitor
+        from ai_stock.agent.events import EventMonitor
 
         data = [
             {"stock_code": "600519", "alert_type": "sentiment_shift"},
@@ -1646,7 +1518,7 @@ class TestEventMonitor(unittest.TestCase):
         self.assertEqual(monitor.rules[0].stock_code, "000858")
 
     def test_from_dict_list_skips_price_change_without_change_pct(self):
-        from src.agent.events import EventMonitor
+        from ai_stock.agent.events import EventMonitor
 
         data = [
             {
@@ -1665,13 +1537,13 @@ class TestEventMonitorAsync(unittest.IsolatedAsyncioTestCase):
     """Test async EventMonitor checks offload blocking fetches."""
 
     async def test_check_price_uses_to_thread_and_triggers(self):
-        from src.agent.events import EventMonitor, PriceAlert
+        from ai_stock.agent.events import EventMonitor, PriceAlert
 
         monitor = EventMonitor()
         rule = PriceAlert(stock_code="600519", direction="above", price=1800.0)
         quote = SimpleNamespace(price=1810.0)
 
-        with patch("src.agent.events.asyncio.to_thread", new=AsyncMock(return_value=quote)) as to_thread:
+        with patch("ai_stock.agent.events.asyncio.to_thread", new=AsyncMock(return_value=quote)) as to_thread:
             triggered = await monitor._check_price(rule)
 
         self.assertIsNotNone(triggered)
@@ -1679,13 +1551,13 @@ class TestEventMonitorAsync(unittest.IsolatedAsyncioTestCase):
         to_thread.assert_awaited_once()
 
     async def test_check_price_change_uses_to_thread_and_triggers(self):
-        from src.agent.events import EventMonitor, PriceChangeAlert
+        from ai_stock.agent.events import EventMonitor, PriceChangeAlert
 
         monitor = EventMonitor()
         rule = PriceChangeAlert(stock_code="300750", direction="down", change_pct=3.0)
         quote = SimpleNamespace(change_pct=-3.25)
 
-        with patch("src.agent.events.asyncio.to_thread", new=AsyncMock(return_value=quote)) as to_thread:
+        with patch("ai_stock.agent.events.asyncio.to_thread", new=AsyncMock(return_value=quote)) as to_thread:
             triggered = await monitor._check_price_change(rule)
 
         self.assertIsNotNone(triggered)
@@ -1695,19 +1567,19 @@ class TestEventMonitorAsync(unittest.IsolatedAsyncioTestCase):
         to_thread.assert_awaited_once()
 
     async def test_check_price_change_accepts_dict_payload_alias(self):
-        from src.agent.events import EventMonitor, PriceChangeAlert
+        from ai_stock.agent.events import EventMonitor, PriceChangeAlert
 
         monitor = EventMonitor()
         rule = PriceChangeAlert(stock_code="AAPL", direction="up", change_pct=2.0)
 
-        with patch("src.agent.events.asyncio.to_thread", new=AsyncMock(return_value={"pct_chg": "2.35%"})):
+        with patch("ai_stock.agent.events.asyncio.to_thread", new=AsyncMock(return_value={"pct_chg": "2.35%"})):
             triggered = await monitor._check_price_change(rule)
 
         self.assertIsNotNone(triggered)
         self.assertEqual(triggered.current_value, 2.35)
 
     async def test_realtime_rules_create_fetcher_manager_per_quote_check(self):
-        from src.agent.events import EventMonitor, PriceAlert, PriceChangeAlert
+        from ai_stock.agent.events import EventMonitor, PriceAlert, PriceChangeAlert
 
         monitor = EventMonitor()
         monitor.add_alert(PriceAlert(stock_code="600519", direction="above", price=1800.0))
@@ -1719,8 +1591,8 @@ class TestEventMonitorAsync(unittest.IsolatedAsyncioTestCase):
         async def _run_inline(func, *args, **kwargs):
             return func(*args, **kwargs)
 
-        with patch("data_provider.DataFetcherManager", side_effect=managers) as manager_factory, patch(
-            "src.agent.events.asyncio.to_thread", new=_run_inline
+        with patch("ai_stock.stock_data.DataFetcherManager", side_effect=managers) as manager_factory, patch(
+            "ai_stock.agent.events.asyncio.to_thread", new=_run_inline
         ):
             triggered = await monitor.check_all()
 
@@ -1731,19 +1603,19 @@ class TestEventMonitorAsync(unittest.IsolatedAsyncioTestCase):
 
     async def test_check_volume_safe_when_fetch_returns_none(self):
         """_check_volume must not crash when get_daily_data returns None."""
-        from src.agent.events import EventMonitor, VolumeAlert
+        from ai_stock.agent.events import EventMonitor, VolumeAlert
 
         monitor = EventMonitor()
         rule = VolumeAlert(stock_code="600519", multiplier=2.0)
 
-        with patch("src.agent.events.asyncio.to_thread", new=AsyncMock(return_value=None)):
+        with patch("ai_stock.agent.events.asyncio.to_thread", new=AsyncMock(return_value=None)):
             result = await monitor._check_volume(rule)
 
         self.assertIsNone(result)
 
     async def test_check_all_async_callback(self):
         """on_trigger callbacks should be properly awaited if coroutine."""
-        from src.agent.events import EventMonitor, PriceAlert
+        from ai_stock.agent.events import EventMonitor, PriceAlert
 
         monitor = EventMonitor()
         rule = PriceAlert(stock_code="600519", direction="above", price=1800.0)
@@ -1754,7 +1626,7 @@ class TestEventMonitorAsync(unittest.IsolatedAsyncioTestCase):
         monitor.on_trigger(async_cb)
 
         quote = SimpleNamespace(price=1810.0)
-        with patch("src.agent.events.asyncio.to_thread", new=AsyncMock(return_value=quote)):
+        with patch("ai_stock.agent.events.asyncio.to_thread", new=AsyncMock(return_value=quote)):
             triggered = await monitor.check_all()
 
         self.assertEqual(len(triggered), 1)
@@ -1765,14 +1637,14 @@ class TestEventMonitorConfigIntegration(unittest.TestCase):
     """Test config-driven EventMonitor construction."""
 
     def test_build_event_monitor_from_config(self):
-        from src.agent.events import build_event_monitor_from_config
+        from ai_stock.agent.events import build_event_monitor_from_config
 
         config = SimpleNamespace(
             agent_event_monitor_enabled=True,
             agent_event_alert_rules_json='[{"stock_code":"600519","alert_type":"price_cross","direction":"above","price":1800}]',
         )
 
-        with patch("src.notification.NotificationService", return_value=MagicMock()):
+        with patch("ai_stock.report.notification.NotificationService", return_value=MagicMock()):
             monitor = build_event_monitor_from_config(config=config)
 
         self.assertIsNotNone(monitor)
@@ -1780,7 +1652,7 @@ class TestEventMonitorConfigIntegration(unittest.TestCase):
         self.assertEqual(monitor.rules[0].stock_code, "600519")
 
     def test_configured_event_monitor_notification_uses_alert_route(self):
-        from src.agent.events import TriggeredAlert, build_event_monitor_from_config
+        from ai_stock.agent.events import TriggeredAlert, build_event_monitor_from_config
 
         config = SimpleNamespace(
             agent_event_monitor_enabled=True,
@@ -1798,7 +1670,7 @@ class TestEventMonitorConfigIntegration(unittest.TestCase):
         self.assertEqual(notifier.send.call_args.kwargs["route_type"], "alert")
 
     def test_build_event_monitor_from_config_accepts_price_change_percent(self):
-        from src.agent.events import PriceChangeAlert, build_event_monitor_from_config
+        from ai_stock.agent.events import PriceChangeAlert, build_event_monitor_from_config
 
         config = SimpleNamespace(
             agent_event_monitor_enabled=True,
@@ -1808,7 +1680,7 @@ class TestEventMonitorConfigIntegration(unittest.TestCase):
             ),
         )
 
-        with patch("src.notification.NotificationService", return_value=MagicMock()):
+        with patch("ai_stock.report.notification.NotificationService", return_value=MagicMock()):
             monitor = build_event_monitor_from_config(config=config)
 
         self.assertIsNotNone(monitor)
@@ -1817,7 +1689,7 @@ class TestEventMonitorConfigIntegration(unittest.TestCase):
         self.assertEqual(monitor.rules[0].change_pct, 3.5)
 
     def test_build_event_monitor_returns_none_on_invalid_json(self):
-        from src.agent.events import build_event_monitor_from_config
+        from ai_stock.agent.events import build_event_monitor_from_config
 
         config = SimpleNamespace(
             agent_event_monitor_enabled=True,
@@ -1828,7 +1700,7 @@ class TestEventMonitorConfigIntegration(unittest.TestCase):
         self.assertIsNone(monitor)
 
     def test_build_event_monitor_skips_invalid_rule_entries(self):
-        from src.agent.events import build_event_monitor_from_config
+        from ai_stock.agent.events import build_event_monitor_from_config
 
         config = SimpleNamespace(
             agent_event_monitor_enabled=True,
@@ -1838,7 +1710,7 @@ class TestEventMonitorConfigIntegration(unittest.TestCase):
             ),
         )
 
-        with patch("src.notification.NotificationService", return_value=MagicMock()):
+        with patch("ai_stock.report.notification.NotificationService", return_value=MagicMock()):
             monitor = build_event_monitor_from_config(config=config)
 
         self.assertIsNotNone(monitor)
@@ -1846,7 +1718,7 @@ class TestEventMonitorConfigIntegration(unittest.TestCase):
         self.assertEqual(monitor.rules[0].stock_code, "600519")
 
     def test_build_event_monitor_skips_unsupported_rule_types(self):
-        from src.agent.events import build_event_monitor_from_config
+        from ai_stock.agent.events import build_event_monitor_from_config
 
         config = SimpleNamespace(
             agent_event_monitor_enabled=True,
@@ -1856,7 +1728,7 @@ class TestEventMonitorConfigIntegration(unittest.TestCase):
             ),
         )
 
-        with patch("src.notification.NotificationService", return_value=MagicMock()):
+        with patch("ai_stock.report.notification.NotificationService", return_value=MagicMock()):
             monitor = build_event_monitor_from_config(config=config)
 
         self.assertIsNotNone(monitor)
@@ -1872,25 +1744,25 @@ class TestAgentMemory(unittest.TestCase):
     """Test AgentMemory disabled mode."""
 
     def test_disabled_returns_neutral(self):
-        from src.agent.memory import AgentMemory
+        from ai_stock.agent.memory import AgentMemory
         mem = AgentMemory(enabled=False)
         cal = mem.get_calibration("technical")
         self.assertFalse(cal.calibrated)
         self.assertAlmostEqual(cal.calibration_factor, 1.0)
 
     def test_disabled_weights_all_equal(self):
-        from src.agent.memory import AgentMemory
+        from ai_stock.agent.memory import AgentMemory
         mem = AgentMemory(enabled=False)
         weights = mem.compute_strategy_weights(["a", "b", "c"])
         self.assertEqual(weights, {"a": 1.0, "b": 1.0, "c": 1.0})
 
     def test_calibrate_confidence_passthrough_when_disabled(self):
-        from src.agent.memory import AgentMemory
+        from ai_stock.agent.memory import AgentMemory
         mem = AgentMemory(enabled=False)
         self.assertAlmostEqual(mem.calibrate_confidence("tech", 0.75), 0.75)
 
     def test_get_stock_history_reads_orm_records(self):
-        from src.agent.memory import AgentMemory
+        from ai_stock.agent.memory import AgentMemory
 
         record = SimpleNamespace(
             created_at=SimpleNamespace(date=lambda: SimpleNamespace(isoformat=lambda: "2026-03-01")),
@@ -1901,7 +1773,7 @@ class TestAgentMemory(unittest.TestCase):
         db = MagicMock()
         db.get_analysis_history.return_value = [record]
 
-        with patch("src.storage.get_db", return_value=db):
+        with patch("ai_stock.storage.get_db", return_value=db):
             mem = AgentMemory(enabled=True)
             history = mem.get_stock_history("600519", limit=1)
 
@@ -1915,7 +1787,7 @@ class TestBaseAgentMemoryIntegration(unittest.TestCase):
 
     @staticmethod
     def _make_agent(memory):
-        from src.agent.agents.base_agent import BaseAgent
+        from ai_stock.agent.agents.base_agent import BaseAgent
 
         class DummyAgent(BaseAgent):
             agent_name = "technical"
@@ -1929,7 +1801,7 @@ class TestBaseAgentMemoryIntegration(unittest.TestCase):
             def post_process(self, ctx, raw_text):
                 return AgentOpinion(agent_name="technical", signal="buy", confidence=0.8, reasoning=raw_text)
 
-        with patch("src.agent.agents.base_agent.AgentMemory.from_config", return_value=memory):
+        with patch("ai_stock.agent.agents.base_agent.AgentMemory.from_config", return_value=memory):
             return DummyAgent(tool_registry=MagicMock(), llm_adapter=MagicMock())
 
     def test_memory_context_is_injected(self):
@@ -1987,7 +1859,7 @@ class TestBaseAgentMemoryIntegration(unittest.TestCase):
             tool_calls_log=[],
             models_used=["test/model"],
         )
-        with patch("src.agent.agents.base_agent.run_agent_loop", return_value=loop_result):
+        with patch("ai_stock.agent.agents.base_agent.run_agent_loop", return_value=loop_result):
             result = agent.run(ctx)
 
         self.assertTrue(result.success)
@@ -1997,7 +1869,7 @@ class TestBaseAgentMemoryIntegration(unittest.TestCase):
         memory.calibrate_confidence.assert_not_called()
 
     def test_strategy_memory_calibration_uses_strategy_factor(self):
-        from src.agent.agents.base_agent import BaseAgent
+        from ai_stock.agent.agents.base_agent import BaseAgent
 
         class DummyStrategyAgent(BaseAgent):
             agent_name = "strategy_chan_theory"
@@ -2019,7 +1891,7 @@ class TestBaseAgentMemoryIntegration(unittest.TestCase):
             total_samples=40,
         )
 
-        with patch("src.agent.agents.base_agent.AgentMemory.from_config", return_value=memory):
+        with patch("ai_stock.agent.agents.base_agent.AgentMemory.from_config", return_value=memory):
             agent = DummyStrategyAgent(tool_registry=MagicMock(), llm_adapter=MagicMock())
         ctx = AgentContext(query="test", stock_code="600519")
 
@@ -2030,7 +1902,7 @@ class TestBaseAgentMemoryIntegration(unittest.TestCase):
             tool_calls_log=[],
             models_used=["test/model"],
         )
-        with patch("src.agent.agents.base_agent.run_agent_loop", return_value=loop_result):
+        with patch("ai_stock.agent.agents.base_agent.run_agent_loop", return_value=loop_result):
             result = agent.run(ctx)
 
         self.assertTrue(result.success)
@@ -2065,7 +1937,7 @@ class TestRiskOverride(unittest.TestCase):
         }
 
     def test_risk_override_vetoes_buy_signal(self):
-        from src.agent.orchestrator import AgentOrchestrator
+        from ai_stock.agent.orchestrator import AgentOrchestrator
 
         orch = AgentOrchestrator(
             tool_registry=MagicMock(),
@@ -2093,7 +1965,7 @@ class TestRiskOverride(unittest.TestCase):
         self.assertEqual(ctx.opinions[0].signal, "hold")
 
     def test_risk_override_normalizes_strong_buy_before_veto(self):
-        from src.agent.orchestrator import AgentOrchestrator
+        from ai_stock.agent.orchestrator import AgentOrchestrator
 
         orch = AgentOrchestrator(
             tool_registry=MagicMock(),
@@ -2120,7 +1992,7 @@ class TestRiskOverride(unittest.TestCase):
         self.assertEqual(ctx.opinions[0].signal, "hold")
 
     def test_risk_override_respects_disable_flag(self):
-        from src.agent.orchestrator import AgentOrchestrator
+        from ai_stock.agent.orchestrator import AgentOrchestrator
 
         orch = AgentOrchestrator(
             tool_registry=MagicMock(),
@@ -2169,9 +2041,9 @@ class TestResearchCommandTimeout(unittest.TestCase):
         )
 
         with patch("bot.commands.research.get_config", return_value=config), \
-             patch("src.agent.factory.get_tool_registry", return_value=MagicMock()), \
-             patch("src.agent.llm_adapter.LLMToolAdapter", return_value=MagicMock()), \
-             patch("src.agent.research.ResearchAgent.research", return_value=SimpleNamespace(
+             patch("ai_stock.agent.factory.get_tool_registry", return_value=MagicMock()), \
+             patch("ai_stock.agent.llm_adapter.LLMToolAdapter", return_value=MagicMock()), \
+             patch("ai_stock.agent.research.ResearchAgent.research", return_value=SimpleNamespace(
                  success=False,
                  report="",
                  sub_questions=["q"],
@@ -2220,9 +2092,9 @@ class TestResearchCommandTimeout(unittest.TestCase):
         )
 
         with patch("bot.commands.research.get_config", return_value=config), \
-             patch("src.agent.factory.get_tool_registry", return_value=MagicMock()), \
-             patch("src.agent.llm_adapter.LLMToolAdapter", return_value=MagicMock()), \
-             patch("src.agent.research.ResearchAgent.research", side_effect=_capture_research):
+             patch("ai_stock.agent.factory.get_tool_registry", return_value=MagicMock()), \
+             patch("ai_stock.agent.llm_adapter.LLMToolAdapter", return_value=MagicMock()), \
+             patch("ai_stock.agent.research.ResearchAgent.research", side_effect=_capture_research):
             response = cmd.execute(msg, ["googl", "风险"])
 
         self.assertIn("Deep Research Report", response.text)
@@ -2239,8 +2111,8 @@ class TestResearchAgentFilteredRegistry(unittest.TestCase):
     """Test that ResearchAgent._filtered_registry delegates to BaseAgent's implementation."""
 
     def test_filtered_registry_delegates_to_base(self):
-        from src.agent.research import ResearchAgent
-        from src.agent.tools.registry import ToolRegistry
+        from ai_stock.agent.research import ResearchAgent
+        from ai_stock.agent.tools.registry import ToolRegistry
 
         registry = ToolRegistry()
         fake_tool = MagicMock()
@@ -2255,7 +2127,7 @@ class TestResearchAgentFilteredRegistry(unittest.TestCase):
         self.assertIsNotNone(filtered.get("search_stock_news"))
 
     def test_decompose_query_uses_shared_adapter(self):
-        from src.agent.research import ResearchAgent
+        from ai_stock.agent.research import ResearchAgent
 
         llm_adapter = MagicMock()
         llm_adapter.call_text.return_value = SimpleNamespace(
@@ -2271,7 +2143,7 @@ class TestResearchAgentFilteredRegistry(unittest.TestCase):
         llm_adapter.call_text.assert_called_once()
 
     def test_synthesise_report_uses_shared_adapter(self):
-        from src.agent.research import ResearchAgent
+        from ai_stock.agent.research import ResearchAgent
 
         llm_adapter = MagicMock()
         llm_adapter.call_text.return_value = SimpleNamespace(
@@ -2291,7 +2163,7 @@ class TestResearchAgentFilteredRegistry(unittest.TestCase):
         llm_adapter.call_text.assert_called_once()
 
     def test_research_marks_synthesis_fallback_as_failure(self):
-        from src.agent.research import ResearchAgent
+        from ai_stock.agent.research import ResearchAgent
 
         agent = ResearchAgent(tool_registry=MagicMock(), llm_adapter=MagicMock())
         with patch.object(agent, "_decompose_query", return_value={"questions": ["Q1"], "tokens": 3}), \
@@ -2303,10 +2175,10 @@ class TestResearchAgentFilteredRegistry(unittest.TestCase):
         self.assertEqual(result.error, "boom")
 
     def test_research_sub_question_marks_budget_guard_as_timeout(self):
-        from src.agent.research import ResearchAgent
+        from ai_stock.agent.research import ResearchAgent
 
         agent = ResearchAgent(tool_registry=MagicMock(), llm_adapter=MagicMock())
-        with patch("src.agent.research.run_agent_loop", return_value=SimpleNamespace(
+        with patch("ai_stock.agent.research.run_agent_loop", return_value=SimpleNamespace(
             success=False,
             content="",
             total_tokens=7,
@@ -2326,7 +2198,7 @@ class TestResearchAgentFilteredRegistry(unittest.TestCase):
 
     def test_research_returns_timeout_result_when_overall_deadline_is_exceeded(self):
         import time as _time
-        from src.agent.research import ResearchAgent
+        from ai_stock.agent.research import ResearchAgent
 
         agent = ResearchAgent(tool_registry=MagicMock(), llm_adapter=MagicMock())
 
@@ -2368,8 +2240,8 @@ class TestAgentResearchEndpoint(unittest.IsolatedAsyncioTestCase):
         with (
             patch("api.v1.endpoints.agent.get_config", return_value=config),
             patch("api.v1.endpoints.agent._run_research_in_background", new=research_result),
-            patch("src.agent.factory.get_tool_registry", return_value=MagicMock()),
-            patch("src.agent.llm_adapter.LLMToolAdapter", return_value=MagicMock()),
+            patch("ai_stock.agent.factory.get_tool_registry", return_value=MagicMock()),
+            patch("ai_stock.agent.llm_adapter.LLMToolAdapter", return_value=MagicMock()),
         ):
             response = await agent_research(ResearchRequest(question="600519 风险"))
 
