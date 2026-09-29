@@ -16,7 +16,7 @@ if "newspaper" not in sys.modules:
     mock_np.Config = MagicMock()
     sys.modules["newspaper"] = mock_np
 
-from src.search_service import SearchService, TavilySearchProvider
+from ai_stock.search_service import SearchService, TavilySearchProvider
 
 
 class _FakeTavilyClient:
@@ -57,16 +57,16 @@ class TestTavilySearchProvider(unittest.TestCase):
         provider = TavilySearchProvider(["dummy_key"])
 
         with self._patch_tavily(
-            {
-                "results": [
-                    {
-                        "title": "Alibaba earnings beat",
-                        "url": "https://example.com/alibaba-earnings",
-                        "content": "Fresh coverage",
-                        "published_date": published_text,
-                    },
-                ]
-            }
+                {
+                    "results": [
+                        {
+                            "title": "Alibaba earnings beat",
+                            "url": "https://example.com/alibaba-earnings",
+                            "content": "Fresh coverage",
+                            "published_date": published_text,
+                        },
+                    ]
+                }
         ):
             resp = provider.search("BABA latest news", max_results=5, days=3, topic="news")
 
@@ -85,16 +85,16 @@ class TestTavilySearchProvider(unittest.TestCase):
         provider = TavilySearchProvider(["dummy_key"])
 
         with self._patch_tavily(
-            {
-                "results": [
-                    {
-                        "title": "Alibaba guidance update",
-                        "url": "https://example.com/alibaba-guidance",
-                        "content": "Fresh coverage",
-                        "publishedDate": "2026-03-20T11:00:00Z",
-                    }
-                ]
-            }
+                {
+                    "results": [
+                        {
+                            "title": "Alibaba guidance update",
+                            "url": "https://example.com/alibaba-guidance",
+                            "content": "Fresh coverage",
+                            "publishedDate": "2026-03-20T11:00:00Z",
+                        }
+                    ]
+                }
         ):
             resp = provider.search("BABA latest news", max_results=5, days=7, topic="news")
 
@@ -106,15 +106,15 @@ class TestTavilySearchProvider(unittest.TestCase):
         provider = TavilySearchProvider(["dummy_key"])
 
         with self._patch_tavily(
-            {
-                "results": [
-                    {
-                        "title": "Alibaba price action",
-                        "url": "https://example.com/alibaba-price",
-                        "content": "General search result",
-                    }
-                ]
-            }
+                {
+                    "results": [
+                        {
+                            "title": "Alibaba price action",
+                            "url": "https://example.com/alibaba-price",
+                            "content": "General search result",
+                        }
+                    ]
+                }
         ):
             resp = provider.search("BABA stock price", max_results=3)
 
@@ -130,16 +130,16 @@ class TestTavilySearchProvider(unittest.TestCase):
         for field_name in ("published_date", "publishedDate"):
             with self.subTest(field_name=field_name):
                 with self._patch_tavily(
-                    {
-                        "results": [
-                            {
-                                "title": f"Fresh article via {field_name}",
-                                "url": "https://example.com/fresh-article",
-                                "content": "Fresh coverage",
-                                field_name: published_text,
-                            }
-                        ]
-                    }
+                        {
+                            "results": [
+                                {
+                                    "title": f"Fresh article via {field_name}",
+                                    "url": "https://example.com/fresh-article",
+                                    "content": "Fresh coverage",
+                                    field_name: published_text,
+                                }
+                            ]
+                        }
                 ):
                     service = SearchService(
                         tavily_keys=["dummy_key"],
@@ -156,15 +156,15 @@ class TestTavilySearchProvider(unittest.TestCase):
 
     def test_search_stock_events_does_not_force_news_topic(self) -> None:
         with self._patch_tavily(
-            {
-                "results": [
-                    {
-                        "title": "Alibaba quarterly results",
-                        "url": "https://example.com/alibaba-event",
-                        "content": "Event coverage",
-                    }
-                ]
-            }
+                {
+                    "results": [
+                        {
+                            "title": "Alibaba quarterly results",
+                            "url": "https://example.com/alibaba-event",
+                            "content": "Event coverage",
+                        }
+                    ]
+                }
         ):
             service = SearchService(
                 tavily_keys=["dummy_key"],
@@ -181,16 +181,16 @@ class TestTavilySearchProvider(unittest.TestCase):
         published_text = published_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         with self._patch_tavily(
-            {
-                "results": [
-                    {
-                        "title": "Alibaba intel article",
-                        "url": "https://example.com/alibaba-intel",
-                        "content": "Recent intel",
-                        "published_date": published_text,
-                    }
-                ]
-            }
+                {
+                    "results": [
+                        {
+                            "title": "Alibaba intel article",
+                            "url": "https://example.com/alibaba-intel",
+                            "content": "Recent intel",
+                            "published_date": published_text,
+                        }
+                    ]
+                }
         ):
             service = SearchService(
                 tavily_keys=["dummy_key"],
@@ -211,16 +211,16 @@ class TestTavilySearchProvider(unittest.TestCase):
         published_text = published_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         with self._patch_tavily(
-            {
-                "results": [
-                    {
-                        "title": "ETF intel article",
-                        "url": "https://example.com/etf-intel",
-                        "content": "Recent ETF coverage",
-                        "published_date": published_text,
-                    }
-                ]
-            }
+                {
+                    "results": [
+                        {
+                            "title": "ETF intel article",
+                            "url": "https://example.com/etf-intel",
+                            "content": "Recent ETF coverage",
+                            "published_date": published_text,
+                        }
+                    ]
+                }
         ):
             service = SearchService(
                 tavily_keys=["dummy_key"],
@@ -243,16 +243,16 @@ class TestTavilySearchProvider(unittest.TestCase):
         published_text = published_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         with self._patch_tavily(
-            {
-                "results": [
-                    {
-                        "title": "Moutai intel article",
-                        "url": "https://example.com/moutai-intel",
-                        "content": "Recent non-ETF coverage",
-                        "published_date": published_text,
-                    }
-                ]
-            }
+                {
+                    "results": [
+                        {
+                            "title": "Moutai intel article",
+                            "url": "https://example.com/moutai-intel",
+                            "content": "Recent non-ETF coverage",
+                            "published_date": published_text,
+                        }
+                    ]
+                }
         ):
             service = SearchService(
                 tavily_keys=["dummy_key"],
