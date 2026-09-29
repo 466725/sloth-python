@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from data_provider.realtime_types import RealtimeSource, UnifiedRealtimeQuote
+from ai_stock.stock_data.realtime_types import RealtimeSource, UnifiedRealtimeQuote
 from ai_stock.schemas.analysis_context_pack import ContextFieldStatus
 import ai_stock.services.analysis_context_builder as builder_module
 from ai_stock.services.analysis_context_builder import (

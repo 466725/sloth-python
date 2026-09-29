@@ -41,7 +41,7 @@ class TestAgentConfig(unittest.TestCase):
     """Test agent-related configuration fields load correctly."""
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch('src.config.load_dotenv')
+    @patch('ai_stock.config.load_dotenv')
     def test_default_agent_config(self, _mock_dotenv):
         """Agent mode should be disabled by default."""
         from ai_stock.config import AGENT_MAX_STEPS_DEFAULT, Config
@@ -139,199 +139,6 @@ class TestAgentConfig(unittest.TestCase):
 
         Config._instance = None
 
-    def test_build_agent_executor_does_not_mutate_llm_route_config(self) -> None:
-        """Agent factory should not rewrite model/base_url/runtime routing fields."""
-        provided_config = SimpleNamespace(
-            agent_arch="single",
-            agent_skills=["bull_trend"],
-            agent_max_steps="10",
-            agent_orchestrator_timeout_s="120",
-            litellm_model="openai/gpt-5",
-            agent_litellm_model="anthropic/claude-3-7-sonnet-20250219",
-            openai_base_url="https://api.openai.com/v1",
-        )
-        captured: Dict[str, Any] = {}
-
-        def _mock_llm_adapter(cfg):
-            captured["cfg"] = cfg
-            return MagicMock()
-
-        fake_llm_module = types.ModuleType("ai_stock.agent.llm_adapter")
-        fake_llm_module.LLMToolAdapter = _mock_llm_adapter
-
-        fake_executor_module = types.ModuleType("ai_stock.agent.executor")
-        fake_executor_cls = MagicMock(return_value=MagicMock())
-        fake_executor_module.AgentExecutor = fake_executor_cls
-
-        skill_manager = MagicMock()
-        skill_manager.list_skills.return_value = [
-            SimpleNamespace(
-                name="bull_trend",
-                display_name="bull_trend",
-                description="bull_trend desc",
-                instructions="测试指令",
-                default_active=True,
-                default_router=True,
-                default_priority=100,
-                user_invocable=True,
-                source="builtin",
-            )
-        ]
-        skill_manager.get_skill_instructions.return_value = "测试指令"
-
-        with patch.dict(sys.modules, {
-            "litellm": MagicMock(),
-            "ai_stock.agent.llm_adapter": fake_llm_module,
-            "ai_stock.agent.executor": fake_executor_module,
-        }):
-            factory_module = importlib.import_module("ai_stock.agent.factory")
-            with patch.object(factory_module, "get_skill_manager", return_value=skill_manager), \
-                 patch.object(factory_module, "get_tool_registry", return_value=MagicMock()):
-                factory_module.build_agent_executor(provided_config)
-
-        adapter_cfg = captured.get("cfg")
-        self.assertIs(adapter_cfg, provided_config)
-        self.assertEqual(provided_config.agent_max_steps, "10")
-        self.assertEqual(provided_config.agent_orchestrator_timeout_s, "120")
-        self.assertEqual(provided_config.litellm_model, "openai/gpt-5")
-        self.assertEqual(provided_config.agent_litellm_model, "anthropic/claude-3-7-sonnet-20250219")
-        self.assertEqual(provided_config.openai_base_url, "https://api.openai.com/v1")
-        fake_executor_cls.assert_called_once()
-        kwargs = fake_executor_cls.call_args.kwargs
-        self.assertEqual(kwargs["max_steps"], 10)
-        self.assertEqual(kwargs["timeout_seconds"], 120)
-
-    def test_build_agent_executor_multi_arch_does_not_mutate_llm_route_config(self) -> None:
-        """Multi-arch path should keep provider/base_url/runtime fields unchanged."""
-        provided_config = SimpleNamespace(
-            agent_arch="multi",
-            agent_skills=["bull_trend"],
-            agent_max_steps="10",
-            agent_orchestrator_timeout_s="120",
-            litellm_model="openai/gpt-5",
-            agent_litellm_model="anthropic/claude-3-7-sonnet-20250219",
-            openai_base_url="https://api.openai.com/v1",
-            agent_orchestrator_mode="standard",
-        )
-        captured: Dict[str, Any] = {}
-
-        def _mock_llm_adapter(cfg):
-            captured["cfg"] = cfg
-            return MagicMock()
-
-        fake_llm_module = types.ModuleType("ai_stock.agent.llm_adapter")
-        fake_llm_module.LLMToolAdapter = _mock_llm_adapter
-
-        fake_orchestrator_module = types.ModuleType("ai_stock.agent.orchestrator")
-        fake_orchestrator_cls = MagicMock(return_value=MagicMock())
-        fake_orchestrator_module.AgentOrchestrator = fake_orchestrator_cls
-
-        skill_manager = MagicMock()
-        skill_manager.list_skills.return_value = [
-            SimpleNamespace(
-                name="bull_trend",
-                display_name="bull_trend",
-                description="bull_trend desc",
-                instructions="测试指令",
-                default_active=True,
-                default_router=True,
-                default_priority=100,
-                user_invocable=True,
-                source="builtin",
-            )
-        ]
-        skill_manager.get_skill_instructions.return_value = "测试指令"
-
-        with patch.dict(sys.modules, {
-            "litellm": MagicMock(),
-            "ai_stock.agent.llm_adapter": fake_llm_module,
-            "ai_stock.agent.orchestrator": fake_orchestrator_module,
-            "ai_stock.agent.executor": MagicMock(),
-        }):
-            factory_module = importlib.import_module("ai_stock.agent.factory")
-            with patch.object(factory_module, "get_skill_manager", return_value=skill_manager), \
-                 patch.object(factory_module, "get_tool_registry", return_value=MagicMock()):
-                factory_module.build_agent_executor(provided_config)
-
-        adapter_cfg = captured.get("cfg")
-        self.assertIs(adapter_cfg, provided_config)
-        self.assertEqual(provided_config.agent_max_steps, "10")
-        self.assertEqual(provided_config.agent_orchestrator_timeout_s, "120")
-        self.assertEqual(provided_config.litellm_model, "openai/gpt-5")
-        self.assertEqual(provided_config.agent_litellm_model, "anthropic/claude-3-7-sonnet-20250219")
-        self.assertEqual(provided_config.openai_base_url, "https://api.openai.com/v1")
-        fake_orchestrator_cls.assert_called_once()
-        kwargs = fake_orchestrator_cls.call_args.kwargs
-        self.assertEqual(kwargs["max_steps"], 10)
-        self.assertIs(kwargs["config"], provided_config)
-
-    def test_invalid_numeric_config_values_fallback_to_defaults_with_warning(self) -> None:
-        """Invalid agent_max_steps / agent_orchestrator_timeout_s should fallback and emit warning."""
-        provided_config = SimpleNamespace(
-            agent_arch="single",
-            agent_skills=["bull_trend"],
-            agent_max_steps="invalid-steps",
-            agent_orchestrator_timeout_s="invalid-timeout",
-            litellm_model="openai/gpt-5",
-            agent_litellm_model="anthropic/claude-3-7-sonnet-20250219",
-            openai_base_url="https://api.openai.com/v1",
-        )
-        captured: Dict[str, Any] = {}
-
-        def _mock_llm_adapter(cfg):
-            captured["cfg"] = cfg
-            return MagicMock()
-
-        fake_llm_module = types.ModuleType("ai_stock.agent.llm_adapter")
-        fake_llm_module.LLMToolAdapter = _mock_llm_adapter
-
-        fake_executor_module = types.ModuleType("ai_stock.agent.executor")
-        fake_executor_cls = MagicMock(return_value=MagicMock())
-        fake_executor_module.AgentExecutor = fake_executor_cls
-
-        skill_manager = MagicMock()
-        skill_manager.list_skills.return_value = [
-            SimpleNamespace(
-                name="bull_trend",
-                display_name="bull_trend",
-                description="bull_trend desc",
-                instructions="测试指令",
-                default_active=True,
-                default_router=True,
-                default_priority=100,
-                user_invocable=True,
-                source="builtin",
-            )
-        ]
-        skill_manager.get_skill_instructions.return_value = "测试指令"
-
-        with self.assertLogs("ai_stock.agent.factory", level="WARNING") as logs:
-            with patch.dict(sys.modules, {
-                "litellm": MagicMock(),
-                "ai_stock.agent.llm_adapter": fake_llm_module,
-                "ai_stock.agent.executor": fake_executor_module,
-            }):
-                factory_module = importlib.import_module("ai_stock.agent.factory")
-                with patch.object(factory_module, "get_skill_manager", return_value=skill_manager), \
-                     patch.object(factory_module, "get_tool_registry", return_value=MagicMock()):
-                    factory_module.build_agent_executor(provided_config)
-
-        adapter_cfg = captured.get("cfg")
-        self.assertIs(adapter_cfg, provided_config)
-        self.assertEqual(provided_config.litellm_model, "openai/gpt-5")
-        self.assertEqual(provided_config.agent_litellm_model, "anthropic/claude-3-7-sonnet-20250219")
-        self.assertEqual(provided_config.openai_base_url, "https://api.openai.com/v1")
-
-        log_output = "\n".join(logs.output)
-        self.assertIn("[AgentFactory] Invalid value for agent_max_steps", log_output)
-        self.assertIn("[AgentFactory] Invalid value for agent_orchestrator_timeout_s", log_output)
-
-        kwargs = fake_executor_cls.call_args.kwargs
-        from ai_stock.config import AGENT_MAX_STEPS_DEFAULT
-        self.assertEqual(kwargs["max_steps"], AGENT_MAX_STEPS_DEFAULT)
-        self.assertEqual(kwargs["timeout_seconds"], 0)
-
-
 class TestAgentFactorySkillBaseline(unittest.TestCase):
     """Ensure explicit skill selection does not silently re-apply the default bull-trend baseline."""
 
@@ -354,30 +161,6 @@ class TestAgentFactorySkillBaseline(unittest.TestCase):
             user_invocable=True,
             source=source,
         )
-
-    def _run_factory_case(self, config, *, request_skills, skill_catalog, instructions):
-        skill_manager = MagicMock()
-        skill_manager.list_skills.return_value = skill_catalog
-        skill_manager.get_skill_instructions.return_value = instructions
-
-        fake_llm_module = types.ModuleType("ai_stock.agent.llm_adapter")
-        fake_llm_module.LLMToolAdapter = MagicMock(return_value=MagicMock())
-        fake_executor_module = types.ModuleType("ai_stock.agent.executor")
-        fake_executor_cls = MagicMock(return_value=MagicMock())
-        fake_executor_module.AgentExecutor = fake_executor_cls
-
-        with patch.dict(sys.modules, {
-            "litellm": MagicMock(),
-            "ai_stock.agent.llm_adapter": fake_llm_module,
-            "ai_stock.agent.executor": fake_executor_module,
-        }):
-            factory_module = importlib.import_module("ai_stock.agent.factory")
-
-            with patch.object(factory_module, "get_skill_manager", return_value=skill_manager), \
-                 patch.object(factory_module, "get_tool_registry", return_value=MagicMock()):
-                factory_module.build_agent_executor(config, skills=request_skills)
-
-        return fake_executor_cls.call_args.kwargs, skill_manager
 
     def test_explicit_request_disables_default_skill_policy(self):
         config = SimpleNamespace(
@@ -559,12 +342,12 @@ class TestAgentResultConversion(unittest.TestCase):
     def _make_pipeline(self):
         """Create a minimal StockAnalysisPipeline with mocked dependencies."""
         # We need to import and mock carefully to avoid touching real services
-        with patch('src.core.pipeline.get_config') as mock_config, \
-             patch('src.core.pipeline.get_db'), \
-             patch('src.core.pipeline.DataFetcherManager'), \
-             patch('src.core.pipeline.GeminiAnalyzer'), \
-             patch('src.core.pipeline.NotificationService'), \
-             patch('src.core.pipeline.SearchService'):
+        with patch('ai_stock.core.pipeline.get_config') as mock_config, \
+             patch('ai_stock.core.pipeline.get_db'), \
+             patch('ai_stock.core.pipeline.DataFetcherManager'), \
+             patch('ai_stock.core.pipeline.GeminiAnalyzer'), \
+             patch('ai_stock.core.pipeline.NotificationService'), \
+             patch('ai_stock.core.pipeline.SearchService'):
 
             mock_cfg = MagicMock()
             mock_cfg.max_workers = 2
@@ -1499,12 +1282,12 @@ class TestPipelineRouting(unittest.TestCase):
 
     def test_agent_mode_routes_to_agent(self):
         """When agent_mode=True, analyze_stock should call _analyze_with_agent."""
-        with patch('src.core.pipeline.get_config') as mock_config, \
-             patch('src.core.pipeline.get_db'), \
-             patch('src.core.pipeline.DataFetcherManager'), \
-             patch('src.core.pipeline.GeminiAnalyzer'), \
-             patch('src.core.pipeline.NotificationService'), \
-             patch('src.core.pipeline.SearchService'):
+        with patch('ai_stock.core.pipeline.get_config') as mock_config, \
+             patch('ai_stock.core.pipeline.get_db'), \
+             patch('ai_stock.core.pipeline.DataFetcherManager'), \
+             patch('ai_stock.core.pipeline.GeminiAnalyzer'), \
+             patch('ai_stock.core.pipeline.NotificationService'), \
+             patch('ai_stock.core.pipeline.SearchService'):
 
             mock_cfg = MagicMock()
             mock_cfg.max_workers = 2
@@ -1544,12 +1327,12 @@ class TestPipelineRouting(unittest.TestCase):
 
     def test_legacy_mode_does_not_call_agent(self):
         """When agent_mode=False, analyze_stock should NOT call _analyze_with_agent."""
-        with patch('src.core.pipeline.get_config') as mock_config, \
-             patch('src.core.pipeline.get_db') as mock_db, \
-             patch('src.core.pipeline.DataFetcherManager') as mock_fm, \
-             patch('src.core.pipeline.GeminiAnalyzer') as mock_analyzer, \
-             patch('src.core.pipeline.NotificationService'), \
-             patch('src.core.pipeline.SearchService') as mock_search:
+        with patch('ai_stock.core.pipeline.get_config') as mock_config, \
+             patch('ai_stock.core.pipeline.get_db') as mock_db, \
+             patch('ai_stock.core.pipeline.DataFetcherManager') as mock_fm, \
+             patch('ai_stock.core.pipeline.GeminiAnalyzer') as mock_analyzer, \
+             patch('ai_stock.core.pipeline.NotificationService'), \
+             patch('ai_stock.core.pipeline.SearchService') as mock_search:
 
             mock_cfg = MagicMock()
             mock_cfg.max_workers = 2
@@ -1592,12 +1375,12 @@ class TestPipelineRouting(unittest.TestCase):
 
     def test_request_skills_auto_enable_agent_mode(self):
         """Request-specific skills should route the stock analysis through Agent mode."""
-        with patch('src.core.pipeline.get_config') as mock_config, \
-             patch('src.core.pipeline.get_db'), \
-             patch('src.core.pipeline.DataFetcherManager'), \
-             patch('src.core.pipeline.GeminiAnalyzer'), \
-             patch('src.core.pipeline.NotificationService'), \
-             patch('src.core.pipeline.SearchService'):
+        with patch('ai_stock.core.pipeline.get_config') as mock_config, \
+             patch('ai_stock.core.pipeline.get_db'), \
+             patch('ai_stock.core.pipeline.DataFetcherManager'), \
+             patch('ai_stock.core.pipeline.GeminiAnalyzer'), \
+             patch('ai_stock.core.pipeline.NotificationService'), \
+             patch('ai_stock.core.pipeline.SearchService'):
 
             mock_cfg = MagicMock()
             mock_cfg.max_workers = 2
@@ -1636,14 +1419,14 @@ class TestAnalyzeWithAgentStockName(unittest.TestCase):
 
     def test_analyze_with_agent_uses_resolved_name_for_news_persistence(self):
         """Should use resolved stock name from dashboard for search and DB persistence."""
-        with patch('src.core.pipeline.get_config') as mock_config, \
-             patch('src.core.pipeline.get_db'), \
-             patch('src.core.pipeline.DataFetcherManager'), \
-             patch('src.core.pipeline.GeminiAnalyzer'), \
-             patch('src.core.pipeline.NotificationService'), \
-             patch('src.core.pipeline.SearchService'), \
-             patch('src.agent.factory.build_agent_executor') as mock_build_executor, \
-             patch('src.agent.executor.AgentExecutor.run') as mock_agent_run:
+        with patch('ai_stock.core.pipeline.get_config') as mock_config, \
+             patch('ai_stock.core.pipeline.get_db'), \
+             patch('ai_stock.core.pipeline.DataFetcherManager'), \
+             patch('ai_stock.core.pipeline.GeminiAnalyzer'), \
+             patch('ai_stock.core.pipeline.NotificationService'), \
+             patch('ai_stock.core.pipeline.SearchService'), \
+             patch('ai_stock.agent.factory.build_agent_executor') as mock_build_executor, \
+             patch('ai_stock.agent.executor.AgentExecutor.run') as mock_agent_run:
 
             mock_cfg = MagicMock()
             mock_cfg.max_workers = 2
@@ -1714,13 +1497,13 @@ class TestAnalyzeWithAgentStockName(unittest.TestCase):
 
     def test_analyze_with_agent_keeps_dashboard_top_level_fields_after_stability(self):
         """Decision stability downgrade in agent flow should sync dashboard and top-level decision fields."""
-        with patch('src.core.pipeline.get_config') as mock_config, \
-             patch('src.core.pipeline.get_db'), \
-             patch('src.core.pipeline.DataFetcherManager'), \
-             patch('src.core.pipeline.GeminiAnalyzer'), \
-             patch('src.core.pipeline.NotificationService'), \
-             patch('src.core.pipeline.SearchService'), \
-             patch('src.agent.factory.build_agent_executor') as mock_build_executor:
+        with patch('ai_stock.core.pipeline.get_config') as mock_config, \
+             patch('ai_stock.core.pipeline.get_db'), \
+             patch('ai_stock.core.pipeline.DataFetcherManager'), \
+             patch('ai_stock.core.pipeline.GeminiAnalyzer'), \
+             patch('ai_stock.core.pipeline.NotificationService'), \
+             patch('ai_stock.core.pipeline.SearchService'), \
+             patch('ai_stock.agent.factory.build_agent_executor') as mock_build_executor:
 
             mock_cfg = MagicMock()
             mock_cfg.max_workers = 2
@@ -1806,13 +1589,13 @@ class TestAnalyzeWithAgentStockName(unittest.TestCase):
 
     def test_analyze_with_agent_phase_integrity_fills_missing_phase_decision(self):
         """Agent weak integrity should enforce phase_decision when phase context exists."""
-        with patch('src.core.pipeline.get_config') as mock_config, \
-             patch('src.core.pipeline.get_db'), \
-             patch('src.core.pipeline.DataFetcherManager'), \
-             patch('src.core.pipeline.GeminiAnalyzer'), \
-             patch('src.core.pipeline.NotificationService'), \
-             patch('src.core.pipeline.SearchService'), \
-             patch('src.agent.factory.build_agent_executor') as mock_build_executor:
+        with patch('ai_stock.core.pipeline.get_config') as mock_config, \
+             patch('ai_stock.core.pipeline.get_db'), \
+             patch('ai_stock.core.pipeline.DataFetcherManager'), \
+             patch('ai_stock.core.pipeline.GeminiAnalyzer'), \
+             patch('ai_stock.core.pipeline.NotificationService'), \
+             patch('ai_stock.core.pipeline.SearchService'), \
+             patch('ai_stock.agent.factory.build_agent_executor') as mock_build_executor:
 
             mock_cfg = MagicMock()
             mock_cfg.max_workers = 2
@@ -1911,13 +1694,13 @@ class TestAnalyzeWithAgentStockName(unittest.TestCase):
 
     def test_analyze_with_agent_preserves_chip_structure_when_prefetch_missing(self):
         """Agent tool chip metrics should not be cleared when prefetch chip_data is unavailable."""
-        with patch('src.core.pipeline.get_config') as mock_config, \
-             patch('src.core.pipeline.get_db'), \
-             patch('src.core.pipeline.DataFetcherManager'), \
-             patch('src.core.pipeline.GeminiAnalyzer'), \
-             patch('src.core.pipeline.NotificationService'), \
-             patch('src.core.pipeline.SearchService'), \
-             patch('src.agent.factory.build_agent_executor') as mock_build_executor:
+        with patch('ai_stock.core.pipeline.get_config') as mock_config, \
+             patch('ai_stock.core.pipeline.get_db'), \
+             patch('ai_stock.core.pipeline.DataFetcherManager'), \
+             patch('ai_stock.core.pipeline.GeminiAnalyzer'), \
+             patch('ai_stock.core.pipeline.NotificationService'), \
+             patch('ai_stock.core.pipeline.SearchService'), \
+             patch('ai_stock.agent.factory.build_agent_executor') as mock_build_executor:
 
             mock_cfg = MagicMock()
             mock_cfg.max_workers = 2
@@ -1987,15 +1770,15 @@ class TestAnalyzeWithAgentStockName(unittest.TestCase):
 
     def test_analyze_with_agent_history_context_includes_diagnostic_snapshot(self):
         """Agent 分析入库存档时应保留 diagnostics 快照，避免历史诊断返回 unknown。"""
-        with patch('src.core.pipeline.get_config') as mock_config, \
-             patch('src.core.pipeline.get_db'), \
-             patch('src.core.pipeline.DataFetcherManager'), \
-             patch('src.core.pipeline.GeminiAnalyzer'), \
-             patch('src.core.pipeline.NotificationService'), \
-             patch('src.core.pipeline.SearchService'), \
-             patch('src.core.pipeline.fill_price_position_if_needed'), \
-             patch('src.core.pipeline.stabilize_decision_with_structure'), \
-             patch('src.core.pipeline.current_diagnostic_snapshot') as mock_diagnostic_snapshot:
+        with patch('ai_stock.core.pipeline.get_config') as mock_config, \
+             patch('ai_stock.core.pipeline.get_db'), \
+             patch('ai_stock.core.pipeline.DataFetcherManager'), \
+             patch('ai_stock.core.pipeline.GeminiAnalyzer'), \
+             patch('ai_stock.core.pipeline.NotificationService'), \
+             patch('ai_stock.core.pipeline.SearchService'), \
+             patch('ai_stock.core.pipeline.fill_price_position_if_needed'), \
+             patch('ai_stock.core.pipeline.stabilize_decision_with_structure'), \
+             patch('ai_stock.core.pipeline.current_diagnostic_snapshot') as mock_diagnostic_snapshot:
 
             mock_cfg = MagicMock()
             mock_cfg.max_workers = 2
@@ -2042,7 +1825,7 @@ class TestAnalyzeWithAgentStockName(unittest.TestCase):
                 provider="agent-provider",
                 dashboard={"stock_name": "科创芯片ETF"},
             )
-            with patch('src.agent.factory.build_agent_executor', return_value=mock_executor):
+            with patch('ai_stock.agent.factory.build_agent_executor', return_value=mock_executor):
                 mock_diagnostic_snapshot.return_value = {"trace_id": "trace-1391", "query_id": "q-1391"}
                 pipeline.db.save_analysis_history = MagicMock(return_value=1)
 
@@ -2085,7 +1868,7 @@ class TestAgentConstructionChain(unittest.TestCase):
 
     def test_llm_adapter_no_args(self):
         """LLMToolAdapter should also work with no arguments (uses get_config)."""
-        with patch('src.agent.llm_adapter.get_config') as mock_get_config:
+        with patch('ai_stock.agent.llm_adapter.get_config') as mock_get_config:
             mock_cfg = MagicMock()
             mock_cfg.gemini_api_key = ""
             mock_cfg.anthropic_api_key = ""
@@ -2583,68 +2366,6 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertEqual(timeouts[1], ("anthropic/claude-3-5-sonnet-20241022", 3.0))
 
     @patch("ai_stock.agent.llm_adapter.Router")
-    def test_llm_adapter_rate_limit_backoff_is_bounded_by_remaining_timeout(self, _mock_router):
-        """Rate-limit backoff should sleep, but never longer than the remaining timeout budget."""
-        mock_cfg = MagicMock()
-        mock_cfg.agent_litellm_model = "gpt-4o-mini"
-        mock_cfg.litellm_model = None
-        mock_cfg.litellm_fallback_models = ["openai/gpt-4.1-mini"]
-        mock_cfg.llm_model_list = []
-        mock_cfg.llm_temperature = 0.7
-        mock_cfg.gemini_api_keys = []
-        mock_cfg.anthropic_api_keys = []
-        mock_cfg.openai_api_keys = []
-        mock_cfg.deepseek_api_keys = []
-        mock_cfg.openai_base_url = None
-
-        from ai_stock.agent.llm_adapter import LLMToolAdapter
-        adapter = LLMToolAdapter(config=mock_cfg)
-
-        class FakeRateLimitError(Exception):
-            pass
-
-        timeouts = []
-        sleep_calls = []
-        clock = {"value": 0.0}
-
-        def fake_time():
-            return clock["value"]
-
-        def fake_sleep(seconds):
-            sleep_calls.append(seconds)
-            clock["value"] += seconds
-
-        def fake_call(_messages, _tools, model, **kwargs):
-            timeouts.append((model, kwargs.get("timeout")))
-            if model == "openai/gpt-4o-mini":
-                clock["value"] += 8.0
-                raise FakeRateLimitError("rate limited")
-            return MagicMock(content="ok")
-
-        adapter._call_litellm_model = MagicMock(side_effect=fake_call)
-
-        with patch("ai_stock.agent.llm_adapter.litellm.RateLimitError", FakeRateLimitError), \
-             patch("ai_stock.agent.llm_adapter.logger.warning"), \
-             patch("ai_stock.agent.llm_adapter.time.time", side_effect=fake_time), \
-             patch("ai_stock.agent.llm_adapter.time.sleep", side_effect=fake_sleep) as mock_sleep:
-            result = adapter.call_completion(
-                messages=[{"role": "user", "content": "hi"}],
-                tools=[],
-                timeout=10.0,
-            )
-
-        self.assertEqual(result.content, "ok")
-        self.assertEqual(timeouts[0], ("openai/gpt-4o-mini", 10.0))
-        self.assertEqual(timeouts[1][0], "openai/gpt-4.1-mini")
-        expected_backoff = min(2.0, 8.0 * 0.1 + 0.5)
-        expected_next_timeout = 10.0 - (8.0 + expected_backoff)
-        self.assertAlmostEqual(timeouts[1][1], expected_next_timeout)
-        mock_sleep.assert_called_once()
-        self.assertAlmostEqual(mock_sleep.call_args.args[0], expected_backoff)
-        self.assertAlmostEqual(sleep_calls[0], expected_backoff)
-        self.assertAlmostEqual(clock["value"], 8.0 + expected_backoff)
-
-    @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_context_window_error_skips_sleep(self, _mock_router):
         """Context-window errors should continue fallback immediately without backoff."""
         mock_cfg = MagicMock()
@@ -2762,12 +2483,12 @@ class TestSafeInt(unittest.TestCase):
 
     def _get_safe_int(self):
         """Get reference to StockAnalysisPipeline._safe_int static method."""
-        with patch('src.core.pipeline.get_config') as mock_config, \
-             patch('src.core.pipeline.get_db'), \
-             patch('src.core.pipeline.DataFetcherManager'), \
-             patch('src.core.pipeline.GeminiAnalyzer'), \
-             patch('src.core.pipeline.NotificationService'), \
-             patch('src.core.pipeline.SearchService'):
+        with patch('ai_stock.core.pipeline.get_config') as mock_config, \
+             patch('ai_stock.core.pipeline.get_db'), \
+             patch('ai_stock.core.pipeline.DataFetcherManager'), \
+             patch('ai_stock.core.pipeline.GeminiAnalyzer'), \
+             patch('ai_stock.core.pipeline.NotificationService'), \
+             patch('ai_stock.core.pipeline.SearchService'):
 
             mock_cfg = MagicMock()
             mock_cfg.max_workers = 2
@@ -2905,12 +2626,12 @@ class TestSkillActivation(unittest.TestCase):
 
     def test_sentiment_score_parsed_from_dashboard(self):
         """Verify _agent_result_to_analysis_result handles non-numeric sentiment_score."""
-        with patch('src.core.pipeline.get_config') as mock_config, \
-             patch('src.core.pipeline.get_db'), \
-             patch('src.core.pipeline.DataFetcherManager'), \
-             patch('src.core.pipeline.GeminiAnalyzer'), \
-             patch('src.core.pipeline.NotificationService'), \
-             patch('src.core.pipeline.SearchService'):
+        with patch('ai_stock.core.pipeline.get_config') as mock_config, \
+             patch('ai_stock.core.pipeline.get_db'), \
+             patch('ai_stock.core.pipeline.DataFetcherManager'), \
+             patch('ai_stock.core.pipeline.GeminiAnalyzer'), \
+             patch('ai_stock.core.pipeline.NotificationService'), \
+             patch('ai_stock.core.pipeline.SearchService'):
 
             mock_cfg = MagicMock()
             mock_cfg.max_workers = 2

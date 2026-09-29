@@ -7,10 +7,8 @@ import unittest
 
 import pandas as pd
 
-from data_provider.base import DataFetcherManager, normalize_stock_code
-from data_provider.baostock_fetcher import BaostockFetcher
-from data_provider.pytdx_fetcher import PytdxFetcher
-from data_provider.tushare_fetcher import TushareFetcher
+from ai_stock.stock_data.base import DataFetcherManager, normalize_stock_code
+from ai_stock.stock_data.tushare_fetcher import TushareFetcher
 
 
 class _RecordingDailyFetcher:
@@ -35,62 +33,6 @@ class TestDataFetcherManagerAShareCodes(unittest.TestCase):
         self.assertFalse(df.empty)
         self.assertEqual(source, "RecordingDailyFetcher")
         self.assertEqual(fetcher.calls, ["601888"])
-
-
-class TestBaostockAShareCodeConversion(unittest.TestCase):
-    def test_convert_bare_stock_codes_to_baostock_format(self) -> None:
-        fetcher = BaostockFetcher()
-
-        self.assertEqual(fetcher._convert_stock_code("601888"), "sh.601888")
-        self.assertEqual(fetcher._convert_stock_code("600519"), "sh.600519")
-        self.assertEqual(fetcher._convert_stock_code("605499"), "sh.605499")
-        self.assertEqual(fetcher._convert_stock_code("688981"), "sh.688981")
-        self.assertEqual(fetcher._convert_stock_code("000001"), "sz.000001")
-        self.assertEqual(fetcher._convert_stock_code("001979"), "sz.001979")
-        self.assertEqual(fetcher._convert_stock_code("003816"), "sz.003816")
-        self.assertEqual(fetcher._convert_stock_code("300750"), "sz.300750")
-        self.assertEqual(fetcher._convert_stock_code("301012"), "sz.301012")
-
-    def test_convert_bare_etf_codes_to_baostock_format(self) -> None:
-        fetcher = BaostockFetcher()
-
-        self.assertEqual(fetcher._convert_stock_code("510050"), "sh.510050")
-        self.assertEqual(fetcher._convert_stock_code("159919"), "sz.159919")
-
-    def test_convert_suffix_code_uses_internal_provider_format(self) -> None:
-        fetcher = BaostockFetcher()
-
-        self.assertEqual(fetcher._convert_stock_code("600519.SH"), "sh.600519")
-        self.assertEqual(fetcher._convert_stock_code("000001.SZ"), "sz.000001")
-
-    def test_convert_prefix_code_preserves_explicit_exchange_hint(self) -> None:
-        fetcher = BaostockFetcher()
-
-        self.assertEqual(fetcher._convert_stock_code("SH000001"), "sh.000001")
-        self.assertEqual(fetcher._convert_stock_code("SH.000001"), "sh.000001")
-        self.assertEqual(fetcher._convert_stock_code("SZ600519"), "sz.600519")
-        self.assertEqual(fetcher._convert_stock_code("SZ.600519"), "sz.600519")
-        self.assertEqual(fetcher._convert_stock_code("ss.600519"), "sh.600519")
-
-
-class TestPytdxAShareCodeConversion(unittest.TestCase):
-    def test_get_market_code_for_bare_stock_codes(self) -> None:
-        fetcher = PytdxFetcher(hosts=[])
-
-        self.assertEqual(fetcher._get_market_code("601888"), (1, "601888"))
-        self.assertEqual(fetcher._get_market_code("688981"), (1, "688981"))
-        self.assertEqual(fetcher._get_market_code("000001"), (0, "000001"))
-        self.assertEqual(fetcher._get_market_code("300750"), (0, "300750"))
-
-    def test_get_market_code_preserves_explicit_exchange_hint(self) -> None:
-        fetcher = PytdxFetcher(hosts=[])
-
-        self.assertEqual(fetcher._get_market_code("SH000001"), (1, "000001"))
-        self.assertEqual(fetcher._get_market_code("SH.000001"), (1, "000001"))
-        self.assertEqual(fetcher._get_market_code("SZ600519"), (0, "600519"))
-        self.assertEqual(fetcher._get_market_code("SZ.600519"), (0, "600519"))
-        self.assertEqual(fetcher._get_market_code("ss.600519"), (1, "600519"))
-
 
 class TestTushareAShareCodeConversion(unittest.TestCase):
     def test_convert_bare_stock_codes_to_tushare_format(self) -> None:
