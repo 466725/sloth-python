@@ -3,7 +3,7 @@
 
 import pytest
 
-from src.schemas.decision_action import (
+from ai_stock.schemas.decision_action import (
     build_action_fields,
     localize_action_label,
     normalize_decision_action,

@@ -9,8 +9,8 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 
-from src.agent.tools.data_tools import _handle_get_daily_history
-from src.services.history_loader import reset_frozen_target_date, set_frozen_target_date
+from ai_stock.agent.tools.data_tools import _handle_get_daily_history
+from ai_stock.services.history_loader import reset_frozen_target_date, set_frozen_target_date
 
 
 class _DailyRow:

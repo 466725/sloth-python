@@ -12,7 +12,7 @@ except ModuleNotFoundError:
 
     ensure_litellm_stub()
 
-from src.agent import llm_adapter
+from ai_stock.agent import llm_adapter
 
 
 def _fake_litellm_response(content: str = "agent ok") -> SimpleNamespace:

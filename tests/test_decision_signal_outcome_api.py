@@ -17,10 +17,10 @@ try:
 except ModuleNotFoundError:
     sys.modules["litellm"] = MagicMock()
 
-import src.auth as auth
+import ai_stock.auth as auth
 from api.app import create_app
-from src.config import Config
-from src.storage import DatabaseManager, StockDaily
+from ai_stock.config import Config
+from ai_stock.storage import DatabaseManager, StockDaily
 
 
 def _reset_auth_globals() -> None:

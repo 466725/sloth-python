@@ -1,5 +1,5 @@
 from bot.platforms.feishu_stream import FeishuReplyClient
-from src.formatters import format_feishu_markdown
+from ai_stock.formatters import format_feishu_markdown
 
 
 class DummyFeishuReplyClient(FeishuReplyClient):

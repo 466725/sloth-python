@@ -71,7 +71,7 @@ class MarketCommandRegionFilterTestCase(unittest.TestCase):
         trading_calendar_module = MagicMock()
         trading_calendar_module.get_open_markets_today.return_value = open_markets
         # Re-export the real compute_effective_region semantics
-        from src.core.trading_calendar import compute_effective_region
+        from ai_stock.core.trading_calendar import compute_effective_region
         trading_calendar_module.compute_effective_region.side_effect = compute_effective_region
 
         patches = [

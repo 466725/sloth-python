@@ -20,10 +20,10 @@ try:
 except ModuleNotFoundError:
     sys.modules["litellm"] = MagicMock()
 
-import src.auth as auth
+import ai_stock.auth as auth
 from api.middlewares.auth import AuthMiddleware
 from api.v1.endpoints import auth as auth_endpoint
-from src.config import Config
+from ai_stock.config import Config
 
 
 def _reset_auth_globals() -> None:

@@ -8,7 +8,7 @@ import unittest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.formatters import (
+from ai_stock.formatters import (
     chunk_content_by_max_words,
     chunk_content_by_max_bytes,
     chunk_markdown_preserving_blocks,

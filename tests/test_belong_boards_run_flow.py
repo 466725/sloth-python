@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Regression tests for belong-board run-flow diagnostics."""
 
-from src.services.run_diagnostics import (
+from ai_stock.services.run_diagnostics import (
     activate_run_diagnostic_context,
     current_diagnostic_snapshot,
     reset_run_diagnostic_context,

@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from src.analysis_context_pack_prompt import format_analysis_context_pack_prompt_section
-from src.schemas.analysis_context_pack import (
+from ai_stock.analysis_context_pack_prompt import format_analysis_context_pack_prompt_section
+from ai_stock.schemas.analysis_context_pack import (
     AnalysisContextBlock,
     AnalysisContextItem,
     AnalysisContextPack,
@@ -12,7 +12,7 @@ from src.schemas.analysis_context_pack import (
     ContextFieldStatus,
     DataQuality,
 )
-from src.services.analysis_context_builder import (
+from ai_stock.services.analysis_context_builder import (
     AnalysisContextBuilder,
     PipelineAnalysisArtifacts,
 )

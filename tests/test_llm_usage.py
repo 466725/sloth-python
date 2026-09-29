@@ -28,7 +28,7 @@ except ModuleNotFoundError:
     ensure_litellm_stub()
     from litellm.types.utils import Usage
 
-from src.llm.usage import (
+from ai_stock.llm.usage import (
     attach_legacy_message_stability_audit,
     attach_message_hmacs,
     build_message_hmacs,
@@ -38,7 +38,7 @@ from src.llm.usage import (
     should_persist_usage_telemetry,
     _reset_usage_hmac_secret_cache_for_tests,
 )
-from src.storage import (
+from ai_stock.storage import (
     DatabaseManager,
     LLMUsage,
     persist_llm_usage,

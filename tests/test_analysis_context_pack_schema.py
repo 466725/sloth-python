@@ -9,8 +9,8 @@ from datetime import datetime, timezone
 import pytest
 from pydantic import ValidationError
 
-from src.core.trading_calendar import build_market_phase_context
-from src.schemas.analysis_context_pack import (
+from ai_stock.core.trading_calendar import build_market_phase_context
+from ai_stock.schemas.analysis_context_pack import (
     PACK_VERSION,
     AnalysisContextBlock,
     AnalysisContextItem,
@@ -19,7 +19,7 @@ from src.schemas.analysis_context_pack import (
     ContextFieldStatus,
     DataQuality,
 )
-from src.utils.sanitize import redact_sensitive_mapping
+from ai_stock.utils.sanitize import redact_sensitive_mapping
 
 
 def _subject() -> AnalysisSubject:

@@ -17,8 +17,8 @@ from datetime import date, timedelta
 
 import pandas as pd
 
-from src.config import Config
-from src.storage import DatabaseManager, StockDaily
+from ai_stock.config import Config
+from ai_stock.storage import DatabaseManager, StockDaily
 
 
 class GetLatestDataTestCase(unittest.TestCase):

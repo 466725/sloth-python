@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from src.services.system_config_service import SystemConfigService
+from ai_stock.services.system_config_service import SystemConfigService
 
 
 ROOT = Path(__file__).resolve().parents[1]

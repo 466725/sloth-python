@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """Tests for LiteLLM generation-parameter recovery."""
 
-from src.llm.errors import (
+from ai_stock.llm.errors import (
     call_litellm_with_param_recovery,
     classify_litellm_generation_param_error,
 )
-from src.llm.generation_params import (
+from ai_stock.llm.generation_params import (
     apply_litellm_generation_params,
     clear_litellm_generation_param_recovery_cache,
 )

@@ -9,9 +9,9 @@ from datetime import date, datetime
 
 import pytest
 
-from src.config import Config
-from src.services.decision_signal_outcome_service import DecisionSignalOutcomeService
-from src.storage import DatabaseManager, DecisionSignalOutcomeRecord, DecisionSignalRecord, StockDaily
+from ai_stock.config import Config
+from ai_stock.services.decision_signal_outcome_service import DecisionSignalOutcomeService
+from ai_stock.storage import DatabaseManager, DecisionSignalOutcomeRecord, DecisionSignalRecord, StockDaily
 
 
 @pytest.fixture()

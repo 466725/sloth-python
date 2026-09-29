@@ -33,8 +33,8 @@ except ModuleNotFoundError:
     get_history_detail = None
     get_stock_bar = None
 
-from src.config import Config
-from src.storage import (
+from ai_stock.config import Config
+from ai_stock.storage import (
     DatabaseManager,
     AnalysisHistory,
     BacktestResult,
@@ -42,10 +42,10 @@ from src.storage import (
     DecisionSignalOutcomeRecord,
     DecisionSignalRecord,
 )
-from src.analyzer import AnalysisResult
-from src.daily_market_context_guardrail import apply_daily_market_context_guardrail
-from src.services.history_service import HistoryService
-import src.auth as auth
+from ai_stock.analyzer import AnalysisResult
+from ai_stock.daily_market_context_guardrail import apply_daily_market_context_guardrail
+from ai_stock.services.history_service import HistoryService
+import ai_stock.auth as auth
 
 
 def _analysis_context_pack_overview() -> dict:

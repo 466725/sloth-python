@@ -8,8 +8,8 @@ from unittest.mock import MagicMock, patch
 from fastapi.testclient import TestClient
 
 from api.app import create_app
-from src.config import Config
-from src.storage import DatabaseManager
+from ai_stock.config import Config
+from ai_stock.storage import DatabaseManager
 
 
 def teardown_function() -> None:

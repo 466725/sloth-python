@@ -31,7 +31,7 @@ class _FailingChipFetcher(_ChipFetcher):
 
 
 def _run_with_chip_diagnostics(manager: DataFetcherManager):
-    from src.services.run_diagnostics import (
+    from ai_stock.services.run_diagnostics import (
         activate_run_diagnostic_context,
         current_diagnostic_snapshot,
         reset_run_diagnostic_context,

@@ -6,9 +6,9 @@ from unittest.mock import patch
 import pandas as pd
 from data_provider.base import BaseFetcher, DataFetchError, DataFetcherManager, normalize_stock_code
 from data_provider.yfinance_fetcher import YfinanceFetcher
-from src.core.trading_calendar import MARKET_EXCHANGE, MARKET_TIMEZONE, get_market_for_stock
-from src.market_context import detect_market, get_market_guidelines
-from src.services.stock_code_utils import is_code_like, normalize_code
+from ai_stock.core.trading_calendar import MARKET_EXCHANGE, MARKET_TIMEZONE, get_market_for_stock
+from ai_stock.market_context import detect_market, get_market_guidelines
+from ai_stock.services.stock_code_utils import is_code_like, normalize_code
 
 
 class _FakeFetcher(BaseFetcher):

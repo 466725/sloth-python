@@ -8,11 +8,11 @@ import tempfile
 import unittest
 from datetime import datetime, timedelta
 
-from src.config import Config, get_config
-from src.core.pipeline import StockAnalysisPipeline
-from src.market_analyzer import MarketAnalyzer, MarketIndex, MarketOverview
-from src.repositories.intelligence_repo import IntelligenceRepository
-from src.storage import DatabaseManager
+from ai_stock.config import Config, get_config
+from ai_stock.core.pipeline import StockAnalysisPipeline
+from ai_stock.market_analyzer import MarketAnalyzer, MarketIndex, MarketOverview
+from ai_stock.repositories.intelligence_repo import IntelligenceRepository
+from ai_stock.storage import DatabaseManager
 
 
 class PersistedIntelligenceAnalysisIntegrationTestCase(unittest.TestCase):

@@ -19,10 +19,10 @@ try:
 except ModuleNotFoundError:
     sys.modules["litellm"] = MagicMock()
 
-import src.auth as auth
+import ai_stock.auth as auth
 from api.app import create_app
-from src.config import Config
-from src.storage import DatabaseManager, DecisionSignalRecord, PortfolioAccount, PortfolioPosition, utc_naive_now
+from ai_stock.config import Config
+from ai_stock.storage import DatabaseManager, DecisionSignalRecord, PortfolioAccount, PortfolioPosition, utc_naive_now
 
 
 @contextmanager
@@ -1096,7 +1096,7 @@ def test_dedup_distinguishes_source_type_for_weak_report_ids(client_and_db) -> N
 
 
 def test_stock_filter_codes_cover_market_optional_hk_without_widening_other_markets() -> None:
-    from src.services.decision_signal_service import DecisionSignalService
+    from ai_stock.services.decision_signal_service import DecisionSignalService
 
     cases = [
         ("00700", None, ["00700", "HK00700"]),

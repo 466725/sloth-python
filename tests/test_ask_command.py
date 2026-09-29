@@ -15,7 +15,7 @@ except ModuleNotFoundError:
 
 from bot.commands.ask import AskCommand
 from bot.models import BotMessage, ChatType
-from src.agent.skills.base import Skill
+from ai_stock.agent.skills.base import Skill
 
 
 class AskCommandSkillSelectionTestCase(unittest.TestCase):

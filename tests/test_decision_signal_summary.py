@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from src.services.decision_signal_summary import (
+from ai_stock.services.decision_signal_summary import (
     format_decision_signal_excerpt,
     summarize_decision_signal,
 )

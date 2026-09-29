@@ -25,9 +25,9 @@ except ModuleNotFoundError:
     sys.modules["litellm"] = MagicMock()
 
 from api.v1.endpoints import alphasift as alphasift_endpoint
-from src.config import Config, DEFAULT_ALPHASIFT_INSTALL_SPEC
-from src.services import alphasift_service
-from src.services.task_queue import TaskInfo, TaskStatus as QueueTaskStatus
+from ai_stock.config import Config, DEFAULT_ALPHASIFT_INSTALL_SPEC
+from ai_stock.services import alphasift_service
+from ai_stock.services.task_queue import TaskInfo, TaskStatus as QueueTaskStatus
 
 DEFAULT_ALPHASIFT_TEST_SPEC = DEFAULT_ALPHASIFT_INSTALL_SPEC
 

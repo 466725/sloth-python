@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Unit tests for src.auth module."""
+"""Unit tests for ai_stock.auth module."""
 
 import hashlib
 import os
@@ -10,7 +10,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import src.auth as auth
+import ai_stock.auth as auth
 
 
 def _reset_auth_globals() -> None:

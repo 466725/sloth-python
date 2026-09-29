@@ -8,8 +8,8 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from api.v1.endpoints import agent
-from src.config import Config
-from src.services.agent_model_service import list_agent_model_deployments
+from ai_stock.config import Config
+from ai_stock.services.agent_model_service import list_agent_model_deployments
 
 
 def _build_config(**overrides):

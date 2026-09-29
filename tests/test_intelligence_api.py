@@ -14,8 +14,8 @@ import requests
 from fastapi.testclient import TestClient
 
 from api.app import create_app
-from src.config import Config
-from src.storage import DatabaseManager
+from ai_stock.config import Config
+from ai_stock.storage import DatabaseManager
 
 RSS_FIXTURE = b'<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel><item><title>Market event</title><link>https://news.example.com/market-event</link><description>Evidence summary</description></item></channel></rss>'
 

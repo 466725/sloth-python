@@ -13,11 +13,11 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.config import Config
-from src.repositories.decision_signal_repo import DecisionSignalCreateResult
-from src.services.decision_signal_service import DecisionSignalService, DecisionSignalStorageError
-from src.storage import AnalysisHistory, DatabaseManager, DecisionSignalRecord, utc_naive_now
-from src.utils.sanitize import sanitize_decision_signal_text, sanitize_diagnostic_text
+from ai_stock.config import Config
+from ai_stock.repositories.decision_signal_repo import DecisionSignalCreateResult
+from ai_stock.services.decision_signal_service import DecisionSignalService, DecisionSignalStorageError
+from ai_stock.storage import AnalysisHistory, DatabaseManager, DecisionSignalRecord, utc_naive_now
+from ai_stock.utils.sanitize import sanitize_decision_signal_text, sanitize_diagnostic_text
 
 
 def test_service_imports_without_api_bootstrap() -> None:
@@ -26,7 +26,7 @@ def test_service_imports_without_api_bootstrap() -> None:
         [
             sys.executable,
             "-c",
-            "from src.services.decision_signal_service import DecisionSignalService; "
+            "from ai_stock.services.decision_signal_service import DecisionSignalService; "
             "print(DecisionSignalService.__name__)",
         ],
         cwd=repo_root,
@@ -79,7 +79,7 @@ def _payload(**overrides):
 
 
 def _history_result(**overrides):
-    from src.analyzer import AnalysisResult
+    from ai_stock.analyzer import AnalysisResult
 
     result = AnalysisResult(
         code="600519",

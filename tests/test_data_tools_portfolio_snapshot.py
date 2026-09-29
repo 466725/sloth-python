@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.agent.tools.data_tools import _handle_get_portfolio_snapshot
+from ai_stock.agent.tools.data_tools import _handle_get_portfolio_snapshot
 
 
 class _FakePortfolioService:

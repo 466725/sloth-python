@@ -22,13 +22,13 @@ ensure_litellm_stub()
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.agent.tools.registry import (
+from ai_stock.agent.tools.registry import (
     ToolRegistry,
     ToolDefinition,
     ToolParameter,
     _infer_parameters,
 )
-from src.agent.skills.base import Skill, SkillManager
+from ai_stock.agent.skills.base import Skill, SkillManager
 
 
 def _builtin_strategy_names() -> set[str]:
@@ -379,7 +379,7 @@ class TestBuiltinSkills(unittest.TestCase):
 
     def test_load_all_builtin_strategies(self):
         """Load strategies from YAML files in strategies/ directory."""
-        from src.agent.skills.base import SkillManager
+        from ai_stock.agent.skills.base import SkillManager
 
         manager = SkillManager()
         expected = _builtin_strategy_names()
@@ -412,7 +412,7 @@ class TestBuiltinToolDefinitions(unittest.TestCase):
     """Verify all tool definitions can be imported and are valid."""
 
     def test_import_data_tools(self):
-        from src.agent.tools.data_tools import ALL_DATA_TOOLS
+        from ai_stock.agent.tools.data_tools import ALL_DATA_TOOLS
         self.assertGreater(len(ALL_DATA_TOOLS), 0, "ALL_DATA_TOOLS must not be empty")
         for td in ALL_DATA_TOOLS:
             self.assertIsInstance(td, ToolDefinition)
@@ -420,28 +420,28 @@ class TestBuiltinToolDefinitions(unittest.TestCase):
             self.assertEqual(td.category, "data")
 
     def test_import_analysis_tools(self):
-        from src.agent.tools.analysis_tools import ALL_ANALYSIS_TOOLS
+        from ai_stock.agent.tools.analysis_tools import ALL_ANALYSIS_TOOLS
         self.assertGreater(len(ALL_ANALYSIS_TOOLS), 0, "ALL_ANALYSIS_TOOLS must not be empty")
         for td in ALL_ANALYSIS_TOOLS:
             self.assertIsInstance(td, ToolDefinition)
             self.assertEqual(td.category, "analysis")
 
     def test_import_search_tools(self):
-        from src.agent.tools.search_tools import ALL_SEARCH_TOOLS
+        from ai_stock.agent.tools.search_tools import ALL_SEARCH_TOOLS
         self.assertGreater(len(ALL_SEARCH_TOOLS), 0, "ALL_SEARCH_TOOLS must not be empty")
         for td in ALL_SEARCH_TOOLS:
             self.assertIsInstance(td, ToolDefinition)
             self.assertEqual(td.category, "search")
 
     def test_import_market_tools(self):
-        from src.agent.tools.market_tools import ALL_MARKET_TOOLS
+        from ai_stock.agent.tools.market_tools import ALL_MARKET_TOOLS
         self.assertGreater(len(ALL_MARKET_TOOLS), 0, "ALL_MARKET_TOOLS must not be empty")
         for td in ALL_MARKET_TOOLS:
             self.assertIsInstance(td, ToolDefinition)
             self.assertEqual(td.category, "market")
 
     def test_import_backtest_tools(self):
-        from src.agent.tools.backtest_tools import ALL_BACKTEST_TOOLS
+        from ai_stock.agent.tools.backtest_tools import ALL_BACKTEST_TOOLS
 
         self.assertGreater(len(ALL_BACKTEST_TOOLS), 0, "ALL_BACKTEST_TOOLS must not be empty")
         names = {td.name for td in ALL_BACKTEST_TOOLS}
@@ -453,7 +453,7 @@ class TestBuiltinToolDefinitions(unittest.TestCase):
             self.assertEqual(td.category, "data")
 
     def test_skill_backtest_tool_reports_specific_skill_as_unsupported_until_persisted(self):
-        from src.agent.tools.backtest_tools import _handle_get_skill_backtest_summary
+        from ai_stock.agent.tools.backtest_tools import _handle_get_skill_backtest_summary
 
         svc = MagicMock()
         svc.get_skill_summary.return_value = None
@@ -467,7 +467,7 @@ class TestBuiltinToolDefinitions(unittest.TestCase):
         self.assertIn("not available", payload["info"])
 
     def test_skill_backtest_tool_requires_skill_id(self):
-        from src.agent.tools.backtest_tools import (
+        from ai_stock.agent.tools.backtest_tools import (
             _handle_get_skill_backtest_summary,
             get_skill_backtest_summary_tool,
         )
@@ -485,7 +485,7 @@ class TestBuiltinToolDefinitions(unittest.TestCase):
         self.assertIn("skill_id", schema["required"])
 
     def test_skill_backtest_tool_success_payload_keeps_normalized_metrics_and_pct_aliases(self):
-        from src.agent.tools.backtest_tools import _handle_get_skill_backtest_summary
+        from ai_stock.agent.tools.backtest_tools import _handle_get_skill_backtest_summary
 
         svc = MagicMock()
         svc.get_skill_summary.return_value = {
@@ -527,7 +527,7 @@ class TestBuiltinToolDefinitions(unittest.TestCase):
         )
 
     def test_backtest_tool_errors_do_not_expose_raw_exception_text(self):
-        from src.agent.tools.backtest_tools import _handle_get_skill_backtest_summary, _handle_get_stock_backtest_summary
+        from ai_stock.agent.tools.backtest_tools import _handle_get_skill_backtest_summary, _handle_get_stock_backtest_summary
 
         svc = MagicMock()
         svc.get_skill_summary.side_effect = RuntimeError("db path: /tmp/secret.db")
@@ -542,11 +542,11 @@ class TestBuiltinToolDefinitions(unittest.TestCase):
 
     def test_all_tools_have_valid_schemas(self):
         """All tools should generate valid OpenAI-format schemas (used by litellm)."""
-        from src.agent.tools.data_tools import ALL_DATA_TOOLS
-        from src.agent.tools.analysis_tools import ALL_ANALYSIS_TOOLS
-        from src.agent.tools.search_tools import ALL_SEARCH_TOOLS
-        from src.agent.tools.market_tools import ALL_MARKET_TOOLS
-        from src.agent.tools.backtest_tools import ALL_BACKTEST_TOOLS
+        from ai_stock.agent.tools.data_tools import ALL_DATA_TOOLS
+        from ai_stock.agent.tools.analysis_tools import ALL_ANALYSIS_TOOLS
+        from ai_stock.agent.tools.search_tools import ALL_SEARCH_TOOLS
+        from ai_stock.agent.tools.market_tools import ALL_MARKET_TOOLS
+        from ai_stock.agent.tools.backtest_tools import ALL_BACKTEST_TOOLS
 
         all_tools = ALL_DATA_TOOLS + ALL_ANALYSIS_TOOLS + ALL_SEARCH_TOOLS + ALL_MARKET_TOOLS + ALL_BACKTEST_TOOLS
         for td in all_tools:
@@ -569,7 +569,7 @@ class TestYAMLStrategyLoading(unittest.TestCase):
     def test_load_single_yaml(self):
         """Load a single strategy from a YAML file."""
         import tempfile, os
-        from src.agent.skills.base import load_skill_from_yaml, Skill
+        from ai_stock.agent.skills.base import load_skill_from_yaml, Skill
 
         yaml_content = """
 name: test_yaml_strategy
@@ -606,7 +606,7 @@ instructions: |
     def test_load_minimal_yaml(self):
         """Load a strategy with only required fields."""
         import tempfile, os
-        from src.agent.skills.base import load_skill_from_yaml
+        from ai_stock.agent.skills.base import load_skill_from_yaml
 
         yaml_content = """
 name: minimal
@@ -630,7 +630,7 @@ instructions: 用自然语言描述的策略内容
     def test_load_yaml_metadata_fields(self):
         """YAML metadata should populate aliases/default flags/router tags."""
         import tempfile, os
-        from src.agent.skills.base import load_skill_from_yaml
+        from ai_stock.agent.skills.base import load_skill_from_yaml
 
         yaml_content = """
 name: metadata_skill
@@ -661,7 +661,7 @@ instructions: |
     def test_load_yaml_missing_required_fields(self):
         """YAML missing required fields should raise ValueError."""
         import tempfile, os
-        from src.agent.skills.base import load_skill_from_yaml
+        from ai_stock.agent.skills.base import load_skill_from_yaml
 
         yaml_content = """
 name: incomplete
@@ -679,14 +679,14 @@ display_name: 不完整
 
     def test_load_nonexistent_file(self):
         """Loading a nonexistent file should raise FileNotFoundError."""
-        from src.agent.skills.base import load_skill_from_yaml
+        from ai_stock.agent.skills.base import load_skill_from_yaml
         with self.assertRaises(FileNotFoundError):
             load_skill_from_yaml("/nonexistent/path.yaml")
 
     def test_load_directory(self):
         """Load all strategies from a directory."""
         import tempfile, os
-        from src.agent.skills.base import load_skills_from_directory
+        from ai_stock.agent.skills.base import load_skills_from_directory
 
         tmpdir = tempfile.mkdtemp()
         try:
@@ -722,7 +722,7 @@ instructions: 自然语言策略描述 {name}
         import shutil
         import tempfile
 
-        from src.agent.skills.base import load_skill_from_markdown
+        from ai_stock.agent.skills.base import load_skill_from_markdown
 
         tmpdir = Path(tempfile.mkdtemp())
         try:
@@ -757,7 +757,7 @@ When explaining code, always include an ASCII diagram.
         import shutil
         import tempfile
 
-        from src.agent.skills.base import load_skill_from_markdown
+        from ai_stock.agent.skills.base import load_skill_from_markdown
 
         tmpdir = Path(tempfile.mkdtemp())
         try:
@@ -791,7 +791,7 @@ Track hot sectors and leading stocks.
         import shutil
         import tempfile
 
-        from src.agent.skills.base import load_skill_from_markdown
+        from ai_stock.agent.skills.base import load_skill_from_markdown
 
         tmpdir = Path(tempfile.mkdtemp())
         try:
@@ -817,7 +817,7 @@ Use RESTful naming and consistent validation.
     def test_custom_overrides_builtin(self):
         """Custom strategy with same name should override built-in."""
         import tempfile, os
-        from src.agent.skills.base import SkillManager
+        from ai_stock.agent.skills.base import SkillManager
 
         manager = SkillManager()
         manager.load_builtin_strategies()
@@ -848,7 +848,7 @@ instructions: 按照我的规则分析龙头股
 
     def test_builtin_strategies_have_source_field(self):
         """All built-in strategies should have source='builtin'."""
-        from src.agent.skills.base import SkillManager
+        from ai_stock.agent.skills.base import SkillManager
 
         manager = SkillManager()
         manager.load_builtin_strategies()
@@ -861,7 +861,7 @@ class TestSkillDefaultResolution(unittest.TestCase):
     """Test metadata-driven default skill resolution helpers."""
 
     def test_default_helpers_follow_metadata(self):
-        from src.agent.skills.defaults import (
+        from ai_stock.agent.skills.defaults import (
             get_default_active_skill_ids,
             get_default_router_skill_ids,
             get_primary_default_skill_id,
@@ -880,7 +880,7 @@ class TestSkillDefaultResolution(unittest.TestCase):
         self.assertEqual(get_regime_skill_ids("volatile", skills), ["beta"])
 
     def test_default_helpers_fall_back_to_sorted_user_invocable_skills(self):
-        from src.agent.skills.defaults import (
+        from ai_stock.agent.skills.defaults import (
             get_default_active_skill_ids,
             get_default_router_skill_ids,
             get_primary_default_skill_id,
@@ -898,7 +898,7 @@ class TestSkillDefaultResolution(unittest.TestCase):
 
 class TestSkillAgent(unittest.TestCase):
     def test_skill_agent_uses_required_tools_only(self):
-        from src.agent.skills.skill_agent import SkillAgent
+        from ai_stock.agent.skills.skill_agent import SkillAgent
 
         skill = Skill(
             name="bundle_skill",

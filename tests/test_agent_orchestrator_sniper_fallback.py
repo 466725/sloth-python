@@ -12,8 +12,8 @@ from tests.litellm_stub import ensure_litellm_stub
 
 ensure_litellm_stub()
 
-from src.agent.orchestrator import AgentOrchestrator
-from src.agent.protocols import AgentContext
+from ai_stock.agent.orchestrator import AgentOrchestrator
+from ai_stock.agent.protocols import AgentContext
 
 
 class TestAgentOrchestratorSniperFallback(unittest.TestCase):

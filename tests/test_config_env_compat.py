@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from src.config import Config, DEFAULT_ALPHASIFT_INSTALL_SPEC, setup_env
+from ai_stock.config import Config, DEFAULT_ALPHASIFT_INSTALL_SPEC, setup_env
 
 
 class ConfigEnvCompatibilityTestCase(unittest.TestCase):

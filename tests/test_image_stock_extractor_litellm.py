@@ -22,7 +22,7 @@ for _stub in ("google.generativeai", "google.genai", "anthropic"):
 import pytest
 from unittest.mock import patch
 
-from src.services.image_stock_extractor import (
+from ai_stock.services.image_stock_extractor import (
     _resolve_vision_model,
     _get_api_keys_for_model,
     _call_litellm_vision,
@@ -31,7 +31,7 @@ from src.services.image_stock_extractor import (
     extract_stock_codes_from_image,
     VISION_API_TIMEOUT,
 )
-from src.config import Config
+from ai_stock.config import Config
 
 
 # ---------------------------------------------------------------------------

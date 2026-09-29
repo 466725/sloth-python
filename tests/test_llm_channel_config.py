@@ -9,7 +9,7 @@ from tests.litellm_stub import ensure_litellm_stub
 
 ensure_litellm_stub()
 
-from src.config import (
+from ai_stock.config import (
     ANSPIRE_LLM_BASE_URL_DEFAULT,
     ANSPIRE_LLM_MODEL_DEFAULT,
     Config,
@@ -18,11 +18,11 @@ from src.config import (
     get_fixed_litellm_temperature,
     normalize_litellm_temperature,
 )
-from src.llm.generation_params import (
+from ai_stock.llm.generation_params import (
     apply_litellm_generation_params,
     resolve_litellm_temperature_directive,
 )
-from src.services.system_config_service import SystemConfigService
+from ai_stock.services.system_config_service import SystemConfigService
 
 
 class LLMChannelConfigTestCase(unittest.TestCase):

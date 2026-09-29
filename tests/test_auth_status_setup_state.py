@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 from starlette.requests import Request
 
-import src.auth as auth
+import ai_stock.auth as auth
 from api.v1.endpoints.auth import AuthSettingsRequest, auth_status, auth_update_settings
 
 

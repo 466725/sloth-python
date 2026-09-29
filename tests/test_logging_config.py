@@ -5,7 +5,7 @@ import logging
 
 import pytest
 
-from src.logging_config import LITELLM_LOGGERS, setup_logging
+from ai_stock.logging_config import LITELLM_LOGGERS, setup_logging
 
 
 @pytest.fixture(autouse=True)
@@ -47,7 +47,7 @@ def test_log_format_includes_logger_name(tmp_path, monkeypatch):
     logging.getLogger("src.sample").info("logger context smoke")
 
     debug_log_text = _read_debug_log(tmp_path)
-    assert " | src.sample | " in debug_log_text
+    assert " | ai_stock.sample | " in debug_log_text
     assert "logger context smoke" in debug_log_text
 
 

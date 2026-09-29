@@ -3,7 +3,7 @@
 
 from types import SimpleNamespace
 
-from src.analyzer import AnalysisResult, _capital_flow_bias, stabilize_decision_with_structure
+from ai_stock.analyzer import AnalysisResult, _capital_flow_bias, stabilize_decision_with_structure
 
 
 def _result(

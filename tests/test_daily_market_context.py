@@ -8,9 +8,9 @@ from datetime import date, datetime
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-from src.core.market_review import MarketReviewRunResult
-from src.services import daily_market_context as daily_market_context_module
-from src.services.daily_market_context import (
+from ai_stock.core.market_review import MarketReviewRunResult
+from ai_stock.services import daily_market_context as daily_market_context_module
+from ai_stock.services.daily_market_context import (
     DailyMarketContextService,
     format_daily_market_context_prompt_section,
 )

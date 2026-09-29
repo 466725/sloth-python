@@ -17,7 +17,7 @@ ensure_litellm_stub()
 
 _ENV_BEFORE_MAIN_IMPORT = dict(os.environ)
 import main
-from src.config import Config
+from ai_stock.config import Config
 
 _MAIN_IMPORT_ENV_ADDITIONS = frozenset(set(os.environ) - set(_ENV_BEFORE_MAIN_IMPORT))
 _MAIN_IMPORT_ENV_OVERRIDES = {
@@ -622,7 +622,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
         run_full_analysis.assert_called_once_with(config, args, ["600519", "000001"])
 
     def test_run_full_analysis_skips_market_review_when_shared_lock_is_held(self) -> None:
-        from src.core.market_review_lock import (
+        from ai_stock.core.market_review_lock import (
             release_market_review_lock,
             try_acquire_market_review_lock,
         )

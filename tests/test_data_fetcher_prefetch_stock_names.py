@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from data_provider.base import DataFetcherManager
 from data_provider.pytdx_fetcher import PytdxFetcher
-from src.core.pipeline import StockAnalysisPipeline
+from ai_stock.core.pipeline import StockAnalysisPipeline
 
 
 class _DummyFetcher:

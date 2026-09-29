@@ -38,10 +38,10 @@ except Exception:  # pragma: no cover - optional dependency environments
     get_analysis_status = None
     get_task_list = None
 
-from src.enums import ReportType
-from src.services.analysis_service import AnalysisService
-from src.services.image_stock_extractor import _call_litellm_vision
-from src.services.task_queue import AnalysisTaskQueue, TaskStatus
+from ai_stock.enums import ReportType
+from ai_stock.services.analysis_service import AnalysisService
+from ai_stock.services.image_stock_extractor import _call_litellm_vision
+from ai_stock.services.task_queue import AnalysisTaskQueue, TaskStatus
 
 
 def _analysis_context_pack_overview() -> dict:
@@ -275,7 +275,7 @@ class AnalysisApiContractTestCase(unittest.TestCase):
         if trigger_market_review is None or analysis_endpoint_module is None:
             self.skipTest("analysis endpoint helpers unavailable in this environment")
 
-        from src.core.market_review_lock import (
+        from ai_stock.core.market_review_lock import (
             release_market_review_lock,
             try_acquire_market_review_lock,
         )
@@ -437,7 +437,7 @@ class AnalysisApiContractTestCase(unittest.TestCase):
         )
 
     def test_run_market_review_uses_request_scoped_config_language(self) -> None:
-        from src.core.market_review import run_market_review
+        from ai_stock.core.market_review import run_market_review
 
         global_config = SimpleNamespace(report_language="zh", market_review_region="cn")
         scoped_config = SimpleNamespace(report_language="en", market_review_region="cn")

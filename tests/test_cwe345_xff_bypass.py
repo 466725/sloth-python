@@ -6,7 +6,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from src.auth import get_client_ip
+from ai_stock.auth import get_client_ip
 
 
 def _make_request(xff_value=None, client_host=None):
