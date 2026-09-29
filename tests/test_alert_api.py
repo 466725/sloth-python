@@ -665,7 +665,7 @@ class AlertApiTestCase(unittest.TestCase):
         async def _run_inline(func, *args, **kwargs):
             return func(*args, **kwargs)
 
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
              patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
@@ -689,7 +689,7 @@ class AlertApiTestCase(unittest.TestCase):
         async def _run_inline(func, *args, **kwargs):
             return func(*args, **kwargs)
 
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
              patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
@@ -743,7 +743,7 @@ class AlertApiTestCase(unittest.TestCase):
         async def _run_inline(func, *args, **kwargs):
             return func(*args, **kwargs)
 
-        with patch("data_provider.DataFetcherManager", return_value=manager), \
+        with patch("ai_stock.stock_data.DataFetcherManager", return_value=manager), \
              patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
             triggered_resp = self.client.post(f"/api/v1/alerts/rules/{triggered_rule['id']}/test")
             not_triggered_resp = self.client.post(f"/api/v1/alerts/rules/{not_triggered_rule['id']}/test")

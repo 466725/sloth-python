@@ -7,7 +7,7 @@
 ## 1. 硬规则
 
 - 遵循现有目录边界：
-  - 后端逻辑优先放在 `src/`、`data_provider/`、`api/`、`bot/`
+  - 后端逻辑优先放在 `ai_stock/`、`stock_data/`、`api/`、`bot/`
   - Web 前端改动在 `apps/dsa-web/`
   - 桌面端改动在 `apps/dsa-desktop/`
   - 部署与流水线改动在 `scripts/`、`.github/workflows/`、`docker/`
