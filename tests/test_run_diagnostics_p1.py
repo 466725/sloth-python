@@ -16,15 +16,15 @@ import pandas as pd
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from data_provider.base import BaseFetcher, DataFetcherManager
-from src.services.run_diagnostics import (
+from ai_stock.stock_data.base import BaseFetcher, DataFetcherManager
+from ai_stock.services.run_diagnostics import (
     RunDiagnosticContext,
     activate_run_diagnostic_context,
     current_diagnostic_snapshot,
     record_provider_run,
     reset_run_diagnostic_context,
 )
-from src.services.task_queue import AnalysisTaskQueue, TaskInfo, TaskStatus
+from ai_stock.services.task_queue import AnalysisTaskQueue, TaskInfo, TaskStatus
 
 
 class _FailingDailyFetcher(BaseFetcher):
@@ -184,7 +184,7 @@ class RunDiagnosticsP1TestCase(unittest.TestCase):
             trigger_source="api",
         )
         try:
-            with patch("src.config.get_config", return_value=config):
+            with patch("ai_stock.config.get_config", return_value=config):
                 quote = manager.get_realtime_quote("600519")
             snapshot = current_diagnostic_snapshot()
         finally:
@@ -234,7 +234,7 @@ class RunDiagnosticsP1TestCase(unittest.TestCase):
                 latency_ms=12,
                 record_count=3,
             )
-            from src.services.run_diagnostics import record_history_run, record_llm_run, record_notification_run
+            from ai_stock.services.run_diagnostics import record_history_run, record_llm_run, record_notification_run
 
             record_llm_run(success=True, model="deepseek-chat", duration_ms=34)
             record_history_run(report_saved=True, metadata_saved=True, analysis_history_id=7)
@@ -339,16 +339,16 @@ class RunDiagnosticsP1TestCase(unittest.TestCase):
 
         payload = json.dumps(events, ensure_ascii=False)
         for leaked in (
-            "/home/activer",
-            "Users",
-            "full-user-prompt",
-            "full-raw-response",
-            "full prompt body",
-            "full raw body",
-            "hooks.example.com/webhook",
-            "sk-live-secret",
-            "proxy_user",
-            "proxy_pass",
+                "/home/activer",
+                "Users",
+                "full-user-prompt",
+                "full-raw-response",
+                "full prompt body",
+                "full raw body",
+                "hooks.example.com/webhook",
+                "sk-live-secret",
+                "proxy_user",
+                "proxy_pass",
         ):
             self.assertNotIn(leaked, payload)
         self.assertIn("<redacted-path>", payload)

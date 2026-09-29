@@ -16,20 +16,20 @@ try:
 except ModuleNotFoundError:
     sys.modules["litellm"] = MagicMock()
 
-from src.analyzer import AnalysisResult
-from src.services.report_renderer import render
+from ai_stock.analyzer import AnalysisResult
+from ai_stock.services.report_renderer import render
 
 
 def _make_result(
-    code: str = "600519",
-    name: str = "贵州茅台",
-    sentiment_score: int = 72,
-    operation_advice: str = "持有",
-    analysis_summary: str = "稳健",
-    decision_type: str = "hold",
-    dashboard: dict = None,
-    report_language: str = "zh",
-    model_used: str = None,
+        code: str = "600519",
+        name: str = "贵州茅台",
+        sentiment_score: int = 72,
+        operation_advice: str = "持有",
+        analysis_summary: str = "稳健",
+        decision_type: str = "hold",
+        dashboard: dict = None,
+        report_language: str = "zh",
+        model_used: str = None,
 ) -> AnalysisResult:
     if dashboard is None:
         dashboard = {
@@ -180,9 +180,9 @@ class TestReportRenderer(unittest.TestCase):
     def test_render_brief_respects_model_visibility_toggle(self) -> None:
         r = _make_result(model_used="gemini/gemini-2.5-flash")
 
-        with patch("src.services.report_renderer.get_config", return_value=_make_renderer_config(True)):
+        with patch("ai_stock.services.report_renderer.get_config", return_value=_make_renderer_config(True)):
             visible = render("brief", [r])
-        with patch("src.services.report_renderer.get_config", return_value=_make_renderer_config(False)):
+        with patch("ai_stock.services.report_renderer.get_config", return_value=_make_renderer_config(False)):
             hidden = render("brief", [r])
 
         self.assertIsNotNone(visible)
@@ -251,7 +251,7 @@ class TestReportRenderer(unittest.TestCase):
     def test_render_markdown_footer_uses_consistent_separator(self) -> None:
         r = _make_result(model_used="gemini/gemini-2.5-flash")
 
-        with patch("src.services.report_renderer.get_config", return_value=_make_renderer_config(True)):
+        with patch("ai_stock.services.report_renderer.get_config", return_value=_make_renderer_config(True)):
             out = render("markdown", [r], summary_only=True)
 
         self.assertIsNotNone(out)
