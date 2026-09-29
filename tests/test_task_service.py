@@ -17,8 +17,8 @@ from tests.litellm_stub import ensure_litellm_stub
 
 ensure_litellm_stub()
 
-from src.analyzer import AnalysisResult
-from src.services.task_service import TaskService
+from ai_stock.analyzer import AnalysisResult
+from ai_stock.services.task_service import TaskService
 
 
 def _make_failed_result(code: str) -> AnalysisResult:
@@ -53,7 +53,7 @@ class TestTaskService(unittest.TestCase):
         fake_main.StockAnalysisPipeline = _FakePipeline
 
         with patch.dict("sys.modules", {"main": fake_main}), patch(
-            "src.config.get_config", return_value=SimpleNamespace()
+            "ai_stock.config.get_config", return_value=SimpleNamespace()
         ):
             result = service._run_analysis(code="600519", task_id="task-1")
 
@@ -80,7 +80,7 @@ class TestTaskService(unittest.TestCase):
         executor.submit.side_effect = capture_submit
         service._executor = executor
 
-        with patch("src.services.task_service.resolve_index_stock_code_for_analysis", return_value="005930.KS"):
+        with patch("ai_stock.services.task_service.resolve_index_stock_code_for_analysis", return_value="005930.KS"):
             result = service.submit_analysis("005930", report_type="simple", query_source="cli")
 
         self.assertEqual(result["code"], "005930.KS")

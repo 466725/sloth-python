@@ -25,7 +25,7 @@ if _orig_data_provider is None:
     pkg_mod.base = sys.modules["data_provider.base"]
     sys.modules["data_provider"] = pkg_mod
 
-from src.services.task_queue import AnalysisTaskQueue, get_task_queue, _dedupe_stock_code_key
+from ai_stock.services.task_queue import AnalysisTaskQueue, get_task_queue, _dedupe_stock_code_key
 
 if _orig_data_provider_base is None:
     sys.modules.pop("data_provider.base", None)
@@ -76,22 +76,22 @@ class TaskQueueConfigSyncTestCase(unittest.TestCase):
         self.assertEqual(queue.max_workers, 3)
 
     def test_get_task_queue_uses_runtime_configured_max_workers(self) -> None:
-        with patch("src.config.get_config", return_value=SimpleNamespace(max_workers=1)):
+        with patch("ai_stock.config.get_config", return_value=SimpleNamespace(max_workers=1)):
             queue = get_task_queue()
 
         self.assertEqual(queue.max_workers, 1)
 
     def test_get_task_queue_keeps_singleton_identity_after_sync(self) -> None:
-        with patch("src.config.get_config", return_value=SimpleNamespace(max_workers=3)):
+        with patch("ai_stock.config.get_config", return_value=SimpleNamespace(max_workers=3)):
             first = get_task_queue()
-        with patch("src.config.get_config", return_value=SimpleNamespace(max_workers=1)):
+        with patch("ai_stock.config.get_config", return_value=SimpleNamespace(max_workers=1)):
             second = get_task_queue()
 
         self.assertIs(first, second)
         self.assertEqual(second.max_workers, 1)
 
     def test_get_task_queue_supports_string_max_workers(self) -> None:
-        with patch("src.config.get_config", return_value=SimpleNamespace(max_workers="2")):
+        with patch("ai_stock.config.get_config", return_value=SimpleNamespace(max_workers="2")):
             queue = get_task_queue()
 
         self.assertEqual(queue.max_workers, 2)
@@ -103,7 +103,7 @@ class TaskQueueConfigSyncTestCase(unittest.TestCase):
         queue = AnalysisTaskQueue(max_workers=3)
         queue._analyzing_stocks["600519"] = "task1"
 
-        with patch("src.config.get_config", return_value=SimpleNamespace(max_workers=1)):
+        with patch("ai_stock.config.get_config", return_value=SimpleNamespace(max_workers=1)):
             synced = get_task_queue()
 
         self.assertIs(synced, queue)
