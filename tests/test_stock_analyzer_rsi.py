@@ -5,9 +5,8 @@ import unittest
 
 import pandas as pd
 
-from src.services.alert_indicators import _calculate_rsi as calculate_alert_rsi
-from src.stock_analyzer import StockTrendAnalyzer
-
+from ai_stock.services.alert_indicators import _calculate_rsi as calculate_alert_rsi
+from ai_stock.stock_analyzer import StockTrendAnalyzer
 
 REPORT_RSI_CLOSE = [
     10,
