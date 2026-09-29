@@ -16,10 +16,11 @@ from tests.litellm_stub import ensure_litellm_stub
 
 ensure_litellm_stub()
 
-from src.analyzer import AnalysisResult
-from src.core.pipeline import StockAnalysisPipeline
-from src.enums import ReportType
-from src.services.run_diagnostics import activate_run_diagnostic_context, current_diagnostic_snapshot, reset_run_diagnostic_context
+from ai_stock.analyzer import AnalysisResult
+from ai_stock.core.pipeline import StockAnalysisPipeline
+from ai_stock.enums import ReportType
+from ai_stock.services.run_diagnostics import activate_run_diagnostic_context, current_diagnostic_snapshot, \
+    reset_run_diagnostic_context
 
 
 def _analysis_result() -> AnalysisResult:
@@ -349,7 +350,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         phase_payload = _phase_payload()
         phase_context = SimpleNamespace(to_dict=MagicMock(return_value=phase_payload))
 
-        with patch("src.core.pipeline.build_market_phase_context", return_value=phase_context) as mock_build:
+        with patch("ai_stock.core.pipeline.build_market_phase_context", return_value=phase_context) as mock_build:
             result = pipeline.analyze_stock(
                 "600519",
                 ReportType.SIMPLE,
@@ -396,7 +397,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         }
         phase_context = SimpleNamespace(to_dict=MagicMock(return_value=phase_payload))
 
-        with patch("src.core.pipeline.build_market_phase_context", return_value=phase_context) as mock_build:
+        with patch("ai_stock.core.pipeline.build_market_phase_context", return_value=phase_context) as mock_build:
             result = pipeline.analyze_stock(
                 "600519",
                 ReportType.SIMPLE,
@@ -413,12 +414,12 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         phase_context = SimpleNamespace(to_dict=MagicMock(return_value=phase_payload))
 
         with (
-            patch("src.core.pipeline.build_market_phase_context", return_value=phase_context),
+            patch("ai_stock.core.pipeline.build_market_phase_context", return_value=phase_context),
             patch(
-                "src.core.pipeline.AnalysisContextBuilder.build",
+                "ai_stock.core.pipeline.AnalysisContextBuilder.build",
                 side_effect=RuntimeError("pack builder unavailable"),
             ),
-            self.assertLogs("src.core.pipeline", level="WARNING") as logs,
+            self.assertLogs("ai_stock.core.pipeline", level="WARNING") as logs,
         ):
             result = pipeline.analyze_stock(
                 "600519",
@@ -443,7 +444,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         pipeline._ensure_agent_history = MagicMock()
         phase_payload = _phase_payload()
 
-        from src.agent.executor import AgentResult
+        from ai_stock.agent.executor import AgentResult
 
         agent_result = AgentResult(
             success=True,
@@ -460,7 +461,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         executor = MagicMock()
         executor.run.return_value = agent_result
 
-        with patch("src.agent.factory.build_agent_executor", return_value=executor):
+        with patch("ai_stock.agent.factory.build_agent_executor", return_value=executor):
             result = pipeline._analyze_with_agent(
                 code="600519",
                 report_type=ReportType.SIMPLE,
@@ -513,7 +514,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
             "Social sentiment raw payload should stay in legacy news_context only."
         )
 
-        from src.agent.executor import AgentResult
+        from ai_stock.agent.executor import AgentResult
 
         executor = MagicMock()
         executor.run.return_value = AgentResult(
@@ -529,7 +530,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
             provider="test",
         )
 
-        with patch("src.agent.factory.build_agent_executor", return_value=executor):
+        with patch("ai_stock.agent.factory.build_agent_executor", return_value=executor):
             result = pipeline._analyze_with_agent(
                 code="AAPL",
                 report_type=ReportType.SIMPLE,
@@ -569,7 +570,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
             "yesterday": {"date": "2026-06-01", "close": 6.78, "volume": 900.0},
         }
 
-        from src.agent.executor import AgentResult
+        from ai_stock.agent.executor import AgentResult
 
         executor = MagicMock()
         executor.run.return_value = AgentResult(
@@ -585,7 +586,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
             provider="test",
         )
 
-        with patch("src.agent.factory.build_agent_executor", return_value=executor):
+        with patch("ai_stock.agent.factory.build_agent_executor", return_value=executor):
             result = pipeline._analyze_with_agent(
                 code="600519",
                 report_type=ReportType.SIMPLE,
@@ -622,7 +623,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         pipeline._ensure_agent_history = MagicMock()
         phase_payload = _phase_payload()
 
-        from src.agent.executor import AgentResult
+        from ai_stock.agent.executor import AgentResult
 
         executor = MagicMock()
         executor.run.return_value = AgentResult(
@@ -639,12 +640,12 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         )
 
         with (
-            patch("src.agent.factory.build_agent_executor", return_value=executor),
+            patch("ai_stock.agent.factory.build_agent_executor", return_value=executor),
             patch(
-                "src.core.pipeline.AnalysisContextBuilder.build",
+                "ai_stock.core.pipeline.AnalysisContextBuilder.build",
                 side_effect=RuntimeError("pack builder unavailable"),
             ),
-            self.assertLogs("src.core.pipeline", level="WARNING") as logs,
+            self.assertLogs("ai_stock.core.pipeline", level="WARNING") as logs,
         ):
             result = pipeline._analyze_with_agent(
                 code="600519",
@@ -681,7 +682,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
             trigger_source="api",
         )
         try:
-            from src.agent.executor import AgentResult
+            from ai_stock.agent.executor import AgentResult
 
             agent_result = AgentResult(
                 success=True,
@@ -698,7 +699,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
             executor = MagicMock()
             executor.run.return_value = agent_result
 
-            with patch("src.agent.factory.build_agent_executor", return_value=executor):
+            with patch("ai_stock.agent.factory.build_agent_executor", return_value=executor):
                 result = pipeline._analyze_with_agent(
                     code="600519",
                     report_type=ReportType.SIMPLE,
@@ -735,7 +736,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         pipeline = _make_pipeline(agent_mode=True, save_context_snapshot=True)
         pipeline._ensure_agent_history = MagicMock()
 
-        from src.agent.executor import AgentResult
+        from ai_stock.agent.executor import AgentResult
         executor = MagicMock()
         executor.run.return_value = AgentResult(
             success=True,
@@ -757,7 +758,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
             trigger_source="system",
         )
         try:
-            with patch("src.agent.factory.build_agent_executor", return_value=executor):
+            with patch("ai_stock.agent.factory.build_agent_executor", return_value=executor):
                 result = pipeline._analyze_with_agent(
                     code="600519",
                     report_type=ReportType.SIMPLE,
@@ -784,7 +785,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         result = _analysis_result()
         context_snapshot = {"market_phase_summary": _phase_payload()}
 
-        with patch("src.core.pipeline.extract_and_persist_from_analysis_result") as mock_extract:
+        with patch("ai_stock.core.pipeline.extract_and_persist_from_analysis_result") as mock_extract:
             pipeline._extract_decision_signal_after_history_save(
                 result=result,
                 query_id="q-helper",
@@ -807,8 +808,8 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         pipeline = _make_pipeline(agent_mode=False, save_context_snapshot=True)
 
         with patch(
-            "src.core.pipeline.extract_and_persist_from_analysis_result",
-            side_effect=RuntimeError("boom"),
+                "ai_stock.core.pipeline.extract_and_persist_from_analysis_result",
+                side_effect=RuntimeError("boom"),
         ):
             pipeline._extract_decision_signal_after_history_save(
                 result=_analysis_result(),
@@ -826,8 +827,8 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         phase_context = SimpleNamespace(to_dict=MagicMock(return_value=_phase_payload()))
 
         with (
-            patch("src.core.pipeline.build_market_phase_context", return_value=phase_context),
-            patch("src.core.pipeline.extract_and_persist_from_analysis_result") as mock_extract,
+            patch("ai_stock.core.pipeline.build_market_phase_context", return_value=phase_context),
+            patch("ai_stock.core.pipeline.extract_and_persist_from_analysis_result") as mock_extract,
         ):
             result = pipeline.analyze_stock(
                 "600519",
@@ -850,8 +851,8 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         phase_context = SimpleNamespace(to_dict=MagicMock(return_value=_phase_payload()))
 
         with (
-            patch("src.core.pipeline.build_market_phase_context", return_value=phase_context),
-            patch("src.core.pipeline.extract_and_persist_from_analysis_result") as mock_extract,
+            patch("ai_stock.core.pipeline.build_market_phase_context", return_value=phase_context),
+            patch("ai_stock.core.pipeline.extract_and_persist_from_analysis_result") as mock_extract,
         ):
             result = pipeline.analyze_stock(
                 "600519",
@@ -869,12 +870,12 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         phase_context = SimpleNamespace(to_dict=MagicMock(return_value=_phase_payload()))
 
         with (
-            patch("src.core.pipeline.build_market_phase_context", return_value=phase_context),
+            patch("ai_stock.core.pipeline.build_market_phase_context", return_value=phase_context),
             patch(
-                "src.core.pipeline.extract_and_persist_from_analysis_result",
+                "ai_stock.core.pipeline.extract_and_persist_from_analysis_result",
                 side_effect=RuntimeError("boom"),
             ) as mock_extract,
-            patch("src.core.pipeline.record_history_run") as mock_record,
+            patch("ai_stock.core.pipeline.record_history_run") as mock_record,
         ):
             result = pipeline.analyze_stock(
                 "600519",
@@ -894,7 +895,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         pipeline._ensure_agent_history = MagicMock()
         phase_payload = _phase_payload()
 
-        from src.agent.executor import AgentResult
+        from ai_stock.agent.executor import AgentResult
 
         agent_result = AgentResult(
             success=True,
@@ -912,8 +913,8 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         executor.run.return_value = agent_result
 
         with (
-            patch("src.agent.factory.build_agent_executor", return_value=executor),
-            patch("src.core.pipeline.extract_and_persist_from_analysis_result") as mock_extract,
+            patch("ai_stock.agent.factory.build_agent_executor", return_value=executor),
+            patch("ai_stock.core.pipeline.extract_and_persist_from_analysis_result") as mock_extract,
         ):
             result = pipeline._analyze_with_agent(
                 code="600519",
@@ -933,7 +934,8 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         kwargs = mock_extract.call_args.kwargs
         self.assertEqual(kwargs["source_report_id"], 84)
         self.assertEqual(kwargs["report_type"], ReportType.SIMPLE.value)
-        self.assertIs(kwargs["context_snapshot"], pipeline.db.save_analysis_history.call_args.kwargs["context_snapshot"])
+        self.assertIs(kwargs["context_snapshot"],
+                      pipeline.db.save_analysis_history.call_args.kwargs["context_snapshot"])
 
 
 if __name__ == "__main__":

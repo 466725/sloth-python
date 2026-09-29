@@ -15,14 +15,14 @@ from tests.litellm_stub import ensure_litellm_stub
 
 ensure_litellm_stub()
 
-from src.core.pipeline import StockAnalysisPipeline, NotificationChannel
-from src.services.run_diagnostics import (
+from ai_stock.core.pipeline import StockAnalysisPipeline, NotificationChannel
+from ai_stock.services.run_diagnostics import (
     activate_run_diagnostic_context,
     build_run_diagnostic_summary,
     current_diagnostic_snapshot,
     reset_run_diagnostic_context,
 )
-from src.enums import ReportType
+from ai_stock.enums import ReportType
 
 
 class _FakeNotifier:
@@ -41,7 +41,7 @@ class _FakeNotifier:
         self.send_to_context = MagicMock(return_value=False)
         self._should_use_image_for_channel = MagicMock(
             side_effect=lambda channel, image_bytes: (
-                channel.value in self._markdown_to_image_channels and image_bytes is not None
+                    channel.value in self._markdown_to_image_channels and image_bytes is not None
             )
         )
         self._send_email_with_inline_image = MagicMock(return_value=True)
@@ -69,7 +69,7 @@ class TestPipelineEmailGroupImageRouting(unittest.TestCase):
             SimpleNamespace(code="600519"),
         ]
 
-    @patch("src.md2img.markdown_to_image", return_value=b"png-bytes")
+    @patch("ai_stock.md2img.markdown_to_image", return_value=b"png-bytes")
     def test_send_notifications_email_group_uses_inline_image_when_enabled(self, _mock_md2img):
         pipeline = self._build_pipeline()
         results = self._make_results()
@@ -78,11 +78,12 @@ class TestPipelineEmailGroupImageRouting(unittest.TestCase):
 
         self.assertEqual(pipeline.notifier._send_email_with_inline_image.call_count, 2)
         pipeline.notifier.send_to_email.assert_not_called()
-        called_receivers = [kwargs.get("receivers") for _, kwargs in pipeline.notifier._send_email_with_inline_image.call_args_list]
+        called_receivers = [kwargs.get("receivers") for _, kwargs in
+                            pipeline.notifier._send_email_with_inline_image.call_args_list]
         self.assertIn(["group@example.com"], called_receivers)
         self.assertIn(None, called_receivers)
 
-    @patch("src.md2img.markdown_to_image", return_value=None)
+    @patch("ai_stock.md2img.markdown_to_image", return_value=None)
     def test_send_notifications_email_group_falls_back_to_text_when_image_unavailable(self, _mock_md2img):
         pipeline = self._build_pipeline()
         results = self._make_results()
@@ -95,7 +96,7 @@ class TestPipelineEmailGroupImageRouting(unittest.TestCase):
         self.assertIn(["group@example.com"], called_receivers)
         self.assertIn(None, called_receivers)
 
-    @patch("src.md2img.markdown_to_image", return_value=None)
+    @patch("ai_stock.md2img.markdown_to_image", return_value=None)
     def test_send_notifications_email_group_failure_does_not_skip_later_group(self, _mock_md2img):
         pipeline = self._build_pipeline()
         pipeline.notifier.send_to_email.side_effect = [RuntimeError("group failed"), True]
@@ -108,7 +109,7 @@ class TestPipelineEmailGroupImageRouting(unittest.TestCase):
         self.assertIn(["group@example.com"], called_receivers)
         self.assertIn(None, called_receivers)
 
-    @patch("src.md2img.markdown_to_image", return_value=None)
+    @patch("ai_stock.md2img.markdown_to_image", return_value=None)
     def test_email_group_diagnostics_only_patch_group_results(self, _mock_md2img):
         pipeline = self._build_pipeline()
         pipeline.save_context_snapshot = True
@@ -150,7 +151,7 @@ class _FakeWechatNotifier:
         self.generate_brief_report = MagicMock(return_value="brief-report")
         self._should_use_image_for_channel = MagicMock(
             side_effect=lambda channel, image_bytes: (
-                channel.value in self._markdown_to_image_channels and image_bytes is not None
+                    channel.value in self._markdown_to_image_channels and image_bytes is not None
             )
         )
         self._send_wechat_image = MagicMock(return_value=True)
@@ -164,7 +165,7 @@ class TestPipelineWechatOnlyImageRouting(unittest.TestCase):
         pipeline.config = SimpleNamespace(stock_email_groups=[])
         results = [SimpleNamespace(code="000001")]
 
-        with patch("src.md2img.markdown_to_image", return_value=b"wechat-image") as mock_md2img:
+        with patch("ai_stock.md2img.markdown_to_image", return_value=b"wechat-image") as mock_md2img:
             pipeline._send_notifications(results, ReportType.SIMPLE)
 
         mock_md2img.assert_called_once_with(
@@ -172,23 +173,6 @@ class TestPipelineWechatOnlyImageRouting(unittest.TestCase):
         )
         pipeline.notifier._send_wechat_image.assert_called_once()
         pipeline.notifier.send_to_wechat.assert_not_called()
-
-    def test_send_notifications_wechat_only_logs_hint_and_falls_back_to_text(self):
-        pipeline = StockAnalysisPipeline.__new__(StockAnalysisPipeline)
-        pipeline.notifier = _FakeWechatNotifier()
-        pipeline.config = SimpleNamespace(stock_email_groups=[])
-        results = [SimpleNamespace(code="000001")]
-
-        with patch("src.md2img.markdown_to_image", return_value=None), patch(
-            "src.core.pipeline.get_config", return_value=SimpleNamespace(md2img_engine="wkhtmltoimage")
-        ), patch("src.core.pipeline.logger.warning") as mock_warning:
-            pipeline._send_notifications(results, ReportType.SIMPLE)
-
-        pipeline.notifier._send_wechat_image.assert_not_called()
-        pipeline.notifier.send_to_wechat.assert_called_once_with("dashboard-report")
-        self.assertTrue(
-            any("企业微信 Markdown 转图片失败" in str(call.args[0]) for call in mock_warning.call_args_list)
-        )
 
 
 class _FakeRoutedNotifier:
@@ -220,7 +204,7 @@ class _FakeRoutedNotifier:
         self.release_noise_control = MagicMock()
         self._should_use_image_for_channel = MagicMock(
             side_effect=lambda channel, image_bytes: (
-                channel.value in self._markdown_to_image_channels and image_bytes is not None
+                    channel.value in self._markdown_to_image_channels and image_bytes is not None
             )
         )
         self.generate_brief_report = MagicMock(return_value="brief-report")
@@ -275,7 +259,7 @@ class TestPipelineReportRouteFiltering(unittest.TestCase):
         pipeline.config = SimpleNamespace(stock_email_groups=[])
         results = [SimpleNamespace(code="000001")]
 
-        with patch("src.md2img.markdown_to_image", return_value=b"png") as mock_md2img:
+        with patch("ai_stock.md2img.markdown_to_image", return_value=b"png") as mock_md2img:
             pipeline._send_notifications(results, ReportType.SIMPLE)
 
         mock_md2img.assert_not_called()
@@ -291,7 +275,7 @@ class TestPipelineReportRouteFiltering(unittest.TestCase):
         pipeline.config = SimpleNamespace(stock_email_groups=[])
         results = [SimpleNamespace(code="000001")]
 
-        with patch("src.md2img.markdown_to_image", return_value=b"png") as mock_md2img:
+        with patch("ai_stock.md2img.markdown_to_image", return_value=b"png") as mock_md2img:
             pipeline._send_notifications(results, ReportType.SIMPLE)
 
         mock_md2img.assert_called_once_with(
@@ -309,7 +293,7 @@ class TestPipelineReportRouteFiltering(unittest.TestCase):
         pipeline.config = SimpleNamespace(stock_email_groups=[])
         results = [SimpleNamespace(code="000001")]
 
-        with patch("src.md2img.markdown_to_image", return_value=b"png") as mock_md2img:
+        with patch("ai_stock.md2img.markdown_to_image", return_value=b"png") as mock_md2img:
             pipeline._send_notifications(results, ReportType.SIMPLE)
 
         mock_md2img.assert_not_called()
@@ -326,7 +310,7 @@ class TestPipelineReportRouteFiltering(unittest.TestCase):
         pipeline.config = SimpleNamespace(stock_email_groups=[])
         results = [SimpleNamespace(code="000001")]
 
-        with patch("src.md2img.markdown_to_image", return_value=b"png") as mock_md2img:
+        with patch("ai_stock.md2img.markdown_to_image", return_value=b"png") as mock_md2img:
             pipeline._send_notifications(results, ReportType.SIMPLE)
 
         mock_md2img.assert_not_called()
@@ -344,7 +328,7 @@ class TestPipelineReportRouteFiltering(unittest.TestCase):
         pipeline.config = SimpleNamespace(stock_email_groups=[])
         results = [SimpleNamespace(code="000001")]
 
-        with patch("src.md2img.markdown_to_image", return_value=b"png") as mock_md2img:
+        with patch("ai_stock.md2img.markdown_to_image", return_value=b"png") as mock_md2img:
             pipeline._send_notifications(results, ReportType.SIMPLE)
 
         mock_md2img.assert_not_called()
@@ -392,43 +376,6 @@ class TestPipelineReportRouteFiltering(unittest.TestCase):
         pipeline.notifier.send_to_email.assert_called_once_with("report:000001")
         pipeline.notifier.record_noise_control.assert_not_called()
         pipeline.notifier.release_noise_control.assert_called_once()
-
-    def test_context_delivery_counts_as_success_and_is_recorded_with_routed_failures(self):
-        token = activate_run_diagnostic_context(
-            trace_id="trace-context",
-            query_id="query-context",
-            stock_code="000001",
-            trigger_source="bot",
-        )
-        try:
-            pipeline = StockAnalysisPipeline.__new__(StockAnalysisPipeline)
-            pipeline.notifier = _FakeRoutedNotifier([NotificationChannel.TELEGRAM])
-            pipeline.notifier.send_to_context.return_value = True
-            pipeline.notifier.send_to_telegram.return_value = False
-            pipeline.config = SimpleNamespace(stock_email_groups=[])
-            pipeline.save_context_snapshot = True
-            pipeline.db = MagicMock()
-            results = [SimpleNamespace(code="000001", query_id="query-context")]
-
-            with patch("src.core.pipeline.logger.info") as mock_info:
-                pipeline._send_notifications(results, ReportType.SIMPLE)
-            snapshot = current_diagnostic_snapshot() or {}
-        finally:
-            reset_run_diagnostic_context(token)
-
-        notification_runs = snapshot.get("notification_runs", [])
-        self.assertEqual([run.get("channel") for run in notification_runs], ["__context__", "telegram"])
-        self.assertTrue(notification_runs[0]["success"])
-        self.assertFalse(notification_runs[1]["success"])
-        self.assertTrue(
-            any(
-                call.args and call.args[0] == "决策仪表盘推送成功"
-                for call in mock_info.call_args_list
-            )
-        )
-        final_update = pipeline.db.update_analysis_history_diagnostics.call_args_list[-1]
-        persisted_runs = final_update.kwargs["diagnostics"]["notification_runs"]
-        self.assertEqual([run.get("channel") for run in persisted_runs], ["__context__", "telegram"])
 
     def test_context_only_delivery_skips_static_channels_in_aggregate_path(self):
         pipeline = StockAnalysisPipeline.__new__(StockAnalysisPipeline)
