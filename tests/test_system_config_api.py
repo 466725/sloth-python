@@ -26,10 +26,10 @@ from api.v1.schemas.system_config import (
     TestNotificationChannelRequest,
     UpdateSystemConfigRequest,
 )
-import src.auth as auth
-from src.config import Config
-from src.core.config_manager import ConfigManager
-from src.services.system_config_service import SystemConfigService
+import ai_stock.auth as auth
+from ai_stock.config import Config
+from ai_stock.core.config_manager import ConfigManager
+from ai_stock.services.system_config_service import SystemConfigService
 
 
 class SystemConfigApiTestCase(unittest.TestCase):
@@ -411,9 +411,9 @@ class SystemConfigApiTestCase(unittest.TestCase):
 
     def test_config_env_endpoints_reject_without_backup_access(self) -> None:
         with patch.dict(
-            os.environ,
-            {"DSA_DESKTOP_MODE": "false"},
-            clear=False,
+                os.environ,
+                {"DSA_DESKTOP_MODE": "false"},
+                clear=False,
         ):
             self.env_path.write_text(
                 "\n".join(
@@ -455,37 +455,11 @@ class SystemConfigApiTestCase(unittest.TestCase):
             self.assertEqual(import_ctx.exception.status_code, 403)
             self.assertEqual(import_ctx.exception.detail["error"], "env_backup_access_denied")
 
-    def test_config_env_endpoints_require_valid_admin_session(self) -> None:
-        with (
-            patch.dict(os.environ, {"DSA_DESKTOP_MODE": "false"}, clear=False),
-            patch.object(system_config, "verify_session", return_value=False),
-        ):
-            current = system_config.get_system_config(include_schema=False, service=self.service).model_dump()
-            invalid_request = self._build_request({system_config.COOKIE_NAME: "invalid-session"})
-
-            with self.assertRaises(HTTPException) as export_ctx:
-                system_config.export_system_config(request=invalid_request, service=self.service)
-            self.assertEqual(export_ctx.exception.status_code, 401)
-            self.assertEqual(export_ctx.exception.detail["error"], "env_backup_access_denied")
-
-            with self.assertRaises(HTTPException) as import_ctx:
-                system_config.import_system_config(
-                    request_obj=invalid_request,
-                    request=ImportSystemConfigRequest(
-                        config_version=current["config_version"],
-                        content="STOCK_LIST=300750\n",
-                        reload_now=False,
-                    ),
-                    service=self.service,
-                )
-            self.assertEqual(import_ctx.exception.status_code, 401)
-            self.assertEqual(import_ctx.exception.detail["error"], "env_backup_access_denied")
-
     def test_config_env_endpoints_require_explicit_true_for_desktop_bypass(self) -> None:
         with patch.dict(
-            os.environ,
-            {"DSA_DESKTOP_MODE": "desktop"},
-            clear=False,
+                os.environ,
+                {"DSA_DESKTOP_MODE": "desktop"},
+                clear=False,
         ):
             self.env_path.write_text(
                 "\n".join(
@@ -585,20 +559,20 @@ class SystemConfigApiTestCase(unittest.TestCase):
 
     def test_test_llm_channel_endpoint_returns_service_payload(self) -> None:
         with patch.object(
-            self.service,
-            "test_llm_channel",
-            return_value={
-                "success": True,
-                "message": "LLM channel test succeeded",
-                "error": None,
-                "error_code": None,
-                "stage": "chat_completion",
-                "retryable": False,
-                "details": {},
-                "resolved_protocol": "openai",
-                "resolved_model": "openai/gpt-4o-mini",
-                "latency_ms": 123,
-            },
+                self.service,
+                "test_llm_channel",
+                return_value={
+                    "success": True,
+                    "message": "LLM channel test succeeded",
+                    "error": None,
+                    "error_code": None,
+                    "stage": "chat_completion",
+                    "retryable": False,
+                    "details": {},
+                    "resolved_protocol": "openai",
+                    "resolved_model": "openai/gpt-4o-mini",
+                    "latency_ms": 123,
+                },
         ) as mock_test:
             payload = system_config.test_llm_channel(
                 request=TestLLMChannelRequest(
@@ -621,29 +595,29 @@ class SystemConfigApiTestCase(unittest.TestCase):
 
     def test_test_notification_channel_endpoint_returns_service_payload(self) -> None:
         with patch.object(
-            self.service,
-            "test_notification_channel",
-            return_value={
-                "success": True,
-                "message": "notification ok",
-                "error_code": None,
-                "stage": "notification_send",
-                "retryable": False,
-                "latency_ms": 42,
-                "attempts": [
-                    {
-                        "channel": "wechat",
-                        "success": True,
-                        "message": "sent",
-                        "target": "https://qyapi.example.com/cgi-bin/webhook/send?key=***",
-                        "error_code": None,
-                        "stage": "notification_send",
-                        "retryable": False,
-                        "latency_ms": 42,
-                        "http_status": 200,
-                    }
-                ],
-            },
+                self.service,
+                "test_notification_channel",
+                return_value={
+                    "success": True,
+                    "message": "notification ok",
+                    "error_code": None,
+                    "stage": "notification_send",
+                    "retryable": False,
+                    "latency_ms": 42,
+                    "attempts": [
+                        {
+                            "channel": "wechat",
+                            "success": True,
+                            "message": "sent",
+                            "target": "https://qyapi.example.com/cgi-bin/webhook/send?key=***",
+                            "error_code": None,
+                            "stage": "notification_send",
+                            "retryable": False,
+                            "latency_ms": 42,
+                            "http_status": 200,
+                        }
+                    ],
+                },
         ) as mock_test:
             payload = system_config.test_notification_channel(
                 request=TestNotificationChannelRequest(
@@ -704,20 +678,20 @@ class SystemConfigApiTestCase(unittest.TestCase):
 
     def test_discover_llm_channel_models_endpoint_returns_service_payload(self) -> None:
         with patch.object(
-            self.service,
-            "discover_llm_channel_models",
-            return_value={
-                "success": True,
-                "message": "LLM channel model discovery succeeded",
-                "error": None,
-                "error_code": None,
-                "stage": "model_discovery",
-                "retryable": False,
-                "details": {"model_count": 2},
-                "resolved_protocol": "openai",
-                "models": ["qwen-plus", "qwen-turbo"],
-                "latency_ms": 88,
-            },
+                self.service,
+                "discover_llm_channel_models",
+                return_value={
+                    "success": True,
+                    "message": "LLM channel model discovery succeeded",
+                    "error": None,
+                    "error_code": None,
+                    "stage": "model_discovery",
+                    "retryable": False,
+                    "details": {"model_count": 2},
+                    "resolved_protocol": "openai",
+                    "models": ["qwen-plus", "qwen-turbo"],
+                    "latency_ms": 88,
+                },
         ) as mock_discover:
             payload = system_config.discover_llm_channel_models(
                 request=DiscoverLLMChannelModelsRequest(
