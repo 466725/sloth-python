@@ -10,6 +10,7 @@ import unittest
 from types import ModuleType, SimpleNamespace
 from unittest.mock import MagicMock, patch
 
+from market_analyzer import MarketAnalyzer
 from tests.litellm_stub import ensure_litellm_stub
 
 ensure_litellm_stub()
@@ -39,10 +40,10 @@ def _build_optional_module_stubs() -> dict[str, ModuleType]:
 
 
 sys.modules.update(_build_optional_module_stubs())
-import src.core.market_review as market_review_module
-from src.config import Config
-from src.services.run_diagnostics import activate_run_diagnostic_context, reset_run_diagnostic_context
-from src.storage import AnalysisHistory, DatabaseManager
+import ai_stock.core.market_review as market_review_module
+from ai_stock.config import Config, get_config
+from ai_stock.services.run_diagnostics import activate_run_diagnostic_context, reset_run_diagnostic_context
+from ai_stock.storage import AnalysisHistory, DatabaseManager
 
 run_market_review = market_review_module.run_market_review
 
