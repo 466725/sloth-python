@@ -3,7 +3,7 @@
 
 import unittest
 
-from src.report_language import (
+from ai_stock.report.report_language import (
     get_bias_status_emoji,
     get_localized_stock_name,
     get_sentiment_label,
