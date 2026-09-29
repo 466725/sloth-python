@@ -18,20 +18,20 @@ import pandas as pd
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from data_provider.realtime_types import UnifiedRealtimeQuote, RealtimeSource
-from src.stock_analyzer import StockTrendAnalyzer, TrendAnalysisResult, TrendStatus
-from src.core.pipeline import StockAnalysisPipeline
+from ai_stock.stock_data.realtime_types import UnifiedRealtimeQuote, RealtimeSource
+from ai_stock.stock_analyzer import StockTrendAnalyzer, TrendAnalysisResult, TrendStatus
+from ai_stock.core.pipeline import StockAnalysisPipeline
 
 
 def _make_realtime_quote(
-    price: float = 15.72,
-    open_price: float = 15.62,
-    high: float = 16.29,
-    low: float = 15.55,
-    volume: int = 13995600,
-    amount: float = None,
-    change_pct: float = 0.96,
-    **overrides,
+        price: float = 15.72,
+        open_price: float = 15.62,
+        high: float = 16.29,
+        low: float = 15.55,
+        volume: int = 13995600,
+        amount: float = None,
+        change_pct: float = 0.96,
+        **overrides,
 ) -> UnifiedRealtimeQuote:
     return UnifiedRealtimeQuote(
         code="600519",
@@ -84,7 +84,7 @@ class TestAugmentHistoricalWithRealtime(unittest.TestCase):
         )
         os.makedirs(os.path.dirname(self._db_path), exist_ok=True)
         with patch.dict(os.environ, {"DATABASE_PATH": self._db_path}):
-            from src.config import Config
+            from ai_stock.config import Config
             Config._instance = None
             self.config = Config._load_from_env()
         self.pipeline = StockAnalysisPipeline(config=self.config)
@@ -118,11 +118,11 @@ class TestAugmentHistoricalWithRealtime(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertNotIn("close", result.columns)
 
-    @patch("src.core.pipeline.get_market_now")
-    @patch("src.core.pipeline.is_market_open", return_value=True)
-    @patch("src.core.pipeline.get_market_for_stock", return_value="cn")
+    @patch("ai_stock.core.pipeline.get_market_now")
+    @patch("ai_stock.core.pipeline.is_market_open", return_value=True)
+    @patch("ai_stock.core.pipeline.get_market_for_stock", return_value="cn")
     def test_appends_row_when_last_date_before_today(
-        self, _mock_market, _mock_open, mock_now
+            self, _mock_market, _mock_open, mock_now
     ) -> None:
         today = date.today()
         # 固定市场时钟为 UTC 当日，使 pipeline 的 market_today 等于 date.today()，
@@ -138,11 +138,11 @@ class TestAugmentHistoricalWithRealtime(unittest.TestCase):
         self.assertEqual(last["close"], 15.72)
         self.assertEqual(last["date"], today)
 
-    @patch("src.core.pipeline.get_market_now")
-    @patch("src.core.pipeline.is_market_open", return_value=True)
-    @patch("src.core.pipeline.get_market_for_stock", return_value="cn")
+    @patch("ai_stock.core.pipeline.get_market_now")
+    @patch("ai_stock.core.pipeline.is_market_open", return_value=True)
+    @patch("ai_stock.core.pipeline.get_market_for_stock", return_value="cn")
     def test_updates_last_row_when_last_date_is_today(
-        self, _mock_market, _mock_open, mock_now
+            self, _mock_market, _mock_open, mock_now
     ) -> None:
         today = date.today()
         # 固定市场时钟为当日，使 last_date >= market_today，从而更新最后一行而不是追加。
@@ -183,15 +183,15 @@ class TestEnhanceContextRealtimeOverride(unittest.TestCase):
         )
         os.makedirs(os.path.dirname(self._db_path), exist_ok=True)
         with patch.dict(os.environ, {"DATABASE_PATH": self._db_path}):
-            from src.config import Config
+            from ai_stock.config import Config
             Config._instance = None
             self.config = Config._load_from_env()
         self.pipeline = StockAnalysisPipeline(config=self.config)
 
-    @patch("src.core.pipeline.get_market_now")
-    @patch("src.core.pipeline.get_market_for_stock", return_value="cn")
+    @patch("ai_stock.core.pipeline.get_market_now")
+    @patch("ai_stock.core.pipeline.get_market_for_stock", return_value="cn")
     def test_today_overridden_when_realtime_and_trend_exist(
-        self, _mock_market, mock_now
+            self, _mock_market, mock_now
     ) -> None:
         today = date.today()
         # 固定市场时钟，使 _enhance_context 设置 enhanced['date'] == date.today().isoformat()，
@@ -228,10 +228,10 @@ class TestEnhanceContextRealtimeOverride(unittest.TestCase):
         self.assertIn("price_change_ratio", enhanced)
         self.assertIn("volume_change_ratio", enhanced)
 
-    @patch("src.core.pipeline.get_market_now")
-    @patch("src.core.pipeline.get_market_for_stock", return_value="cn")
+    @patch("ai_stock.core.pipeline.get_market_now")
+    @patch("ai_stock.core.pipeline.get_market_for_stock", return_value="cn")
     def test_tencent_688691_volume_change_ratio_uses_normalized_share_volume(
-        self, _mock_market, mock_now
+            self, _mock_market, mock_now
     ) -> None:
         today = date.today()
         mock_now.return_value = datetime(
@@ -281,10 +281,10 @@ class TestEnhanceContextRealtimeOverride(unittest.TestCase):
         self.assertEqual(enhanced["today"]["realtime_source"], "tencent")
         self.assertNotIn("dataSource", enhanced["today"])
 
-    @patch("src.core.pipeline.get_market_now")
-    @patch("src.core.pipeline.get_market_for_stock", return_value="cn")
+    @patch("ai_stock.core.pipeline.get_market_now")
+    @patch("ai_stock.core.pipeline.get_market_for_stock", return_value="cn")
     def test_realtime_metadata_and_partial_estimated_fields_are_propagated(
-        self, _mock_market, mock_now
+            self, _mock_market, mock_now
     ) -> None:
         today = date.today()
         mock_now.return_value = datetime(
@@ -345,10 +345,10 @@ class TestEnhanceContextRealtimeOverride(unittest.TestCase):
         self.assertNotIn("amount", enhanced["today"])
         self.assertNotIn("dataSource", enhanced["today"])
 
-    @patch("src.core.pipeline.get_market_now")
-    @patch("src.core.pipeline.get_market_for_stock", return_value="cn")
+    @patch("ai_stock.core.pipeline.get_market_now")
+    @patch("ai_stock.core.pipeline.get_market_for_stock", return_value="cn")
     def test_realtime_today_does_not_backfill_historical_amount_or_source(
-        self, _mock_market, mock_now
+            self, _mock_market, mock_now
     ) -> None:
         today = date.today()
         mock_now.return_value = datetime(
