@@ -166,7 +166,6 @@ def test_streaming_retry_does_not_cache_before_stream_is_consumed() -> None:
 
     def _broken_stream():
         raise RuntimeError("stream failed during iteration")
-        yield  # pragma: no cover
 
     def _call(kwargs):
         calls.append(dict(kwargs))

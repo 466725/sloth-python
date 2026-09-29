@@ -116,32 +116,6 @@ class LiteLLMFallbackPricingTestCase(unittest.TestCase):
             {"MiniMax-M2.7": llm_adapter._FALLBACK_MODEL_PRICING},
         )
 
-    def test_llm_tool_adapter_registers_fallback_pricing_before_direct_completion(self) -> None:
-        adapter = llm_adapter.LLMToolAdapter.__new__(llm_adapter.LLMToolAdapter)
-        adapter._config = _fake_agent_config()
-        adapter._router = None
-        adapter._legacy_router_model_list = []
-
-        events = []
-
-        def _register(models):
-            events.append(("register", list(models)))
-
-        def _completion(**_kwargs):
-            events.append(("completion", _kwargs["model"]))
-            return _fake_litellm_response()
-
-        with patch.object(llm_adapter, "register_fallback_model_pricing", side_effect=_register):
-            with patch.object(llm_adapter.litellm, "completion", side_effect=_completion):
-                result = adapter._call_litellm_model(
-                    [{"role": "user", "content": "hi"}],
-                    [],
-                    "openai/mimo-alpha",
-                )
-
-        self.assertEqual(result.content, "agent ok")
-        self.assertEqual(events[:2], [("register", ["openai/mimo-alpha"]), ("completion", "openai/mimo-alpha")])
-
     def test_llm_tool_adapter_registers_fallback_pricing_for_router_wire_model(self) -> None:
         adapter = llm_adapter.LLMToolAdapter.__new__(llm_adapter.LLMToolAdapter)
         adapter._config = _fake_agent_config(

@@ -20,7 +20,7 @@ except ImportError:
     if "json_repair" not in sys.modules:
         sys.modules["json_repair"] = MagicMock()
 
-from data_provider.akshare_fetcher import AkshareFetcher
+from ai_stock.stock_data.akshare_fetcher import AkshareFetcher
 
 
 class _DummyCircuitBreaker:
@@ -88,7 +88,7 @@ class TestHKRealtimeFallback(unittest.TestCase):
         self.fetcher._enforce_rate_limit = lambda: None
         self.fetcher._set_random_user_agent = lambda: None
 
-    @patch("data_provider.akshare_fetcher.get_realtime_circuit_breaker")
+    @patch("ai_stock.stock_data.akshare_fetcher.get_realtime_circuit_breaker")
     def test_em_success_returns_quote_with_name(self, mock_cb):
         """stock_hk_spot_em 成功时直接返回含名称的 quote。"""
         mock_cb.return_value = _DummyCircuitBreaker()
@@ -102,7 +102,7 @@ class TestHKRealtimeFallback(unittest.TestCase):
         self.assertEqual(quote.name, "腾讯控股")
         self.assertAlmostEqual(quote.price, 370.0)
 
-    @patch("data_provider.akshare_fetcher.get_realtime_circuit_breaker")
+    @patch("ai_stock.stock_data.akshare_fetcher.get_realtime_circuit_breaker")
     def test_em_failure_falls_back_to_spot(self, mock_cb):
         """stock_hk_spot_em 抛异常时应 fallback 到 stock_hk_spot 并返回名称。"""
         mock_cb.return_value = _DummyCircuitBreaker()
@@ -118,7 +118,7 @@ class TestHKRealtimeFallback(unittest.TestCase):
         self.assertAlmostEqual(quote.price, 368.0)
         ak_mock.stock_hk_spot.assert_called_once()
 
-    @patch("data_provider.akshare_fetcher.get_realtime_circuit_breaker")
+    @patch("ai_stock.stock_data.akshare_fetcher.get_realtime_circuit_breaker")
     def test_both_fail_returns_none(self, mock_cb):
         """stock_hk_spot_em 和 stock_hk_spot 都失败时返回 None，不抛异常。"""
         mock_cb.return_value = _DummyCircuitBreaker()
@@ -131,7 +131,7 @@ class TestHKRealtimeFallback(unittest.TestCase):
 
         self.assertIsNone(quote)
 
-    @patch("data_provider.akshare_fetcher.get_realtime_circuit_breaker")
+    @patch("ai_stock.stock_data.akshare_fetcher.get_realtime_circuit_breaker")
     def test_em_returns_empty_df_falls_back_to_spot(self, mock_cb):
         """stock_hk_spot_em 返回空 DataFrame 时应 fallback 到 stock_hk_spot。"""
         mock_cb.return_value = _DummyCircuitBreaker()
@@ -145,7 +145,7 @@ class TestHKRealtimeFallback(unittest.TestCase):
         self.assertIsNotNone(quote)
         self.assertEqual(quote.name, "腾讯控股")
 
-    @patch("data_provider.akshare_fetcher.get_realtime_circuit_breaker")
+    @patch("ai_stock.stock_data.akshare_fetcher.get_realtime_circuit_breaker")
     def test_circuit_breaker_open_returns_none(self, mock_cb):
         """熔断状态下直接返回 None。"""
         cb = _DummyCircuitBreaker()

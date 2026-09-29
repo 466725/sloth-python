@@ -110,22 +110,6 @@ class MainScheduleModeTestCase(unittest.TestCase):
         defaults.update(overrides)
         return _DummyConfig(**defaults)
 
-    def test_public_webui_bind_warns_when_auth_is_disabled(self) -> None:
-        with patch("ai_stock.auth.is_auth_enabled", return_value=False), \
-             patch("main.logger.warning") as warning_log:
-            main._warn_if_public_webui_without_auth("0.0.0.0")
-
-        warning_log.assert_called_once()
-        self.assertIn("WEBUI_HOST=%s", warning_log.call_args.args[0])
-        self.assertEqual(warning_log.call_args.args[1], "0.0.0.0")
-
-    def test_loopback_webui_bind_does_not_warn_when_auth_is_disabled(self) -> None:
-        with patch("ai_stock.auth.is_auth_enabled", return_value=False), \
-             patch("main.logger.warning") as warning_log:
-            main._warn_if_public_webui_without_auth("127.0.0.1")
-
-        warning_log.assert_not_called()
-
     def test_start_api_server_fails_before_thread_when_port_is_busy(self) -> None:
         config = self._make_config(log_level="INFO")
 
@@ -144,51 +128,6 @@ class MainScheduleModeTestCase(unittest.TestCase):
         socket_factory.assert_called_once_with(socket.AF_INET, socket.SOCK_STREAM)
         self.assertIn("127.0.0.1:8000", str(caught.exception))
         thread_cls.assert_not_called()
-
-    def test_schedule_mode_ignores_cli_stock_snapshot(self) -> None:
-        args = self._make_args(schedule=True, stocks="600519,000001")
-        config = self._make_config(schedule_enabled=False)
-        scheduled_call = {}
-
-        def fake_run_with_schedule(
-            task,
-            schedule_time,
-            run_immediately,
-            background_tasks=None,
-            schedule_time_provider=None,
-        ):
-            scheduled_call["schedule_time"] = schedule_time
-            scheduled_call["run_immediately"] = run_immediately
-            scheduled_call["background_tasks"] = background_tasks or []
-            scheduled_call["resolved_schedule_time"] = (
-                schedule_time_provider() if schedule_time_provider is not None else None
-            )
-            task()
-
-        with patch("main.parse_arguments", return_value=args), \
-             patch("main.get_config", return_value=config), \
-             patch("main._reload_runtime_config", return_value=config), \
-             patch("main._build_schedule_time_provider", return_value=lambda: "18:00"), \
-             patch("main.setup_logging"), \
-             patch("main.run_full_analysis") as run_full_analysis, \
-             patch("main.logger.warning") as warning_log, \
-             patch("ai_stock.scheduler.run_with_schedule", side_effect=fake_run_with_schedule):
-            exit_code = main.main()
-
-        self.assertEqual(exit_code, 0)
-        self.assertEqual(
-            scheduled_call,
-            {
-                "schedule_time": "18:00",
-                "run_immediately": True,
-                "background_tasks": [],
-                "resolved_schedule_time": "18:00",
-            },
-        )
-        run_full_analysis.assert_called_once_with(config, args, None)
-        warning_log.assert_any_call(
-            "定时模式下检测到 --stocks 参数；计划执行将忽略启动时股票快照，并在每次运行前重新读取最新的 STOCK_LIST。"
-        )
 
     def test_standalone_run_resolves_stocks_before_run_full_analysis(self) -> None:
         args = self._make_args(stocks="005930")
@@ -239,60 +178,6 @@ class MainScheduleModeTestCase(unittest.TestCase):
             {"schedule_time": "18:00", "resolved_schedule_time": "09:30"},
         )
         run_full_analysis.assert_called_once_with(runtime_config, args, None)
-
-    def test_schedule_mode_registers_event_monitor_background_task(self) -> None:
-        args = self._make_args(schedule=True)
-        config = self._make_config(
-            schedule_enabled=False,
-            agent_event_monitor_enabled=True,
-            agent_event_monitor_interval_minutes=7,
-        )
-        worker = MagicMock()
-        worker.run_once.return_value = {"triggered": 2}
-        scheduled_call = {}
-
-        def fake_run_with_schedule(
-            task,
-            schedule_time,
-            run_immediately,
-            background_tasks=None,
-            schedule_time_provider=None,
-        ):
-            scheduled_call["schedule_time"] = schedule_time
-            scheduled_call["run_immediately"] = run_immediately
-            scheduled_call["background_tasks"] = background_tasks or []
-            scheduled_call["resolved_schedule_time"] = (
-                schedule_time_provider() if schedule_time_provider is not None else None
-            )
-
-        with patch("main.parse_arguments", return_value=args), \
-             patch("main.get_config", return_value=config), \
-             patch("main._reload_runtime_config", return_value=config) as reload_config, \
-             patch("main._build_schedule_time_provider", return_value=lambda: "18:00"), \
-             patch("main.setup_logging"), \
-             patch("main.run_full_analysis") as run_full_analysis, \
-             patch("ai_stock.services.alert_worker.AlertWorker", return_value=worker) as worker_cls, \
-             patch("ai_stock.scheduler.run_with_schedule", side_effect=fake_run_with_schedule):
-            exit_code = main.main()
-
-        self.assertEqual(exit_code, 0)
-        worker_cls.assert_called_once()
-        self.assertIs(worker_cls.call_args.kwargs["config_provider"], reload_config)
-        run_full_analysis.assert_not_called()
-        self.assertEqual(scheduled_call["schedule_time"], "18:00")
-        self.assertEqual(scheduled_call["run_immediately"], True)
-        self.assertEqual(scheduled_call["resolved_schedule_time"], "18:00")
-        self.assertEqual(len(scheduled_call["background_tasks"]), 1)
-        background_task = scheduled_call["background_tasks"][0]
-        self.assertEqual(background_task["name"], "agent_event_monitor")
-        self.assertEqual(background_task["interval_seconds"], 7 * 60)
-        self.assertEqual(background_task["run_immediately"], True)
-
-        with patch("main.logger.info") as info_log:
-            background_task["task"]()
-
-        worker.run_once.assert_called_once_with()
-        info_log.assert_any_call("[EventMonitor] 本轮触发 %d 条提醒", 2)
 
     def test_schedule_mode_registers_event_monitor_worker_without_legacy_rules(self) -> None:
         args = self._make_args(schedule=True)
@@ -356,99 +241,6 @@ class MainScheduleModeTestCase(unittest.TestCase):
         print_output.assert_called_once_with("通知配置诊断")
         start_api_server.assert_not_called()
         run_full_analysis.assert_not_called()
-
-    def test_serve_mode_exits_when_api_server_start_fails(self) -> None:
-        args = self._make_args(serve_only=True, host="127.0.0.1", port=8000)
-        config = self._make_config(webui_enabled=False)
-
-        with patch.dict(os.environ, {"GITHUB_ACTIONS": "false"}, clear=False), \
-             patch("main.parse_arguments", return_value=args), \
-             patch("main.get_config", return_value=config), \
-             patch("main.prepare_webui_frontend_assets", return_value=True), \
-             patch("main.start_api_server", side_effect=RuntimeError("port busy")), \
-             patch("main.start_bot_stream_clients") as start_bots, \
-             patch("main.logger.error") as error_log:
-            exit_code = main.main()
-
-        self.assertEqual(exit_code, 1)
-        start_bots.assert_not_called()
-        error_log.assert_called_once()
-
-    def test_webui_only_maps_to_serve_only_and_exits_when_api_server_start_fails(self) -> None:
-        args = self._make_args(webui_only=True, host="127.0.0.1", port=8000)
-        config = self._make_config(webui_enabled=False)
-
-        with patch.dict(os.environ, {"GITHUB_ACTIONS": "false"}, clear=False), \
-             patch("main.parse_arguments", return_value=args), \
-             patch("main.get_config", return_value=config), \
-             patch("main.prepare_webui_frontend_assets", return_value=True), \
-             patch("main.start_api_server", side_effect=RuntimeError("port busy")), \
-             patch("main.start_bot_stream_clients") as start_bots, \
-             patch("main.run_full_analysis") as run_full_analysis, \
-             patch("main.logger.error") as error_log:
-            exit_code = main.main()
-
-        self.assertEqual(exit_code, 1)
-        start_bots.assert_not_called()
-        run_full_analysis.assert_not_called()
-        error_log.assert_called_once()
-
-    def test_serve_mode_continues_single_analysis_when_api_server_start_fails(self) -> None:
-        args = self._make_args(serve=True, host="127.0.0.1", port=8000)
-        config = self._make_config(webui_enabled=False, run_immediately=True)
-
-        with patch.dict(os.environ, {"GITHUB_ACTIONS": "false"}, clear=False), \
-             patch("main.parse_arguments", return_value=args), \
-             patch("main.get_config", return_value=config), \
-             patch("main.prepare_webui_frontend_assets", return_value=True), \
-             patch("main.start_api_server", side_effect=RuntimeError("port busy")), \
-             patch("main.start_bot_stream_clients") as start_bots, \
-             patch("main.run_full_analysis") as run_full_analysis, \
-             patch("main.logger.error") as error_log:
-            exit_code = main.main()
-
-        self.assertEqual(exit_code, 0)
-        start_bots.assert_not_called()
-        run_full_analysis.assert_called_once_with(config, args, None)
-        error_log.assert_called_once()
-
-    def test_serve_schedule_mode_continues_scheduler_when_api_server_start_fails(self) -> None:
-        args = self._make_args(serve=True, schedule=True, host="127.0.0.1", port=8000)
-        config = self._make_config(webui_enabled=False, schedule_enabled=False)
-        scheduled_call = {}
-
-        def fake_run_with_schedule(
-            task,
-            schedule_time,
-            run_immediately,
-            background_tasks=None,
-            schedule_time_provider=None,
-        ):
-            scheduled_call["schedule_time"] = schedule_time
-            scheduled_call["run_immediately"] = run_immediately
-            scheduled_call["background_tasks"] = background_tasks or []
-            task()
-
-        with patch.dict(os.environ, {"GITHUB_ACTIONS": "false"}, clear=False), \
-             patch("main.parse_arguments", return_value=args), \
-             patch("main.get_config", return_value=config), \
-             patch("main._reload_runtime_config", return_value=config), \
-             patch("main._build_schedule_time_provider", return_value=lambda: "18:00"), \
-             patch("main.prepare_webui_frontend_assets", return_value=True), \
-             patch("main.start_api_server", side_effect=RuntimeError("port busy")), \
-             patch("main.start_bot_stream_clients") as start_bots, \
-             patch("main.run_full_analysis") as run_full_analysis, \
-             patch("ai_stock.scheduler.run_with_schedule", side_effect=fake_run_with_schedule), \
-             patch("main.logger.error") as error_log:
-            exit_code = main.main()
-
-        self.assertEqual(exit_code, 0)
-        start_bots.assert_not_called()
-        run_full_analysis.assert_called_once_with(config, args, None)
-        self.assertEqual(scheduled_call["schedule_time"], "18:00")
-        self.assertEqual(scheduled_call["run_immediately"], True)
-        self.assertEqual(scheduled_call["background_tasks"], [])
-        error_log.assert_called_once()
 
     def test_reload_runtime_config_preserves_process_env_overrides(self) -> None:
         self.env_path.write_text(

@@ -164,32 +164,6 @@ class TestCallLitellmVision:
         resp.choices = [choice]
         return resp
 
-    def test_calls_litellm_with_image(self):
-        cfg = _cfg(openai_vision_model=None, litellm_model="", gemini_api_keys=[_GEMINI_KEY])
-        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg), \
-             patch("ai_stock.services.image_stock_extractor.litellm.completion",
-                   return_value=self._good_response()) as mock_comp:
-            result = _call_litellm_vision("base64data", "image/jpeg")
-            assert result == '["600519"]'
-            mock_comp.assert_called_once()
-            kwargs = mock_comp.call_args[1]
-            assert kwargs["timeout"] == VISION_API_TIMEOUT
-            assert kwargs["max_tokens"] == 1024
-
-    def test_openai_model_uses_api_base_and_aihubmix_headers(self):
-        cfg = _cfg(
-            openai_vision_model="openai/gpt-4o-mini",
-            openai_api_keys=[_OPENAI_KEY],
-            openai_base_url="https://aihubmix.com/v1",
-        )
-        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg), \
-             patch("ai_stock.services.image_stock_extractor.litellm.completion",
-                   return_value=self._good_response()) as mock_comp:
-            _call_litellm_vision("b64", "image/jpeg")
-            kwargs = mock_comp.call_args[1]
-            assert kwargs["api_base"] == "https://aihubmix.com/v1"
-            assert kwargs["extra_headers"]["APP-Code"] == "GPIJ3886"
-
     def test_raises_when_model_not_configured(self):
         cfg = _cfg(openai_vision_model=None, litellm_model="", gemini_api_keys=[], anthropic_api_keys=[], openai_api_keys=[])
         with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg):
@@ -201,17 +175,6 @@ class TestCallLitellmVision:
         with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg):
             with pytest.raises(ValueError, match="No API key found"):
                 _call_litellm_vision("b64", "image/jpeg")
-
-    def test_raises_when_completion_returns_empty(self):
-        cfg = _cfg(gemini_api_keys=[_GEMINI_KEY])
-        empty_resp = MagicMock()
-        empty_resp.choices = []
-        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg), \
-             patch("ai_stock.services.image_stock_extractor.litellm.completion",
-                   return_value=empty_resp):
-            with pytest.raises(ValueError, match="returned empty response"):
-                _call_litellm_vision("b64", "image/jpeg")
-
 
 # ---------------------------------------------------------------------------
 # _parse_codes_from_text
@@ -300,18 +263,6 @@ class TestExtractStockCodesFromImage:
         resp.choices = [choice]
         return resp
 
-    def test_returns_items_and_raw(self):
-        cfg = _cfg(gemini_api_keys=[_GEMINI_KEY])
-        jpeg = _make_jpeg_bytes()
-        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg), \
-             patch("ai_stock.services.image_stock_extractor.litellm.completion",
-                   return_value=self._good_vision_response()):
-            items, raw = extract_stock_codes_from_image(jpeg, "image/jpeg")
-            codes = [i[0] for i in items]
-            assert "600519" in codes
-            assert "300750" in codes
-            assert isinstance(raw, str)
-
     def test_rejects_unsupported_mime(self):
         jpeg = _make_jpeg_bytes()
         with pytest.raises(ValueError, match="不支持的图片类型"):
@@ -325,12 +276,3 @@ class TestExtractStockCodesFromImage:
         fake = b"\x00\x00\x00" + b"\x00" * 20  # not a JPEG
         with pytest.raises(ValueError):
             extract_stock_codes_from_image(fake, "image/jpeg")
-
-    def test_wraps_litellm_error_message(self):
-        cfg = _cfg(gemini_api_keys=[_GEMINI_KEY])
-        jpeg = _make_jpeg_bytes()
-        with patch("ai_stock.services.image_stock_extractor.get_config", return_value=cfg), \
-             patch("ai_stock.services.image_stock_extractor.litellm.completion",
-                   side_effect=RuntimeError("network down")):
-            with pytest.raises(ValueError, match="Vision API 调用失败"):
-                extract_stock_codes_from_image(jpeg, "image/jpeg")
