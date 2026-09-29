@@ -87,7 +87,7 @@ def test_yfinance_keeps_jp_kr_suffix_codes_and_indices() -> None:
         captured.append((yf_code, name, return_code))
         return {"code": return_code, "name": name, "current": 1.0}
 
-    fetcher._fetch_yf_ticker_data = fake_fetch  # type: ignore[method-assign]
+    fetcher.fetch_yf_ticker_data = fake_fetch  # type: ignore[method-assign]
 
     jp_indices = fetcher.get_main_indices("jp") or []
     kr_indices = fetcher.get_main_indices("kr") or []

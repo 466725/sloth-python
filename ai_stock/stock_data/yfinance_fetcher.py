@@ -37,9 +37,11 @@ from .us_index_mapping import get_us_index_yf_symbol, is_us_stock_code
 
 # 可选导入本地股票映射补丁，若缺失则使用空字典兜底
 try:
-    from ai_stock.stock_data.stock_mapping import STOCK_NAME_MAP, is_meaningful_stock_name  # pyright: ignore[reportMissingImports]
+    from ai_stock.stock_data.stock_mapping import STOCK_NAME_MAP, \
+        is_meaningful_stock_name  # pyright: ignore[reportMissingImports]
 except (ImportError, ModuleNotFoundError):
     STOCK_NAME_MAP = {}
+
 
     def is_meaningful_stock_name(name: str | None, stock_code: str) -> bool:
         """简单的名称有效性校验兜底"""
@@ -279,7 +281,7 @@ class YfinanceFetcher(BaseFetcher):
 
         return df
 
-    def _fetch_yf_ticker_data(self, yf, yf_code: str, name: str, return_code: str) -> Optional[Dict[str, Any]]:
+    def fetch_yf_ticker_data(self, yf, yf_code: str, name: str, return_code: str) -> Optional[Dict[str, Any]]:
         """
         通过 yfinance 拉取单个指数/股票的行情数据。
 
@@ -353,7 +355,7 @@ class YfinanceFetcher(BaseFetcher):
         try:
             for ak_code, (yf_code, name) in yf_mapping.items():
                 try:
-                    item = self._fetch_yf_ticker_data(yf, yf_code, name, ak_code)
+                    item = self.fetch_yf_ticker_data(yf, yf_code, name, ak_code)
                     if item:
                         results.append(item)
                         logger.debug(f"[Yfinance] 获取指数 {name} 成功")
@@ -370,7 +372,7 @@ class YfinanceFetcher(BaseFetcher):
         return None
 
     def get_us_main_indices(self, yf) -> Optional[List[Dict[str, Any]]]:
-        """获取美股主要指数行情（SPX、IXIC、DJI、VIX），复用 _fetch_yf_ticker_data"""
+        """获取美股主要指数行情（SPX、IXIC、DJI、VIX），复用 fetch_yf_ticker_data"""
         # 大盘复盘所需核心美股指数
         us_indices = ['SPX', 'IXIC', 'DJI', 'VIX']
         results = []
@@ -380,7 +382,7 @@ class YfinanceFetcher(BaseFetcher):
                 if not yf_symbol:
                     continue
                 try:
-                    item = self._fetch_yf_ticker_data(yf, yf_symbol, name, code)
+                    item = self.fetch_yf_ticker_data(yf, yf_symbol, name, code)
                     if item:
                         results.append(item)
                         logger.debug(f"[Yfinance] 获取美股指数 {name} 成功")
@@ -397,7 +399,7 @@ class YfinanceFetcher(BaseFetcher):
         return None
 
     def _get_hk_main_indices(self, yf) -> Optional[List[Dict[str, Any]]]:
-        """获取港股主要指数行情（HSI、HSTECH、HSCEI），复用 _fetch_yf_ticker_data"""
+        """获取港股主要指数行情（HSI、HSTECH、HSCEI），复用 fetch_yf_ticker_data"""
         # Yahoo Finance 港股指数符号映射：
         # - HSI -> ^HSI
         # - HSTECH -> HSTECH.HK（不是 ^HSTECH）
@@ -412,7 +414,7 @@ class YfinanceFetcher(BaseFetcher):
         try:
             for code, (yf_symbol, name) in hk_indices.items():
                 try:
-                    item = self._fetch_yf_ticker_data(yf, yf_symbol, name, code)
+                    item = self.fetch_yf_ticker_data(yf, yf_symbol, name, code)
                     if item:
                         results.append(item)
                         logger.debug(f"[Yfinance] 获取港股指数 {name} 成功")
@@ -588,10 +590,10 @@ class YfinanceFetcher(BaseFetcher):
             return None
 
     def _get_us_index_realtime_quote(
-        self,
-        user_code: str,
-        yf_symbol: str,
-        index_name: str,
+            self,
+            user_code: str,
+            yf_symbol: str,
+            index_name: str,
     ) -> Optional[UnifiedRealtimeQuote]:
         """
         Get realtime quote for US index (e.g. SPX -> ^GSPC).
