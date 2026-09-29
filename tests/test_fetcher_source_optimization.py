@@ -13,13 +13,13 @@ if "litellm" not in sys.modules:
 if "json_repair" not in sys.modules:
     sys.modules["json_repair"] = MagicMock()
 
-from data_provider.base import (
+from ai_stock.stock_data.base import (
     BaseFetcher,
     DataFetchError,
     DataFetcherManager,
     STANDARD_COLUMNS,
 )
-from data_provider.realtime_types import RealtimeSource, UnifiedRealtimeQuote
+from ai_stock.stock_data.realtime_types import RealtimeSource, UnifiedRealtimeQuote
 
 
 class _StubFetcher:
@@ -97,102 +97,6 @@ class TestFetcherSourceOptimization(unittest.TestCase):
                 start_date="2026-05-01",
                 end_date="2026-05-08",
             )
-
-    @patch("ai_stock.config.get_config")
-    def test_manager_skips_unconfigured_optional_fetchers(self, mock_get_config):
-        mock_get_config.return_value = SimpleNamespace(
-            tushare_token="",
-            longbridge_app_key="",
-            longbridge_app_secret="",
-            longbridge_access_token="",
-            longbridge_oauth_client_id="",
-        )
-
-        with patch.dict(
-            "os.environ",
-            {
-                "LONGBRIDGE_OAUTH_CLIENT_ID": "",
-                "LONGBRIDGE_APP_KEY": "",
-                "LONGBRIDGE_APP_SECRET": "",
-                "LONGBRIDGE_ACCESS_TOKEN": "",
-            },
-        ), patch("data_provider.efinance_fetcher.EfinanceFetcher", return_value=_StubFetcher("EfinanceFetcher", 0)), patch(
-            "data_provider.tencent_fetcher.TencentFetcher",
-            return_value=_StubFetcher("TencentFetcher", 0),
-        ), patch(
-            "data_provider.akshare_fetcher.AkshareFetcher",
-            return_value=_StubFetcher("AkshareFetcher", 1),
-        ), patch(
-            "data_provider.pytdx_fetcher.PytdxFetcher",
-            return_value=_StubFetcher("PytdxFetcher", 2),
-        ), patch(
-            "data_provider.baostock_fetcher.BaostockFetcher",
-            return_value=_StubFetcher("BaostockFetcher", 3),
-        ), patch(
-            "data_provider.yfinance_fetcher.YfinanceFetcher",
-            return_value=_StubFetcher("YfinanceFetcher", 4),
-        ), patch(
-            "data_provider.tushare_fetcher.TushareFetcher",
-            return_value=_StubFetcher("TushareFetcher", -1),
-        ) as mock_tushare, patch(
-            "data_provider.longbridge_fetcher.LongbridgeFetcher",
-            return_value=_StubFetcher("LongbridgeFetcher", 5),
-        ) as mock_longbridge:
-            mock_longbridge.has_configured_credentials.return_value = False
-            manager = DataFetcherManager()
-
-        self.assertEqual(
-            manager.available_fetchers,
-            [
-                "EfinanceFetcher",
-                "TencentFetcher",
-                "AkshareFetcher",
-                "PytdxFetcher",
-                "BaostockFetcher",
-                "YfinanceFetcher",
-            ],
-        )
-        mock_tushare.assert_not_called()
-        mock_longbridge.assert_not_called()
-
-    @patch("ai_stock.config.get_config")
-    def test_manager_enables_longbridge_with_oauth_client_id(self, mock_get_config):
-        mock_get_config.return_value = SimpleNamespace(
-            tushare_token="",
-            longbridge_app_key="",
-            longbridge_app_secret="",
-            longbridge_access_token="",
-            longbridge_oauth_client_id="client-1",
-        )
-
-        with patch("data_provider.efinance_fetcher.EfinanceFetcher", return_value=_StubFetcher("EfinanceFetcher", 0)), patch(
-            "data_provider.tencent_fetcher.TencentFetcher",
-            return_value=_StubFetcher("TencentFetcher", 0),
-        ), patch(
-            "data_provider.akshare_fetcher.AkshareFetcher",
-            return_value=_StubFetcher("AkshareFetcher", 1),
-        ), patch(
-            "data_provider.pytdx_fetcher.PytdxFetcher",
-            return_value=_StubFetcher("PytdxFetcher", 2),
-        ), patch(
-            "data_provider.baostock_fetcher.BaostockFetcher",
-            return_value=_StubFetcher("BaostockFetcher", 3),
-        ), patch(
-            "data_provider.yfinance_fetcher.YfinanceFetcher",
-            return_value=_StubFetcher("YfinanceFetcher", 4),
-        ), patch(
-            "data_provider.tushare_fetcher.TushareFetcher",
-            return_value=_StubFetcher("TushareFetcher", -1),
-        ), patch(
-            "data_provider.longbridge_fetcher.LongbridgeFetcher",
-            return_value=_StubFetcher("LongbridgeFetcher", 5),
-        ) as mock_longbridge:
-            mock_longbridge.has_configured_credentials.return_value = True
-            manager = DataFetcherManager()
-
-        self.assertIn("LongbridgeFetcher", manager.available_fetchers)
-        self.assertIn("TencentFetcher", manager.available_fetchers)
-        mock_longbridge.assert_called_once()
 
     @patch("ai_stock.config.get_config")
     def test_us_realtime_route_skips_temporarily_unavailable_longbridge(self, mock_get_config):

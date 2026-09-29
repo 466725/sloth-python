@@ -23,7 +23,7 @@ class TestFinnhubFetcherNormalize(unittest.TestCase):
     """Test _normalize_data with raw Finnhub candle response."""
 
     def setUp(self):
-        from data_provider.finnhub_fetcher import FinnhubFetcher
+        from ai_stock.stock_data.finnhub_fetcher import FinnhubFetcher
         self.fetcher = FinnhubFetcher()
 
     def test_normalize_candle_data(self):
@@ -66,11 +66,11 @@ class TestFinnhubFetcherFetchRaw(unittest.TestCase):
     """Test _fetch_raw_data with mocked HTTP."""
 
     def setUp(self):
-        from data_provider.finnhub_fetcher import FinnhubFetcher
+        from ai_stock.stock_data.finnhub_fetcher import FinnhubFetcher
         self.fetcher = FinnhubFetcher()
         self.fetcher._api_key = "test_key"
 
-    @patch('data_provider.finnhub_fetcher.requests.get')
+    @patch('ai_stock.stock_data.finnhub_fetcher.requests.get')
     def test_fetch_raw_success(self, mock_get):
         mock_get.return_value = _make_mock_response({
             'c': [150.0],
@@ -85,18 +85,18 @@ class TestFinnhubFetcherFetchRaw(unittest.TestCase):
         self.assertFalse(df.empty)
         self.assertIn('c', df.columns)
 
-    @patch('data_provider.finnhub_fetcher.requests.get')
+    @patch('ai_stock.stock_data.finnhub_fetcher.requests.get')
     def test_fetch_raw_empty_response(self, mock_get):
-        from data_provider.base import DataFetchError
+        from ai_stock.stock_data.base import DataFetchError
         mock_get.return_value = _make_mock_response({
             'c': [], 'h': [], 'l': [], 'o': [], 't': [], 'v': [], 's': 'no_data',
         })
         with self.assertRaises(DataFetchError):
             self.fetcher._fetch_raw_data('INVALID', '2024-06-10', '2024-06-11')
 
-    @patch('data_provider.finnhub_fetcher.requests.get')
+    @patch('ai_stock.stock_data.finnhub_fetcher.requests.get')
     def test_fetch_raw_http_error(self, mock_get):
-        from data_provider.base import DataFetchError
+        from ai_stock.stock_data.base import DataFetchError
         mock_get.side_effect = Exception("connection timeout")
         with self.assertRaises(DataFetchError):
             self.fetcher._fetch_raw_data('AAPL', '2024-06-10', '2024-06-11')
@@ -106,11 +106,11 @@ class TestFinnhubFetcherRealtimeQuote(unittest.TestCase):
     """Test get_realtime_quote with mocked HTTP."""
 
     def setUp(self):
-        from data_provider.finnhub_fetcher import FinnhubFetcher
+        from ai_stock.stock_data.finnhub_fetcher import FinnhubFetcher
         self.fetcher = FinnhubFetcher()
         self.fetcher._api_key = "test_key"
 
-    @patch('data_provider.finnhub_fetcher.requests.get')
+    @patch('ai_stock.stock_data.finnhub_fetcher.requests.get')
     def test_realtime_quote_us_stock(self, mock_get):
         mock_get.return_value = _make_mock_response({
             'c': 150.0,
@@ -133,7 +133,7 @@ class TestFinnhubFetcherRealtimeQuote(unittest.TestCase):
         quote = self.fetcher.get_realtime_quote('600519')
         self.assertIsNone(quote)
 
-    @patch('data_provider.finnhub_fetcher.requests.get')
+    @patch('ai_stock.stock_data.finnhub_fetcher.requests.get')
     def test_realtime_quote_http_failure(self, mock_get):
         mock_get.side_effect = Exception("timeout")
         quote = self.fetcher.get_realtime_quote('AAPL')
@@ -144,11 +144,11 @@ class TestFinnhubFetcherStockName(unittest.TestCase):
     """Test get_stock_name with mocked HTTP."""
 
     def setUp(self):
-        from data_provider.finnhub_fetcher import FinnhubFetcher
+        from ai_stock.stock_data.finnhub_fetcher import FinnhubFetcher
         self.fetcher = FinnhubFetcher()
         self.fetcher._api_key = "test_key"
 
-    @patch('data_provider.finnhub_fetcher.requests.get')
+    @patch('ai_stock.stock_data.finnhub_fetcher.requests.get')
     def test_get_stock_name_found(self, mock_get):
         mock_get.return_value = _make_mock_response({
             'result': [{'description': 'APPLE INC', 'symbol': 'AAPL'}],
@@ -157,7 +157,7 @@ class TestFinnhubFetcherStockName(unittest.TestCase):
         name = self.fetcher.get_stock_name('AAPL')
         self.assertEqual(name, 'APPLE INC')
 
-    @patch('data_provider.finnhub_fetcher.requests.get')
+    @patch('ai_stock.stock_data.finnhub_fetcher.requests.get')
     def test_get_stock_name_empty(self, mock_get):
         mock_get.return_value = _make_mock_response({'result': [], 'count': 0})
         name = self.fetcher.get_stock_name('NOTEXIST')
@@ -171,19 +171,19 @@ class TestFinnhubFetcherStockName(unittest.TestCase):
 class TestFinnhubFetcherInit(unittest.TestCase):
     """Test constructor / key handling."""
 
-    @patch('src.config.get_config')
+    @patch('ai_stock.config.get_config')
     def test_init_with_key(self, mock_config):
         mock_config.return_value = MagicMock(finnhub_api_key='sk-test-123')
-        from data_provider.finnhub_fetcher import FinnhubFetcher
+        from ai_stock.stock_data.finnhub_fetcher import FinnhubFetcher
         f = FinnhubFetcher()
         self.assertEqual(f._api_key, 'sk-test-123')
 
     @patch.dict(os.environ, {}, clear=False)
-    @patch('src.config.get_config')
+    @patch('ai_stock.config.get_config')
     def test_init_without_key(self, mock_config):
         os.environ.pop('FINNHUB_API_KEY', None)
         mock_config.return_value = MagicMock(finnhub_api_key=None)
-        from data_provider.finnhub_fetcher import FinnhubFetcher
+        from ai_stock.stock_data.finnhub_fetcher import FinnhubFetcher
         f = FinnhubFetcher()
         self.assertIsNone(f._api_key)
 
@@ -191,7 +191,7 @@ class TestFinnhubFetcherInit(unittest.TestCase):
 class TestFinnhubFetcherRegistration(unittest.TestCase):
     """Test that FinnhubFetcher is registered in DataFetcherManager when key is present."""
 
-    @patch('src.config.get_config')
+    @patch('ai_stock.config.get_config')
     def test_registered_with_key(self, mock_config):
         mock_config.return_value = MagicMock(
             finnhub_api_key='sk-test',
@@ -202,12 +202,12 @@ class TestFinnhubFetcherRegistration(unittest.TestCase):
             longbridge_access_token=None,
             tickflow_api_key=None,
         )
-        from data_provider.base import DataFetcherManager
+        from ai_stock.stock_data.base import DataFetcherManager
         mgr = DataFetcherManager()
         names = [f.name for f in mgr._get_fetchers_snapshot()]
         self.assertIn('FinnhubFetcher', names)
 
-    @patch('src.config.get_config')
+    @patch('ai_stock.config.get_config')
     def test_not_registered_without_key(self, mock_config):
         mock_config.return_value = MagicMock(
             finnhub_api_key=None,
@@ -218,7 +218,7 @@ class TestFinnhubFetcherRegistration(unittest.TestCase):
             longbridge_access_token=None,
             tickflow_api_key=None,
         )
-        from data_provider.base import DataFetcherManager
+        from ai_stock.stock_data.base import DataFetcherManager
         mgr = DataFetcherManager()
         names = [f.name for f in mgr._get_fetchers_snapshot()]
         self.assertNotIn('FinnhubFetcher', names)
@@ -227,7 +227,7 @@ class TestFinnhubFetcherRegistration(unittest.TestCase):
 class TestUSDailyRoutingFallback(unittest.TestCase):
     """Verify US daily routing includes Finnhub/AlphaVantage in the failover chain."""
 
-    @patch('src.config.get_config')
+    @patch('ai_stock.config.get_config')
     def test_us_routing_includes_new_fetchers(self, mock_config):
         """US stock get_daily_data source_order must contain Finnhub and AlphaVantage."""
         mock_config.return_value = MagicMock(
@@ -239,7 +239,7 @@ class TestUSDailyRoutingFallback(unittest.TestCase):
             longbridge_access_token=None,
             tickflow_api_key=None,
         )
-        from data_provider.base import DataFetcherManager
+        from ai_stock.stock_data.base import DataFetcherManager
         mgr = DataFetcherManager()
 
         # Verify both fetchers are registered

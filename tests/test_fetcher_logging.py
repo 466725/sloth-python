@@ -10,8 +10,8 @@ import requests
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from data_provider.base import BaseFetcher, DataFetchError, DataFetcherManager
-from data_provider.efinance_fetcher import EfinanceFetcher
+from ai_stock.stock_data.base import BaseFetcher, DataFetchError, DataFetcherManager
+from ai_stock.stock_data.efinance_fetcher import EfinanceFetcher
 
 
 def _sample_df() -> pd.DataFrame:
@@ -112,7 +112,7 @@ class TestFetcherLogging(unittest.TestCase):
         self.assertEqual(akshare.calls, ["HK01211"])
         self.assertEqual(yfinance.calls, [])
 
-    @patch("data_provider.efinance_fetcher.get_config")
+    @patch("ai_stock.stock_data.efinance_fetcher.get_config")
     def test_efinance_rejects_hk_daily_without_calling_eastmoney(self, mock_get_config):
         mock_get_config.return_value = types.SimpleNamespace(enable_eastmoney_patch=False)
         fetcher = EfinanceFetcher(sleep_min=0, sleep_max=0)

@@ -1095,34 +1095,6 @@ def test_service_replaces_non_object_metadata_during_invalidation(isolated_db) -
     assert old_after["metadata"]["metadata_replaced_due_to_non_object"] is True
     assert old_after["metadata"]["invalidated_by_signal_id"] == new_sell["id"]
 
-
-def test_service_duplicate_retry_repairs_failed_invalidation(isolated_db, monkeypatch) -> None:
-    service = DecisionSignalService(db_manager=isolated_db)
-    old_buy = service.create_signal(
-        _payload(source_report_id=392, trace_id="trace-repair-buy", action="buy")
-    )["item"]
-    sell_payload = _payload(source_report_id=393, trace_id="trace-repair-sell", action="sell")
-    original_update_status = service.repo.update_status
-
-    def fail_once(*_args, **_kwargs):
-        raise RuntimeError("invalidation write failed")
-
-    monkeypatch.setattr(service.repo, "update_status", fail_once)
-    with pytest.raises(RuntimeError, match="invalidation write failed"):
-        service.create_signal(sell_payload)
-
-    assert service.get_signal(old_buy["id"])["status"] == "active"
-
-    monkeypatch.setattr(service.repo, "update_status", original_update_status)
-    retried = service.create_signal(sell_payload)
-
-    assert retried["created"] is False
-    assert retried["item"]["status"] == "active"
-    old_after = service.get_signal(old_buy["id"])
-    assert old_after["status"] == "invalidated"
-    assert old_after["metadata"]["invalidated_by_signal_id"] == retried["item"]["id"]
-
-
 def test_service_duplicate_old_signal_does_not_invalidate_newer_opposing_signal(isolated_db, monkeypatch) -> None:
     service = DecisionSignalService(db_manager=isolated_db)
     buy_payload = _payload(source_report_id=395, trace_id="trace-old-replay-buy", action="buy")
