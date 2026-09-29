@@ -11,6 +11,8 @@ import pandas as pd
 
 from tests.litellm_stub import ensure_litellm_stub
 
+from ai_stock.stock_data.tushare_fetcher import TushareFetcher
+
 ensure_litellm_stub()
 
 try:
@@ -20,8 +22,6 @@ except ValueError:
 
 if not json_repair_available and "json_repair" not in sys.modules:
     sys.modules["json_repair"] = MagicMock()
-
-from data_provider.tushare_fetcher import TushareFetcher
 
 
 class TestTushareFetcherFollowUps(unittest.TestCase):
@@ -43,20 +43,21 @@ class TestTushareFetcherFollowUps(unittest.TestCase):
         ]
 
         with patch.object(
-            fetcher,
-            "_get_china_now",
-            side_effect=[
-                datetime(2026, 3, 17, 20, 0),
-                datetime(2026, 3, 17, 20, 0),
-                datetime(2026, 3, 18, 20, 0),
-                datetime(2026, 3, 18, 20, 0),
-            ],
+                fetcher,
+                "_get_china_now",
+                side_effect=[
+                    datetime(2026, 3, 17, 20, 0),
+                    datetime(2026, 3, 17, 20, 0),
+                    datetime(2026, 3, 18, 20, 0),
+                    datetime(2026, 3, 18, 20, 0),
+                ],
         ), patch.object(fetcher, "_check_rate_limit") as rate_limit_mock:
             self.assertEqual(fetcher.get_trade_time(early_time="00:00", late_time="19:00"), "20260317")
             self.assertEqual(fetcher.get_trade_time(early_time="00:00", late_time="19:00"), "20260318")
 
         self.assertEqual(fetcher._api.trade_cal.call_count, 2)
         self.assertEqual(rate_limit_mock.call_count, 2)
+
     def test_get_trade_time_returns_latest_trade_date_on_non_trade_day(self) -> None:
         """Non-trade day (e.g. Saturday) should return the most recent trade
         date (Friday), not the one before it (Thursday).  Fixes #1009."""
@@ -72,10 +73,10 @@ class TestTushareFetcherFollowUps(unittest.TestCase):
         )
 
         with patch.object(
-            fetcher,
-            "_get_china_now",
-            # called twice: once by get_trade_time, once by _get_trade_dates
-            side_effect=[datetime(2026, 3, 21, 10, 0)] * 2,
+                fetcher,
+                "_get_china_now",
+                # called twice: once by get_trade_time, once by _get_trade_dates
+                side_effect=[datetime(2026, 3, 21, 10, 0)] * 2,
         ), patch.object(fetcher, "_check_rate_limit"):
             result = fetcher.get_trade_time(early_time="00:00", late_time="19:00")
 
@@ -94,17 +95,16 @@ class TestTushareFetcherFollowUps(unittest.TestCase):
         )
 
         with patch.object(
-            fetcher,
-            "_get_china_now",
-            # Friday 10:00 AM - within 00:00~19:00 window, data not ready
-            side_effect=[datetime(2026, 3, 20, 10, 0)] * 2,
+                fetcher,
+                "_get_china_now",
+                # Friday 10:00 AM - within 00:00~19:00 window, data not ready
+                side_effect=[datetime(2026, 3, 20, 10, 0)] * 2,
         ), patch.object(fetcher, "_check_rate_limit"):
             result = fetcher.get_trade_time(early_time="00:00", late_time="19:00")
 
         # Data not ready, should fall back to Thursday (19th)
         self.assertEqual(result, "20260319")
-        
-          
+
     def test_get_sector_rankings_rate_limits_calendar_and_rankings_api(self) -> None:
         fetcher = self._make_fetcher()
         fetcher._api.trade_cal.return_value = pd.DataFrame(
@@ -118,7 +118,7 @@ class TestTushareFetcherFollowUps(unittest.TestCase):
         )
 
         with patch.object(fetcher, "_get_china_now", return_value=datetime(2026, 3, 17, 16, 0)), patch.object(
-            fetcher, "_check_rate_limit"
+                fetcher, "_check_rate_limit"
         ) as rate_limit_mock:
             top, bottom = fetcher.get_sector_rankings(n=1)
 
@@ -140,7 +140,7 @@ class TestTushareFetcherFollowUps(unittest.TestCase):
         fetcher._api.daily.return_value = pd.DataFrame({"close": [10.5]})
 
         with patch.object(fetcher, "_get_china_now", return_value=datetime(2026, 3, 17, 20, 0)), patch.object(
-            fetcher, "_check_rate_limit"
+                fetcher, "_check_rate_limit"
         ) as rate_limit_mock:
             chip = fetcher.get_chip_distribution("600519")
 

@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from data_provider.base import DataFetcherManager
+from ai_stock.stock_data.base import DataFetcherManager
 
 
 class _DummyFetcher:
@@ -120,7 +120,7 @@ class TestTickFlowMarketReviewFallback(unittest.TestCase):
         self.assertEqual(data["up_count"], 1)
         self.assertEqual(fallback.stats_calls, 1)
 
-    @patch("src.config.get_config")
+    @patch("ai_stock.config.get_config")
     def test_manager_skips_tickflow_without_api_key(self, mock_get_config):
         mock_get_config.return_value = SimpleNamespace(tickflow_api_key=None)
 

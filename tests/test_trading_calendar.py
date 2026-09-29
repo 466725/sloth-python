@@ -11,18 +11,18 @@ from zoneinfo import ZoneInfo
 
 import pandas as pd
 
-from src.core import trading_calendar
+from ai_stock.core import trading_calendar
 
 
 class _FakeCalendar:
     def __init__(
-        self,
-        sessions,
-        close_hour: int,
-        tz_name: str,
-        open_time: time = time(9, 30),
-        break_start: Optional[time] = None,
-        break_end: Optional[time] = None,
+            self,
+            sessions,
+            close_hour: int,
+            tz_name: str,
+            open_time: time = time(9, 30),
+            break_start: Optional[time] = None,
+            break_end: Optional[time] = None,
     ):
         self._sessions = sorted(sessions)
         self._close_hour = close_hour
@@ -125,10 +125,10 @@ class EffectiveTradingDateTestCase(unittest.TestCase):
         current_time = datetime(2026, 3, 28, 10, 0, tzinfo=ZoneInfo("Asia/Shanghai"))
 
         with patch.object(trading_calendar, "_XCALS_AVAILABLE", True), patch.object(
-            trading_calendar,
-            "xcals",
-            SimpleNamespace(get_calendar=lambda _ex: fake_calendar),
-            create=True,
+                trading_calendar,
+                "xcals",
+                SimpleNamespace(get_calendar=lambda _ex: fake_calendar),
+                create=True,
         ):
             result = trading_calendar.get_effective_trading_date("cn", current_time=current_time)
 
@@ -143,10 +143,10 @@ class EffectiveTradingDateTestCase(unittest.TestCase):
         current_time = datetime(2026, 1, 1, 12, 0, tzinfo=ZoneInfo("Asia/Shanghai"))
 
         with patch.object(trading_calendar, "_XCALS_AVAILABLE", True), patch.object(
-            trading_calendar,
-            "xcals",
-            SimpleNamespace(get_calendar=lambda _ex: fake_calendar),
-            create=True,
+                trading_calendar,
+                "xcals",
+                SimpleNamespace(get_calendar=lambda _ex: fake_calendar),
+                create=True,
         ):
             result = trading_calendar.get_effective_trading_date("cn", current_time=current_time)
 
@@ -168,10 +168,10 @@ class EffectiveTradingDateTestCase(unittest.TestCase):
         )
 
         with patch.object(trading_calendar, "_XCALS_AVAILABLE", True), patch.object(
-            trading_calendar,
-            "xcals",
-            SimpleNamespace(get_calendar=lambda _ex: fake_calendar),
-            create=True,
+                trading_calendar,
+                "xcals",
+                SimpleNamespace(get_calendar=lambda _ex: fake_calendar),
+                create=True,
         ):
             result = trading_calendar.get_effective_trading_date("us", current_time=current_time)
 
@@ -193,10 +193,10 @@ class EffectiveTradingDateTestCase(unittest.TestCase):
         )
 
         with patch.object(trading_calendar, "_XCALS_AVAILABLE", True), patch.object(
-            trading_calendar,
-            "xcals",
-            SimpleNamespace(get_calendar=lambda _ex: fake_calendar),
-            create=True,
+                trading_calendar,
+                "xcals",
+                SimpleNamespace(get_calendar=lambda _ex: fake_calendar),
+                create=True,
         ):
             result = trading_calendar.get_effective_trading_date("us", current_time=current_time)
 
@@ -211,10 +211,10 @@ class EffectiveTradingDateTestCase(unittest.TestCase):
         current_time = datetime(2026, 3, 27, 1, 0, tzinfo=timezone.utc)
 
         with patch.object(trading_calendar, "_XCALS_AVAILABLE", True), patch.object(
-            trading_calendar,
-            "xcals",
-            SimpleNamespace(get_calendar=lambda _ex: fake_calendar),
-            create=True,
+                trading_calendar,
+                "xcals",
+                SimpleNamespace(get_calendar=lambda _ex: fake_calendar),
+                create=True,
         ):
             result = trading_calendar.get_effective_trading_date("us", current_time=current_time)
 
@@ -224,10 +224,10 @@ class EffectiveTradingDateTestCase(unittest.TestCase):
         current_time = datetime(2026, 3, 27, 18, 0, tzinfo=timezone.utc)
 
         with patch.object(trading_calendar, "_XCALS_AVAILABLE", True), patch.object(
-            trading_calendar,
-            "xcals",
-            SimpleNamespace(get_calendar=lambda _ex: (_ for _ in ()).throw(RuntimeError("boom"))),
-            create=True,
+                trading_calendar,
+                "xcals",
+                SimpleNamespace(get_calendar=lambda _ex: (_ for _ in ()).throw(RuntimeError("boom"))),
+                create=True,
         ):
             result = trading_calendar.get_effective_trading_date("hk", current_time=current_time)
 
@@ -238,16 +238,16 @@ class InferMarketPhaseTestCase(unittest.TestCase):
     """Tests for the Issue #1386 P0 market phase baseline."""
 
     def _infer_with_calendar(
-        self,
-        market: str,
-        current_time: datetime,
-        fake_calendar: _FakeCalendar,
+            self,
+            market: str,
+            current_time: datetime,
+            fake_calendar: _FakeCalendar,
     ) -> trading_calendar.MarketPhase:
         with patch.object(trading_calendar, "_XCALS_AVAILABLE", True), patch.object(
-            trading_calendar,
-            "xcals",
-            _calendar_namespace(fake_calendar),
-            create=True,
+                trading_calendar,
+                "xcals",
+                _calendar_namespace(fake_calendar),
+                create=True,
         ):
             return trading_calendar.infer_market_phase(market, current_time=current_time)
 
@@ -406,10 +406,10 @@ class InferMarketPhaseTestCase(unittest.TestCase):
                 trading_calendar.MarketPhase.UNKNOWN,
             )
         with patch.object(trading_calendar, "_XCALS_AVAILABLE", True), patch.object(
-            trading_calendar,
-            "xcals",
-            SimpleNamespace(get_calendar=lambda _ex: (_ for _ in ()).throw(RuntimeError("boom"))),
-            create=True,
+                trading_calendar,
+                "xcals",
+                SimpleNamespace(get_calendar=lambda _ex: (_ for _ in ()).throw(RuntimeError("boom"))),
+                create=True,
         ):
             self.assertEqual(
                 trading_calendar.infer_market_phase("cn", current_time=current_time),
@@ -474,16 +474,16 @@ class MarketPhaseContextTestCase(unittest.TestCase):
     """Tests for the Issue #1386 P1a runtime market phase context."""
 
     def _build_with_calendar(
-        self,
-        market: str,
-        current_time: datetime,
-        fake_calendar: _FakeCalendar,
+            self,
+            market: str,
+            current_time: datetime,
+            fake_calendar: _FakeCalendar,
     ) -> trading_calendar.MarketPhaseContext:
         with patch.object(trading_calendar, "_XCALS_AVAILABLE", True), patch.object(
-            trading_calendar,
-            "xcals",
-            _calendar_namespace(fake_calendar),
-            create=True,
+                trading_calendar,
+                "xcals",
+                _calendar_namespace(fake_calendar),
+                create=True,
         ):
             return trading_calendar.build_market_phase_context(
                 market=market,
@@ -587,14 +587,14 @@ class MarketPhaseContextTestCase(unittest.TestCase):
         )
 
         for (
-            current_time,
-            phase,
-            is_trading_day,
-            is_market_open_now,
-            is_partial_bar,
-            minutes_to_open,
-            minutes_to_close,
-            effective_date,
+                current_time,
+                phase,
+                is_trading_day,
+                is_market_open_now,
+                is_partial_bar,
+                minutes_to_open,
+                minutes_to_close,
+                effective_date,
         ) in cases:
             with self.subTest(phase=phase):
                 ctx = self._build_with_calendar("cn", current_time, fake_calendar)
@@ -621,10 +621,10 @@ class MarketPhaseContextTestCase(unittest.TestCase):
         )
 
         with patch.object(trading_calendar, "_XCALS_AVAILABLE", True), patch.object(
-            trading_calendar,
-            "xcals",
-            _calendar_namespace(fake_calendar),
-            create=True,
+                trading_calendar,
+                "xcals",
+                _calendar_namespace(fake_calendar),
+                create=True,
         ):
             ctx = trading_calendar.build_market_phase_context(
                 market="cn",
@@ -653,10 +653,10 @@ class MarketPhaseContextTestCase(unittest.TestCase):
         )
 
         with patch.object(trading_calendar, "_XCALS_AVAILABLE", True), patch.object(
-            trading_calendar,
-            "xcals",
-            _calendar_namespace(fake_calendar),
-            create=True,
+                trading_calendar,
+                "xcals",
+                _calendar_namespace(fake_calendar),
+                create=True,
         ):
             ctx = trading_calendar.build_market_phase_context(
                 market="cn",
@@ -706,10 +706,10 @@ class MarketPhaseContextTestCase(unittest.TestCase):
         current_time = datetime(2026, 3, 27, 10, 0, tzinfo=ZoneInfo("Asia/Shanghai"))
 
         with patch.object(trading_calendar, "_XCALS_AVAILABLE", True), patch.object(
-            trading_calendar,
-            "xcals",
-            SimpleNamespace(get_calendar=lambda _ex: (_ for _ in ()).throw(RuntimeError("boom"))),
-            create=True,
+                trading_calendar,
+                "xcals",
+                SimpleNamespace(get_calendar=lambda _ex: (_ for _ in ()).throw(RuntimeError("boom"))),
+                create=True,
         ):
             ctx = trading_calendar.build_market_phase_context(
                 market="cn",
