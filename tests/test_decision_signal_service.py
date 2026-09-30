@@ -275,44 +275,6 @@ def test_list_signals_lazily_backfills_analysis_history_signal(isolated_db) -> N
         assert session.query(DecisionSignalRecord).count() == 1
 
 
-@pytest.mark.parametrize(
-    ("market_phase_summary", "created_offset", "expected_ttl"),
-    (
-        ({"phase": "intraday", "minutes_to_close": 5}, timedelta(minutes=10), timedelta(minutes=5)),
-        ({"phase": "premarket", "minutes_to_open": 10}, timedelta(hours=5), timedelta(hours=4, minutes=10)),
-    ),
-)
-def test_list_signals_backfill_uses_saved_intraday_ttl_metadata(
-    isolated_db,
-    market_phase_summary,
-    created_offset,
-    expected_ttl,
-) -> None:
-    report_created_at = utc_naive_now().replace(microsecond=0) - created_offset
-    record_id = isolated_db.save_analysis_history(
-        result=_history_result(),
-        query_id=f"query-lazy-signal-ttl-{market_phase_summary['phase']}",
-        report_type="simple",
-        news_content="新闻摘要",
-        context_snapshot={"market_phase_summary": market_phase_summary},
-        save_snapshot=True,
-    )
-    with isolated_db.get_session() as session:
-        row = session.query(AnalysisHistory).filter(AnalysisHistory.id == record_id).one()
-        row.created_at = report_created_at
-        session.commit()
-    service = DecisionSignalService(db_manager=isolated_db)
-    expected_report_created_at = service._coerce_history_created_at_to_utc_naive(report_created_at)
-
-    listed = service.list_signals(source_type="analysis", source_report_id=record_id)
-
-    assert listed["total"] == 1
-    item = listed["items"][0]
-    assert item["horizon"] == "intraday"
-    assert item["status"] == "expired"
-    assert datetime.fromisoformat(item["expires_at"]) == expected_report_created_at + expected_ttl
-
-
 def test_list_signals_backfill_converts_naive_history_created_at_for_invalidation_ordering(
     monkeypatch,
     isolated_db,

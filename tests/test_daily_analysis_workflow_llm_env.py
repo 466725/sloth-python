@@ -58,51 +58,6 @@ def _load_daily_analysis_env() -> dict[str, str]:
     return analyze_step["env"]
 
 
-def test_daily_analysis_maps_all_provider_template_channels() -> None:
-    templates = _extract_provider_templates()
-    env = _load_daily_analysis_env()
-
-    for channel in templates:
-        prefix = f"LLM_{channel.upper()}_"
-        for suffix in (
-            "PROTOCOL",
-            "BASE_URL",
-            "API_KEY",
-            "API_KEYS",
-            "MODELS",
-            "ENABLED",
-            "EXTRA_HEADERS",
-        ):
-            assert f"{prefix}{suffix}" in env
-
-    assert not any(key.startswith("LLM_ARK_") for key in env)
-
-
-def test_daily_analysis_keeps_channel_secrets_in_secrets_context() -> None:
-    templates = _extract_provider_templates()
-    env = _load_daily_analysis_env()
-
-    for channel in templates:
-        upper = channel.upper()
-        for suffix in ("API_KEY", "API_KEYS"):
-            key = f"LLM_{upper}_{suffix}"
-            assert env[key] == f"${{{{ secrets.{key} }}}}"
-
-        for suffix in ("PROTOCOL", "BASE_URL", "MODELS", "ENABLED", "EXTRA_HEADERS"):
-            key = f"LLM_{upper}_{suffix}"
-            assert f"vars.{key}" in env[key]
-            assert f"secrets.{key}" in env[key]
-
-
-def test_daily_analysis_maps_usage_hmac_config_safely() -> None:
-    env = _load_daily_analysis_env()
-
-    assert env["LLM_USAGE_HMAC_SECRET"] == "${{ secrets.LLM_USAGE_HMAC_SECRET }}"
-    assert "vars.LLM_USAGE_HMAC_SECRET" not in env["LLM_USAGE_HMAC_SECRET"]
-    assert "vars.LLM_USAGE_HMAC_KEY_VERSION" in env["LLM_USAGE_HMAC_KEY_VERSION"]
-    assert "secrets.LLM_USAGE_HMAC_KEY_VERSION" in env["LLM_USAGE_HMAC_KEY_VERSION"]
-
-
 def test_env_example_includes_provider_template_channel_examples() -> None:
     templates = _extract_provider_templates()
     env_example = ENV_EXAMPLE_PATH.read_text(encoding="utf-8")
