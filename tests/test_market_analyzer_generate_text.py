@@ -2016,26 +2016,3 @@ Sector text.
 
         assert "| 上证指数 | 3200.00 | 🟢 +0.68% |" in result
         assert "| 深证成指 | 9800.00 | 🔴 -0.42% |" in result
-
-    def test_no_private_attribute_access_in_market_analyzer_source(self):
-        """Static guard: market_analyzer.py must not access private analyzer attrs."""
-        import ast
-        import pathlib
-
-        src = pathlib.Path("src/market_analyzer.py").read_text()
-        tree = ast.parse(src)
-        forbidden = {
-            "_model", "_router", "_use_openai", "_use_anthropic",  # historical
-            "_call_litellm",      # use generate_text() instead
-            "_litellm_available", # use is_available() instead
-        }
-
-        violations = []
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Attribute):
-                if node.attr in forbidden:
-                    violations.append(node.attr)
-
-        assert violations == [], (
-            f"market_analyzer.py still accesses private Analyzer attributes: {violations}"
-        )

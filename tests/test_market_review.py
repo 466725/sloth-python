@@ -10,7 +10,6 @@ import unittest
 from types import ModuleType, SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-from market_analyzer import MarketAnalyzer
 from tests.litellm_stub import ensure_litellm_stub
 
 ensure_litellm_stub()
