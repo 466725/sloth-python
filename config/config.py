@@ -41,7 +41,7 @@ def _normalize_openai_base_url(url: str) -> str:
 	"""Ensure OpenAI-compatible URL has the /v1 prefix expected by the SDK path layout."""
 	normalized = url.rstrip("/")
 	parsed = urlparse(normalized)
-	if parsed.netloc == "api_suites.openai.com" and not parsed.path.endswith("/v1"):
+	if parsed.netloc == "api.openai.com" and not parsed.path.endswith("/v1"):
 		return f"{normalized}/v1"
 	return normalized
 

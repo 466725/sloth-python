@@ -5,10 +5,10 @@
 ===================================
 
 职责：
-1. POST /api_suites/v1/stocks/extract-from-image 从图片提取股票代码
-2. POST /api_suites/v1/stocks/parse-import 解析 CSV/Excel/剪贴板
-3. GET /api_suites/v1/stocks/{code}/quote 实时行情接口
-4. GET /api_suites/v1/stocks/{code}/history 历史行情接口
+1. POST /api/v1/stocks/extract-from-image 从图片提取股票代码
+2. POST /api/v1/stocks/parse-import 解析 CSV/Excel/剪贴板
+3. GET /api/v1/stocks/{code}/quote 实时行情接口
+4. GET /api/v1/stocks/{code}/history 历史行情接口
 """
 
 import logging

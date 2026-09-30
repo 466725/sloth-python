@@ -67,7 +67,7 @@ def _payload(**overrides):
         "source_report_id": 101,
         "trace_id": "trace-101",
         "market_phase": "intraday",
-        "trigger_source": "api_suites",
+        "trigger_source": "api",
         "action": "buy",
         "confidence": 0.72,
         "score": 83,
@@ -613,7 +613,7 @@ def test_decision_signal_sanitizer_redacts_sensitive_url_queries_without_url_tai
         "plain https://news.example.com/article?id=1 "
         "signed https://news.example.com/article?token=abc&id=1 "
         "auth https://news.example.com/article?auth_token=abc&id=2 "
-        "api_suites https://news.example.com/article?api-token=abc&id=3 "
+        "api https://news.example.com/article?api-token=abc&id=3 "
         "userinfo https://user:pass@example.com/path "
         "fragment https://news.example.com/cb#access_token=abc "
         "slack https://hooks.slack.com/services/T000/B000/abc123 "
@@ -625,7 +625,7 @@ def test_decision_signal_sanitizer_redacts_sensitive_url_queries_without_url_tai
     assert sanitized.count("[REDACTED_URL]") == 8
     assert "token=abc" not in sanitized
     assert "auth_token=abc" not in sanitized
-    assert "api_suites-token=abc" not in sanitized
+    assert "api-token=abc" not in sanitized
     assert "user:pass" not in sanitized
     assert "hooks.slack.com" not in sanitized
     assert "open.feishu.cn" not in sanitized
@@ -859,7 +859,7 @@ def test_service_sanitizes_text_and_json_before_persisting(isolated_db) -> None:
     assert "access_token=abc" not in response_blob
     assert "token=abc" not in response_blob
     assert "auth_token=abc" not in response_blob
-    assert "api_suites-key=abc" not in response_blob
+    assert "api-key=abc" not in response_blob
     assert "]&id=" not in response_blob
     assert "plain-secret" not in response_blob
     assert "abc+/def==" not in response_blob
@@ -895,7 +895,7 @@ def test_service_sanitizes_text_and_json_before_persisting(isolated_db) -> None:
     assert "access_token=abc" not in stored_blob
     assert "token=abc" not in stored_blob
     assert "auth_token=abc" not in stored_blob
-    assert "api_suites-key=abc" not in stored_blob
+    assert "api-key=abc" not in stored_blob
     assert "]&id=" not in stored_blob
     assert "plain-secret" not in stored_blob
     assert "abc+/def==" not in stored_blob

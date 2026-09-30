@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { historyApi } from '../../../api/history';
 import { ReportMarkdown } from '../ReportMarkdown';
 
-vi.mock('../../../api_suites/history', () => ({
+vi.mock('../../../api/history', () => ({
   historyApi: {
     getMarkdown: vi.fn(),
   },

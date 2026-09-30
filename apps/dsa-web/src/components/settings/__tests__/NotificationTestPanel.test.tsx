@@ -7,7 +7,7 @@ import { NotificationTestPanel } from '../NotificationTestPanel';
 
 const testNotificationChannel = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../api_suites/systemConfig', () => ({
+vi.mock('../../../api/systemConfig', () => ({
   systemConfigApi: {
     testNotificationChannel,
   },

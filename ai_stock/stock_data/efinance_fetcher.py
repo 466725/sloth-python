@@ -115,7 +115,7 @@ class EfinanceRealtimeQuote:
 
 logger = logging.getLogger(__name__)
 
-EASTMONEY_HISTORY_ENDPOINT = "push2his.eastmoney.com/api_suites/qt/stock/kline/get"
+EASTMONEY_HISTORY_ENDPOINT = "push2his.eastmoney.com/api/qt/stock/kline/get"
 
 
 # User-Agent 池，用于随机轮换
@@ -931,20 +931,20 @@ class EfinanceFetcher(BaseFetcher):
                 df = _realtime_cache['metadata']
                 logger.info(
                     "[MarketStats] component=market_stats provider=EfinanceFetcher "
-                    "api_suites=ef.stock.get_realtime_quotes action=cache_hit cache_age=%.0fs",
+                    "api=ef.stock.get_realtime_quotes action=cache_hit cache_age=%.0fs",
                     current_time - _realtime_cache['timestamp'],
                 )
             else:
                 started_at = time.monotonic()
                 logger.info(
                     "[MarketStats] component=market_stats provider=EfinanceFetcher "
-                    "api_suites=ef.stock.get_realtime_quotes action=request_start"
+                    "api=ef.stock.get_realtime_quotes action=request_start"
                 )
                 df = _ef_call_with_timeout(ef.stock.get_realtime_quotes)
                 elapsed = time.monotonic() - started_at
                 logger.info(
                     "[MarketStats] component=market_stats provider=EfinanceFetcher "
-                    "api_suites=ef.stock.get_realtime_quotes action=request_complete elapsed=%.2fs",
+                    "api=ef.stock.get_realtime_quotes action=request_complete elapsed=%.2fs",
                     elapsed,
                 )
                 _realtime_cache['metadata'] = df
@@ -953,7 +953,7 @@ class EfinanceFetcher(BaseFetcher):
             if df is None or df.empty:
                 logger.warning(
                     "[MarketStats] component=market_stats provider=EfinanceFetcher "
-                    "api_suites=ef.stock.get_realtime_quotes action=parse status=empty"
+                    "api=ef.stock.get_realtime_quotes action=parse status=empty"
                 )
                 return None
 
@@ -961,7 +961,7 @@ class EfinanceFetcher(BaseFetcher):
         except Exception as e:
             logger.error(
                 "[MarketStats] component=market_stats provider=EfinanceFetcher "
-                "api_suites=ef.stock.get_realtime_quotes action=failed error=%s",
+                "api=ef.stock.get_realtime_quotes action=failed error=%s",
                 e,
             )
             return None

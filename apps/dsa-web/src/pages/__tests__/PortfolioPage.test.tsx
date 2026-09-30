@@ -54,14 +54,14 @@ const {
   getLatestDecisionSignals: vi.fn(),
 }));
 
-vi.mock('../../api_suites/decisionSignals', () => ({
+vi.mock('../../api/decisionSignals', () => ({
   decisionSignalsApi: {
     list: listDecisionSignals,
     getLatest: getLatestDecisionSignals,
   },
 }));
 
-vi.mock('../../api_suites/portfolio', () => ({
+vi.mock('../../api/portfolio', () => ({
   portfolioApi: {
     getAccounts,
     getSnapshot,

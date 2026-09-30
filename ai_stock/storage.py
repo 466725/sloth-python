@@ -875,7 +875,7 @@ class AlertRuleRecord(Base):
     parameters = Column(Text, nullable=False, default='{}')
     severity = Column(String(16), nullable=False, default='warning', index=True)
     enabled = Column(Boolean, nullable=False, default=True, index=True)
-    source = Column(String(16), nullable=False, default='api_suites', index=True)
+    source = Column(String(16), nullable=False, default='api', index=True)
     cooldown_policy = Column(Text)
     notification_policy = Column(Text)
     created_at = Column(DateTime, default=datetime.now, index=True)
@@ -1074,7 +1074,7 @@ class DecisionSignalFeedbackRecord(Base):
     feedback_value = Column(String(16), nullable=False, index=True)
     reason_code = Column(String(64), index=True)
     note = Column(Text)
-    source = Column(String(16), nullable=False, default='api_suites', index=True)
+    source = Column(String(16), nullable=False, default='api', index=True)
     created_at = Column(DateTime, default=utc_naive_now, index=True)
     updated_at = Column(DateTime, default=utc_naive_now, onupdate=utc_naive_now, index=True)
 

@@ -94,7 +94,7 @@ def test_build_payload_maps_report_context_and_price_plan() -> None:
         portfolio_context={"quantity": "200"},
         source_report_id=88,
         trace_id="trace-88",
-        query_source="api_suites",
+        query_source="api",
         report_type="full",
     )
 
@@ -105,7 +105,7 @@ def test_build_payload_maps_report_context_and_price_plan() -> None:
     assert payload["source_type"] == "analysis"
     assert payload["source_report_id"] == 88
     assert payload["trace_id"] == "trace-88"
-    assert payload["trigger_source"] == "api_suites"
+    assert payload["trigger_source"] == "api"
     assert payload["action"] == "buy"
     assert payload["confidence"] == 0.8
     assert payload["score"] == 82
@@ -165,7 +165,7 @@ def test_build_payload_records_empty_holding_state_from_explicit_portfolio_conte
         _result(),
         portfolio_context={"quantity": 0},
         trace_id="trace-empty-holding",
-        query_source="api_suites",
+        query_source="api",
         report_type="simple",
     )
 
@@ -191,7 +191,7 @@ def test_build_payload_maps_secondary_only_entry_to_entry_high() -> None:
     payload = build_decision_signal_payload_from_report(
         result,
         trace_id="trace-secondary-only",
-        query_source="api_suites",
+        query_source="api",
         report_type="simple",
     )
 
@@ -219,7 +219,7 @@ def test_build_payload_reuses_shared_sniper_fallback_paths(isolated_db) -> None:
     payload = build_decision_signal_payload_from_report(
         result,
         trace_id="trace-raw-sniper",
-        query_source="api_suites",
+        query_source="api",
         report_type="simple",
     )
     stored_points = isolated_db._extract_sniper_points(result)
@@ -242,7 +242,7 @@ def test_build_payload_skips_ambiguous_action_non_stock_and_unknown_market() -> 
     assert build_decision_signal_payload_from_report(
         ambiguous,
         trace_id="trace-1",
-        query_source="api_suites",
+        query_source="api",
         report_type="simple",
     ) is None
 
@@ -250,7 +250,7 @@ def test_build_payload_skips_ambiguous_action_non_stock_and_unknown_market() -> 
     assert build_decision_signal_payload_from_report(
         market_review,
         trace_id="trace-2",
-        query_source="api_suites",
+        query_source="api",
         report_type="market_review",
     ) is None
 
@@ -258,7 +258,7 @@ def test_build_payload_skips_ambiguous_action_non_stock_and_unknown_market() -> 
     assert build_decision_signal_payload_from_report(
         unknown_market,
         trace_id="trace-3",
-        query_source="api_suites",
+        query_source="api",
         report_type="simple",
     ) is None
 
@@ -275,7 +275,7 @@ def test_extract_and_persist_reuses_service_dedup_and_sanitization(isolated_db) 
         portfolio_context={"quantity": 10},
         source_report_id=901,
         trace_id="trace-901",
-        query_source="api_suites",
+        query_source="api",
         report_type="full",
         service=service,
     )
@@ -285,7 +285,7 @@ def test_extract_and_persist_reuses_service_dedup_and_sanitization(isolated_db) 
         portfolio_context={"quantity": 10},
         source_report_id=901,
         trace_id="trace-901",
-        query_source="api_suites",
+        query_source="api",
         report_type="full",
         service=service,
     )

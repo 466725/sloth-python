@@ -47,7 +47,7 @@ class _FailureFetcher(BaseFetcher):
     def _fetch_raw_data(self, stock_code: str, start_date: str, end_date: str) -> pd.DataFrame:
         raise DataFetchError(
             "Eastmoney 历史K线接口失败: "
-            "endpoint=push2his.eastmoney.com/api_suites/qt/stock/kline/get, "
+            "endpoint=push2his.eastmoney.com/api/qt/stock/kline/get, "
             "category=remote_disconnect"
         )
 
@@ -102,7 +102,7 @@ class TestFetcherLogging(unittest.TestCase):
 
         log_text = "\n".join(captured.output)
         self.assertIn("Eastmoney 历史K线接口失败:", log_text)
-        self.assertIn("endpoint=push2his.eastmoney.com/api_suites/qt/stock/kline/get", log_text)
+        self.assertIn("endpoint=push2his.eastmoney.com/api/qt/stock/kline/get", log_text)
         self.assertIn("category=remote_disconnect", log_text)
         self.assertIn("[EfinanceFetcher] 601006 获取失败:", log_text)
 

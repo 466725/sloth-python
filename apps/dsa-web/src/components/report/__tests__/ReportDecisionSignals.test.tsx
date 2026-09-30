@@ -10,7 +10,7 @@ import type {
 } from '../../../types/decisionSignals';
 import { ReportDecisionSignals } from '../ReportDecisionSignals';
 
-vi.mock('../../../api_suites/decisionSignals', () => ({
+vi.mock('../../../api/decisionSignals', () => ({
   decisionSignalsApi: {
     list: vi.fn(),
     getSignalOutcomes: vi.fn(),

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { AnalysisReport, MarketReviewPayload } from '../../../types/analysis';
 import { MarketReviewReportView } from '../MarketReviewReportView';
 
-vi.mock('../../../api_suites/history', () => ({
+vi.mock('../../../api/history', () => ({
   historyApi: {
     getMarkdown: vi.fn(),
   },

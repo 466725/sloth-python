@@ -5,10 +5,10 @@
 ===================================
 
 职责：
-1. 提供 POST /api_suites/v1/analysis/analyze 触发分析接口
-2. 提供 GET /api_suites/v1/analysis/status/{task_id} 查询任务状态接口
-3. 提供 GET /api_suites/v1/analysis/tasks 获取任务列表接口
-4. 提供 GET /api_suites/v1/analysis/tasks/stream SSE 实时推送接口
+1. 提供 POST /api/v1/analysis/analyze 触发分析接口
+2. 提供 GET /api/v1/analysis/status/{task_id} 查询任务状态接口
+3. 提供 GET /api/v1/analysis/tasks 获取任务列表接口
+4. 提供 GET /api/v1/analysis/tasks/stream SSE 实时推送接口
 
 特性：
 - 异步任务队列：分析任务异步执行，不阻塞请求
@@ -150,13 +150,13 @@ def _run_market_review_background(
             "send_notification": send_notification,
             "override_region": override_region,
             "return_structured": True,
-            "trigger_source": "api_suites",
+            "trigger_source": "api",
         }
         if query_id:
             review_kwargs["query_id"] = query_id
         logger.info(
             "[MarketReview] component=market_review action=background_start "
-            "trigger_source=api_suites task_id=%s region=%s",
+            "trigger_source=api task_id=%s region=%s",
             query_id or "-",
             override_region or getattr(runtime_config, "market_review_region", "cn") or "cn",
         )
@@ -508,7 +508,7 @@ def trigger_market_review(
     try:
         task_id = uuid.uuid4().hex
         logger.info(
-            "[MarketReview] component=market_review action=submit trigger_source=api_suites "
+            "[MarketReview] component=market_review action=submit trigger_source=api "
             "task_id=%s region=%s send_notification=%s",
             task_id,
             getattr(runtime_config, "market_review_region", "cn") or "cn",

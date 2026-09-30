@@ -90,7 +90,7 @@ class AlertApiTestCase(unittest.TestCase):
         }
         if payload:
             body.update(payload)
-        resp = self.client.post("/api_suites/v1/alerts/rules", json=body)
+        resp = self.client.post("/api/v1/alerts/rules", json=body)
         self.assertEqual(resp.status_code, 200, resp.text)
         return resp.json()
 
@@ -101,44 +101,44 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(created["alert_type"], "price_cross")
         self.assertEqual(created["parameters"]["price"], 1800.0)
         self.assertTrue(created["enabled"])
-        self.assertEqual(created["source"], "api_suites")
+        self.assertEqual(created["source"], "api")
         self.assertIsNone(created["last_triggered_at"])
         self.assertIsNone(created["cooldown_until"])
         self.assertFalse(created["cooldown_active"])
         self.assertIsNotNone(created["created_at"])
         self.assertIsNotNone(created["updated_at"])
 
-        list_resp = self.client.get("/api_suites/v1/alerts/rules")
+        list_resp = self.client.get("/api/v1/alerts/rules")
         self.assertEqual(list_resp.status_code, 200)
         payload = list_resp.json()
         self.assertEqual(payload["total"], 1)
         self.assertEqual(payload["items"][0]["id"], rule_id)
 
-        detail_resp = self.client.get(f"/api_suites/v1/alerts/rules/{rule_id}")
+        detail_resp = self.client.get(f"/api/v1/alerts/rules/{rule_id}")
         self.assertEqual(detail_resp.status_code, 200)
         self.assertEqual(detail_resp.json()["id"], rule_id)
 
         patch_resp = self.client.patch(
-            f"/api_suites/v1/alerts/rules/{rule_id}",
+            f"/api/v1/alerts/rules/{rule_id}",
             json={"enabled": False, "parameters": {"direction": "below", "price": 1600}},
         )
         self.assertEqual(patch_resp.status_code, 200, patch_resp.text)
         self.assertFalse(patch_resp.json()["enabled"])
         self.assertEqual(patch_resp.json()["parameters"], {"direction": "below", "price": 1600.0})
 
-        enable_resp = self.client.post(f"/api_suites/v1/alerts/rules/{rule_id}/enable")
+        enable_resp = self.client.post(f"/api/v1/alerts/rules/{rule_id}/enable")
         self.assertEqual(enable_resp.status_code, 200)
         self.assertTrue(enable_resp.json()["enabled"])
 
-        disable_resp = self.client.post(f"/api_suites/v1/alerts/rules/{rule_id}/disable")
+        disable_resp = self.client.post(f"/api/v1/alerts/rules/{rule_id}/disable")
         self.assertEqual(disable_resp.status_code, 200)
         self.assertFalse(disable_resp.json()["enabled"])
 
-        delete_resp = self.client.delete(f"/api_suites/v1/alerts/rules/{rule_id}")
+        delete_resp = self.client.delete(f"/api/v1/alerts/rules/{rule_id}")
         self.assertEqual(delete_resp.status_code, 200)
         self.assertEqual(delete_resp.json(), {"deleted": 1})
 
-        missing_resp = self.client.get(f"/api_suites/v1/alerts/rules/{rule_id}")
+        missing_resp = self.client.get(f"/api/v1/alerts/rules/{rule_id}")
         self.assertEqual(missing_resp.status_code, 404)
 
     def test_rule_response_includes_server_cooldown_active_flag(self) -> None:
@@ -156,7 +156,7 @@ class AlertApiTestCase(unittest.TestCase):
             reason="active cooldown",
         )
 
-        list_resp = self.client.get("/api_suites/v1/alerts/rules")
+        list_resp = self.client.get("/api/v1/alerts/rules")
         self.assertEqual(list_resp.status_code, 200, list_resp.text)
         item = list_resp.json()["items"][0]
         self.assertEqual(item["id"], created["id"])
@@ -174,14 +174,14 @@ class AlertApiTestCase(unittest.TestCase):
             reason="expired cooldown",
         )
 
-        detail_resp = self.client.get(f"/api_suites/v1/alerts/rules/{created['id']}")
+        detail_resp = self.client.get(f"/api/v1/alerts/rules/{created['id']}")
         self.assertEqual(detail_resp.status_code, 200, detail_resp.text)
         self.assertFalse(detail_resp.json()["cooldown_active"])
 
     def test_rule_update_rejects_empty_payload(self) -> None:
         rule = self._create_rule()
 
-        resp = self.client.patch(f"/api_suites/v1/alerts/rules/{rule['id']}", json={})
+        resp = self.client.patch(f"/api/v1/alerts/rules/{rule['id']}", json={})
 
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.json()["error"], "validation_error")
@@ -190,11 +190,11 @@ class AlertApiTestCase(unittest.TestCase):
         rule = self._create_rule()
 
         for field_name in ("enabled", "severity", "name"):
-            resp = self.client.patch(f"/api_suites/v1/alerts/rules/{rule['id']}", json={field_name: None})
+            resp = self.client.patch(f"/api/v1/alerts/rules/{rule['id']}", json={field_name: None})
             self.assertEqual(resp.status_code, 400, resp.text)
             self.assertEqual(resp.json()["error"], "validation_error")
 
-        detail_resp = self.client.get(f"/api_suites/v1/alerts/rules/{rule['id']}")
+        detail_resp = self.client.get(f"/api/v1/alerts/rules/{rule['id']}")
         self.assertEqual(detail_resp.status_code, 200)
         detail = detail_resp.json()
         self.assertTrue(detail["enabled"])
@@ -210,7 +210,7 @@ class AlertApiTestCase(unittest.TestCase):
         )
 
         resp = self.client.patch(
-            f"/api_suites/v1/alerts/rules/{rule['id']}",
+            f"/api/v1/alerts/rules/{rule['id']}",
             json={"cooldown_policy": None, "notification_policy": None},
         )
 
@@ -239,7 +239,7 @@ class AlertApiTestCase(unittest.TestCase):
         )
 
         resp = self.client.get(
-            "/api_suites/v1/alerts/rules",
+            "/api/v1/alerts/rules",
             params={"alert_type": "price_change_percent", "enabled": False},
         )
         self.assertEqual(resp.status_code, 200)
@@ -302,7 +302,7 @@ class AlertApiTestCase(unittest.TestCase):
 
         for alert_type, parameters in cases:
             resp = self.client.post(
-                "/api_suites/v1/alerts/rules",
+                "/api/v1/alerts/rules",
                 json={
                     "target_scope": "single_symbol",
                     "target": "600519",
@@ -341,7 +341,7 @@ class AlertApiTestCase(unittest.TestCase):
             },
         ]
         for body in valid_cases:
-            resp = self.client.post("/api_suites/v1/alerts/rules", json=body)
+            resp = self.client.post("/api/v1/alerts/rules", json=body)
             self.assertEqual(resp.status_code, 200, resp.text)
             self.assertEqual(resp.json()["target_scope"], body["target_scope"])
 
@@ -372,7 +372,7 @@ class AlertApiTestCase(unittest.TestCase):
             },
         ]
         for body in invalid_cases:
-            resp = self.client.post("/api_suites/v1/alerts/rules", json=body)
+            resp = self.client.post("/api/v1/alerts/rules", json=body)
             self.assertEqual(resp.status_code, 400, resp.text)
             self.assertEqual(resp.json()["error"], "validation_error")
 
@@ -389,7 +389,7 @@ class AlertApiTestCase(unittest.TestCase):
             return SimpleNamespace(price=11.0 if stock_code == "600519" else 9.0)
 
         with patch("ai_stock.agent.events.EventMonitor._get_realtime_quote", new=_quote):
-            resp = self.client.post(f"/api_suites/v1/alerts/rules/{rule['id']}/test")
+            resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
         self.assertEqual(resp.status_code, 200, resp.text)
         payload = resp.json()
@@ -416,7 +416,7 @@ class AlertApiTestCase(unittest.TestCase):
             "ai_stock.agent.events.EventMonitor._get_realtime_quote",
             new=_slow_quote,
         ):
-            resp = self.client.post(f"/api_suites/v1/alerts/rules/{rule['id']}/test")
+            resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
         self.assertEqual(resp.status_code, 200, resp.text)
         payload = resp.json()
@@ -448,14 +448,14 @@ class AlertApiTestCase(unittest.TestCase):
             reason="active cooldown",
         )
 
-        detail_resp = self.client.get(f"/api_suites/v1/alerts/rules/{created['id']}")
+        detail_resp = self.client.get(f"/api/v1/alerts/rules/{created['id']}")
 
         self.assertEqual(detail_resp.status_code, 200, detail_resp.text)
         self.assertTrue(detail_resp.json()["cooldown_active"])
 
     def test_rejects_unsupported_and_invalid_rules(self) -> None:
         unsupported = self.client.post(
-            "/api_suites/v1/alerts/rules",
+            "/api/v1/alerts/rules",
             json={
                 "target_scope": "single_symbol",
                 "target": "600519",
@@ -467,7 +467,7 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(unsupported.json()["error"], "unsupported_alert_type")
 
         invalid_price = self.client.post(
-            "/api_suites/v1/alerts/rules",
+            "/api/v1/alerts/rules",
             json={
                 "target_scope": "single_symbol",
                 "target": "600519",
@@ -479,7 +479,7 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(invalid_price.json()["error"], "validation_error")
 
         missing_target = self.client.post(
-            "/api_suites/v1/alerts/rules",
+            "/api/v1/alerts/rules",
             json={"target_scope": "single_symbol", "alert_type": "price_cross", "parameters": {"price": 10}},
         )
         self.assertEqual(missing_target.status_code, 422)
@@ -496,7 +496,7 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(created["parameters"], {"statuses": ["red", "yellow"]})
 
         invalid_symbol_rule = self.client.post(
-            "/api_suites/v1/alerts/rules",
+            "/api/v1/alerts/rules",
             json={
                 "target_scope": "market",
                 "target": "cn",
@@ -508,7 +508,7 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(invalid_symbol_rule.json()["error"], "validation_error")
 
         invalid_market_rule = self.client.post(
-            "/api_suites/v1/alerts/rules",
+            "/api/v1/alerts/rules",
             json={
                 "target_scope": "single_symbol",
                 "target": "600519",
@@ -520,7 +520,7 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(invalid_market_rule.json()["error"], "validation_error")
 
         invalid_target = self.client.post(
-            "/api_suites/v1/alerts/rules",
+            "/api/v1/alerts/rules",
             json={
                 "target_scope": "market",
                 "target": "eu",
@@ -562,7 +562,7 @@ class AlertApiTestCase(unittest.TestCase):
         with patch("ai_stock.services.market_light_alerts.get_open_markets_today", return_value={"cn"}), patch(
             "ai_stock.services.market_light_alerts.build_current_snapshot", return_value=snapshot
         ) as build_snapshot, patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
-            resp = self.client.post(f"/api_suites/v1/alerts/rules/{rule['id']}/test")
+            resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
         self.assertEqual(resp.status_code, 200, resp.text)
         payload = resp.json()
@@ -577,8 +577,8 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(payload["target_results"][0]["observed_value"], 35.0)
         build_snapshot.assert_called_once_with("cn")
 
-        self.assertEqual(self.client.get("/api_suites/v1/alerts/triggers").json()["total"], 0)
-        self.assertEqual(self.client.get("/api_suites/v1/alerts/notifications").json()["total"], 0)
+        self.assertEqual(self.client.get("/api/v1/alerts/triggers").json()["total"], 0)
+        self.assertEqual(self.client.get("/api/v1/alerts/notifications").json()["total"], 0)
 
     def test_dry_run_price_cross_uses_mocked_quote_and_does_not_write_history(self) -> None:
         rule = self._create_rule()
@@ -587,7 +587,7 @@ class AlertApiTestCase(unittest.TestCase):
             "ai_stock.agent.events.EventMonitor._get_realtime_quote",
             new=AsyncMock(return_value=SimpleNamespace(price=1800.0)),
         ) as quote:
-            resp = self.client.post(f"/api_suites/v1/alerts/rules/{rule['id']}/test")
+            resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
         self.assertEqual(resp.status_code, 200, resp.text)
         payload = resp.json()
@@ -596,8 +596,8 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(payload["observed_value"], 1800.0)
         quote.assert_awaited_once_with("600519")
 
-        self.assertEqual(self.client.get("/api_suites/v1/alerts/triggers").json()["total"], 0)
-        self.assertEqual(self.client.get("/api_suites/v1/alerts/notifications").json()["total"], 0)
+        self.assertEqual(self.client.get("/api/v1/alerts/triggers").json()["total"], 0)
+        self.assertEqual(self.client.get("/api/v1/alerts/notifications").json()["total"], 0)
 
     def test_dry_run_price_cross_not_triggered_keeps_observed_value(self) -> None:
         rule = self._create_rule()
@@ -606,7 +606,7 @@ class AlertApiTestCase(unittest.TestCase):
             "ai_stock.agent.events.EventMonitor._get_realtime_quote",
             new=AsyncMock(return_value=SimpleNamespace(price=1700.0)),
         ):
-            resp = self.client.post(f"/api_suites/v1/alerts/rules/{rule['id']}/test")
+            resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
         self.assertEqual(resp.status_code, 200, resp.text)
         payload = resp.json()
@@ -621,7 +621,7 @@ class AlertApiTestCase(unittest.TestCase):
             raise RuntimeError("token=secret-token failed at https://example.com/webhook")
 
         with patch("ai_stock.agent.events.EventMonitor._get_realtime_quote", new=_raise_quote_error):
-            resp = self.client.post(f"/api_suites/v1/alerts/rules/{rule['id']}/test")
+            resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
         self.assertEqual(resp.status_code, 200, resp.text)
         payload = resp.json()
@@ -643,7 +643,7 @@ class AlertApiTestCase(unittest.TestCase):
             "ai_stock.agent.events.EventMonitor._get_realtime_quote",
             new=AsyncMock(return_value={"pct_chg": " -3.25% "}),
         ):
-            resp = self.client.post(f"/api_suites/v1/alerts/rules/{rule['id']}/test")
+            resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
         self.assertEqual(resp.status_code, 200, resp.text)
         payload = resp.json()
@@ -657,7 +657,7 @@ class AlertApiTestCase(unittest.TestCase):
             "ai_stock.agent.events.EventMonitor._get_realtime_quote",
             new=AsyncMock(return_value=None),
         ):
-            resp = self.client.post(f"/api_suites/v1/alerts/rules/{rule['id']}/test")
+            resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["status"], "not_triggered")
@@ -700,7 +700,7 @@ class AlertApiTestCase(unittest.TestCase):
             session.add(notification)
             session.commit()
 
-        trigger_resp = self.client.get("/api_suites/v1/alerts/triggers", params={"page": 1, "page_size": 10})
+        trigger_resp = self.client.get("/api/v1/alerts/triggers", params={"page": 1, "page_size": 10})
         self.assertEqual(trigger_resp.status_code, 200)
         trigger_payload = trigger_resp.json()
         self.assertEqual(trigger_payload["total"], 1)
@@ -710,7 +710,7 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertIsNone(trigger_payload["items"][0]["analysis_context_pack_overview"])
         self.assertEqual(trigger_payload["items"][0]["analysis_visibility_source"], "legacy_text")
 
-        notification_resp = self.client.get("/api_suites/v1/alerts/notifications", params={"channel": "wechat"})
+        notification_resp = self.client.get("/api/v1/alerts/notifications", params={"channel": "wechat"})
         self.assertEqual(notification_resp.status_code, 200)
         notification_payload = notification_resp.json()
         self.assertEqual(notification_payload["total"], 1)
@@ -761,7 +761,7 @@ class AlertApiTestCase(unittest.TestCase):
             )
             session.commit()
 
-        resp = self.client.get("/api_suites/v1/alerts/triggers", params={"page": 1, "page_size": 10})
+        resp = self.client.get("/api/v1/alerts/triggers", params={"page": 1, "page_size": 10})
 
         self.assertEqual(resp.status_code, 200, resp.text)
         item = resp.json()["items"][0]

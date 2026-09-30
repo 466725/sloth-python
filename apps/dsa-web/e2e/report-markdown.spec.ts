@@ -33,7 +33,7 @@ async function login(page: Page) {
 
   await Promise.all([
     page.waitForResponse(
-      (response) => response.url().includes('/api_suites/v1/auth/login') && response.status() === 200,
+      (response) => response.url().includes('/api/v1/auth/login') && response.status() === 200,
       { timeout: 15_000 }
     ),
     submitButton.click(),

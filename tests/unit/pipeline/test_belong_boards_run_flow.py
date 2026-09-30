@@ -38,7 +38,7 @@ def _capture_belong_board_run(manager: DataFetcherManager):
         task_id="task-boards",
         query_id="query-boards",
         stock_code="600519",
-        trigger_source="api_suites",
+        trigger_source="api",
         event_sink=flow_events.append,
     )
     try:

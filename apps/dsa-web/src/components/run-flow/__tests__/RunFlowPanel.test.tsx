@@ -5,14 +5,14 @@ import { historyApi } from '../../../api/history';
 import type { RunFlowSnapshot } from '../../../types/runFlow';
 import { RunFlowPanel } from '../RunFlowPanel';
 
-vi.mock('../../../api_suites/analysis', () => ({
+vi.mock('../../../api/analysis', () => ({
   analysisApi: {
     getTaskFlow: vi.fn(),
     getTaskStreamUrl: vi.fn(() => 'http://localhost/api/v1/analysis/tasks/stream'),
   },
 }));
 
-vi.mock('../../../api_suites/history', () => ({
+vi.mock('../../../api/history', () => ({
   historyApi: {
     getRecordFlow: vi.fn(),
   },

@@ -5,7 +5,7 @@ import { historyApi } from '../../../api/history';
 import type { RunDiagnosticSummary } from '../../../types/analysis';
 import { ReportDiagnostics } from '../ReportDiagnostics';
 
-vi.mock('../../../api_suites/history', () => ({
+vi.mock('../../../api/history', () => ({
   historyApi: {
     getDiagnostics: vi.fn(),
   },

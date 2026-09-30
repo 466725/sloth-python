@@ -92,7 +92,7 @@ def _analysis_context_pack_overview() -> dict:
         },
         "warnings": [],
         "metadata": {
-            "trigger_source": "api_suites",
+            "trigger_source": "api",
             "news_result_count": 2,
         },
     }
@@ -110,7 +110,7 @@ def _market_phase_summary() -> dict:
         "is_partial_bar": True,
         "minutes_to_open": None,
         "minutes_to_close": 300,
-        "trigger_source": "api_suites",
+        "trigger_source": "api",
         "analysis_intent": "auto",
         "warnings": ["partial_bar"],
     }
@@ -972,7 +972,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
 
     @patch("ai_stock.auth.is_auth_enabled", return_value=False)
     def test_history_detail_ignores_non_dict_realtime_quote_raw(self, mock_auth) -> None:
-        """GET /api_suites/v1/history/{id} should tolerate truthy non-dict realtime_quote_raw."""
+        """GET /api/v1/history/{id} should tolerate truthy non-dict realtime_quote_raw."""
         if TestClient is None or create_app is None:
             self.skipTest("fastapi is not installed in this test environment")
 
@@ -1004,7 +1004,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         static_dir.mkdir(exist_ok=True)
         client = TestClient(create_app(static_dir=static_dir))
 
-        response = client.get(f"/api_suites/v1/history/{record_id}")
+        response = client.get(f"/api/v1/history/{record_id}")
 
         self.assertEqual(response.status_code, 200)
         payload = response.json()
@@ -1391,7 +1391,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         report = get_history_detail(str(record_id), db_manager=self.db)
         self.assertEqual(
             report.details.analysis_context_pack_overview.metadata.trigger_source,
-            "api_suites",
+            "api",
         )
         self.assertEqual(
             report.details.analysis_context_pack_overview.data_quality.overall_score,
@@ -1740,7 +1740,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
                 source_report_id=record_id,
                 trace_id="trace-delete-linked",
                 market_phase="intraday",
-                trigger_source="api_suites",
+                trigger_source="api",
                 action="buy",
                 action_label="买入",
                 reason="linked",
@@ -1765,7 +1765,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             session.add(DecisionSignalFeedbackRecord(
                 signal_id=linked_signal_id,
                 feedback_value="useful",
-                source="api_suites",
+                source="api",
             ))
             session.add(DecisionSignalRecord(
                 stock_code="000001",
@@ -1775,7 +1775,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
                 source_report_id=record_id + 999,
                 trace_id="trace-delete-unrelated",
                 market_phase="intraday",
-                trigger_source="api_suites",
+                trigger_source="api",
                 action="watch",
                 action_label="观望",
                 reason="unrelated",
@@ -1826,7 +1826,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
                 source_report_id=missing_id,
                 trace_id="trace-delete-missing-history",
                 market_phase="intraday",
-                trigger_source="api_suites",
+                trigger_source="api",
                 action="watch",
                 action_label="观望",
                 reason="manual signal with unverified report id",
@@ -1858,7 +1858,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
                 source_report_id=record_id,
                 trace_id="trace-delete-analysis-bound",
                 market_phase="intraday",
-                trigger_source="api_suites",
+                trigger_source="api",
                 action="buy",
                 action_label="买入",
                 reason="history-bound signal",
@@ -1873,7 +1873,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
                 source_report_id=record_id,
                 trace_id="trace-delete-manual-weak-ref",
                 market_phase="intraday",
-                trigger_source="api_suites",
+                trigger_source="api",
                 action="watch",
                 action_label="观望",
                 reason="manual signal with caller-supplied report id",
@@ -1920,7 +1920,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
                 source_report_id=record_id,
                 trace_id="trace-delete-mixed-linked",
                 market_phase="intraday",
-                trigger_source="api_suites",
+                trigger_source="api",
                 action="buy",
                 action_label="买入",
                 reason="linked",
@@ -1935,7 +1935,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
                 source_report_id=missing_id,
                 trace_id="trace-delete-mixed-missing",
                 market_phase="intraday",
-                trigger_source="api_suites",
+                trigger_source="api",
                 action="watch",
                 action_label="观望",
                 reason="weak report id collision",
@@ -1967,7 +1967,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
 
     @patch("ai_stock.auth.is_auth_enabled", return_value=False)
     def test_delete_history_api_deletes_selected_records(self, mock_auth) -> None:
-        """DELETE /api_suites/v1/history should remove only the requested records."""
+        """DELETE /api/v1/history should remove only the requested records."""
         if TestClient is None or create_app is None:
             self.skipTest("fastapi is not installed in this test environment")
 
@@ -1980,7 +1980,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
 
         response = client.request(
             "DELETE",
-            "/api_suites/v1/history",
+            "/api/v1/history",
             json={"record_ids": [record_id_1]},
         )
 

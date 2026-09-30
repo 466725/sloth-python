@@ -5,8 +5,8 @@
 ===================================
 
 职责：
-1. 提供 GET /api_suites/v1/history 历史列表查询接口
-2. 提供 GET /api_suites/v1/history/{query_id} 历史详情查询接口
+1. 提供 GET /api/v1/history 历史列表查询接口
+2. 提供 GET /api/v1/history/{query_id} 历史详情查询接口
 """
 
 import logging

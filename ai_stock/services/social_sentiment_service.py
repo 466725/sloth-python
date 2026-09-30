@@ -5,7 +5,7 @@ Social Sentiment Intelligence Service
 ===================================
 
 Fetches Reddit / X (Twitter) / Polymarket social sentiment data
-from api_suites.adanos.org for US stock tickers.
+from api.adanos.org for US stock tickers.
 
 Optional — requires SOCIAL_SENTIMENT_API_KEY.
 Only activates for US stock codes (AAPL, TSLA, etc.).
@@ -56,7 +56,7 @@ class SocialSentimentService:
     """
     Social Sentiment Intelligence — Reddit / X / Polymarket.
 
-    Fetches social-media sentiment data from api_suites.adanos.org and formats
+    Fetches social-media sentiment data from api.adanos.org and formats
     it as a text block suitable for injection into the LLM analysis prompt.
 
     Usage::
@@ -339,5 +339,5 @@ class SocialSentimentService:
             lines.append("\n🔮 Polymarket: No active prediction markets found")
 
         lines.append("")
-        lines.append("Source: api_suites.adanos.org — Real-time social sentiment aggregation")
+        lines.append("Source: api.adanos.org — Real-time social sentiment aggregation")
         return "\n".join(lines)

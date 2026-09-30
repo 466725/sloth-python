@@ -22,7 +22,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('../../api_suites/history', () => ({
+vi.mock('../../api/history', () => ({
   historyApi: {
     getList: vi.fn(),
     getDetail: vi.fn(),
@@ -35,8 +35,8 @@ vi.mock('../../api_suites/history', () => ({
   },
 }));
 
-vi.mock('../../api_suites/analysis', async () => {
-  const actual = await vi.importActual<typeof import('../../api/analysis')>('../../api_suites/analysis');
+vi.mock('../../api/analysis', async () => {
+  const actual = await vi.importActual<typeof import('../../api/analysis')>('../../api/analysis');
   return {
     ...actual,
     analysisApi: {
@@ -49,14 +49,14 @@ vi.mock('../../api_suites/analysis', async () => {
   };
 });
 
-vi.mock('../../api_suites/systemConfig', () => ({
+vi.mock('../../api/systemConfig', () => ({
   systemConfigApi: {
     getSetupStatus: vi.fn(),
     getWatchlist: vi.fn().mockResolvedValue([]),
   },
 }));
 
-vi.mock('../../api_suites/agent', () => ({
+vi.mock('../../api/agent', () => ({
   agentApi: {
     getSkills: vi.fn(),
   },

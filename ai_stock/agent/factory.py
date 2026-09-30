@@ -3,7 +3,7 @@
 Shared factory for building fully-configured AgentExecutor instances.
 
 Centralises construction to eliminate boilerplate duplicated across
-api_suites/v1/endpoints/agent.py, bot/commands/chat.py, bot/commands/ask.py,
+api/v1/endpoints/agent.py, bot/commands/chat.py, bot/commands/ask.py,
 and src/core/pipeline.py.
 
 Performance notes

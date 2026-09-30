@@ -81,11 +81,11 @@ def _payload(**overrides):
         "stock_name": "贵州茅台",
         "market": "cn",
         "source_type": "analysis",
-        "source_agent": "api_suites-test",
+        "source_agent": "api-test",
         "source_report_id": 4301,
-        "trace_id": "trace-outcome-api_suites",
+        "trace_id": "trace-outcome-api",
         "market_phase": "postmarket",
-        "trigger_source": "api_suites",
+        "trigger_source": "api",
         "action": "buy",
         "confidence": 0.75,
         "score": 80,
@@ -113,13 +113,13 @@ def _seed_bars(db: DatabaseManager, *, code: str = "600519") -> None:
 
 def test_outcome_run_list_stats_signal_outcomes_and_feedback(client_and_db) -> None:
     client, db = client_and_db
-    created_resp = client.post("/api_suites/v1/decision-signals", json=_payload())
+    created_resp = client.post("/api/v1/decision-signals", json=_payload())
     assert created_resp.status_code == 200, created_resp.text
     signal_id = created_resp.json()["item"]["id"]
     _seed_bars(db)
 
     run_resp = client.post(
-        "/api_suites/v1/decision-signals/outcomes/run",
+        "/api/v1/decision-signals/outcomes/run",
         json={"signal_id": signal_id},
     )
     assert run_resp.status_code == 200, run_resp.text
@@ -131,7 +131,7 @@ def test_outcome_run_list_stats_signal_outcomes_and_feedback(client_and_db) -> N
     assert run_data["items"][0]["holding_state"] == "holding"
 
     second_run_resp = client.post(
-        "/api_suites/v1/decision-signals/outcomes/run",
+        "/api/v1/decision-signals/outcomes/run",
         json={"signal_id": signal_id},
     )
     assert second_run_resp.status_code == 200, second_run_resp.text
@@ -139,29 +139,29 @@ def test_outcome_run_list_stats_signal_outcomes_and_feedback(client_and_db) -> N
     assert second_run_resp.json()["skipped"] == 1
 
     list_resp = client.get(
-        "/api_suites/v1/decision-signals/outcomes",
+        "/api/v1/decision-signals/outcomes",
         params={"signal_id": signal_id, "horizon": "3d"},
     )
     assert list_resp.status_code == 200, list_resp.text
     assert list_resp.json()["total"] == 1
 
-    stats_resp = client.get("/api_suites/v1/decision-signals/outcomes/stats")
+    stats_resp = client.get("/api/v1/decision-signals/outcomes/stats")
     assert stats_resp.status_code == 200, stats_resp.text
     stats = stats_resp.json()
     assert stats["total"] == 1
     assert stats["hit"] == 1
     assert stats["breakdowns"]["action"][0]["value"] == "buy"
 
-    signal_outcomes_resp = client.get(f"/api_suites/v1/decision-signals/{signal_id}/outcomes")
+    signal_outcomes_resp = client.get(f"/api/v1/decision-signals/{signal_id}/outcomes")
     assert signal_outcomes_resp.status_code == 200, signal_outcomes_resp.text
     assert signal_outcomes_resp.json()["items"][0]["signal_id"] == signal_id
 
-    empty_feedback_resp = client.get(f"/api_suites/v1/decision-signals/{signal_id}/feedback")
+    empty_feedback_resp = client.get(f"/api/v1/decision-signals/{signal_id}/feedback")
     assert empty_feedback_resp.status_code == 200, empty_feedback_resp.text
     assert empty_feedback_resp.json()["feedback_value"] is None
 
     put_feedback_resp = client.put(
-        f"/api_suites/v1/decision-signals/{signal_id}/feedback",
+        f"/api/v1/decision-signals/{signal_id}/feedback",
         json={
             "feedback_value": "useful",
             "reason_code": "matched_plan",
@@ -173,7 +173,7 @@ def test_outcome_run_list_stats_signal_outcomes_and_feedback(client_and_db) -> N
     assert put_feedback_resp.json()["feedback_value"] == "useful"
     assert put_feedback_resp.json()["source"] == "web"
 
-    get_feedback_resp = client.get(f"/api_suites/v1/decision-signals/{signal_id}/feedback")
+    get_feedback_resp = client.get(f"/api/v1/decision-signals/{signal_id}/feedback")
     assert get_feedback_resp.status_code == 200, get_feedback_resp.text
     assert get_feedback_resp.json()["reason_code"] == "matched_plan"
 
@@ -182,33 +182,33 @@ def test_outcome_api_rejects_invalid_params_and_returns_404(client_and_db) -> No
     client, _db = client_and_db
 
     missing_run_resp = client.post(
-        "/api_suites/v1/decision-signals/outcomes/run",
+        "/api/v1/decision-signals/outcomes/run",
         json={"signal_id": 999999},
     )
     assert missing_run_resp.status_code == 404
 
     invalid_run_resp = client.post(
-        "/api_suites/v1/decision-signals/outcomes/run",
+        "/api/v1/decision-signals/outcomes/run",
         json={"horizons": ["bad"]},
     )
     assert invalid_run_resp.status_code == 422
 
     invalid_list_resp = client.get(
-        "/api_suites/v1/decision-signals/outcomes",
+        "/api/v1/decision-signals/outcomes",
         params={"outcome": "bad"},
     )
     assert invalid_list_resp.status_code == 400
 
-    missing_outcomes_resp = client.get("/api_suites/v1/decision-signals/999999/outcomes")
+    missing_outcomes_resp = client.get("/api/v1/decision-signals/999999/outcomes")
     assert missing_outcomes_resp.status_code == 404
 
-    missing_feedback_resp = client.get("/api_suites/v1/decision-signals/999999/feedback")
+    missing_feedback_resp = client.get("/api/v1/decision-signals/999999/feedback")
     assert missing_feedback_resp.status_code == 404
 
 
 def test_outcome_run_retries_transient_unable_by_default(client_and_db) -> None:
     client, db = client_and_db
-    created_resp = client.post("/api_suites/v1/decision-signals", json=_payload())
+    created_resp = client.post("/api/v1/decision-signals", json=_payload())
     assert created_resp.status_code == 200, created_resp.text
     signal_id = created_resp.json()["item"]["id"]
     with db.session_scope() as session:
@@ -216,7 +216,7 @@ def test_outcome_run_retries_transient_unable_by_default(client_and_db) -> None:
         session.add(StockDaily(code="600519", date=date(2024, 1, 3), open=103, high=104, low=102, close=103))
 
     first_run = client.post(
-        "/api_suites/v1/decision-signals/outcomes/run",
+        "/api/v1/decision-signals/outcomes/run",
         json={"signal_id": signal_id},
     )
     assert first_run.status_code == 200, first_run.text
@@ -226,7 +226,7 @@ def test_outcome_run_retries_transient_unable_by_default(client_and_db) -> None:
         session.add(StockDaily(code="600519", date=date(2024, 1, 4), open=104, high=105, low=103, close=104))
         session.add(StockDaily(code="600519", date=date(2024, 1, 5), open=105, high=106, low=104, close=105))
     second_run = client.post(
-        "/api_suites/v1/decision-signals/outcomes/run",
+        "/api/v1/decision-signals/outcomes/run",
         json={"signal_id": signal_id},
     )
 
@@ -242,13 +242,13 @@ def test_outcome_run_retries_transient_unable_by_default(client_and_db) -> None:
 def test_outcome_run_uses_hk_alias_stock_code_filter(client_and_db) -> None:
     client, db = client_and_db
     created_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             stock_code="00700",
             stock_name="Tencent",
             market="hk",
             horizon="1d",
-            trace_id="trace-outcome-api_suites-hk",
+            trace_id="trace-outcome-api-hk",
         ),
     )
     assert created_resp.status_code == 200, created_resp.text
@@ -257,7 +257,7 @@ def test_outcome_run_uses_hk_alias_stock_code_filter(client_and_db) -> None:
     _seed_bars(db, code="HK00700")
 
     run_resp = client.post(
-        "/api_suites/v1/decision-signals/outcomes/run",
+        "/api/v1/decision-signals/outcomes/run",
         json={"stock_code": "00700", "horizons": ["1d"]},
     )
     assert run_resp.status_code == 200, run_resp.text
@@ -267,7 +267,7 @@ def test_outcome_run_uses_hk_alias_stock_code_filter(client_and_db) -> None:
     assert run_data["items"][0]["signal_id"] == signal_id
 
     force_resp = client.post(
-        "/api_suites/v1/decision-signals/outcomes/run",
+        "/api/v1/decision-signals/outcomes/run",
         json={"stock_code": "00700", "horizons": ["1d"], "force": True},
     )
     assert force_resp.status_code == 200, force_resp.text

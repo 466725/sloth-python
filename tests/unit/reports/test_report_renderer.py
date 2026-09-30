@@ -196,7 +196,7 @@ class TestReportRenderer(unittest.TestCase):
         r.market_phase_summary = {
             "phase": "intraday",
             "market": "cn",
-            "trigger_source": "api_suites",
+            "trigger_source": "api",
             "is_partial_bar": True,
         }
         r.analysis_context_pack_overview = {

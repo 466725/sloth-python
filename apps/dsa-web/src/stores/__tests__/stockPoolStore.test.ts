@@ -5,7 +5,7 @@ import type { TaskInfo, TaskListResponse } from '../../types/analysis';
 import { getRecentStartDate, getTodayInShanghai } from '../../utils/format';
 import { useStockPoolStore } from '../stockPoolStore';
 
-vi.mock('../../api_suites/history', () => ({
+vi.mock('../../api/history', () => ({
   historyApi: {
     getList: vi.fn(),
     getDetail: vi.fn(),
@@ -14,8 +14,8 @@ vi.mock('../../api_suites/history', () => ({
   },
 }));
 
-vi.mock('../../api_suites/analysis', async () => {
-  const actual = await vi.importActual<typeof import('../../api/analysis')>('../../api_suites/analysis');
+vi.mock('../../api/analysis', async () => {
+  const actual = await vi.importActual<typeof import('../../api/analysis')>('../../api/analysis');
   return {
     ...actual,
     analysisApi: {

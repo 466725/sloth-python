@@ -2715,7 +2715,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：WebUI 与 API",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#webui-与-api_suites-服务",
+                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#webui-与-api-服务",
             },
             {
                 "label": "云服务器访问 WebUI",
@@ -2745,7 +2745,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：WebUI 与 API",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#webui-与-api_suites-服务",
+                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#webui-与-api-服务",
             },
             {
                 "label": "云服务器访问 WebUI",
@@ -2779,7 +2779,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
             {
                 "label": "完整指南：WebUI 与 API",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#webui-与-api_suites-服务",
+                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#webui-与-api-服务",
             },
         ],
         "warning_codes": ["public_bind_requires_auth", "restart_required"],
@@ -2809,7 +2809,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
             {
                 "label": "完整指南：WebUI 与 API",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#webui-与-api_suites-服务",
+                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#webui-与-api-服务",
             },
         ],
         "warning_codes": ["port_mapping_required", "restart_required"],

@@ -8,7 +8,7 @@ const { getConfig, validate, update } = vi.hoisted(() => ({
   update: vi.fn(),
 }));
 
-vi.mock('../../api_suites/systemConfig', () => ({
+vi.mock('../../api/systemConfig', () => ({
   systemConfigApi: {
     getConfig,
     validate,

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAgentChatStore } from '../agentChatStore';
 
-vi.mock('../../api_suites/agent', () => ({
+vi.mock('../../api/agent', () => ({
   agentApi: {
     getChatSessions: vi.fn(async () => []),
     getChatSessionMessages: vi.fn(async () => []),

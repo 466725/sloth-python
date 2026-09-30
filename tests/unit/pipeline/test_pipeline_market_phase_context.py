@@ -195,7 +195,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
 
     def test_legacy_analysis_artifacts_helper_maps_full_pipeline_fields(self):
         pipeline = _make_pipeline(agent_mode=False, save_context_snapshot=True)
-        pipeline.query_source = "api_suites"
+        pipeline.query_source = "api"
         phase = _phase_payload()
         context = {"code": "600519", "today": {"close": 1800.0}, "yesterday": {}}
         enhanced_context = {"realtime": {"price": 1888.0}, "stock_name": "贵州茅台"}
@@ -235,7 +235,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         self.assertEqual(artifacts.news_result_count, 3)
         self.assertEqual(
             artifacts.metadata,
-            {"query_id": "q-legacy", "trigger_source": "api_suites"},
+            {"query_id": "q-legacy", "trigger_source": "api"},
         )
 
     def test_context_snapshot_strips_runtime_portfolio_context(self):
@@ -679,7 +679,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
             trace_id="trace-agent",
             query_id="q-agent",
             stock_code="600519",
-            trigger_source="api_suites",
+            trigger_source="api",
         )
         try:
             from ai_stock.agent.executor import AgentResult
@@ -781,7 +781,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
     def test_decision_signal_helper_uses_saved_history_id(self):
         pipeline = _make_pipeline(agent_mode=False, save_context_snapshot=True)
         pipeline.trace_id = "trace-helper"
-        pipeline.query_source = "api_suites"
+        pipeline.query_source = "api"
         result = _analysis_result()
         context_snapshot = {"market_phase_summary": _phase_payload()}
 
@@ -801,7 +801,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         self.assertIs(kwargs["context_snapshot"], context_snapshot)
         self.assertEqual(kwargs["source_report_id"], 42)
         self.assertEqual(kwargs["trace_id"], "trace-helper")
-        self.assertEqual(kwargs["query_source"], "api_suites")
+        self.assertEqual(kwargs["query_source"], "api")
         self.assertEqual(kwargs["report_type"], ReportType.SIMPLE.value)
 
     def test_decision_signal_helper_failure_does_not_raise(self):
@@ -822,7 +822,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
     def test_legacy_pipeline_extracts_decision_signal_with_saved_history_id(self):
         pipeline = _make_pipeline(agent_mode=False, save_context_snapshot=True)
         pipeline.trace_id = "trace-runtime"
-        pipeline.query_source = "api_suites"
+        pipeline.query_source = "api"
         pipeline.db.save_analysis_history.return_value = 42
         phase_context = SimpleNamespace(to_dict=MagicMock(return_value=_phase_payload()))
 
@@ -842,7 +842,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         kwargs = mock_extract.call_args.kwargs
         self.assertEqual(kwargs["source_report_id"], 42)
         self.assertEqual(kwargs["trace_id"], "trace-runtime")
-        self.assertEqual(kwargs["query_source"], "api_suites")
+        self.assertEqual(kwargs["query_source"], "api")
         self.assertEqual(kwargs["report_type"], ReportType.SIMPLE.value)
 
     def test_legacy_pipeline_does_not_extract_when_history_save_fails(self):

@@ -25,7 +25,7 @@ def _diagnostic_snapshot() -> dict:
         "task_id": "task-p2",
         "query_id": "query-p2",
         "stock_code": "600519",
-        "trigger_source": "api_suites",
+        "trigger_source": "api",
         "provider_runs": [
             {
                 "trace_id": "trace-p2",

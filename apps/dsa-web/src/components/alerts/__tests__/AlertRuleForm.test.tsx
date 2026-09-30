@@ -8,7 +8,7 @@ const { getAccounts } = vi.hoisted(() => ({
   getAccounts: vi.fn(),
 }));
 
-vi.mock('../../../api_suites/portfolio', () => ({
+vi.mock('../../../api/portfolio', () => ({
   portfolioApi: {
     getAccounts,
   },

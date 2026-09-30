@@ -23,7 +23,7 @@ import logging
 from ai_stock.config import setup_env, get_config
 from ai_stock.logging_config import setup_logging
 
-# 从 api_suites.app 导入应用实例
+# 从 api.app 导入应用实例
 from api.app import app  # noqa: E402
 
 # 初始化环境变量与日志

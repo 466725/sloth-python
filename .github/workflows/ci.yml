@@ -32,7 +32,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-      - name: Run smoke tests (unit + api_suites, excluding ai generated)
+      - name: Run smoke tests (unit + api, excluding ai generated)
         run: |
           python -m pytest -m "unit or api" --tb=short
       - name: Run Robot Framework smoke tests

@@ -5,7 +5,7 @@ import type { AnalysisContextPackOverview, AnalysisReport, AnalysisResult } from
 import { AnalysisContextSummary } from '../AnalysisContextSummary';
 import { ReportSummary } from '../ReportSummary';
 
-vi.mock('../../../api_suites/history', () => ({
+vi.mock('../../../api/history', () => ({
   historyApi: {
     getDiagnostics: vi.fn(),
     getNews: vi.fn(),
@@ -91,7 +91,7 @@ describe('AnalysisContextSummary', () => {
     expect(screen.getAllByText('缺失 1')[0]).toBeVisible();
     expect(screen.getAllByText('抓取失败 1')[0]).toBeVisible();
     expect(screen.getAllByText('质量分 82/100 可用')[0]).toBeVisible();
-    expect(screen.getByText('触发来源: api_suites')).toBeVisible();
+    expect(screen.getByText('触发来源: api')).toBeVisible();
     expect(screen.getByText('来源: mock_quote')).not.toBeVisible();
 
     fireEvent.click(within(panel).getAllByText('输入数据块')[0]);
@@ -121,7 +121,7 @@ describe('AnalysisContextSummary', () => {
     expect(screen.getAllByText('Missing 1')[0]).toBeVisible();
     expect(screen.getAllByText('Fetch failed 1')[0]).toBeVisible();
     expect(screen.getAllByText('Quality 82/100 Usable')[0]).toBeVisible();
-    expect(screen.getByText('Trigger: api_suites')).toBeVisible();
+    expect(screen.getByText('Trigger: api')).toBeVisible();
 
     fireEvent.click(within(panel).getAllByText('Input Blocks')[0]);
 

@@ -192,7 +192,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
             task_id="task-news",
             query_id="query-news",
             stock_code="600519",
-            trigger_source="api_suites",
+            trigger_source="api",
         )
         try:
             response = service.search_stock_news("600519", "贵州茅台", max_results=3)

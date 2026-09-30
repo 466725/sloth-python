@@ -12,7 +12,7 @@ const {
   mockRemoveFromWatchlist: vi.fn(),
 }));
 
-vi.mock('../../api_suites/systemConfig', () => ({
+vi.mock('../../api/systemConfig', () => ({
   systemConfigApi: {
     getWatchlist: mockGetWatchlist,
     addToWatchlist: mockAddToWatchlist,

@@ -68,9 +68,9 @@ _SECRET_CACHE_FIELD_NAMES = {
     "proxy_authorization",
     "cookie",
     "set-cookie",
-    "x-api_suites-key",
-    "api_suites-key",
-    "openai-api_suites-key",
+    "x-api-key",
+    "api-key",
+    "openai-api-key",
 }
 
 

@@ -11,7 +11,7 @@ FastAPI 应用工厂模块
 4. 托管前端静态文件（生产模式）
 
 使用方式：
-    from api_suites.app import create_app
+    from api.app import create_app
     app = create_app()
 """
 
@@ -222,7 +222,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
             "- 股票数据：获取行情数据\n\n"
             "## 认证方式\n"
             "支持可选管理员认证：ADMIN_AUTH_ENABLED=true 时，除登录、状态、健康检查和 "
-            "OpenAPI 文档外，/api_suites/v1/* 需要有效管理员会话 Cookie；关闭时不强制认证。"
+            "OpenAPI 文档外，/api/v1/* 需要有效管理员会话 Cookie；关闭时不强制认证。"
         ),
         version="1.0.0",
         lifespan=app_lifespan,
@@ -265,7 +265,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
     # 注册路由
     # ============================================================
     
-    app.include_router(api_v1_router, prefix="/api_suites/v1")
+    app.include_router(api_v1_router, prefix="/api/v1")
     add_error_handlers(app)
     
     # ============================================================
@@ -309,7 +309,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
 <p>Or start with auto-build:</p>
 <p><code>python main.py --serve-only</code></p>
 <div class="hint"><p>If you only need the API, visit <a href="/docs">/docs</a> for the interactive API documentation.</p></div>
-<p class="status">API Version 1.0.0 &bull; <a href="/api_suites/health">/api_suites/health</a></p>
+<p class="status">API Version 1.0.0 &bull; <a href="/api/health">/api/health</a></p>
 </div></body></html>"""
 
         @app.get("/", include_in_schema=False)
@@ -325,7 +325,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
         description="用于负载均衡器或监控系统检查服务状态"
     )
     @app.get(
-        "/api_suites/health",
+        "/api/health",
         response_model=HealthResponse,
         tags=["Health"],
         summary="健康检查",
@@ -421,7 +421,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
         @app.get("/{full_path:path}", include_in_schema=False)
         async def serve_spa(request: Request, full_path: str):
             """SPA 路由回退 - 非 API 路由返回 index.html"""
-            if full_path == "api_suites" or full_path.startswith("api_suites/"):
+            if full_path == "api" or full_path.startswith("api/"):
                 return JSONResponse(
                     status_code=404,
                     content={"error": "not_found", "message": f"API endpoint /{full_path} not found"}

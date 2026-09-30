@@ -16,7 +16,7 @@ const {
   mockRun: vi.fn(),
 }));
 
-vi.mock('../../api_suites/backtest', () => ({
+vi.mock('../../api/backtest', () => ({
   backtestApi: {
     getResults: mockGetResults,
     getOverallPerformance: mockGetOverallPerformance,

@@ -157,7 +157,7 @@ def run_market_review(
         query_id: 历史记录关联 ID；API 后台任务会传入 task_id，CLI/Bot 为空时自动生成
         save_report_file: 是否保存 Markdown 文件；上下文生成路径可关闭以避免多区域临时复盘互相覆盖
         persist_history: 是否写入 analysis_history；预热路径可关闭以避免覆盖用户可见的同日大盘复盘记录
-        trigger_source: 触发来源，用于日志排障（cli/schedule/api_suites/bot/service 等）
+        trigger_source: 触发来源，用于日志排障（cli/schedule/api/bot/service 等）
 
     Returns:
         复盘报告文本

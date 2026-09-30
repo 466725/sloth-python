@@ -100,11 +100,11 @@ def _payload(**overrides):
         "stock_name": "贵州茅台",
         "market": "cn",
         "source_type": "analysis",
-        "source_agent": "api_suites-test",
+        "source_agent": "api-test",
         "source_report_id": 3001,
         "trace_id": "trace-3001",
         "market_phase": "intraday",
-        "trigger_source": "api_suites",
+        "trigger_source": "api",
         "action": "buy",
         "confidence": 0.75,
         "score": 80,
@@ -146,7 +146,7 @@ def test_decision_signal_api_requires_session_when_admin_auth_enabled(tmp_path) 
 
     try:
         client = TestClient(create_app(static_dir=Path(static_dir)))
-        resp = client.get("/api_suites/v1/decision-signals")
+        resp = client.get("/api/v1/decision-signals")
         assert resp.status_code == 401
         assert resp.json()["error"] == "unauthorized"
     finally:
@@ -166,7 +166,7 @@ def test_decision_signal_api_requires_session_when_admin_auth_enabled(tmp_path) 
 def test_create_duplicate_list_detail_latest_and_status_update(client_and_db) -> None:
     client, _db = client_and_db
 
-    created_resp = client.post("/api_suites/v1/decision-signals", json=_payload())
+    created_resp = client.post("/api/v1/decision-signals", json=_payload())
     assert created_resp.status_code == 200, created_resp.text
     created = created_resp.json()
     assert created["created"] is True
@@ -176,7 +176,7 @@ def test_create_duplicate_list_detail_latest_and_status_update(client_and_db) ->
     assert created["item"]["expires_at"] is not None
 
     duplicate_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(reason="重复报告里不同文案不应覆盖旧信号"),
     )
     assert duplicate_resp.status_code == 200, duplicate_resp.text
@@ -186,14 +186,14 @@ def test_create_duplicate_list_detail_latest_and_status_update(client_and_db) ->
     assert duplicate["item"]["reason"] == "突破平台"
 
     list_resp = client.get(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         params={
             "market": "cn",
             "stock_code": "600519.SH",
             "action": "buy",
             "market_phase": "intraday",
             "source_type": "analysis",
-            "trigger_source": "api_suites",
+            "trigger_source": "api",
             "status": "active",
         },
     )
@@ -202,25 +202,25 @@ def test_create_duplicate_list_detail_latest_and_status_update(client_and_db) ->
     assert listed["total"] == 1
     assert listed["items"][0]["id"] == signal_id
 
-    detail_resp = client.get(f"/api_suites/v1/decision-signals/{signal_id}")
+    detail_resp = client.get(f"/api/v1/decision-signals/{signal_id}")
     assert detail_resp.status_code == 200, detail_resp.text
     assert detail_resp.json()["id"] == signal_id
 
-    latest_resp = client.get("/api_suites/v1/decision-signals/latest/600519", params={"limit": 1})
+    latest_resp = client.get("/api/v1/decision-signals/latest/600519", params={"limit": 1})
     assert latest_resp.status_code == 200, latest_resp.text
     assert latest_resp.json()["items"][0]["id"] == signal_id
 
     patch_resp = client.patch(
-        f"/api_suites/v1/decision-signals/{signal_id}/status",
-        json={"status": "closed", "metadata": {"closed_by": "api_suites-test"}},
+        f"/api/v1/decision-signals/{signal_id}/status",
+        json={"status": "closed", "metadata": {"closed_by": "api-test"}},
     )
     assert patch_resp.status_code == 200, patch_resp.text
     assert patch_resp.json()["status"] == "closed"
-    assert patch_resp.json()["metadata"]["closed_by"] == "api_suites-test"
+    assert patch_resp.json()["metadata"]["closed_by"] == "api-test"
     assert "task_id" not in patch_resp.json()["metadata"]
 
     clear_metadata_resp = client.patch(
-        f"/api_suites/v1/decision-signals/{signal_id}/status",
+        f"/api/v1/decision-signals/{signal_id}/status",
         json={"status": "archived", "metadata": None},
     )
     assert clear_metadata_resp.status_code == 200, clear_metadata_resp.text
@@ -228,20 +228,20 @@ def test_create_duplicate_list_detail_latest_and_status_update(client_and_db) ->
     assert clear_metadata_resp.json()["metadata"] is None
 
     terminal_reactivate_resp = client.patch(
-        f"/api_suites/v1/decision-signals/{signal_id}/status",
+        f"/api/v1/decision-signals/{signal_id}/status",
         json={"status": "active"},
     )
     assert terminal_reactivate_resp.status_code == 400, terminal_reactivate_resp.text
     assert terminal_reactivate_resp.json()["error"] == "validation_error"
 
     invalid_status_resp = client.patch(
-        f"/api_suites/v1/decision-signals/{signal_id}/status",
+        f"/api/v1/decision-signals/{signal_id}/status",
         json={"status": "bad_status"},
     )
     assert invalid_status_resp.status_code == 422
     assert invalid_status_resp.json()["error"] == "validation_error"
 
-    missing_resp = client.get("/api_suites/v1/decision-signals/999999")
+    missing_resp = client.get("/api/v1/decision-signals/999999")
     assert missing_resp.status_code == 404
 
 
@@ -249,10 +249,10 @@ def test_create_treats_null_lifecycle_fields_as_missing(client_and_db) -> None:
     client, _db = client_and_db
 
     response = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3002,
-            trace_id="trace-null-lifecycle-api_suites",
+            trace_id="trace-null-lifecycle-api",
             horizon=None,
             expires_at=None,
             market_phase="intraday",
@@ -271,14 +271,14 @@ def test_status_update_sanitizes_metadata_before_response_and_persistence(client
     client, db = client_and_db
 
     created_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(source_report_id=3051, trace_id="trace-3051"),
     )
     assert created_resp.status_code == 200, created_resp.text
     signal_id = created_resp.json()["item"]["id"]
 
     patch_resp = client.patch(
-        f"/api_suites/v1/decision-signals/{signal_id}/status",
+        f"/api/v1/decision-signals/{signal_id}/status",
         json={
             "status": "closed",
             "metadata": {
@@ -325,7 +325,7 @@ def test_create_sanitizes_public_short_fields_and_filters_by_sanitized_trigger_s
     client, db = client_and_db
     raw_trigger_source = "Bearer abc+/def=="
     created_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3061,
             trace_id="trace-public-sanitized",
@@ -346,7 +346,7 @@ def test_create_sanitizes_public_short_fields_and_filters_by_sanitized_trigger_s
     assert "hooks.example.com" not in str(item)
 
     list_resp = client.get(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         params={"trigger_source": raw_trigger_source},
     )
     assert list_resp.status_code == 200, list_resp.text
@@ -372,7 +372,7 @@ def test_create_sanitizes_public_short_fields_and_filters_by_sanitized_trigger_s
 def test_detail_endpoint_lazily_expires_active_signal(client_and_db) -> None:
     client, _db = client_and_db
     created_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3101,
             trace_id="trace-3101",
@@ -383,25 +383,25 @@ def test_detail_endpoint_lazily_expires_active_signal(client_and_db) -> None:
     signal_id = created_resp.json()["item"]["id"]
     assert created_resp.json()["item"]["status"] == "expired"
 
-    detail_resp = client.get(f"/api_suites/v1/decision-signals/{signal_id}")
+    detail_resp = client.get(f"/api/v1/decision-signals/{signal_id}")
     assert detail_resp.status_code == 200, detail_resp.text
     assert detail_resp.json()["status"] == "expired"
 
     reactivate_resp = client.patch(
-        f"/api_suites/v1/decision-signals/{signal_id}/status",
+        f"/api/v1/decision-signals/{signal_id}/status",
         json={"status": "active"},
     )
     assert reactivate_resp.status_code == 400, reactivate_resp.text
     assert reactivate_resp.json()["error"] == "validation_error"
 
     close_resp = client.patch(
-        f"/api_suites/v1/decision-signals/{signal_id}/status",
+        f"/api/v1/decision-signals/{signal_id}/status",
         json={"status": "closed"},
     )
     assert close_resp.status_code == 200, close_resp.text
     assert close_resp.json()["status"] == "closed"
 
-    latest_resp = client.get("/api_suites/v1/decision-signals/latest/600519")
+    latest_resp = client.get("/api/v1/decision-signals/latest/600519")
     assert latest_resp.status_code == 200, latest_resp.text
     assert latest_resp.json()["total"] == 0
 
@@ -409,7 +409,7 @@ def test_detail_endpoint_lazily_expires_active_signal(client_and_db) -> None:
 def test_patch_status_rejects_expired_signal_without_expires_at_extension(client_and_db) -> None:
     client, _db = client_and_db
     created_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=31011,
             trace_id="trace-31011",
@@ -422,7 +422,7 @@ def test_patch_status_rejects_expired_signal_without_expires_at_extension(client
     assert item["status"] == "expired"
 
     reactivate_resp = client.patch(
-        f"/api_suites/v1/decision-signals/{item['id']}/status",
+        f"/api/v1/decision-signals/{item['id']}/status",
         json={"status": "active"},
     )
     assert reactivate_resp.status_code == 400, reactivate_resp.text
@@ -433,7 +433,7 @@ def test_create_accepts_timezone_aware_expires_at_values(client_and_db) -> None:
     client, _db = client_and_db
 
     expired_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3102,
             trace_id="trace-3102",
@@ -446,7 +446,7 @@ def test_create_accepts_timezone_aware_expires_at_values(client_and_db) -> None:
     assert expired_item["expires_at"] == "2020-01-01T00:00:00"
 
     active_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3103,
             trace_id="trace-3103",
@@ -462,7 +462,7 @@ def test_create_accepts_timezone_aware_expires_at_values(client_and_db) -> None:
 def test_create_refreshes_expired_same_source_when_future_expiry_is_supplied(client_and_db) -> None:
     client, db = client_and_db
     expired_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3111,
             trace_id="trace-refresh-original",
@@ -478,7 +478,7 @@ def test_create_refreshes_expired_same_source_when_future_expiry_is_supplied(cli
     assert expired["item"]["status"] == "expired"
 
     refresh_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3111,
             trace_id="trace-refresh-new",
@@ -507,10 +507,10 @@ def test_create_refreshes_expired_same_source_when_future_expiry_is_supplied(cli
 def test_create_invalidates_opposing_active_signal_and_latest_filters_it(client_and_db) -> None:
     client, _db = client_and_db
     buy_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=31101,
-            trace_id="trace-api_suites-opposing-buy",
+            trace_id="trace-api-opposing-buy",
             action="buy",
         ),
     )
@@ -518,23 +518,23 @@ def test_create_invalidates_opposing_active_signal_and_latest_filters_it(client_
     buy = buy_resp.json()["item"]
 
     sell_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=31102,
-            trace_id="trace-api_suites-opposing-sell",
+            trace_id="trace-api-opposing-sell",
             action="sell",
         ),
     )
     assert sell_resp.status_code == 200, sell_resp.text
     sell = sell_resp.json()["item"]
 
-    old_resp = client.get(f"/api_suites/v1/decision-signals/{buy['id']}")
+    old_resp = client.get(f"/api/v1/decision-signals/{buy['id']}")
     assert old_resp.status_code == 200, old_resp.text
     old = old_resp.json()
     assert old["status"] == "invalidated"
     assert old["metadata"]["invalidated_by_signal_id"] == sell["id"]
 
-    latest_resp = client.get("/api_suites/v1/decision-signals/latest/600519", params={"limit": 5})
+    latest_resp = client.get("/api/v1/decision-signals/latest/600519", params={"limit": 5})
     assert latest_resp.status_code == 200, latest_resp.text
     latest = latest_resp.json()
     assert latest["total"] == 1
@@ -544,7 +544,7 @@ def test_create_invalidates_opposing_active_signal_and_latest_filters_it(client_
 def test_create_does_not_refresh_expired_same_source_without_future_active_expiry(client_and_db) -> None:
     client, _db = client_and_db
     expired_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3112,
             trace_id="trace-refresh-past-original",
@@ -556,7 +556,7 @@ def test_create_does_not_refresh_expired_same_source_without_future_active_expir
     expired = expired_resp.json()
 
     second_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3112,
             trace_id="trace-refresh-past-new",
@@ -576,7 +576,7 @@ def test_create_does_not_refresh_expired_same_source_without_future_active_expir
 def test_create_does_not_reactivate_terminal_same_source_status(client_and_db, terminal_status) -> None:
     client, _db = client_and_db
     created_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3113,
             trace_id="trace-terminal-original",
@@ -587,13 +587,13 @@ def test_create_does_not_reactivate_terminal_same_source_status(client_and_db, t
     signal_id = created_resp.json()["item"]["id"]
 
     status_resp = client.patch(
-        f"/api_suites/v1/decision-signals/{signal_id}/status",
+        f"/api/v1/decision-signals/{signal_id}/status",
         json={"status": terminal_status},
     )
     assert status_resp.status_code == 200, status_resp.text
 
     second_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3113,
             trace_id="trace-terminal-new",
@@ -614,7 +614,7 @@ def test_timezone_aware_future_expiry_stays_active_in_non_utc_runtime(client_and
 
     with _temporary_tz("Asia/Shanghai"):
         created_resp = client.post(
-            "/api_suites/v1/decision-signals",
+            "/api/v1/decision-signals",
             json=_payload(
                 source_report_id=3104,
                 trace_id="trace-3104",
@@ -627,7 +627,7 @@ def test_timezone_aware_future_expiry_stays_active_in_non_utc_runtime(client_and
         for field_name in ("expires_at", "created_at", "updated_at"):
             assert datetime.fromisoformat(created[field_name]).tzinfo is None
 
-        latest_resp = client.get("/api_suites/v1/decision-signals/latest/600519")
+        latest_resp = client.get("/api/v1/decision-signals/latest/600519")
         assert latest_resp.status_code == 200, latest_resp.text
         assert latest_resp.json()["total"] == 1
         assert latest_resp.json()["items"][0]["id"] == created["id"]
@@ -638,14 +638,14 @@ def test_aware_datetime_range_filters_use_utc_naive_contract(client_and_db) -> N
 
     with _temporary_tz("Asia/Shanghai"):
         created_resp = client.post(
-            "/api_suites/v1/decision-signals",
+            "/api/v1/decision-signals",
             json=_payload(source_report_id=3105, trace_id="trace-3105"),
         )
         assert created_resp.status_code == 200, created_resp.text
         signal_id = created_resp.json()["item"]["id"]
 
         list_resp = client.get(
-            "/api_suites/v1/decision-signals",
+            "/api/v1/decision-signals",
             params={
                 "created_from": (datetime.now(timezone.utc) - timedelta(minutes=1)).isoformat(),
                 "created_to": (datetime.now(timezone.utc) + timedelta(minutes=1)).isoformat(),
@@ -659,12 +659,12 @@ def test_aware_datetime_range_filters_use_utc_naive_contract(client_and_db) -> N
 def test_holding_only_uses_cached_positions_and_stock_code_variants(client_and_db) -> None:
     client, db = client_and_db
     stock_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(source_report_id=3201, trace_id="trace-3201", stock_code="600519.SH"),
     )
     assert stock_resp.status_code == 200, stock_resp.text
     other_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3202,
             trace_id="trace-3202",
@@ -675,7 +675,7 @@ def test_holding_only_uses_cached_positions_and_stock_code_variants(client_and_d
     )
     assert other_resp.status_code == 200, other_resp.text
     inactive_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3203,
             trace_id="trace-3203",
@@ -686,7 +686,7 @@ def test_holding_only_uses_cached_positions_and_stock_code_variants(client_and_d
     )
     assert inactive_resp.status_code == 200, inactive_resp.text
     zero_only_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3204,
             trace_id="trace-3204",
@@ -697,7 +697,7 @@ def test_holding_only_uses_cached_positions_and_stock_code_variants(client_and_d
     )
     assert zero_only_resp.status_code == 200, zero_only_resp.text
     hk_same_symbol_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3205,
             trace_id="trace-3205",
@@ -789,7 +789,7 @@ def test_holding_only_uses_cached_positions_and_stock_code_variants(client_and_d
         side_effect=AssertionError("holding_only must not replay portfolio snapshots"),
     ):
         holding_resp = client.get(
-            "/api_suites/v1/decision-signals",
+            "/api/v1/decision-signals",
             params={"holding_only": "true", "account_id": account_id},
         )
 
@@ -806,7 +806,7 @@ def test_holding_only_uses_cached_positions_and_stock_code_variants(client_and_d
         side_effect=AssertionError("holding_only must not replay portfolio snapshots"),
     ):
         all_active_resp = client.get(
-            "/api_suites/v1/decision-signals",
+            "/api/v1/decision-signals",
             params={"holding_only": "true"},
         )
 
@@ -823,14 +823,14 @@ def test_holding_only_uses_cached_positions_and_stock_code_variants(client_and_d
         side_effect=AssertionError("holding_only must not replay portfolio snapshots"),
     ):
         inactive_holding_resp = client.get(
-            "/api_suites/v1/decision-signals",
+            "/api/v1/decision-signals",
             params={"holding_only": "true", "account_id": inactive_account_id},
         )
     assert inactive_holding_resp.status_code == 200, inactive_holding_resp.text
     assert inactive_holding_resp.json()["total"] == 0
     assert inactive_holding_resp.json()["items"] == []
 
-    variant_resp = client.get("/api_suites/v1/decision-signals", params={"stock_code": "SH600519"})
+    variant_resp = client.get("/api/v1/decision-signals", params={"stock_code": "SH600519"})
     assert variant_resp.status_code == 200, variant_resp.text
     assert variant_resp.json()["total"] == 1
 
@@ -841,7 +841,7 @@ def test_holding_only_uses_cached_positions_and_stock_code_variants(client_and_d
         empty_account_id = empty_account.id
 
     empty_resp = client.get(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         params={"holding_only": "true", "account_id": empty_account_id},
     )
     assert empty_resp.status_code == 200, empty_resp.text
@@ -849,7 +849,7 @@ def test_holding_only_uses_cached_positions_and_stock_code_variants(client_and_d
     assert empty_resp.json()["items"] == []
 
     empty_bad_date_resp = client.get(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         params={
             "holding_only": "true",
             "account_id": empty_account_id,
@@ -862,11 +862,11 @@ def test_holding_only_uses_cached_positions_and_stock_code_variants(client_and_d
 
 def test_query_validation_error_envelope(client_and_db) -> None:
     client, _db = client_and_db
-    resp = client.get("/api_suites/v1/decision-signals", params={"action": "panic"})
+    resp = client.get("/api/v1/decision-signals", params={"action": "panic"})
     assert resp.status_code == 400
     assert resp.json()["error"] == "validation_error"
 
-    page_size_resp = client.get("/api_suites/v1/decision-signals", params={"page_size": 0})
+    page_size_resp = client.get("/api/v1/decision-signals", params={"page_size": 0})
     assert page_size_resp.status_code == 422
     assert page_size_resp.json()["error"] == "validation_error"
 
@@ -878,7 +878,7 @@ def test_internal_errors_do_not_reflect_exception_details(client_and_db) -> None
         service_cls.return_value.list_signals.side_effect = RuntimeError(
             "secret-token /private/tmp/internal-path"
         )
-        resp = client.get("/api_suites/v1/decision-signals")
+        resp = client.get("/api/v1/decision-signals")
 
     assert resp.status_code == 500
     payload = resp.json()
@@ -892,7 +892,7 @@ def test_corrupt_persisted_json_returns_internal_error_consistently(client_and_d
     client, db = client_and_db
 
     created_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(source_report_id=3251, trace_id="trace-corrupt-json"),
     )
     assert created_resp.status_code == 200, created_resp.text
@@ -904,15 +904,15 @@ def test_corrupt_persisted_json_returns_internal_error_consistently(client_and_d
 
     cases = [
         (
-            client.get("/api_suites/v1/decision-signals", params={"stock_code": "600519"}),
+            client.get("/api/v1/decision-signals", params={"stock_code": "600519"}),
             "List decision signals failed",
         ),
         (
-            client.get(f"/api_suites/v1/decision-signals/{signal_id}"),
+            client.get(f"/api/v1/decision-signals/{signal_id}"),
             "Get decision signal failed",
         ),
         (
-            client.get("/api_suites/v1/decision-signals/latest/600519"),
+            client.get("/api/v1/decision-signals/latest/600519"),
             "Get latest decision signals failed",
         ),
     ]
@@ -934,19 +934,19 @@ def test_create_schema_and_service_validation_errors(client_and_db) -> None:
         {"target_price": "inf"},
     ]
     for overrides in schema_invalid_cases:
-        resp = client.post("/api_suites/v1/decision-signals", json=_payload(**overrides))
+        resp = client.post("/api/v1/decision-signals", json=_payload(**overrides))
         assert resp.status_code == 422, resp.text
         assert resp.json()["error"] == "validation_error"
 
     range_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(source_report_id=3301, trace_id="trace-range", entry_low=1700, entry_high=1600),
     )
     assert range_resp.status_code == 400, range_resp.text
     assert range_resp.json()["error"] == "validation_error"
 
     long_trace_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(source_report_id=3302, trace_id="x" * 65),
     )
     assert long_trace_resp.status_code == 400, long_trace_resp.text
@@ -954,7 +954,7 @@ def test_create_schema_and_service_validation_errors(client_and_db) -> None:
     assert "trace_id" in long_trace_resp.json()["message"]
 
     sensitive_trace_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(source_report_id=3303, trace_id="Bearer abc+/def=="),
     )
     assert sensitive_trace_resp.status_code == 400, sensitive_trace_resp.text
@@ -967,7 +967,7 @@ def test_create_schema_and_service_validation_errors(client_and_db) -> None:
         ("cookie=session=abc123", "session=abc123"),
     ):
         sensitive_identity_resp = client.post(
-            "/api_suites/v1/decision-signals",
+            "/api/v1/decision-signals",
             json=_payload(source_report_id=3304, trace_id=trace_id),
         )
         assert sensitive_identity_resp.status_code == 400, sensitive_identity_resp.text
@@ -980,7 +980,7 @@ def test_dedup_distinguishes_horizon_and_market_phase(client_and_db) -> None:
     client, _db = client_and_db
 
     first_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(source_report_id=3401, trace_id="trace-3401", horizon="1d", market_phase="intraday"),
     )
     assert first_resp.status_code == 200, first_resp.text
@@ -988,7 +988,7 @@ def test_dedup_distinguishes_horizon_and_market_phase(client_and_db) -> None:
     assert first["created"] is True
 
     duplicate_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(source_report_id=3401, trace_id="trace-3401", horizon="1d", market_phase="intraday"),
     )
     assert duplicate_resp.status_code == 200, duplicate_resp.text
@@ -997,7 +997,7 @@ def test_dedup_distinguishes_horizon_and_market_phase(client_and_db) -> None:
     assert duplicate["item"]["id"] == first["item"]["id"]
 
     horizon_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(source_report_id=3401, trace_id="trace-3401", horizon="10d", market_phase="intraday"),
     )
     assert horizon_resp.status_code == 200, horizon_resp.text
@@ -1005,7 +1005,7 @@ def test_dedup_distinguishes_horizon_and_market_phase(client_and_db) -> None:
     assert horizon_resp.json()["item"]["id"] != first["item"]["id"]
 
     phase_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(source_report_id=3401, trace_id="trace-3401", horizon="1d", market_phase="premarket"),
     )
     assert phase_resp.status_code == 200, phase_resp.text
@@ -1013,19 +1013,19 @@ def test_dedup_distinguishes_horizon_and_market_phase(client_and_db) -> None:
     assert phase_resp.json()["item"]["id"] != first["item"]["id"]
 
     list_resp = client.get(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         params={
             "stock_code": "600519",
             "source_type": "analysis",
             "source_report_id": 3401,
             "trace_id": "trace-3401",
-            "trigger_source": "api_suites",
+            "trigger_source": "api",
         },
     )
     assert list_resp.status_code == 200, list_resp.text
     assert list_resp.json()["total"] == 3
 
-    latest_resp = client.get("/api_suites/v1/decision-signals/latest/600519", params={"limit": 3})
+    latest_resp = client.get("/api/v1/decision-signals/latest/600519", params={"limit": 3})
     assert latest_resp.status_code == 200, latest_resp.text
     assert latest_resp.json()["total"] == 3
 
@@ -1034,7 +1034,7 @@ def test_dedup_distinguishes_source_type_for_weak_report_ids(client_and_db) -> N
     client, _db = client_and_db
 
     analysis_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3451,
             trace_id="trace-3451-analysis",
@@ -1047,7 +1047,7 @@ def test_dedup_distinguishes_source_type_for_weak_report_ids(client_and_db) -> N
     assert analysis["item"]["source_type"] == "analysis"
 
     manual_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3451,
             trace_id="trace-3451-manual",
@@ -1061,7 +1061,7 @@ def test_dedup_distinguishes_source_type_for_weak_report_ids(client_and_db) -> N
     assert manual["item"]["id"] != analysis["item"]["id"]
 
     duplicate_manual_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3451,
             trace_id="trace-3451-manual-new",
@@ -1074,21 +1074,21 @@ def test_dedup_distinguishes_source_type_for_weak_report_ids(client_and_db) -> N
     assert duplicate_manual["item"]["id"] == manual["item"]["id"]
 
     list_resp = client.get(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         params={"stock_code": "600519", "source_report_id": 3451},
     )
     assert list_resp.status_code == 200, list_resp.text
     assert list_resp.json()["total"] == 2
 
     analysis_list_resp = client.get(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         params={"stock_code": "600519", "source_report_id": 3451, "source_type": "analysis"},
     )
     assert analysis_list_resp.status_code == 200, analysis_list_resp.text
     assert analysis_list_resp.json()["total"] == 1
 
     manual_list_resp = client.get(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         params={"stock_code": "600519", "source_report_id": 3451, "source_type": "manual"},
     )
     assert manual_list_resp.status_code == 200, manual_list_resp.text
@@ -1115,7 +1115,7 @@ def test_hk_stock_identity_variants_deduplicate_and_latest_matches(client_and_db
     client, _db = client_and_db
 
     first_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3501,
             trace_id="trace-3501-a",
@@ -1131,7 +1131,7 @@ def test_hk_stock_identity_variants_deduplicate_and_latest_matches(client_and_db
 
     for raw_code, trace_id in (("HK00700", "trace-3501-b"), ("00700.HK", "trace-3501-c")):
         duplicate_resp = client.post(
-            "/api_suites/v1/decision-signals",
+            "/api/v1/decision-signals",
             json=_payload(
                 source_report_id=3501,
                 trace_id=trace_id,
@@ -1146,7 +1146,7 @@ def test_hk_stock_identity_variants_deduplicate_and_latest_matches(client_and_db
         assert duplicate["item"]["id"] == first["item"]["id"]
 
     latest_resp = client.get(
-        "/api_suites/v1/decision-signals/latest/00700",
+        "/api/v1/decision-signals/latest/00700",
         params={"market": "hk"},
     )
     assert latest_resp.status_code == 200, latest_resp.text
@@ -1160,7 +1160,7 @@ def test_hk_stock_identity_variants_deduplicate_and_latest_matches(client_and_db
         ("00700", {"market": "hk"}),
     ]
     for raw_code, params in latest_cases:
-        latest_resp = client.get(f"/api_suites/v1/decision-signals/latest/{raw_code}", params=params)
+        latest_resp = client.get(f"/api/v1/decision-signals/latest/{raw_code}", params=params)
         assert latest_resp.status_code == 200, latest_resp.text
         latest_payload = latest_resp.json()
         assert latest_payload["total"] == 1
@@ -1174,7 +1174,7 @@ def test_hk_stock_identity_variants_deduplicate_and_latest_matches(client_and_db
     ]
     for raw_code, params in list_cases:
         list_resp = client.get(
-            "/api_suites/v1/decision-signals",
+            "/api/v1/decision-signals",
             params={"stock_code": raw_code, **params},
         )
         assert list_resp.status_code == 200, list_resp.text
@@ -1187,7 +1187,7 @@ def test_dedup_distinguishes_market_for_same_symbol(client_and_db) -> None:
     client, _db = client_and_db
 
     us_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3601,
             trace_id="trace-3601-us",
@@ -1200,7 +1200,7 @@ def test_dedup_distinguishes_market_for_same_symbol(client_and_db) -> None:
     assert us_resp.json()["created"] is True
 
     hk_resp = client.post(
-        "/api_suites/v1/decision-signals",
+        "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3601,
             trace_id="trace-3601-hk",

@@ -13,7 +13,7 @@ const {
   discoverLLMChannelModels: vi.fn(),
 }));
 
-vi.mock('../../../api_suites/systemConfig', () => ({
+vi.mock('../../../api/systemConfig', () => ({
   systemConfigApi: {
     update: (...args: unknown[]) => update(...args),
     testLLMChannel: (...args: unknown[]) => testLLMChannel(...args),

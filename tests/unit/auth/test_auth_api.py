@@ -35,7 +35,7 @@ def _reset_auth_globals() -> None:
 
 
 class AuthApiTestCase(unittest.TestCase):
-    """Integration tests for /api_suites/v1/auth/* and API protection."""
+    """Integration tests for /api/v1/auth/* and API protection."""
 
     def setUp(self) -> None:
         _reset_auth_globals()
@@ -204,7 +204,7 @@ class AuthApiTestCase(unittest.TestCase):
         scope = {
             "type": "http",
             "method": "GET",
-            "path": "/api_suites/v1/system/config",
+            "path": "/api/v1/system/config",
             "headers": [],
             "query_string": b"",
             "scheme": "http",
@@ -224,7 +224,7 @@ class AuthApiTestCase(unittest.TestCase):
         scope = {
             "type": "http",
             "method": "POST",
-            "path": "/api_suites/v1/auth/logout",
+            "path": "/api/v1/auth/logout",
             "headers": [],
             "query_string": b"",
             "scheme": "http",
@@ -246,7 +246,7 @@ class AuthApiTestCase(unittest.TestCase):
         scope = {
             "type": "http",
             "method": "GET",
-            "path": "/api_suites/v1/system/config",
+            "path": "/api/v1/system/config",
             "headers": [(b"cookie", b"dsa_session=test-session")],
             "query_string": b"",
             "scheme": "http",
@@ -270,7 +270,7 @@ class AuthApiTestCase(unittest.TestCase):
         scope = {
             "type": "http",
             "method": "POST",
-            "path": "/api_suites/v1/auth/settings",
+            "path": "/api/v1/auth/settings",
             "headers": [],
             "query_string": b"",
             "scheme": "http",
@@ -290,7 +290,7 @@ class AuthApiTestCase(unittest.TestCase):
         scope = {
             "type": "http",
             "method": "POST",
-            "path": "/api_suites/v1/auth/settings",
+            "path": "/api/v1/auth/settings",
             "headers": [],
             "query_string": b"",
             "scheme": "http",
