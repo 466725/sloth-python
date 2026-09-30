@@ -24,7 +24,7 @@ P0 的目标是让后续 P1/P2/P3 可以基于真实仓库边界设计 `Analysis
 - P0 不接入 runtime，不改 `src/` 分析、Agent、告警、持仓、回测或通知逻辑。
 - P0 不 pack 化 `market_review`、`market_light` 或大盘红绿灯专题快照；这些只作为历史快照中的其他 `report_kind` / 专题消费边界记录。
 - P0 当时不把 `fetch_failed` 加入字段质量状态词；P5 已在同一 1.0 umbrella 内追加该状态，用于明确区分“不支持”和“本次抓取失败”。
-- P0 不在 README 扩写实现细节；本页作为专题文档，由 `docs/INDEX.md` / `docs/INDEX_EN.md` 入口发现。
+- P0 不在 README 扩写实现细节；本页作为专题文档，由 `index.md` / `docs/INDEX_EN.md` 入口发现。
 
 ## P1 内部契约
 

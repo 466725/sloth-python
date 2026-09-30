@@ -32,4 +32,4 @@ Feishu group Webhooks are distinct from Feishu App Bot credentials. DingTalk Str
 4. For inbound callbacks, verify public HTTPS reachability, platform verification settings, and request-signature validation.
 5. Check backend logs for transport/API errors; use `/status` to inspect general runtime readiness.
 
-For project setup and safe deployment, see the [User Guide](full-guide_EN.md) and [Chinese guide](GUIDE.md).
+For project setup and safe deployment, see the [User Guide](full-guide_EN.md) and [Chinese guide](guide.md).

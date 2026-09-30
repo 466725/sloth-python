@@ -3406,7 +3406,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
     },
     "AGENT_SKILL_DIR": {
         "title": "Agent Strategy Dir",
-        "description": "Directory containing agent strategy-skill definition files (YAML or SKILL.md bundles).",
+        "description": "Directory containing agent strategy-skill definition files (YAML or skill.md bundles).",
         "category": "agent",
         "data_type": "string",
         "ui_control": "text",

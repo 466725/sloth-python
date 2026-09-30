@@ -718,7 +718,7 @@ instructions: 自然语言策略描述 {name}
             shutil.rmtree(tmpdir)
 
     def test_load_skill_bundle_markdown(self):
-        """Load a Claude/Codex-style SKILL.md bundle."""
+        """Load a Claude/Codex-style skill.md bundle."""
         import shutil
         import tempfile
 
@@ -728,7 +728,7 @@ instructions: 自然语言策略描述 {name}
         try:
             skill_dir = tmpdir / "explain-code"
             skill_dir.mkdir(parents=True)
-            (skill_dir / "SKILL.md").write_text(
+            (skill_dir / "skill.md").write_text(
                 """---
 name: explain-code
 description: Explain code with diagrams
@@ -741,7 +741,7 @@ When explaining code, always include an ASCII diagram.
 """,
                 encoding="utf-8",
             )
-            skill = load_skill_from_markdown(skill_dir / "SKILL.md")
+            skill = load_skill_from_markdown(skill_dir / "skill.md")
             self.assertEqual(skill.name, "explain-code")
             self.assertEqual(skill.description, "Explain code with diagrams")
             self.assertEqual(skill.allowed_tools, ["Read", "Grep"])
@@ -753,7 +753,7 @@ When explaining code, always include an ASCII diagram.
             shutil.rmtree(tmpdir)
 
     def test_load_skill_bundle_metadata_defaults(self):
-        """SKILL.md frontmatter should populate metadata-driven default fields."""
+        """skill.md frontmatter should populate metadata-driven default fields."""
         import shutil
         import tempfile
 
@@ -763,7 +763,7 @@ When explaining code, always include an ASCII diagram.
         try:
             skill_dir = tmpdir / "rotation-scout"
             skill_dir.mkdir(parents=True)
-            (skill_dir / "SKILL.md").write_text(
+            (skill_dir / "skill.md").write_text(
                 """---
 name: rotation-scout
 description: Track sector rotation leaders
@@ -777,7 +777,7 @@ Track hot sectors and leading stocks.
 """,
                 encoding="utf-8",
             )
-            skill = load_skill_from_markdown(skill_dir / "SKILL.md")
+            skill = load_skill_from_markdown(skill_dir / "skill.md")
             self.assertEqual(skill.aliases, ["轮动", "龙头侦察"])
             self.assertTrue(skill.default_active)
             self.assertTrue(skill.default_router)
@@ -787,7 +787,7 @@ Track hot sectors and leading stocks.
             shutil.rmtree(tmpdir)
 
     def test_load_skill_bundle_defaults_name_and_description(self):
-        """SKILL.md should default name to directory and description to first paragraph."""
+        """skill.md should default name to directory and description to first paragraph."""
         import shutil
         import tempfile
 
@@ -797,7 +797,7 @@ Track hot sectors and leading stocks.
         try:
             skill_dir = tmpdir / "api-conventions"
             skill_dir.mkdir(parents=True)
-            (skill_dir / "SKILL.md").write_text(
+            (skill_dir / "skill.md").write_text(
                 """---
 allowed-tools: Read
 ---
@@ -807,7 +807,7 @@ Use RESTful naming and consistent validation.
 """,
                 encoding="utf-8",
             )
-            skill = load_skill_from_markdown(skill_dir / "SKILL.md")
+            skill = load_skill_from_markdown(skill_dir / "skill.md")
             self.assertEqual(skill.name, "api-conventions")
             self.assertEqual(skill.description, "API design patterns for this codebase.")
             self.assertEqual(skill.display_name, "api-conventions")

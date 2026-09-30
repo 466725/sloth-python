@@ -680,7 +680,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
   'settings.agent.AGENT_SKILL_DIR': {
     title: '策略目录',
     summary: '存放 Agent 策略定义文件的目录。',
-    usage: '填写相对于项目根目录的路径；目录内可放置 YAML 或 SKILL.md 格式的策略定义。',
+    usage: '填写相对于项目根目录的路径；目录内可放置 YAML 或 skill.md 格式的策略定义。',
     valueNotes: ['默认 strategies 目录包含内置策略。'],
     impact: ['影响 Agent 可发现的策略列表。'],
     notes: ['修改目录后需要确保新目录中包含有效的策略定义文件。'],
@@ -1649,7 +1649,7 @@ const settingsHelpEnUS: SettingsHelpMap = {
   'settings.agent.AGENT_SKILL_DIR': {
     title: 'Strategy Directory',
     summary: 'Directory containing Agent strategy definition files.',
-    usage: 'Enter a path relative to the project root. The directory can contain YAML or SKILL.md strategy definitions.',
+    usage: 'Enter a path relative to the project root. The directory can contain YAML or skill.md strategy definitions.',
     valueNotes: ['The default strategies directory includes built-in strategies.'],
     impact: ['Affects which strategies the Agent can discover.'],
     notes: ['After changing the directory, make sure it contains valid strategy definition files.'],

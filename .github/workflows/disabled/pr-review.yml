@@ -12,7 +12,7 @@ on:
       - '**.ts'
       - '**.tsx'
       - 'docs/**'
-      - 'README.md'
+      - 'readme.md'
       - 'AGENTS.md'
       - 'apps/dsa-web/**'
       - 'requirements.txt'

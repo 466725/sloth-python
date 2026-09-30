@@ -682,7 +682,7 @@ The `context: fork` frontmatter option runs the skill in an isolated sub-agent c
 
 A) Create rule files in `.claude/rules/` with YAML frontmatter specifying glob patterns to conditionally apply conventions based on file paths.
 B) Consolidate all conventions in the root `../../../CLAUDE.md` file under headers for each area, relying on Claude to infer which section applies.
-C) Create skills in `.claude/skills/` for each code type that include the relevant conventions in their `SKILL.md` files.
+C) Create skills in `.claude/skills/` for each code type that include the relevant conventions in their `../../../docs/skill.md` files.
 D) Place a separate `CLAUDE.md` file in each subdirectory containing that area's specific conventions.
 
 **Correct Answer: A**

@@ -344,7 +344,7 @@ P6 不做：
 - Web 告警历史展示 phase badge、数据质量等级和 limitations 空态；旧触发记录缺少公开摘要时不影响列表读取。
 - #1390 P6 进一步复用 `DecisionSignal`：股票级真实触发会优先关联同标的 latest active 信号，并把低敏 `decision_signal_summary` 写入 diagnostics；无 active 信号时只创建最小 `source_type=alert/action=alert` 信号。`trace_id=alert-rule-<hash>` 只用于同源重试的 best-effort 幂等去重，不覆盖 active 信号；新建告警信号不写 `market_phase`，避免同一规则跨阶段重复创建。`market`、`portfolio_account`、overflow 或无法解析为具体股票的触发不会创建个股信号。
 
-DecisionSignal 的用户可见边界与回滚说明见[使用指南](GUIDE.md#5-主要工作流)。
+DecisionSignal 的用户可见边界与回滚说明见[使用指南](guide.md#5-主要工作流)。
 
 #1386 P7 的用户边界：告警联动只解释触发时已经可公开的阶段和数据质量摘要，不会自动发起轻量 LLM 盘中分析，也不会新增告警表、规则类型、环境变量或 migration。需要阶段化分析时，仍应通过分析 API / Web 手动分析入口触发；告警通知只保留阶段标签、trigger source、partial-bar warning、数据质量等级和前两条 limitations。
 

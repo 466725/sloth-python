@@ -39,12 +39,12 @@ class Skill:
         category: Skill category — "trend" (趋势), "pattern" (形态), "reversal" (反转), "framework" (框架).
         core_rules: List of core trading rule numbers this strategy relates to (1-7).
         required_tools: List of tool names this skill depends on.
-        allowed_tools: Optional allowlist metadata from SKILL.md frontmatter.
+        allowed_tools: Optional allowlist metadata from skill.md frontmatter.
         aliases: Optional alias phrases used by NL selectors / bot commands.
         enabled: Whether this skill is currently active.
         source: Origin of this skill — "builtin" or file path of a custom definition.
-        entrypoint: Definition file path (YAML or SKILL.md).
-        bundle_dir: Skill bundle directory when loaded from SKILL.md.
+        entrypoint: Definition file path (YAML or skill.md).
+        bundle_dir: Skill bundle directory when loaded from skill.md.
         disable_model_invocation: Whether the model should avoid auto-invoking this skill.
         user_invocable: Whether the skill should be exposed in user-facing selectors.
         default_active: Whether this skill participates in the default activation set.
@@ -203,7 +203,7 @@ def load_skill_from_yaml(filepath: Union[str, Path]) -> Skill:
 
 
 def load_skill_from_markdown(filepath: Union[str, Path]) -> Skill:
-    """Load a single skill from a `SKILL.md` bundle entrypoint."""
+    """Load a single skill from a `skill.md` bundle entrypoint."""
     filepath = Path(filepath)
     if not filepath.exists():
         raise FileNotFoundError(f"Skill file not found: {filepath}")
@@ -275,7 +275,7 @@ def load_skills_from_directory(directory: Union[str, Path]) -> List[Skill]:
     """Load all skills from YAML files in a directory.
 
     Scans for top-level ``*.yaml`` / ``*.yml`` compatibility files and
-    nested ``SKILL.md`` bundles, sorted alphabetically.
+    nested ``skill.md`` bundles, sorted alphabetically.
     Skips files that fail to parse (logs a warning).
 
     Args:
@@ -291,7 +291,7 @@ def load_skills_from_directory(directory: Union[str, Path]) -> List[Skill]:
 
     skills: List[Skill] = []
     yaml_files = sorted(directory.glob("*.yaml")) + sorted(directory.glob("*.yml"))
-    markdown_files = sorted(directory.rglob("SKILL.md"))
+    markdown_files = sorted(directory.rglob("skill.md"))
 
     for filepath in yaml_files:
         try:
@@ -462,7 +462,7 @@ class SkillManager:
                 if skill.core_rules:
                     rules_ref = f"（关联核心理念：第{'、'.join(str(r) for r in skill.core_rules)}条）"
                 support_ref = ""
-                if skill.bundle_dir and skill.entrypoint.endswith("SKILL.md"):
+                if skill.bundle_dir and skill.entrypoint.endswith("skill.md"):
                     support_ref = "（bundle）"
                 parts.append(
                     f"### 技能 {idx}: {skill.display_name} {rules_ref}{support_ref}\n\n"

@@ -224,7 +224,7 @@ P5 强化聚合报告通知路径的失败边界：`_send_notifications()` 在 r
 
 #1390 P6 的决策信号摘要沿用同一失败隔离边界：分析报告通知和告警通知只追加低敏 `decision_signal_summary` 摘要（动作、周期、理由、观察条件、风险和来源报告），不会输出 signal `metadata`、`evidence`、raw diagnostics 或 webhook/token。告警通知发送失败只记录通知尝试或 dispatch fallback，不回滚已经写入的 trigger 或 DecisionSignal。
 
-DecisionSignal 通知摘要与安全边界见[使用指南](GUIDE.md#5-主要工作流)。
+DecisionSignal 通知摘要与安全边界见[使用指南](guide.md#5-主要工作流)。
 
 ## 通知降噪机制
 

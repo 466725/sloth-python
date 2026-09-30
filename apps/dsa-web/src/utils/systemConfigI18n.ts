@@ -322,7 +322,7 @@ const fieldDescriptionMap: Record<string, string> = {
   AGENT_MODE: '是否启用 ReAct Agent 策略问股。对外文案仍叫“策略”，内部配置字段统一使用 skill。',
   AGENT_MAX_STEPS: 'Agent 最大推理步数上限。保持默认 10 时，各子 Agent 按自身预设步数运行；调高到高于默认值时，所有子 Agent 统一采用该值；调低到低于某子 Agent 默认值时，该 Agent 会被封顶。',
   AGENT_SKILLS: '逗号分隔的交易策略列表。留空时使用 metadata 里声明的主默认策略 skill（内置默认是 bull_trend）；也可填写 all 启用全部策略。',
-  AGENT_SKILL_DIR: '存放 Agent 策略定义文件的目录路径，支持 YAML 与 SKILL.md bundle。',
+  AGENT_SKILL_DIR: '存放 Agent 策略定义文件的目录路径，支持 YAML 与 skill.md bundle。',
   AGENT_ARCH: "选择 Agent 执行架构。single 为经典单 Agent；multi 为多 Agent 编排（实验性）。",
   AGENT_ORCHESTRATOR_MODE: "Multi-Agent 编排深度。quick（技术→决策）、standard（技术→情报→决策）、full（含风控）、specialist（含策略专家评估）。",
   AGENT_ORCHESTRATOR_TIMEOUT_S: "Agent 执行总超时预算（秒）。single-agent 用作整体 ReAct 循环预算，multi-agent 用作协作编排预算；0 表示不限制。",

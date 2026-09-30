@@ -260,7 +260,7 @@ This opens the sign-in flow through the shared UI fixture and self-healing locat
 | `self_healing/dom_similarity.py` | Finds likely replacements in the current page DOM |
 | `self_healing/self_healing.py` | Coordinates recovery and optional locator updates |
 | `self_healing/locator_store.py` | Loads and persists keyed locator definitions |
-| `pytest_tests/ui/locators/` | Stores the Tangerine locator JSON files |
+| `tests/pytest_tests` | Stores the Tangerine locator JSON files |
 
 ### Recovery flow
 
@@ -391,7 +391,7 @@ Keep changes focused, reusable, and easy to validate.
 
 ### Testing and UI Automation
 
-- **Organize by behavior:** Keep pytest suites under `pytest_tests/` and Robot suites under `robot_tests/`, grouped by `unit`, `api`, `ui`, `ddt`, and `ai` where applicable.
+- **Organize by behavior:** Keep pytest suites under `tests/pytest_tests` and Robot suites under `tests/robot_tests`, grouped by `unit`, `api`, `ui`, `ddt`, and `ai` where applicable.
 - **Use shared fixtures and page objects:** Centralize setup, browser lifecycle, and page interactions instead of duplicating them in individual tests.
 - **Prefer stable selectors:** Reuse shared locator definitions and self-healing helpers for Playwright flows when selector recovery is appropriate.
 - **Parameterize repeated scenarios:** Use fixtures, markers, and parameterization to keep test coverage broad without duplicating test logic.
@@ -442,7 +442,7 @@ For issues and questions, include:
 - Relevant command output or a redacted traceback
 - The affected area, such as `pytest`, `robot`, `ai_gen`, `ai_stock`, or `skill_spring`
 
-Report security vulnerabilities through the [Security Policy](security.md), not a public issue. Never include API keys, tokens, credentials, or other sensitive values in reports.
+Report security vulnerabilities through the [Security Policy](docs/security.md), not a public issue. Never include API keys, tokens, credentials, or other sensitive values in reports.
 
 ## 📝 License
 
