@@ -16,6 +16,7 @@ profile = "black"
 line_length = 100
 py_version = 312
 skip = [".venv", "temps", ".pytest_cache", ".idea"]
+known_first_party = ["config", "storage", "analyzer", "notification", "scheduler", "search_service", "market_analyzer", "stock_analyzer", "data_provider"]
 
 [tool.ruff]
 line-length = 100
@@ -31,11 +32,36 @@ quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
 
+# -----------------------------
+# Pytest (merged from setup.cfg)
+# -----------------------------
 [tool.pytest.ini_options]
-addopts = ["--alluredir=temps/allure-results", "--clean-alluredir", "--strict-markers", "--import-mode=importlib"]
-testpaths = ["pytest_tests", "robot_tests"]
+addopts = [
+  "--alluredir=temps/allure-results",
+  "--clean-alluredir",
+  "--strict-markers",
+  "--import-mode=importlib",
+  "-v",
+  "--tb=short"
+]
+testpaths = ["pytest_tests", "robot_tests", "."]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
+
+norecursedirs = [
+  ".git",
+  "__pycache__",
+  ".env",
+  "venv",
+  ".venv",
+  ".venv*",
+  "build",
+  "dist",
+  "local",
+  "node_modules",
+  "*/node_modules/*"
+]
+
 markers = [
   "ai: AI-generated Playwright test script",
   "ui: UI or end-to-end test",
@@ -47,7 +73,9 @@ markers = [
   "playwright: Playwright-based UI test",
   "benchmark: performance benchmark test",
   "qtest_id(id): qTest test case id used by the pytest qTest reporting hook",
+  "integration: service-level integration tests without external network dependency"
 ]
+
 log_file = "temps/allure-results/log/pytest.log"
 log_file_level = "info"
 log_file_format = "%(asctime)s %(levelname)s %(name)s: %(message)s"
