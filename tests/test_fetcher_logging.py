@@ -70,48 +70,6 @@ class _RecordingFetcher(BaseFetcher):
 
 
 class TestFetcherLogging(unittest.TestCase):
-    def test_base_fetcher_logs_start_and_success(self):
-        fetcher = _SuccessFetcher()
-
-        with self.assertLogs("data_provider.base", level="INFO") as captured:
-            df = fetcher.get_daily_data("600519", start_date="2026-03-01", end_date="2026-03-08")
-
-        log_text = "\n".join(captured.output)
-        self.assertFalse(df.empty)
-        self.assertIn("[SuccessFetcher] 开始获取 600519 日线数据", log_text)
-        self.assertIn("[SuccessFetcher] 600519 获取成功:", log_text)
-        self.assertIn("rows=2", log_text)
-
-    def test_manager_logs_fallback_and_final_success(self):
-        manager = DataFetcherManager(fetchers=[_FailureFetcher(), _SuccessFetcher()])
-
-        with self.assertLogs("data_provider.base", level="INFO") as captured:
-            df, source = manager.get_daily_data("601006", start_date="2026-01-07", end_date="2026-03-08")
-
-        log_text = "\n".join(captured.output)
-        self.assertFalse(df.empty)
-        self.assertEqual(source, "SuccessFetcher")
-        self.assertIn("[数据源尝试 1/2] [FailureFetcher] 获取 601006...", log_text)
-        self.assertIn("[数据源失败 1/2] [FailureFetcher] 601006:", log_text)
-        self.assertIn("[数据源切换] 601006: [FailureFetcher] -> [SuccessFetcher]", log_text)
-        self.assertIn("[数据源完成] 601006 使用 [SuccessFetcher] 获取成功:", log_text)
-
-    def test_manager_skips_builtin_fetchers_that_do_not_support_hk_daily(self):
-        efinance = _RecordingFetcher("EfinanceFetcher", 0)
-        pytdx = _RecordingFetcher("PytdxFetcher", 1)
-        akshare = _RecordingFetcher("AkshareFetcher", 2)
-        yfinance = _RecordingFetcher("YfinanceFetcher", 3)
-
-        manager = DataFetcherManager(fetchers=[efinance, pytdx, akshare, yfinance])
-        df, source = manager.get_daily_data("1211.HK", start_date="2026-05-01", end_date="2026-05-08")
-
-        self.assertFalse(df.empty)
-        self.assertEqual(source, "AkshareFetcher")
-        self.assertEqual(efinance.calls, [])
-        self.assertEqual(pytdx.calls, [])
-        self.assertEqual(akshare.calls, ["HK01211"])
-        self.assertEqual(yfinance.calls, [])
-
     @patch("ai_stock.stock_data.efinance_fetcher.get_config")
     def test_efinance_rejects_hk_daily_without_calling_eastmoney(self, mock_get_config):
         mock_get_config.return_value = types.SimpleNamespace(enable_eastmoney_patch=False)

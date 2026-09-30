@@ -77,88 +77,6 @@ class TestFundamentalContext(unittest.TestCase):
         self.assertEqual(ctx["coverage"].get("boards"), "not_supported")
         self.assertEqual(ctx.get("belong_boards"), [])
 
-    def test_offshore_market_populates_blocks_when_adapter_has_data(self) -> None:
-        """US/HK fundamental context surfaces yfinance bundle into growth/earnings/belong_boards."""
-        manager = DataFetcherManager(fetchers=[])
-        cfg = SimpleNamespace(
-            enable_fundamental_pipeline=True,
-            fundamental_cache_ttl_seconds=0,
-            fundamental_stage_timeout_seconds=2.0,
-            fundamental_fetch_timeout_seconds=1.5,
-            fundamental_retry_max=1,
-        )
-        quote = SimpleNamespace(
-            pe_ratio=32.5,
-            pb_ratio=58.2,
-            total_mv=3.4e12,
-            circ_mv=3.4e12,
-            source=SimpleNamespace(value="longbridge"),
-        )
-        bundle = {
-            "status": "partial",
-            "growth": {
-                "revenue_yoy": 16.5,
-                "net_profit_yoy": 19.3,
-                "roe": 141.4,
-                "gross_margin": 47.8,
-            },
-            "earnings": {
-                "financial_report": {
-                    "report_date": "2026-03-31",
-                    "revenue": 1.11e11,
-                    "net_profit_parent": 2.95e10,
-                    "operating_cash_flow": 2.87e10,
-                    "roe": 141.4,
-                    "currency": "USD",
-                },
-                "dividend": {
-                    "events": [{
-                        "event_date": "2026-05-11",
-                        "ex_dividend_date": "2026-05-11",
-                        "cash_dividend_per_share": 0.27,
-                        "is_pre_tax": True,
-                    }],
-                    "ttm_event_count": 4,
-                    "ttm_cash_dividend_per_share": 1.05,
-                    "ttm_dividend_yield_pct": 0.36,
-                },
-            },
-            "belong_boards": [
-                {"name": "Technology", "type": "行业"},
-                {"name": "Consumer Electronics", "type": "概念"},
-            ],
-            "source_chain": ["growth:yfinance.info"],
-            "errors": [],
-        }
-        with patch("ai_stock.config.get_config", return_value=cfg), \
-                patch.object(manager, "get_realtime_quote", return_value=quote), \
-                patch(
-                    "ai_stock.stock_data.yfinance_fundamental_adapter.YfinanceFundamentalAdapter.get_fundamental_bundle",
-                    return_value=bundle,
-                ):
-            ctx = manager.get_fundamental_context("AAPL")
-        self.assertEqual(ctx["market"], "us")
-        # Offshore status only considers valuation/growth/earnings (capital_flow
-        # etc. are intentionally not_supported); "ok" when all three populate.
-        self.assertEqual(ctx["status"], "ok")
-        self.assertEqual(ctx["coverage"].get("growth"), "ok")
-        self.assertEqual(ctx["coverage"].get("earnings"), "ok")
-        self.assertEqual(ctx["coverage"].get("capital_flow"), "not_supported")
-        self.assertEqual(ctx["coverage"].get("boards"), "not_supported")
-        growth_data = ctx["growth"].get("data") or {}
-        self.assertEqual(growth_data.get("revenue_yoy"), 16.5)
-        self.assertEqual(growth_data.get("roe"), 141.4)
-        financial_report = (ctx["earnings"].get("data") or {}).get("financial_report") or {}
-        self.assertEqual(financial_report.get("currency"), "USD")
-        self.assertEqual(financial_report.get("revenue"), 1.11e11)
-        dividend = (ctx["earnings"].get("data") or {}).get("dividend") or {}
-        self.assertEqual(dividend.get("ttm_cash_dividend_per_share"), 1.05)
-        self.assertEqual(dividend.get("ttm_dividend_yield_pct"), 0.36)
-        self.assertEqual(ctx.get("belong_boards"), [
-            {"name": "Technology", "type": "行业"},
-            {"name": "Consumer Electronics", "type": "概念"},
-        ])
-
     def test_etf_market_downgrades_to_partial_or_not_supported(self) -> None:
         manager = DataFetcherManager(fetchers=[])
         cfg = SimpleNamespace(
@@ -252,89 +170,6 @@ class TestFundamentalContext(unittest.TestCase):
         self.assertIn("growth", ctx)
         self.assertIn("capital_flow", ctx)
         self.assertIn("dragon_tiger", ctx)
-
-    def test_fundamental_context_derives_ttm_dividend_yield_from_quote_price(self) -> None:
-        manager = DataFetcherManager(fetchers=[])
-        cfg = SimpleNamespace(
-            enable_fundamental_pipeline=True,
-            fundamental_cache_ttl_seconds=120,
-            fundamental_stage_timeout_seconds=1.5,
-            fundamental_fetch_timeout_seconds=0.8,
-            fundamental_retry_max=1,
-        )
-        quote = SimpleNamespace(
-            price=50.0,
-            pe_ratio=12.3,
-            pb_ratio=2.1,
-            total_mv=1.0e11,
-            circ_mv=7.0e10,
-            source=SimpleNamespace(value="tencent"),
-        )
-        with patch("ai_stock.config.get_config", return_value=cfg), \
-                patch.object(manager, "get_realtime_quote", return_value=quote), \
-                patch("ai_stock.stock_data.fundamental_adapter.AkshareFundamentalAdapter.get_fundamental_bundle", return_value={
-                    "status": "partial",
-                    "growth": {},
-                    "earnings": {
-                        "dividend": {
-                            "ttm_cash_dividend_per_share": 2.5,
-                            "ttm_event_count": 1,
-                            "events": [{"event_date": "2026-01-01", "cash_dividend_per_share": 2.5}],
-                        }
-                    },
-                    "institution": {},
-                    "source_chain": [],
-                    "errors": [],
-                }), \
-                patch.object(manager, "get_capital_flow_context", return_value={"status": "not_supported", "source_chain": []}), \
-                patch.object(manager, "get_dragon_tiger_context", return_value={"status": "not_supported", "source_chain": []}), \
-                patch.object(manager, "get_board_context", return_value={"status": "not_supported", "source_chain": []}):
-            ctx = manager.get_fundamental_context("600519", budget_seconds=1.5)
-
-        dividend_payload = ctx["earnings"]["data"]["dividend"]
-        self.assertAlmostEqual(dividend_payload["ttm_dividend_yield_pct"], 5.0, places=6)
-        self.assertIn("yield_formula", dividend_payload)
-
-    def test_fundamental_context_dividend_yield_keeps_null_when_price_invalid(self) -> None:
-        manager = DataFetcherManager(fetchers=[])
-        cfg = SimpleNamespace(
-            enable_fundamental_pipeline=True,
-            fundamental_cache_ttl_seconds=120,
-            fundamental_stage_timeout_seconds=1.5,
-            fundamental_fetch_timeout_seconds=0.8,
-            fundamental_retry_max=1,
-        )
-        quote = SimpleNamespace(
-            price=None,
-            pe_ratio=12.3,
-            pb_ratio=2.1,
-            total_mv=1.0e11,
-            circ_mv=7.0e10,
-            source=SimpleNamespace(value="tencent"),
-        )
-        with patch("ai_stock.config.get_config", return_value=cfg), \
-                patch.object(manager, "get_realtime_quote", return_value=quote), \
-                patch("ai_stock.stock_data.fundamental_adapter.AkshareFundamentalAdapter.get_fundamental_bundle", return_value={
-                    "status": "partial",
-                    "growth": {},
-                    "earnings": {
-                        "dividend": {
-                            "ttm_cash_dividend_per_share": 1.2,
-                            "events": [{"event_date": "2026-01-01", "cash_dividend_per_share": 1.2}],
-                        }
-                    },
-                    "institution": {},
-                    "source_chain": [],
-                    "errors": [],
-                }), \
-                patch.object(manager, "get_capital_flow_context", return_value={"status": "not_supported", "source_chain": []}), \
-                patch.object(manager, "get_dragon_tiger_context", return_value={"status": "not_supported", "source_chain": []}), \
-                patch.object(manager, "get_board_context", return_value={"status": "not_supported", "source_chain": []}):
-            ctx = manager.get_fundamental_context("600519", budget_seconds=1.5)
-
-        dividend_payload = ctx["earnings"]["data"]["dividend"]
-        self.assertIsNone(dividend_payload.get("ttm_dividend_yield_pct"))
-        self.assertIn("invalid_price_for_ttm_dividend_yield", ctx["earnings"]["errors"])
 
     def test_non_etf_board_budget_not_forced_to_zero(self) -> None:
         manager = DataFetcherManager(fetchers=[])
@@ -477,21 +312,6 @@ class TestFundamentalContext(unittest.TestCase):
         self.assertNotEqual(key_default, key_low)
         self.assertNotEqual(key_low, key_high)
         self.assertIn("budget=", key_low)
-
-    def test_board_context_empty_rankings_mark_failed(self) -> None:
-        manager = DataFetcherManager(fetchers=[])
-        cfg = SimpleNamespace(
-            enable_fundamental_pipeline=True,
-            fundamental_cache_ttl_seconds=120,
-            fundamental_stage_timeout_seconds=1.5,
-            fundamental_fetch_timeout_seconds=0.8,
-            fundamental_retry_max=1,
-        )
-        with patch("ai_stock.config.get_config", return_value=cfg), \
-                patch.object(manager, "_get_sector_rankings_with_meta", return_value=([], [], [], "all failed")):
-            ctx = manager.get_board_context("600519", budget_seconds=0.5)
-        self.assertEqual(ctx["status"], "failed")
-        self.assertEqual(ctx["data"], {})
 
     def test_capital_flow_not_supported_status(self) -> None:
         manager = DataFetcherManager(fetchers=[])

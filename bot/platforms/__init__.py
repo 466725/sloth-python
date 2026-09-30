@@ -15,7 +15,6 @@ from bot.platforms.base import BotPlatform
 
 # 所有可用平台（Webhook 模式）
 ALL_PLATFORMS = {
-    'dingtalk': DingtalkPlatform,
 }
 
 __all__ = [
