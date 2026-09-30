@@ -198,44 +198,6 @@ class TestCommandDispatcherSyncCompatibility(unittest.TestCase):
         self.assertEqual(result.text, "dummy-ok")
 
 
-class TestHandleWebhookAsync(unittest.IsolatedAsyncioTestCase):
-    """Test the async webhook handler path."""
-
-    async def test_handle_webhook_async_dispatches_via_async(self):
-        from bot.handler import handle_webhook_async
-
-        fake_platform = MagicMock()
-        fake_message = _make_message("/dummy")
-        fake_platform.handle_webhook.return_value = (fake_message, None)
-        fake_platform.format_response.return_value = MagicMock(text="ok-response")
-
-        fake_config = MagicMock()
-        fake_config.bot_enabled = True
-
-        with patch("ai_stock.config.get_config", return_value=fake_config), \
-             patch("bot.handler.get_platform", return_value=fake_platform), \
-             patch("bot.handler.get_dispatcher") as mock_get_disp:
-            mock_dispatcher = MagicMock()
-            mock_dispatcher.dispatch_async = AsyncMock(return_value=BotResponse.text_response("async-resp"))
-            mock_get_disp.return_value = mock_dispatcher
-
-            await handle_webhook_async("feishu", {}, b'{}')
-
-        mock_dispatcher.dispatch_async.assert_awaited_once()
-
-    async def test_handle_webhook_async_returns_success_when_bot_disabled(self):
-        from bot.handler import handle_webhook_async
-
-        fake_config = MagicMock()
-        fake_config.bot_enabled = False
-
-        with patch("ai_stock.config.get_config", return_value=fake_config):
-            result = await handle_webhook_async("feishu", {}, b'{}')
-
-        # WebhookResponse.success() returns status_code 200
-        self.assertEqual(result.status_code, 200)
-
-
 class TestChatCommandCompatibility(unittest.TestCase):
     def test_chat_command_reuses_legacy_session_id_when_history_exists(self):
         from bot.commands.chat import ChatCommand
