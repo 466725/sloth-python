@@ -128,7 +128,7 @@ def test_analyze_request_rejects_invalid_analysis_phase() -> None:
 
 
 def test_decision_signal_static_api_spec_matches_runtime_paths() -> None:
-    static_spec_path = Path(__file__).resolve().parents[1] / "docs" / "architecture" / "api_spec.json"
+    static_spec_path = Path(__file__).resolve().parents[3] / "docs" / "api_spec.json"
     static_spec = json.loads(static_spec_path.read_text(encoding="utf-8"))
     runtime_spec = create_app().openapi()
 
