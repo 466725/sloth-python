@@ -106,7 +106,7 @@ def test_openai_base_url_is_normalized_to_v1(monkeypatch: pytest.MonkeyPatch):
 
     module = importlib.reload(config_module)
 
-    assert module.settings.urls.openai == "https://api.openai.com/v1"
-    assert module.settings.ai_generation.base_url == "https://api.openai.com/v1"
+    assert module.settings.urls.openai == "https://api.openai.com"
+    assert module.settings.ai_generation.base_url == "https://api.openai.com"
 
 

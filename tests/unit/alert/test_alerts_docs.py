@@ -4,7 +4,7 @@
 from pathlib import Path
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DOC_PATH = PROJECT_ROOT / "docs" / "alerts.md"
 
 
@@ -62,7 +62,7 @@ def test_alerts_doc_keeps_p0_non_goals_explicit() -> None:
     doc = _read_doc()
 
     for token in (
-        "P0 阶段不新增 `api_suites/v1/schemas/alerts.py`",
+        "P0 阶段不新增 `api/v1/schemas/alerts.py`",
         "P0 阶段不新增 Web 告警中心页面",
         "P0 阶段不新增数据库表",
         "P0 阶段不实现触发历史",
@@ -76,18 +76,18 @@ def test_alerts_doc_defines_p1_api_mvp_scope() -> None:
     doc = _read_doc()
 
     for token in (
-        "api_suites/v1/endpoints/alerts.py",
-        "api_suites/v1/schemas/alerts.py",
-        "GET /api_suites/v1/alerts/rules",
-        "POST /api_suites/v1/alerts/rules",
-        "GET /api_suites/v1/alerts/rules/{rule_id}",
-        "PATCH /api_suites/v1/alerts/rules/{rule_id}",
-        "DELETE /api_suites/v1/alerts/rules/{rule_id}",
-        "POST /api_suites/v1/alerts/rules/{rule_id}/enable",
-        "POST /api_suites/v1/alerts/rules/{rule_id}/disable",
-        "POST /api_suites/v1/alerts/rules/{rule_id}/test",
-        "GET /api_suites/v1/alerts/triggers",
-        "GET /api_suites/v1/alerts/notifications",
+        "api/v1/endpoints/alerts.py",
+        "api/v1/schemas/alerts.py",
+        "GET /api/v1/alerts/rules",
+        "POST /api/v1/alerts/rules",
+        "GET /api/v1/alerts/rules/{rule_id}",
+        "PATCH /api/v1/alerts/rules/{rule_id}",
+        "DELETE /api/v1/alerts/rules/{rule_id}",
+        "POST /api/v1/alerts/rules/{rule_id}/enable",
+        "POST /api/v1/alerts/rules/{rule_id}/disable",
+        "POST /api/v1/alerts/rules/{rule_id}/test",
+        "GET /api/v1/alerts/triggers",
+        "GET /api/v1/alerts/notifications",
         "price_cross",
         "price_change_percent",
         "volume_spike",

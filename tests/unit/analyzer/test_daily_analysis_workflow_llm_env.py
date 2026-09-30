@@ -8,11 +8,10 @@ from pathlib import Path
 
 import yaml
 
-
-ROOT_DIR = Path(__file__).resolve().parent.parent
-TEMPLATE_PATH = ROOT_DIR / "apps/dsa-web/src/components/settings/llmProviderTemplates.ts"
-WORKFLOW_PATH = ROOT_DIR / ".github/workflows/00-daily-analysis.yml"
-ENV_EXAMPLE_PATH = ROOT_DIR / ".env.example"
+BASE_DIR = Path(__file__).resolve().parents[3]
+TEMPLATE_PATH = BASE_DIR / "apps/dsa-web/src/components/settings/llmProviderTemplates.ts"
+WORKFLOW_PATH = BASE_DIR / ".github/workflows/00-daily-analysis.yml"
+ENV_EXAMPLE_PATH = BASE_DIR / ".env.example"
 
 EXPECTED_TEMPLATE_CHANNELS = {
     "aihubmix",

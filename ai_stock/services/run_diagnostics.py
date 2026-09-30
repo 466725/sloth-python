@@ -40,21 +40,21 @@ _SECRET_REDACTIONS = (
     (
         re.compile(
             r"(?i)([\"']?)"
-            r"([A-Z0-9_]*?(?:api_suites[_-]?key|access[_-]?token|token|secret|password|passwd|cookie))"
+            r"([A-Z0-9_]*?(?:api[_-]?key|access[_-]?token|token|secret|password|passwd|cookie))"
             r"\1\s*:\s*([\"'])([^\"']+)\3"
         ),
         lambda match: f"{match.group(1)}{match.group(2)}{match.group(1)}: {match.group(3)}<redacted>{match.group(3)}",
     ),
     (
         re.compile(
-            r"(?i)\b([A-Z0-9_]*?(?:api_suites[_-]?key|access[_-]?token|token|secret|password|passwd|cookie))"
+            r"(?i)\b([A-Z0-9_]*?(?:api[_-]?key|access[_-]?token|token|secret|password|passwd|cookie))"
             r"\s*=\s*([^\s,&;]+)"
         ),
         lambda match: f"{match.group(1)}=<redacted>",
     ),
     (
         re.compile(
-            r"(?i)\b(api_suites[_-]?key|access[_-]?token|token|secret|password|passwd|cookie)"
+            r"(?i)\b(api[_-]?key|access[_-]?token|token|secret|password|passwd|cookie)"
             r"\s*:\s*([^\s,&;]+)"
         ),
         lambda match: f"{match.group(1)}=<redacted>",
@@ -65,7 +65,7 @@ _SECRET_REDACTIONS = (
     ),
 )
 _SENSITIVE_KEY_RE = re.compile(
-    r"(?i)(authorization|api_suites[_-]?key|access[_-]?token|(?:^|[_-])(?:auth|refresh|session|bearer)?[_-]?token$|secret|password|passwd|cookie|"
+    r"(?i)(authorization|api[_-]?key|access[_-]?token|(?:^|[_-])(?:auth|refresh|session|bearer)?[_-]?token$|secret|password|passwd|cookie|"
     r"webhook|sendkey|prompt|raw[_-]?prompt|raw[_-]?response|headers?|proxy)"
 )
 _WEBHOOK_URL_RE = re.compile(r"https?://[^\s]+?(?:webhook|token|key|secret|sendkey)[^\s]*", re.IGNORECASE)
@@ -73,7 +73,7 @@ _LOCAL_ABSOLUTE_PATH_RE = re.compile(
     r"(?<![\w:/.-])(?:/(?:home|Users|root|var|tmp|opt|etc)/[^\s,;]+|[A-Za-z]:\\[^\s,;]+)"
 )
 _SENSITIVE_ASSIGNMENT_RE = re.compile(
-    r"(?i)\b(api_suites[_-]?key|access[_-]?token|token|secret|password|passwd|cookie|webhook|sendkey|"
+    r"(?i)\b(api[_-]?key|access[_-]?token|token|secret|password|passwd|cookie|webhook|sendkey|"
     r"prompt|raw[_-]?prompt|raw[_-]?response)\s*[:=]\s*([^\s,&;]+)"
 )
 

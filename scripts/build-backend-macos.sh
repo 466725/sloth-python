@@ -44,6 +44,9 @@ log "Installing backend dependencies..."
 log "Checking python-multipart availability..."
 "${PYTHON_BIN}" -c "import multipart, multipart.multipart"
 
+log "Checking AlphaSift adapter availability..."
+"${PYTHON_BIN}" -c "import alphasift.dsa_adapter"
+
 if [[ -d "${ROOT_DIR}/dist/backend" ]]; then
   rm -rf "${ROOT_DIR}/dist/backend"
 fi
@@ -74,6 +77,7 @@ hidden_imports=(
   "api.v1.endpoints.history"
   "api.v1.endpoints.stocks"
   "api.v1.endpoints.health"
+  "api.v1.endpoints.alphasift"
   "api.v1.schemas"
   "api.v1.schemas.analysis"
   "api.v1.schemas.history"
@@ -85,6 +89,9 @@ hidden_imports=(
   "src.services.task_queue"
   "src.services.analysis_service"
   "src.services.history_service"
+  "src.services.alphasift_service"
+  "alphasift"
+  "alphasift.dsa_adapter"
   "uvicorn.logging"
   "uvicorn.loops"
   "uvicorn.loops.auto"
@@ -104,6 +111,7 @@ done
 
 pushd "${ROOT_DIR}" >/dev/null
 cmd=("${PYTHON_BIN}" -m PyInstaller --name stock_analysis --onedir --noconfirm --noconsole --add-data "static:static" --add-data "strategies:strategies" --collect-data litellm --collect-data tiktoken)
+cmd+=("--collect-all" "alphasift")
 cmd+=("${hidden_import_args[@]}" "main.py")
 
 echo "Running: ${cmd[*]}"
@@ -112,6 +120,7 @@ popd >/dev/null
 
 cp -R "${ROOT_DIR}/dist/stock_analysis" "${ROOT_DIR}/dist/backend/stock_analysis"
 
+log "Verifying packaged AlphaSift importability..."
 packaged_root="${ROOT_DIR}/dist/backend/stock_analysis"
 
 packaged_entry="${packaged_root}/stock_analysis"
@@ -120,10 +129,18 @@ if [[ ! -x "${packaged_entry}" ]]; then
   exit 1
 fi
 
-# 校验可执行文件可启动。
-if ! "${packaged_entry}" --help >/tmp/dsa-packaged-help.log 2>&1; then
+# 先校验可执行文件可启动（不进入业务流程的参数），再检查冻结产物中是否携带 alphasift.
+if ! "${packaged_entry}" --help >/tmp/alphasift-packaged-help.log 2>&1; then
   echo "ERROR: packaged backend help startup check failed."
-  cat /tmp/dsa-packaged-help.log
+  cat /tmp/alphasift-packaged-help.log
+  exit 1
+fi
+
+if DSA_PACKAGED_ALPHASIFT_IMPORT_PROBE=1 "${packaged_entry}" >/tmp/alphasift-packaged-import.log 2>&1; then
+  cat /tmp/alphasift-packaged-import.log
+else
+  echo "ERROR: packaged backend artifact cannot import alphasift.dsa_adapter."
+  cat /tmp/alphasift-packaged-import.log
   exit 1
 fi
 

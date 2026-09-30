@@ -21,7 +21,7 @@ from ai_stock.utils.sanitize import sanitize_decision_signal_text, sanitize_diag
 
 
 def test_service_imports_without_api_bootstrap() -> None:
-    repo_root = Path(__file__).resolve().parents[1]
+    repo_root = Path(__file__).resolve().parents[3]
     result = subprocess.run(
         [
             sys.executable,

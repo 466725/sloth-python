@@ -32,7 +32,7 @@ from ai_stock.agent.skills.base import Skill, SkillManager
 
 
 def _builtin_strategy_names() -> set[str]:
-    strategies_dir = Path(__file__).resolve().parent.parent / "strategies"
+    strategies_dir = Path(__file__).resolve().parents[3] / "strategies"
     return {path.stem for path in strategies_dir.glob("*.yaml")}
 
 

@@ -92,7 +92,7 @@ def test_build_connection_factory_defaults_to_mysql_when_mysql_env_is_configured
     monkeypatch.setenv("SLOTH_MYSQL_USER", "demo_user")
     monkeypatch.setenv("SLOTH_MYSQL_PASSWORD", "secret")
 
-    import conftest as conftest
+    from tests.pytest_tests import conftest
 
     assert conftest._build_connection_factory() is conftest.connect_mysql
 

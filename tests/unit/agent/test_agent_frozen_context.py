@@ -113,7 +113,7 @@ class ExecuteToolsFrozenContextTestCase(unittest.TestCase):
 class DesktopBackendPackagingAssetsTestCase(unittest.TestCase):
     """Guard desktop PyInstaller packaging inputs for built-in Agent skills."""
 
-    repo_root = Path(__file__).resolve().parent.parent
+    repo_root = Path(__file__).resolve().parents[3]
 
     def test_builtin_strategy_yaml_inventory_matches_expected_desktop_bundle(self):
         strategies_dir = self.repo_root / "strategies"
