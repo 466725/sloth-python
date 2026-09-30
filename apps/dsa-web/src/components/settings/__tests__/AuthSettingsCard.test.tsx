@@ -12,7 +12,7 @@ vi.mock('../../../hooks', () => ({
   useAuth: () => useAuthMock(),
 }));
 
-vi.mock('../../../api/auth', () => ({
+vi.mock('../../../api_suites/auth', () => ({
   authApi: {
     updateSettings,
   },

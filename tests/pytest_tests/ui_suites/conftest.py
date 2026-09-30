@@ -7,7 +7,7 @@ from pathlib import Path
 import allure
 import pytest
 
-from ui.tangerine_support import open_tangerine_homepage_playwright
+from ui_suites.tangerine_support import open_tangerine_homepage_playwright
 from config.config import settings
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ def _slugify_nodeid(nodeid: str) -> str:
 
 def _tangerine_playwright_video_dir() -> Path:
     project_root = Path(__file__).resolve().parents[2]
-    video_dir = project_root / "temps" / "playwright-videos" / "ui"
+    video_dir = project_root / "temps" / "playwright-videos" / "ui_suites"
     video_dir.mkdir(parents=True, exist_ok=True)
     return video_dir
 

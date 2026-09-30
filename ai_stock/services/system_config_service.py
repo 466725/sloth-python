@@ -2726,7 +2726,7 @@ class SystemConfigService:
 
         patterns = [
             (r"(?i)(authorization\s*[:=]\s*)(bearer\s+)?([^\s,;]+)", r"\1[REDACTED]"),
-            (r"(?i)(api[_-]?key\s*[:=]\s*)([^\s,;]+)", r"\1[REDACTED]"),
+            (r"(?i)(api_suites[_-]?key\s*[:=]\s*)([^\s,;]+)", r"\1[REDACTED]"),
             (r"(?i)(cookie\s*[:=]\s*)([^\s,;]+)", r"\1[REDACTED]"),
             (r"(?i)bearer\s+[a-z0-9._\-]+", "Bearer [REDACTED]"),
             (r"(?i)sk-[a-z0-9_\-]+", "[REDACTED]"),
@@ -2807,7 +2807,7 @@ class SystemConfigService:
                 "LLM request was blocked by provider or gateway policy",
                 "provider_blocked",
             )
-        if status_code in {401, 403} or any(token in lowered for token in ("unauthorized", "forbidden", "invalid api key", "authentication")):
+        if status_code in {401, 403} or any(token in lowered for token in ("unauthorized", "forbidden", "invalid api_suites key", "authentication")):
             return _LLMDiagnostic("auth", False, "LLM authentication failed", "api_key_rejected")
         if status_code == 404:
             return _LLMDiagnostic(
@@ -2961,7 +2961,7 @@ class SystemConfigService:
                 "LLM request was blocked by provider or gateway policy",
                 "provider_blocked",
             )
-        if any(token in exc_name for token in ("auth", "permission")) or any(token in text for token in ("unauthorized", "forbidden", "invalid api key", "authentication")):
+        if any(token in exc_name for token in ("auth", "permission")) or any(token in text for token in ("unauthorized", "forbidden", "invalid api_suites key", "authentication")):
             return _LLMDiagnostic("auth", False, "LLM authentication failed", "api_key_rejected")
         if ("notfound" in exc_name or "model" in text) and (
             "not found" in text or "does not exist" in text or "unknown model" in text

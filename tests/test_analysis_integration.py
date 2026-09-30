@@ -54,7 +54,7 @@ class TestAnalysisIntegration:
 
         # Trigger analysis with a stock name
         response = client.post(
-            "/api/v1/analysis/analyze",
+            "/api_suites/v1/analysis/analyze",
             json={
                 "stock_code": "贵州茅台",
                 "async_mode": True,
@@ -87,7 +87,7 @@ class TestAnalysisIntegration:
         mock_task_queue.submit_tasks_batch.return_value = ([], [])
 
         client.post(
-            "/api/v1/analysis/analyze",
+            "/api_suites/v1/analysis/analyze",
             json={
                 "stock_codes": ["600519", "600519.SH"],
                 "async_mode": True
@@ -105,7 +105,7 @@ class TestAnalysisIntegration:
         """Test that excessive stock codes are rejected."""
         too_many_codes = [f"{i:06d}" for i in range(101)]
         response = client.post(
-            "/api/v1/analysis/analyze",
+            "/api_suites/v1/analysis/analyze",
             json={
                 "stock_codes": too_many_codes,
                 "async_mode": True
@@ -120,7 +120,7 @@ class TestAnalysisIntegration:
         mock_task_queue.submit_tasks_batch.return_value = ([], [])
 
         client.post(
-            "/api/v1/analysis/analyze",
+            "/api_suites/v1/analysis/analyze",
             json={
                 "stock_codes": ["600519", "000001"],
                 "stock_name": "贵州茅台",
@@ -145,7 +145,7 @@ class TestAnalysisIntegration:
         )
 
         response = client.post(
-            "/api/v1/analysis/analyze",
+            "/api_suites/v1/analysis/analyze",
             json={
                 "stock_code": "600519",
                 "async_mode": True,

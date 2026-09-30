@@ -53,7 +53,7 @@ class BacktestServiceTestCase(unittest.TestCase):
                             "market_phase_summary": {
                                 "phase": "premarket",
                                 "market": "cn",
-                                "trigger_source": "api",
+                                "trigger_source": "api_suites",
                             },
                         }
                     ),
@@ -114,7 +114,7 @@ class BacktestServiceTestCase(unittest.TestCase):
                             "market_phase_summary": {
                                 "phase": phase,
                                 "market": "cn",
-                                "trigger_source": "api",
+                                "trigger_source": "api_suites",
                             },
                         }
                     ),

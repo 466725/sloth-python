@@ -71,7 +71,7 @@ const mockStoreState = {
   clearCompletionBadge: mockClearCompletionBadge,
 };
 
-vi.mock('../../api/agent', () => ({
+vi.mock('../../api_suites/agent', () => ({
   agentApi: {
     getSkills: mockGetSkills,
     deleteChatSession: mockDeleteChatSession,
@@ -79,7 +79,7 @@ vi.mock('../../api/agent', () => ({
   },
 }));
 
-vi.mock('../../api/systemConfig', () => ({
+vi.mock('../../api_suites/systemConfig', () => ({
   systemConfigApi: {
     getConfig: mockGetSystemConfig,
     update: mockUpdateSystemConfig,
@@ -94,7 +94,7 @@ vi.mock('../../utils/chatExport', () => ({
   formatSessionAsMarkdown: mockFormatSessionAsMarkdown,
 }));
 
-vi.mock('../../api/history', () => ({
+vi.mock('../../api_suites/history', () => ({
   historyApi: {
     getDetail: vi.fn().mockResolvedValue({}),
   },

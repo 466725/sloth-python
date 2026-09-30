@@ -101,7 +101,7 @@ def _artifacts(**overrides) -> PipelineAnalysisArtifacts:
         },
         "news_context": "公司公告与行业新闻摘要",
         "news_result_count": 3,
-        "metadata": {"query_id": "q-1", "trigger_source": "api"},
+        "metadata": {"query_id": "q-1", "trigger_source": "api_suites"},
     }
     data.update(overrides)
     return PipelineAnalysisArtifacts(**data)

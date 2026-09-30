@@ -21,7 +21,7 @@ def test_chat_session_messages_api_does_not_expose_provider_trace(tmp_path: Path
     DatabaseManager.reset_instance()
     Config.reset_instance()
     db = DatabaseManager(db_url=f"sqlite:///{tmp_path / 'trace.db'}")
-    session_id = "api-trace-hidden"
+    session_id = "api_suites-trace-hidden"
     user_id = db.save_conversation_message(session_id, "user", "visible question")
     assistant_id = db.save_conversation_message(session_id, "assistant", "visible answer")
     db.save_agent_provider_turn(
@@ -49,7 +49,7 @@ def test_chat_session_messages_api_does_not_expose_provider_trace(tmp_path: Path
 
     with patch("api.middlewares.auth.is_auth_enabled", return_value=False):
         client = TestClient(create_app(static_dir=tmp_path / "static"))
-        response = client.get(f"/api/v1/agent/chat/sessions/{session_id}")
+        response = client.get(f"/api_suites/v1/agent/chat/sessions/{session_id}")
 
     assert response.status_code == 200
     payload = response.json()
@@ -77,7 +77,7 @@ def test_agent_chat_forwards_stock_context_to_executor(tmp_path: Path) -> None:
             with patch("api.v1.endpoints.agent._build_executor", return_value=executor):
                 client = TestClient(create_app(static_dir=tmp_path / "static"))
                 response = client.post(
-                    "/api/v1/agent/chat",
+                    "/api_suites/v1/agent/chat",
                     json={
                         "message": "如果不考虑 TTM 呢",
                         "session_id": "s1",
@@ -111,7 +111,7 @@ def test_agent_chat_stream_forwards_stock_context_to_executor(tmp_path: Path) ->
             with patch("api.v1.endpoints.agent._build_executor", return_value=executor):
                 client = TestClient(create_app(static_dir=tmp_path / "static"))
                 response = client.post(
-                    "/api/v1/agent/chat/stream",
+                    "/api_suites/v1/agent/chat/stream",
                     json={
                         "message": "如果不考虑 TTM 呢",
                         "session_id": "s1",

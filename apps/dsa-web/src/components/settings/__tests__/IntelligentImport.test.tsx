@@ -9,15 +9,15 @@ const { parseImport, update, onMerged } = vi.hoisted(() => ({
   onMerged: vi.fn(),
 }));
 
-vi.mock('../../../api/stocks', () => ({
+vi.mock('../../../api_suites/stocks', () => ({
   stocksApi: {
     parseImport,
     extractFromImage: vi.fn(),
   },
 }));
 
-vi.mock('../../../api/systemConfig', async () => {
-  const actual = await vi.importActual<typeof import('../../../api/systemConfig')>('../../../api/systemConfig');
+vi.mock('../../../api_suites/systemConfig', async () => {
+  const actual = await vi.importActual<typeof import('../../../api/systemConfig')>('../../../api_suites/systemConfig');
   return {
     ...actual,
     systemConfigApi: {

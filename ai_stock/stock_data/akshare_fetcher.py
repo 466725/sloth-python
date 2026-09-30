@@ -1761,25 +1761,25 @@ class AkshareFetcher(BaseFetcher):
             started_at = time.monotonic()
             logger.info(
                 "[MarketStats] component=market_stats provider=AkshareFetcher "
-                "api=ak.stock_zh_a_spot_em action=request_start"
+                "api_suites=ak.stock_zh_a_spot_em action=request_start"
             )
             df = ak.stock_zh_a_spot_em()
             elapsed = time.monotonic() - started_at
             logger.info(
                 "[MarketStats] component=market_stats provider=AkshareFetcher "
-                "api=ak.stock_zh_a_spot_em action=request_complete elapsed=%.2fs",
+                "api_suites=ak.stock_zh_a_spot_em action=request_complete elapsed=%.2fs",
                 elapsed,
             )
             if df is not None and not df.empty:
                 return self._calc_market_stats(df)
             logger.warning(
                 "[MarketStats] component=market_stats provider=AkshareFetcher "
-                "api=ak.stock_zh_a_spot_em action=parse status=empty"
+                "api_suites=ak.stock_zh_a_spot_em action=parse status=empty"
             )
         except Exception as e:
             logger.warning(
                 "[MarketStats] component=market_stats provider=AkshareFetcher "
-                "api=ak.stock_zh_a_spot_em action=failed error=%s fallback=ak.stock_zh_a_spot",
+                "api_suites=ak.stock_zh_a_spot_em action=failed error=%s fallback=ak.stock_zh_a_spot",
                 e,
             )
 
@@ -1791,25 +1791,25 @@ class AkshareFetcher(BaseFetcher):
             started_at = time.monotonic()
             logger.info(
                 "[MarketStats] component=market_stats provider=AkshareFetcher "
-                "api=ak.stock_zh_a_spot action=request_start"
+                "api_suites=ak.stock_zh_a_spot action=request_start"
             )
             df = ak.stock_zh_a_spot()
             elapsed = time.monotonic() - started_at
             logger.info(
                 "[MarketStats] component=market_stats provider=AkshareFetcher "
-                "api=ak.stock_zh_a_spot action=request_complete elapsed=%.2fs",
+                "api_suites=ak.stock_zh_a_spot action=request_complete elapsed=%.2fs",
                 elapsed,
             )
             if df is not None and not df.empty:
                 return self._calc_market_stats(df)
             logger.warning(
                 "[MarketStats] component=market_stats provider=AkshareFetcher "
-                "api=ak.stock_zh_a_spot action=parse status=empty"
+                "api_suites=ak.stock_zh_a_spot action=parse status=empty"
             )
         except Exception as e:
             logger.error(
                 "[MarketStats] component=market_stats provider=AkshareFetcher "
-                "api=ak.stock_zh_a_spot action=failed error=%s",
+                "api_suites=ak.stock_zh_a_spot action=failed error=%s",
                 e,
             )
 

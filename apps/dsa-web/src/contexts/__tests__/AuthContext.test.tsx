@@ -11,7 +11,7 @@ const { getStatus, login, changePassword, logout, resetDashboardState } = vi.hoi
   resetDashboardState: vi.fn(),
 }));
 
-vi.mock('../../api/auth', () => ({
+vi.mock('../../api_suites/auth', () => ({
   authApi: {
     getStatus,
     login,

@@ -1,6 +1,6 @@
 import pytest
 
-from tests.robot_tests.calculator.calculator import CalculationError, Calculator
+from skill_spring.fun_part.calculator import CalculationError, Calculator
 
 
 @pytest.mark.unit

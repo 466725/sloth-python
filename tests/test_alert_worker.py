@@ -326,7 +326,7 @@ class AlertWorkerTestCase(unittest.TestCase):
             "source_type": "analysis",
             "source_report_id": 1390,
             "trace_id": "analysis-1390",
-            "trigger_source": "api",
+            "trigger_source": "api_suites",
             "action": "sell",
             "reason": "跌破关键支撑",
             "watch_conditions": "观察能否收回均线",
@@ -820,7 +820,7 @@ class AlertWorkerTestCase(unittest.TestCase):
             "parameters": "{}",
             "severity": "warning",
             "enabled": True,
-            "source": "api",
+            "source": "api_suites",
         })
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service)

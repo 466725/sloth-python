@@ -461,7 +461,7 @@ class TestPipelineReportRouteFiltering(unittest.TestCase):
             trace_id="trace-notify",
             query_id="query-notify",
             stock_code="000001",
-            trigger_source="api",
+            trigger_source="api_suites",
         )
         try:
             pipeline._send_notifications(results, ReportType.SIMPLE)

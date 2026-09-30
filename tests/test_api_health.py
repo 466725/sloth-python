@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests for health check endpoints: /health, /api/health and /api/v1/health."""
+"""Tests for health check endpoints: /health, /api_suites/health and /api_suites/v1/health."""
 
 import tempfile
 import unittest
@@ -28,7 +28,7 @@ class HealthEndpointTestCase(unittest.TestCase):
         cls._temp_dir.cleanup()
 
     def test_api_health_returns_200(self):
-        resp = self.client.get("/api/health")
+        resp = self.client.get("/api_suites/health")
         self.assertEqual(resp.status_code, 200)
         body = resp.json()
         self.assertEqual(body["status"], "ok")
@@ -42,7 +42,7 @@ class HealthEndpointTestCase(unittest.TestCase):
         self.assertIn("timestamp", body)
 
     def test_api_v1_health_returns_200(self):
-        resp = self.client.get("/api/v1/health")
+        resp = self.client.get("/api_suites/v1/health")
         self.assertEqual(resp.status_code, 200)
         body = resp.json()
         self.assertEqual(body["status"], "ok")
@@ -67,7 +67,7 @@ class HealthEndpointAuthEnabledTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls._patcher = patch("api.middlewares.auth.is_auth_enabled", return_value=True)
+        cls._patcher = patch("api_suites.middlewares.auth.is_auth_enabled", return_value=True)
         cls._patcher.start()
         cls._temp_dir, cls.client = _make_client()
 
@@ -77,7 +77,7 @@ class HealthEndpointAuthEnabledTestCase(unittest.TestCase):
         cls._patcher.stop()
 
     def test_api_health_returns_200_when_auth_enabled(self):
-        resp = self.client.get("/api/health")
+        resp = self.client.get("/api_suites/health")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["status"], "ok")
 
@@ -87,7 +87,7 @@ class HealthEndpointAuthEnabledTestCase(unittest.TestCase):
         self.assertEqual(resp.json()["status"], "ok")
 
     def test_api_v1_health_returns_200_when_auth_enabled(self):
-        resp = self.client.get("/api/v1/health")
+        resp = self.client.get("/api_suites/v1/health")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["status"], "ok")
 

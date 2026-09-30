@@ -62,7 +62,7 @@ _COOKIE_HEADER_PATTERN = re.compile(
     re.IGNORECASE,
 )
 _SECRET_ASSIGNMENT_PATTERN = re.compile(
-    r"\b(token|secret|password|sendkey|api[_-]?key|apikey|api[_-]?token|auth[_-]?token|"
+    r"\b(token|secret|password|sendkey|api_suites[_-]?key|apikey|api_suites[_-]?token|auth[_-]?token|"
     r"access[_-]?token|refresh[_-]?token|session[_-]?token|license[_-]?key|private[_-]?key|"
     r"secret[_-]?key|webhook[_-]?url|authorization|proxy[_-]?authorization|cookie|set[_-]?cookie)"
     r"([=:]\s*)[^\s,;&]+",
@@ -170,7 +170,7 @@ def _is_webhook_url(hostname: str, path: str) -> bool:
 
     if hostname == "hooks.slack.com" and normalized_path.startswith("/services/"):
         return True
-    if hostname in {"discord.com", "discordapp.com"} and "/api/webhooks/" in normalized_path:
+    if hostname in {"discord.com", "discordapp.com"} and "/api_suites/webhooks/" in normalized_path:
         return True
     if hostname == "open.feishu.cn" and "/open-apis/bot/" in normalized_path and "/hook/" in normalized_path:
         return True

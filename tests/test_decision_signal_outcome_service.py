@@ -52,7 +52,7 @@ def _add_signal(
             source_report_id=1001,
             trace_id=f"trace-{market}-{code}-{action}-{horizon}-{session_date}",
             market_phase="postmarket",
-            trigger_source="api",
+            trigger_source="api_suites",
             action=action,
             action_label=action,
             horizon=horizon,

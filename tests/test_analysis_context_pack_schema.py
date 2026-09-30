@@ -248,7 +248,7 @@ def test_redact_sensitive_mapping_recurses_dicts_and_lists_by_key() -> None:
         "GEMINI_API_KEY": "gemini-secret",
         "openai_api_key_value": "openai-secret-value",
         "vendorsecretkey": "vendor-secret-key",
-        "apitoken": "api-token-secret",
+        "apitoken": "api_suites-token-secret",
         "secretvalue": "secret-value",
         "passwordvalue": "password-value",
         "tokenvalue": "token-value",

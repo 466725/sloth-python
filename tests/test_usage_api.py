@@ -74,7 +74,7 @@ class UsageDashboardApiTestCase(unittest.TestCase):
             app.dependency_overrides[get_database_manager] = lambda: FakeUsageDbManager()
             client = TestClient(app)
 
-            response = client.get("/api/v1/usage/dashboard?period=today&limit=10")
+            response = client.get("/api_suites/v1/usage/dashboard?period=today&limit=10")
 
         self.assertEqual(response.status_code, 200)
         body = response.json()

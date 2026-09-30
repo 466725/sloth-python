@@ -9,7 +9,7 @@ from typing import Any, Mapping
 # =========================
 
 BASE_DIR = Path(__file__).resolve().parents[1]
-LOCATORS_DIR = BASE_DIR / "pytest_tests/ui/locators"
+LOCATORS_DIR = BASE_DIR / "pytest_tests/ui_suites/locators"
 
 SIGNINPAGE_LOCATOR_FILE = LOCATORS_DIR / "signinpage.json"
 SIGNUPPAGE_LOCATOR_FILE = LOCATORS_DIR / "signuppage.json"

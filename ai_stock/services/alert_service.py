@@ -127,7 +127,7 @@ class AlertService:
 
         merged = self._serialize_rule_base(row)
         merged.update(payload)
-        fields = self._normalize_rule_payload(merged, source=merged.get("source") or "api")
+        fields = self._normalize_rule_payload(merged, source=merged.get("source") or "api_suites")
         updated = self.repo.update_rule(rule_id, fields)
         if updated is None:
             raise AlertNotFoundError(f"Alert rule not found: {rule_id}")
@@ -867,7 +867,7 @@ class AlertService:
             "page_size": page_size,
         }
 
-    def _normalize_rule_payload(self, payload: Dict[str, Any], *, source: str = "api") -> Dict[str, Any]:
+    def _normalize_rule_payload(self, payload: Dict[str, Any], *, source: str = "api_suites") -> Dict[str, Any]:
         target_scope = str(payload.get("target_scope") or "single_symbol").strip()
         if target_scope not in SUPPORTED_TARGET_SCOPES:
             raise AlertServiceError(f"unsupported target_scope: {target_scope}")
@@ -906,7 +906,7 @@ class AlertService:
             "parameters": self._dump_json(parameters),
             "severity": severity,
             "enabled": bool(payload.get("enabled", True)),
-            "source": str(source or "api")[:16],
+            "source": str(source or "api_suites")[:16],
             "cooldown_policy": self._dump_json_or_none(payload.get("cooldown_policy")),
             "notification_policy": self._dump_json_or_none(payload.get("notification_policy")),
         }

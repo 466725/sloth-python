@@ -43,7 +43,7 @@ def _run_with_chip_diagnostics(manager: DataFetcherManager):
         task_id="task-chip",
         query_id="query-chip",
         stock_code="600519",
-        trigger_source="api",
+        trigger_source="api_suites",
         event_sink=flow_events.append,
     )
     try:

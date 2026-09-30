@@ -33,7 +33,7 @@ def test_openai_api_key():
 
 """
 Simple passing test that demonstrates qTest hook integration
-@pytest.mark.api
+@pytest.mark.api_suites
 @pytest.mark.qtest_id(123456)
 def test_qtest_hook_demo():
     response = requests.Response()

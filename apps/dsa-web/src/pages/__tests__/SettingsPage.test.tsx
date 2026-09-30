@@ -63,7 +63,7 @@ vi.mock('../../hooks', () => ({
   useSystemConfig: () => useSystemConfigMock(),
 }));
 
-vi.mock('../../api/systemConfig', () => ({
+vi.mock('../../api_suites/systemConfig', () => ({
   systemConfigApi: {
     exportEnv: (...args: unknown[]) => exportEnv(...args),
     importEnv: (...args: unknown[]) => importEnv(...args),

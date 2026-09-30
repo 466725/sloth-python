@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Auth middleware: protect /api/v1/* when admin auth is enabled.
+Auth middleware: protect /api_suites/v1/* when admin auth is enabled.
 """
 
 from __future__ import annotations
@@ -17,10 +17,10 @@ from ai_stock.auth import COOKIE_NAME, is_auth_enabled, verify_session
 logger = logging.getLogger(__name__)
 
 EXEMPT_PATHS = frozenset({
-    "/api/v1/auth/login",
-    "/api/v1/auth/status",
-    "/api/health",
-    "/api/v1/health",
+    "/api_suites/v1/auth/login",
+    "/api_suites/v1/auth/status",
+    "/api_suites/health",
+    "/api_suites/v1/health",
     "/health",
     "/docs",
     "/redoc",
@@ -35,7 +35,7 @@ def _path_exempt(path: str) -> bool:
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
-    """Require valid session for /api/v1/* when auth is enabled."""
+    """Require valid session for /api_suites/v1/* when auth is enabled."""
 
     async def dispatch(
         self,
@@ -49,7 +49,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if _path_exempt(path):
             return await call_next(request)
 
-        if not path.startswith("/api/v1/"):
+        if not path.startswith("/api_suites/v1/"):
             return await call_next(request)
 
         cookie_val = request.cookies.get(COOKIE_NAME)

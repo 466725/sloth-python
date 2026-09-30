@@ -333,7 +333,7 @@ def check_llm():
             print(f"    1. 网络不通（需要代理访问 Google）")
             print(f"    2. API 服务暂时不可用")
             print(f"    3. 请求量过大被限流")
-        elif 'invalid' in error_str or 'api key' in error_str:
+        elif 'invalid' in error_str or 'api_suites key' in error_str:
             print(f"\n  诊断: API Key 可能无效")
         elif 'model' in error_str:
             print(f"\n  诊断: 模型名称可能不正确，尝试修改 .env 中的 GEMINI_MODEL")

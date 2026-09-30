@@ -82,7 +82,7 @@ class TaskService:
             report_type: 报告类型枚举
             source_message: 来源消息（用于回复）
             save_context_snapshot: 是否保存上下文快照
-            query_source: 任务来源标识（bot/api/cli/system）
+            query_source: 任务来源标识（bot/api_suites/cli/system）
 
         Returns:
             任务信息字典

@@ -22,7 +22,7 @@ const {
   listNotifications: vi.fn(),
 }));
 
-vi.mock('../../api/alerts', () => ({
+vi.mock('../../api_suites/alerts', () => ({
   alertsApi: {
     listRules,
     createRule,
@@ -35,7 +35,7 @@ vi.mock('../../api/alerts', () => ({
   },
 }));
 
-vi.mock('../../api/portfolio', () => ({
+vi.mock('../../api_suites/portfolio', () => ({
   portfolioApi: {
     getAccounts: vi.fn().mockResolvedValue({ accounts: [] }),
   },

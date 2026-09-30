@@ -6,13 +6,13 @@ import type { RunFlowSnapshot } from '../../types/runFlow';
 import type { UseTaskStreamOptions } from '../useTaskStream';
 import { useRunFlowSnapshot } from '../useRunFlowSnapshot';
 
-vi.mock('../../api/analysis', () => ({
+vi.mock('../../api_suites/analysis', () => ({
   analysisApi: {
     getTaskFlow: vi.fn(),
   },
 }));
 
-vi.mock('../../api/history', () => ({
+vi.mock('../../api_suites/history', () => ({
   historyApi: {
     getRecordFlow: vi.fn(),
   },

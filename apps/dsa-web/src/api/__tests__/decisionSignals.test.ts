@@ -98,7 +98,7 @@ describe('decisionSignalsApi', () => {
       reportLanguage: 'zh',
     });
 
-    expect(post).toHaveBeenCalledWith('/api/v1/decision-signals', {
+    expect(post).toHaveBeenCalledWith('/api_suites/v1/decision-signals', {
       stock_code: '600519',
       stock_name: '贵州茅台',
       market: 'cn',
@@ -179,7 +179,7 @@ describe('decisionSignalsApi', () => {
       pageSize: 10,
     });
 
-    expect(get).toHaveBeenCalledWith('/api/v1/decision-signals', {
+    expect(get).toHaveBeenCalledWith('/api_suites/v1/decision-signals', {
       params: {
         market: 'hk',
         stock_code: '00700',
@@ -230,7 +230,7 @@ describe('decisionSignalsApi', () => {
 
     const response = await decisionSignalsApi.getLatest('00700.HK', { market: 'hk', limit: 2 });
 
-    expect(get).toHaveBeenCalledWith('/api/v1/decision-signals/latest/00700.HK', {
+    expect(get).toHaveBeenCalledWith('/api_suites/v1/decision-signals/latest/00700.HK', {
       params: { market: 'hk', limit: 2 },
     });
     expect(response.pageSize).toBe(2);
@@ -276,8 +276,8 @@ describe('decisionSignalsApi', () => {
       metadata: { closedBy: 'tester' },
     });
 
-    expect(get).toHaveBeenCalledWith('/api/v1/decision-signals/13');
-    expect(patch).toHaveBeenCalledWith('/api/v1/decision-signals/13/status', {
+    expect(get).toHaveBeenCalledWith('/api_suites/v1/decision-signals/13');
+    expect(patch).toHaveBeenCalledWith('/api_suites/v1/decision-signals/13/status', {
       status: 'closed',
       metadata: { closedBy: 'tester' },
     });
@@ -353,14 +353,14 @@ describe('decisionSignalsApi', () => {
     });
     const listed = await decisionSignalsApi.listOutcomes({ signalId: 13, horizon: '3d' });
 
-    expect(post).toHaveBeenCalledWith('/api/v1/decision-signals/outcomes/run', {
+    expect(post).toHaveBeenCalledWith('/api_suites/v1/decision-signals/outcomes/run', {
       signal_id: 13,
       horizons: ['3d'],
       force: true,
       market: 'cn',
       status: 'active',
     });
-    expect(get).toHaveBeenCalledWith('/api/v1/decision-signals/outcomes', {
+    expect(get).toHaveBeenCalledWith('/api_suites/v1/decision-signals/outcomes', {
       params: { signal_id: 13, horizon: '3d' },
     });
     expect(run.items[0].signalId).toBe(13);
@@ -408,7 +408,7 @@ describe('decisionSignalsApi', () => {
       statuses: ['active', 'closed'],
     });
 
-    expect(get).toHaveBeenCalledWith('/api/v1/decision-signals/outcomes/stats', {
+    expect(get).toHaveBeenCalledWith('/api_suites/v1/decision-signals/outcomes/stats', {
       params: { horizons: ['3d'], statuses: ['active', 'closed'] },
       paramsSerializer: {
         serialize: expect.any(Function),
@@ -464,9 +464,9 @@ describe('decisionSignalsApi', () => {
       source: 'web',
     });
 
-    expect(get).toHaveBeenNthCalledWith(1, '/api/v1/decision-signals/13/outcomes');
-    expect(get).toHaveBeenNthCalledWith(2, '/api/v1/decision-signals/13/feedback');
-    expect(put).toHaveBeenCalledWith('/api/v1/decision-signals/13/feedback', {
+    expect(get).toHaveBeenNthCalledWith(1, '/api_suites/v1/decision-signals/13/outcomes');
+    expect(get).toHaveBeenNthCalledWith(2, '/api_suites/v1/decision-signals/13/feedback');
+    expect(put).toHaveBeenCalledWith('/api_suites/v1/decision-signals/13/feedback', {
       feedback_value: 'useful',
       reason_code: 'matched_plan',
       source: 'web',

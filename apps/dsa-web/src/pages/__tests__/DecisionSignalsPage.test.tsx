@@ -11,7 +11,7 @@ import type {
 } from '../../types/decisionSignals';
 import DecisionSignalsPage from '../DecisionSignalsPage';
 
-vi.mock('../../api/decisionSignals', () => ({
+vi.mock('../../api_suites/decisionSignals', () => ({
   decisionSignalsApi: {
     list: vi.fn(),
     getLatest: vi.fn(),

@@ -716,7 +716,7 @@ class IntelligenceService:
 
     def _build_newsnow_url(self, source_id: str) -> str:
         base_url = (self.config.newsnow_base_url or "https://newsnow.busiyi.world").strip().rstrip("/")
-        parsed = urlparse(f"{base_url}/api/s")
+        parsed = urlparse(f"{base_url}/api_suites/s")
         query = dict(parse_qsl(parsed.query, keep_blank_values=True))
         query["id"] = source_id
         return urlunparse(parsed._replace(query=urlencode(query)))

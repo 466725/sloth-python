@@ -455,7 +455,7 @@ def test_cancel_data():
     data = data.replace({"M": np.float64(1), "B": np.float64(-1)})
     samples = np.array(data)[:, :]
 
-    # 2: dividing metadata into train_data metadata and test_data metadata
+    # 2: dividing metadata into train_data metadata and data metadata
     train_data, test_data = samples[:328, :], samples[328:, :]
     test_tags, test_samples = test_data[:, 0], test_data[:, 1:]
 
@@ -463,7 +463,7 @@ def test_cancel_data():
     mykernel = Kernel(kernel="rbf", degree=5, coef0=1, gamma=0.5)
     al = np.zeros(train_data.shape[0])
 
-    # 4: calculating best alphas using SMO algorithm and predict test_data samples
+    # 4: calculating best alphas using SMO algorithm and predict data samples
     mysvm = SmoSVM(
         train=train_data,
         kernel_func=mykernel,

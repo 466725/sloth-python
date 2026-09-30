@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.test_data.csv_reader import read_csv_to_list, resolve_path
+from tests.data.csv_reader import read_csv_to_list, resolve_path
 
 def _write_csv(tmp_path: Path, name: str, content: str) -> Path:
     file_path = tmp_path / name

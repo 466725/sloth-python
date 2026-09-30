@@ -940,7 +940,7 @@ class TestLLMUsageNormalizer(unittest.TestCase):
             {
                 "prompt_tokens": 1,
                 "apiKey": "sk-secret",
-                "x-api-key": "sk-secondary",
+                "x-api_suites-key": "sk-secondary",
                 "requestBody": "raw request payload",
                 "responseText": "raw model response",
                 "webhook_url": "https://example.test/hook",

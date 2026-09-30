@@ -1,6 +1,6 @@
 """Export student records from MySQL for enrollment load testing.
 From the repository root, copy, paste, and run: 
-python -m test_data.load_test_data_enroll_students
+python -m data.load_test_data_enroll_students
 """
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
-from tests.test_data.csv_reader import resolve_path
+from tests.data.csv_reader import resolve_path
 from utils.data_base import connect_mysql, connection_scope, fetch_all
 
 STUDENTS_QUERY = """
@@ -39,7 +39,7 @@ STUDENT_COLUMNS = (
 	"created_at",
 )
 
-DEFAULT_OUTPUT_FILE = Path("test_data/load_test_data_enroll_students.csv")
+DEFAULT_OUTPUT_FILE = Path("data/load_test_data_enroll_students.csv")
 ConnectionFactory = Callable[[], Any]
 
 

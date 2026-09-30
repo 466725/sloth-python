@@ -6,7 +6,7 @@ const { getTaskStreamUrl } = vi.hoisted(() => ({
   getTaskStreamUrl: vi.fn(() => 'http://localhost/api/v1/analysis/tasks/stream'),
 }));
 
-vi.mock('../../api/analysis', () => ({
+vi.mock('../../api_suites/analysis', () => ({
   analysisApi: {
     getTaskStreamUrl,
   },

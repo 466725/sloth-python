@@ -44,7 +44,7 @@ DEFAULT_STATS_STATUSES = ("active", "expired", "invalidated", "closed")
 OUTCOME_VALUES = frozenset({"hit", "miss", "neutral"})
 EVAL_STATUSES = frozenset({"completed", "unable"})
 FEEDBACK_VALUES = frozenset({"useful", "not_useful"})
-FEEDBACK_SOURCES = frozenset({"web", "api"})
+FEEDBACK_SOURCES = frozenset({"web", "api_suites"})
 HOLDING_STATES = frozenset({"holding", "empty", "unknown"})
 RETRYABLE_UNABLE_REASONS = frozenset({
     "missing_anchor_price",
@@ -360,7 +360,7 @@ class DecisionSignalOutcomeService:
         feedback_value: str,
         reason_code: Optional[str] = None,
         note: Optional[str] = None,
-        source: str = "api",
+        source: str = "api_suites",
     ) -> Dict[str, Any]:
         signal = self._require_existing_signal(signal_id)
         fields = {
@@ -368,7 +368,7 @@ class DecisionSignalOutcomeService:
             "feedback_value": self._normalize_enum(feedback_value, FEEDBACK_VALUES, "feedback_value"),
             "reason_code": self._optional_public_text(reason_code, "reason_code", max_length=64),
             "note": self._optional_public_text(note, "note", max_length=1000),
-            "source": self._normalize_enum(source or "api", FEEDBACK_SOURCES, "source"),
+            "source": self._normalize_enum(source or "api_suites", FEEDBACK_SOURCES, "source"),
         }
         row = self.repo.upsert_feedback(fields)
         return self._serialize_feedback(row)

@@ -41,7 +41,7 @@ def _normalize_openai_base_url(url: str) -> str:
 	"""Ensure OpenAI-compatible URL has the /v1 prefix expected by the SDK path layout."""
 	normalized = url.rstrip("/")
 	parsed = urlparse(normalized)
-	if parsed.netloc == "api.openai.com" and not parsed.path.endswith("/v1"):
+	if parsed.netloc == "api_suites.openai.com" and not parsed.path.endswith("/v1"):
 		return f"{normalized}/v1"
 	return normalized
 
@@ -177,11 +177,11 @@ def print_configured_settings() -> None:
 	print(f"urls.tangerine={settings.urls.tangerine}")
 	print(f"urls.deep_seek={settings.urls.deep_seek}")
 	print(f"urls.openai={settings.urls.openai}")
-	print(f"ui.base_url={settings.ui.base_url}")
-	print(f"ui.locale={settings.ui.locale}")
-	print(f"ui.sleep_time={settings.ui.sleep_time}")
+	print(f"ui_suites.base_url={settings.ui.base_url}")
+	print(f"ui_suites.locale={settings.ui.locale}")
+	print(f"ui_suites.sleep_time={settings.ui.sleep_time}")
 	print(
-		"ui.cookie_banner_timeout_seconds="
+		"ui_suites.cookie_banner_timeout_seconds="
 		f"{settings.ui.cookie_banner_timeout_seconds}"
 	)
 	print(f"playwright.headless={settings.playwright.headless}")

@@ -795,7 +795,7 @@ Track hot sectors and leading stocks.
 
         tmpdir = Path(tempfile.mkdtemp())
         try:
-            skill_dir = tmpdir / "api-conventions"
+            skill_dir = tmpdir / "api_suites-conventions"
             skill_dir.mkdir(parents=True)
             (skill_dir / "skill.md").write_text(
                 """---
@@ -808,9 +808,9 @@ Use RESTful naming and consistent validation.
                 encoding="utf-8",
             )
             skill = load_skill_from_markdown(skill_dir / "skill.md")
-            self.assertEqual(skill.name, "api-conventions")
+            self.assertEqual(skill.name, "api_suites-conventions")
             self.assertEqual(skill.description, "API design patterns for this codebase.")
-            self.assertEqual(skill.display_name, "api-conventions")
+            self.assertEqual(skill.display_name, "api_suites-conventions")
         finally:
             shutil.rmtree(tmpdir)
 

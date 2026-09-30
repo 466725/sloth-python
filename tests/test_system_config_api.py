@@ -97,7 +97,7 @@ class SystemConfigApiTestCase(unittest.TestCase):
     def _build_client_app(self) -> FastAPI:
         app = FastAPI()
 
-        @app.get("/api/v1/system/config/export")
+        @app.get("/api_suites/v1/system/config/export")
         async def export_config(request: Request):
             return system_config.export_system_config(request=request, service=self.service)
 
@@ -551,7 +551,7 @@ class SystemConfigApiTestCase(unittest.TestCase):
         async def request_export() -> httpx.Response:
             transport = httpx.ASGITransport(app=self._build_client_app())
             async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
-                return await client.get("/api/v1/system/config/export")
+                return await client.get("/api_suites/v1/system/config/export")
 
         response = asyncio.run(request_export())
         self.assertEqual(response.status_code, 401)

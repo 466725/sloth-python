@@ -19,7 +19,7 @@ scan:
     - ai_gen
     - ai_stock
     - config
-    - load_tests
+    - performance
     - self_healing
     - skill_spring
     - utils

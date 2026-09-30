@@ -629,7 +629,7 @@ class MarketPhaseContextTestCase(unittest.TestCase):
             ctx = trading_calendar.build_market_phase_context(
                 market="cn",
                 current_time=datetime(2026, 3, 28, 10, 0, tzinfo=ZoneInfo("Asia/Shanghai")),
-                trigger_source="api",
+                trigger_source="api_suites",
                 analysis_phase="intraday",
             )
 

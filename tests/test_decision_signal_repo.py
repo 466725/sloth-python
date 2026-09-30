@@ -43,7 +43,7 @@ def _fields(**overrides):
         "source_report_id": 1001,
         "trace_id": "trace-1001",
         "market_phase": "intraday",
-        "trigger_source": "api",
+        "trigger_source": "api_suites",
         "action": "buy",
         "action_label": "买入",
         "confidence": 0.8,
@@ -423,7 +423,7 @@ def test_create_if_absent_refreshes_expired_same_key_only_with_future_active(iso
     assert refreshed_row.source_type == "analysis"
     assert refreshed_row.source_agent == "test-agent"
     assert refreshed_row.trace_id == "trace-refresh-original"
-    assert refreshed_row.trigger_source == "api"
+    assert refreshed_row.trigger_source == "api_suites"
     assert refreshed_row.created_at == original_created_at
 
     different_source_type_row, different_source_type_created = repo.create_if_absent(

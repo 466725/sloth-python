@@ -58,7 +58,7 @@ def _overview(*, blocks: list[dict]) -> dict:
         "blocks": blocks,
         "counts": counts,
         "warnings": [],
-        "metadata": {"trigger_source": "api", "news_result_count": 3},
+        "metadata": {"trigger_source": "api_suites", "news_result_count": 3},
     }
 
 
@@ -132,7 +132,7 @@ def _diagnostics(*, with_fallback: bool = False, unsafe: bool = False) -> dict:
         "task_id": "task-flow",
         "query_id": "query-flow",
         "stock_code": "600519",
-        "trigger_source": "api",
+        "trigger_source": "api_suites",
         "provider_runs": provider_runs,
         "llm_runs": [
             {
@@ -361,7 +361,7 @@ class RunFlowTestCase(unittest.TestCase):
             task_id="task-provider-contract",
             query_id="query-provider-contract",
             stock_code="600519",
-            trigger_source="api",
+            trigger_source="api_suites",
             event_sink=flow_events.append,
         )
         try:
@@ -439,7 +439,7 @@ class RunFlowTestCase(unittest.TestCase):
             task_id="task-started",
             query_id="query-started",
             stock_code="600519",
-            trigger_source="api",
+            trigger_source="api_suites",
             event_sink=flow_events.append,
         )
         try:
@@ -511,7 +511,7 @@ class RunFlowTestCase(unittest.TestCase):
             task_id="task-chip-started",
             query_id="query-chip-started",
             stock_code="600519",
-            trigger_source="api",
+            trigger_source="api_suites",
             event_sink=flow_events.append,
         )
         try:
@@ -558,7 +558,7 @@ class RunFlowTestCase(unittest.TestCase):
             task_id="task-llm-alias",
             query_id="query-llm-alias",
             stock_code="600519",
-            trigger_source="api",
+            trigger_source="api_suites",
             event_sink=flow_events.append,
         )
         try:
@@ -601,7 +601,7 @@ class RunFlowTestCase(unittest.TestCase):
             task_id="task-completed-live",
             query_id="query-completed-live",
             stock_code="600519",
-            trigger_source="api",
+            trigger_source="api_suites",
             event_sink=flow_events.append,
         )
         try:
@@ -741,7 +741,7 @@ class RunFlowTestCase(unittest.TestCase):
                 "task_id": "task-news",
                 "query_id": "query-news",
                 "stock_code": "600519",
-                "trigger_source": "api",
+                "trigger_source": "api_suites",
                 "provider_runs": [
                     {
                         "trace_id": "trace-news",
@@ -900,7 +900,7 @@ class RunFlowTestCase(unittest.TestCase):
                 "task_id": "task-market",
                 "query_id": "query-flow",
                 "stock_code": "MARKET",
-                "trigger_source": "api",
+                "trigger_source": "api_suites",
                 "provider_runs": [],
                 "llm_runs": [],
                 "history_runs": [
@@ -1084,7 +1084,7 @@ class RunFlowTestCase(unittest.TestCase):
             task_id="task-market",
             query_id="query-flow",
             stock_code="MARKET",
-            trigger_source="api",
+            trigger_source="api_suites",
         )
         try:
             with patch("ai_stock.storage.DatabaseManager.get_instance", return_value=fake_db):

@@ -49,12 +49,12 @@ log.html
 
 ### LoadRunner temporary/generated artifacts ###
 # Keep reusable scripts/assets, ignore replay outputs and transient files.
-tests/load_tests/load_runner/**/result*/
-tests/load_tests/load_runner/**/data*/
-tests/load_tests/load_runner/**/replay_result.txt
-tests/load_tests/load_runner/**/output.txt
-tests/load_tests/load_runner/**/RecordingLog.txt
-tests/load_tests/load_runner/**/mdrv.log
+tests/performance/load_runner/**/result*/
+tests/performance/load_runner/**/data*/
+tests/performance/load_runner/**/replay_result.txt
+tests/performance/load_runner/**/output.txt
+tests/performance/load_runner/**/RecordingLog.txt
+tests/performance/load_runner/**/mdrv.log
 load_tests/load_runner/**/*.bak
 load_tests/load_runner/**/*.tmp
 load_tests/load_runner/**/*.lrr

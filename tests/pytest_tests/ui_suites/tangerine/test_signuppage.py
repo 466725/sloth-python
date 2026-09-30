@@ -3,7 +3,7 @@ import logging
 import allure
 import pytest
 
-from ui.tangerine.test_signinpage import goto_signup_page
+from ui_suites.tangerine.test_signinpage import goto_signup_page
 
 logger = logging.getLogger(__name__)
 

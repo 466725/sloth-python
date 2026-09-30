@@ -43,7 +43,7 @@ def main() -> int:
         setup_logging(log_prefix="web_server")
 
         uvicorn.run(
-            "api.app:app",
+            "api_suites.app:app",
             host=host,
             port=port,
             log_level="info",

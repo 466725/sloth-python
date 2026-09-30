@@ -20,7 +20,7 @@ DecisionSignalMarket = Literal["cn", "hk", "us", "jp", "kr"]
 DecisionSignalOutcomeStatus = Literal["completed", "unable"]
 DecisionSignalOutcomeValue = Literal["hit", "miss", "neutral"]
 DecisionSignalFeedbackValue = Literal["useful", "not_useful"]
-DecisionSignalFeedbackSource = Literal["web", "api"]
+DecisionSignalFeedbackSource = Literal["web", "api_suites"]
 
 
 class DecisionSignalCreateRequest(BaseModel):
@@ -152,7 +152,7 @@ class DecisionSignalFeedbackRequest(BaseModel):
     feedback_value: DecisionSignalFeedbackValue
     reason_code: Optional[str] = Field(None, json_schema_extra={"maxLength": 64})
     note: Optional[str] = Field(None, json_schema_extra={"maxLength": 1000})
-    source: DecisionSignalFeedbackSource = "api"
+    source: DecisionSignalFeedbackSource = "api_suites"
 
 
 class DecisionSignalFeedbackItem(BaseModel):

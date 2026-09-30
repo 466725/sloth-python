@@ -44,8 +44,8 @@ python -m pytest path/to/test_file.py -q
 - Marker-based runs:
 
 ```bash
-python -m pytest -m ui
-python -m pytest -m api
+python -m pytest -m ui_suites
+python -m pytest -m api_suites
 ```
 
 - Full pytest run for cross-cutting changes:
@@ -63,7 +63,7 @@ python -m robot --outputdir temps/robot_calculator robot_tests/calculator/
 Optional dry run for keyword wiring:
 
 ```bash
-python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_tests/ui/
+python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_tests/ui_suites/
 ```
 
 ## Project-Specific Conventions

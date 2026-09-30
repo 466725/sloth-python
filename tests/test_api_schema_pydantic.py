@@ -13,15 +13,15 @@ from api.v1.schemas.stocks import StockQuote
 
 
 DECISION_SIGNAL_PATHS = (
-    "/api/v1/decision-signals",
-    "/api/v1/decision-signals/outcomes/run",
-    "/api/v1/decision-signals/outcomes",
-    "/api/v1/decision-signals/outcomes/stats",
-    "/api/v1/decision-signals/latest/{stock_code}",
-    "/api/v1/decision-signals/{signal_id}/outcomes",
-    "/api/v1/decision-signals/{signal_id}/feedback",
-    "/api/v1/decision-signals/{signal_id}",
-    "/api/v1/decision-signals/{signal_id}/status",
+    "/api_suites/v1/decision-signals",
+    "/api_suites/v1/decision-signals/outcomes/run",
+    "/api_suites/v1/decision-signals/outcomes",
+    "/api_suites/v1/decision-signals/outcomes/stats",
+    "/api_suites/v1/decision-signals/latest/{stock_code}",
+    "/api_suites/v1/decision-signals/{signal_id}/outcomes",
+    "/api_suites/v1/decision-signals/{signal_id}/feedback",
+    "/api_suites/v1/decision-signals/{signal_id}",
+    "/api_suites/v1/decision-signals/{signal_id}/status",
 )
 DECISION_SIGNAL_SCHEMAS = (
     "DecisionSignalCreateRequest",
@@ -39,8 +39,8 @@ DECISION_SIGNAL_SCHEMAS = (
     "DecisionSignalStatusUpdateRequest",
 )
 P6_SIGNAL_LINKED_PATHS = (
-    "/api/v1/alerts/triggers",
-    "/api/v1/portfolio/risk",
+    "/api_suites/v1/alerts/triggers",
+    "/api_suites/v1/portfolio/risk",
 )
 P6_SIGNAL_LINKED_SCHEMAS = (
     "AlertTriggerItem",
@@ -161,7 +161,7 @@ def test_v1_prefix_is_applied_at_app_mount_level() -> None:
     assert api_v1_router.prefix == ""
 
     runtime_paths = create_app().openapi()["paths"]
-    assert "/api/v1/history" in runtime_paths
-    assert "/api/v1/decision-signals" in runtime_paths
-    assert "/api/v1/history/" not in runtime_paths
-    assert "/api/v1/decision-signals/" not in runtime_paths
+    assert "/api_suites/v1/history" in runtime_paths
+    assert "/api_suites/v1/decision-signals" in runtime_paths
+    assert "/api_suites/v1/history/" not in runtime_paths
+    assert "/api_suites/v1/decision-signals/" not in runtime_paths

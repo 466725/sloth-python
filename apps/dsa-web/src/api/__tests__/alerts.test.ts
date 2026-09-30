@@ -57,7 +57,7 @@ describe('alertsApi', () => {
       pageSize: 20,
     });
 
-    expect(get).toHaveBeenCalledWith('/api/v1/alerts/rules', {
+    expect(get).toHaveBeenCalledWith('/api_suites/v1/alerts/rules', {
       params: {
         enabled: true,
         alert_type: 'price_cross',
@@ -99,7 +99,7 @@ describe('alertsApi', () => {
       enabled: true,
     });
 
-    expect(post).toHaveBeenCalledWith('/api/v1/alerts/rules', {
+    expect(post).toHaveBeenCalledWith('/api_suites/v1/alerts/rules', {
       name: 'change rule',
       target_scope: 'single_symbol',
       target: 'AAPL',
@@ -146,7 +146,7 @@ describe('alertsApi', () => {
       enabled: true,
     });
 
-    expect(post).toHaveBeenCalledWith('/api/v1/alerts/rules', {
+    expect(post).toHaveBeenCalledWith('/api_suites/v1/alerts/rules', {
       name: 'macd rule',
       target_scope: 'single_symbol',
       target: '600519',
@@ -210,7 +210,7 @@ describe('alertsApi', () => {
       enabled: true,
     });
 
-    expect(post).toHaveBeenNthCalledWith(1, '/api/v1/alerts/rules', {
+    expect(post).toHaveBeenNthCalledWith(1, '/api_suites/v1/alerts/rules', {
       name: 'market status',
       target_scope: 'market',
       target: 'cn',
@@ -219,7 +219,7 @@ describe('alertsApi', () => {
       severity: 'critical',
       enabled: true,
     });
-    expect(post).toHaveBeenNthCalledWith(2, '/api/v1/alerts/rules', {
+    expect(post).toHaveBeenNthCalledWith(2, '/api_suites/v1/alerts/rules', {
       name: 'market score drop',
       target_scope: 'market',
       target: 'us',
@@ -286,7 +286,7 @@ describe('alertsApi', () => {
     });
     const dryRun = await alertsApi.testRule(5);
 
-    expect(post).toHaveBeenNthCalledWith(1, '/api/v1/alerts/rules', {
+    expect(post).toHaveBeenNthCalledWith(1, '/api_suites/v1/alerts/rules', {
       name: 'portfolio stop loss',
       target_scope: 'portfolio_account',
       target: 'all',
@@ -318,16 +318,16 @@ describe('alertsApi', () => {
     const triggers = await alertsApi.listTriggers({ ruleId: 3, status: 'skipped', page: 1, pageSize: 20 });
     const notifications = await alertsApi.listNotifications({ triggerId: 10, success: false, page: 1, pageSize: 20 });
 
-    expect(deleteRequest).toHaveBeenCalledWith('/api/v1/alerts/rules/3');
-    expect(post).toHaveBeenNthCalledWith(1, '/api/v1/alerts/rules/3/enable');
-    expect(post).toHaveBeenNthCalledWith(2, '/api/v1/alerts/rules/3/disable');
-    expect(post).toHaveBeenNthCalledWith(3, '/api/v1/alerts/rules/3/test');
+    expect(deleteRequest).toHaveBeenCalledWith('/api_suites/v1/alerts/rules/3');
+    expect(post).toHaveBeenNthCalledWith(1, '/api_suites/v1/alerts/rules/3/enable');
+    expect(post).toHaveBeenNthCalledWith(2, '/api_suites/v1/alerts/rules/3/disable');
+    expect(post).toHaveBeenNthCalledWith(3, '/api_suites/v1/alerts/rules/3/test');
     expect(testResult.ruleId).toBe(3);
     expect(testResult.observedValue).toBe(1.2);
-    expect(get).toHaveBeenNthCalledWith(1, '/api/v1/alerts/triggers', {
+    expect(get).toHaveBeenNthCalledWith(1, '/api_suites/v1/alerts/triggers', {
       params: { rule_id: 3, status: 'skipped', page: 1, page_size: 20 },
     });
-    expect(get).toHaveBeenNthCalledWith(2, '/api/v1/alerts/notifications', {
+    expect(get).toHaveBeenNthCalledWith(2, '/api_suites/v1/alerts/notifications', {
       params: { trigger_id: 10, success: false, page: 1, page_size: 20 },
     });
     expect(triggers.items[0].ruleId).toBe(3);

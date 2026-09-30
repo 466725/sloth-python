@@ -58,7 +58,7 @@ describe('usageApi', () => {
 
     const result = await usageApi.getDashboard({ period: 'today', limit: 10 });
 
-    expect(get).toHaveBeenCalledWith('/api/v1/usage/dashboard', {
+    expect(get).toHaveBeenCalledWith('/api_suites/v1/usage/dashboard', {
       params: { period: 'today', limit: 10 },
     });
     expect(result.fromDate).toBe('2026-06-14');
@@ -87,7 +87,7 @@ describe('usageApi', () => {
 
     await usageApi.getDashboard();
 
-    expect(get).toHaveBeenCalledWith('/api/v1/usage/dashboard', {
+    expect(get).toHaveBeenCalledWith('/api_suites/v1/usage/dashboard', {
       params: { period: 'month', limit: 50 },
     });
   });

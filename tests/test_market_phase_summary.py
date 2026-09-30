@@ -42,7 +42,7 @@ def _phase_context() -> dict:
         "is_partial_bar": True,
         "minutes_to_open": None,
         "minutes_to_close": 300,
-        "trigger_source": "api",
+        "trigger_source": "api_suites",
         "analysis_intent": "auto",
         "warnings": ["partial_bar", "partial_bar"],
     }

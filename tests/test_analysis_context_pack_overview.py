@@ -109,7 +109,7 @@ def _pack() -> AnalysisContextPack:
             warnings=["intraday_realtime_overlay", "intraday_realtime_overlay"]
         ),
         metadata={
-            "trigger_source": "api",
+            "trigger_source": "api_suites",
             "news_result_count": 3,
             "webhook_url": "https://hooks.example.test/secret",
         },
@@ -339,7 +339,7 @@ def test_extract_reprojects_persisted_overview_to_public_schema() -> None:
             },
             "warnings": ["top_warning", "top_warning"],
             "metadata": {
-                "trigger_source": "api",
+                "trigger_source": "api_suites",
                 "news_result_count": 3,
                 "webhook_url": "https://hooks.example.test/secret",
             },

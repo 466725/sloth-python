@@ -153,7 +153,7 @@ class RunDiagnosticsP1TestCase(unittest.TestCase):
             trace_id="trace-daily",
             query_id="query-daily",
             stock_code="600519",
-            trigger_source="api",
+            trigger_source="api_suites",
         )
         try:
             df, source = manager.get_daily_data("600519")
@@ -181,7 +181,7 @@ class RunDiagnosticsP1TestCase(unittest.TestCase):
             trace_id="trace-realtime",
             query_id="query-realtime",
             stock_code="600519",
-            trigger_source="api",
+            trigger_source="api_suites",
         )
         try:
             with patch("ai_stock.config.get_config", return_value=config):

@@ -43,7 +43,7 @@ describe('systemConfigApi', () => {
     });
 
     expect(post).toHaveBeenCalledWith(
-      '/api/v1/system/config/llm/test-channel',
+      '/api_suites/v1/system/config/llm/test-channel',
       expect.not.objectContaining({ capability_checks: expect.anything() }),
     );
   });
@@ -59,7 +59,7 @@ describe('systemConfigApi', () => {
     });
 
     expect(post).toHaveBeenCalledWith(
-      '/api/v1/system/config/llm/test-channel',
+      '/api_suites/v1/system/config/llm/test-channel',
       expect.objectContaining({ capability_checks: ['json', 'stream'] }),
     );
   });
@@ -99,7 +99,7 @@ describe('systemConfigApi', () => {
     });
 
     expect(post).toHaveBeenCalledWith(
-      '/api/v1/system/config/notification/test-channel',
+      '/api_suites/v1/system/config/notification/test-channel',
       {
         channel: 'custom',
         items: [{ key: 'CUSTOM_WEBHOOK_URLS', value: 'https://example.com/hook?token=secret' }],
@@ -137,7 +137,7 @@ describe('systemConfigApi', () => {
 
     const result = await systemConfigApi.getSetupStatus();
 
-    expect(get).toHaveBeenCalledWith('/api/v1/system/config/setup/status');
+    expect(get).toHaveBeenCalledWith('/api_suites/v1/system/config/setup/status');
     expect(result.isComplete).toBe(false);
     expect(result.nextStepKey).toBe('llm_primary');
     expect(result.checks[0].nextStep).toBe('打开系统设置');

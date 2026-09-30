@@ -19,7 +19,7 @@ const renderDrawer = async (onClose = vi.fn()) => {
 describe('ReportMarkdownDrawer', () => {
   afterEach(() => {
     vi.doUnmock('../ReportMarkdownPanel');
-    vi.doUnmock('../../../api/history');
+    vi.doUnmock('../../../api_suites/history');
     vi.resetModules();
   });
 
@@ -101,7 +101,7 @@ describe('ReportMarkdownDrawer', () => {
 
   it('loads the real panel through the lazy boundary', async () => {
     vi.resetModules();
-    vi.doMock('../../../api/history', () => ({
+    vi.doMock('../../../api_suites/history', () => ({
       historyApi: {
         getMarkdown: vi.fn().mockResolvedValue('# Lazy loaded report'),
       },

@@ -21,7 +21,7 @@ class QTestClient:
     def create_test_run(self, name: str, test_case_id: int) -> Optional[int]:
         """Create a qTest run and return its ID."""
 
-        url = f"{self.base_url}/api/v3/projects/{self.project_id}/test-runs"
+        url = f"{self.base_url}/api_suites/v3/projects/{self.project_id}/test-runs"
         response = requests.post(
             url,
             json={"name": name, "test_case": {"id": test_case_id}},
@@ -35,7 +35,7 @@ class QTestClient:
         """Submit a qTest result for an existing test run."""
 
         url = (
-            f"{self.base_url}/api/v3/projects/{self.project_id}/test-runs/"
+            f"{self.base_url}/api_suites/v3/projects/{self.project_id}/test-runs/"
             f"{test_run_id}/test-logs"
         )
         response = requests.post(

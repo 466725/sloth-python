@@ -7,7 +7,7 @@ const { get } = vi.hoisted(() => ({
   get: vi.fn(),
 }));
 
-vi.mock('../../api/index', () => ({
+vi.mock('../../api_suites/index', () => ({
   default: { get },
 }));
 
@@ -108,7 +108,7 @@ describe('TokenUsagePage', () => {
     expect(screen.getAllByText('openai/gpt-test')).toHaveLength(2);
     expect(screen.getAllByText('个股分析')).toHaveLength(2);
     expect(screen.getByText(/600519/)).toBeInTheDocument();
-    expect(get).toHaveBeenCalledWith('/api/v1/usage/dashboard', {
+    expect(get).toHaveBeenCalledWith('/api_suites/v1/usage/dashboard', {
       params: { period: 'month', limit: 50 },
     });
   });
@@ -172,7 +172,7 @@ describe('TokenUsagePage', () => {
     renderPage();
 
     await waitFor(() => {
-      expect(get).toHaveBeenCalledWith('/api/v1/usage/dashboard', {
+      expect(get).toHaveBeenCalledWith('/api_suites/v1/usage/dashboard', {
         params: { period: 'month', limit: 50 },
       });
     });
@@ -180,7 +180,7 @@ describe('TokenUsagePage', () => {
     fireEvent.click(screen.getByRole('button', { name: '今日' }));
 
     await waitFor(() => {
-      expect(get).toHaveBeenLastCalledWith('/api/v1/usage/dashboard', {
+      expect(get).toHaveBeenLastCalledWith('/api_suites/v1/usage/dashboard', {
         params: { period: 'today', limit: 50 },
       });
     });
@@ -208,7 +208,7 @@ describe('TokenUsagePage', () => {
     fireEvent.click(screen.getByRole('button', { name: '今日' }));
 
     await waitFor(() => {
-      expect(get).toHaveBeenLastCalledWith('/api/v1/usage/dashboard', {
+      expect(get).toHaveBeenLastCalledWith('/api_suites/v1/usage/dashboard', {
         params: { period: 'today', limit: 50 },
       });
     });

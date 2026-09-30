@@ -143,7 +143,7 @@ def _build_analysis_context_pack_summary(
         },
         news_context="新闻摘要",
         news_result_count=1,
-        metadata={"trigger_source": "api"},
+        metadata={"trigger_source": "api_suites"},
     )
     return format_analysis_context_pack_prompt_section(
         AnalysisContextBuilder.build(artifacts),

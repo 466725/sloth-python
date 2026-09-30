@@ -91,7 +91,7 @@ def _pack() -> AnalysisContextPack:
         ),
         metadata={
             "query_id": "q-1",
-            "trigger_source": "api",
+            "trigger_source": "api_suites",
             "news_result_count": 3,
             "webhook_url": "https://hooks.example.test/secret",
         },
@@ -150,7 +150,7 @@ def _builder_artifacts(*, fundamental_context: dict) -> PipelineAnalysisArtifact
         fundamental_context=fundamental_context,
         news_context="新闻摘要",
         news_result_count=1,
-        metadata={"trigger_source": "api"},
+        metadata={"trigger_source": "api_suites"},
     )
 
 
