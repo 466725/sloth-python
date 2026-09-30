@@ -232,6 +232,7 @@ class TestLLMChannelResponse(BaseModel):
 
 class NotificationTestAttempt(BaseModel):
     """One notification delivery attempt result."""
+    __test__ = False
 
     channel: NotificationTestChannel
     success: bool
@@ -246,6 +247,7 @@ class NotificationTestAttempt(BaseModel):
 
 class TestNotificationChannelRequest(BaseModel):
     """Request payload for testing one notification channel."""
+    __test__ = False
 
     channel: NotificationTestChannel
     items: List[SystemConfigUpdateItem] = Field(default_factory=list)

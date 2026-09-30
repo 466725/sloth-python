@@ -42,8 +42,10 @@ markers = [
   "api: API or backend integration test",
   "unit: unit-level test",
   "ddt: data-driven test",
+  "network: network related test",
   "debug: work-in-progress or debugging-focused test",
   "playwright: Playwright-based UI test",
+  "benchmark: performance benchmark test",
   "qtest_id(id): qTest test case id used by the pytest qTest reporting hook",
 ]
 log_file = "temps/allure-results/log/pytest.log"
