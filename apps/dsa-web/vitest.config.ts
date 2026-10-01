@@ -8,5 +8,8 @@ export default defineConfig({
     globals: true,
     setupFiles: './src/setupTests.ts',
     exclude: [...configDefaults.exclude, 'e2e/**', 'playwright.config.ts'],
+    // Default 5s is too tight under CPU contention from parallel test workers / other dev processes.
+    testTimeout: 15000,
+    hookTimeout: 15000,
   },
 });

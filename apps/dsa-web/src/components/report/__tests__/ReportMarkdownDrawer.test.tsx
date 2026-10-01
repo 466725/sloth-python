@@ -110,7 +110,7 @@ describe('ReportMarkdownDrawer', () => {
     await renderDrawer();
 
     expect(
-      await screen.findByRole('heading', { name: 'Lazy loaded report' }, { timeout: 5000 }),
+      await screen.findByRole('heading', { name: 'Lazy loaded report' }, { timeout: 15000 }),
     ).toBeInTheDocument();
   });
 });

@@ -214,7 +214,9 @@ describe('DecisionSignalsPage', () => {
     expect(within(screen.getByLabelText('Phase')).getByRole('option', { name: 'Closing auction' })).toHaveValue('closing_auction');
     expect(within(screen.getByLabelText('Source')).getByRole('option', { name: 'Market review' })).toHaveValue('market_review');
     expect(screen.getAllByText('Japan').length).toBeGreaterThan(1);
-    expect(screen.getByText('Horizon: 10 days')).toBeInTheDocument();
+    // Horizon is rendered as a boxed metric (separate label/value elements), unlike the inline "key: value" spans below.
+    expect(screen.getByText('Horizon')).toBeInTheDocument();
+    expect(screen.getByText('10 days')).toBeInTheDocument();
     expect(screen.getByText('Plan quality: Partial')).toBeInTheDocument();
     expect(screen.getByText('Phase: Closing auction')).toBeInTheDocument();
     expect(screen.queryByText('10d')).not.toBeInTheDocument();
