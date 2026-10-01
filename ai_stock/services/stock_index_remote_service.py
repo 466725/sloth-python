@@ -22,7 +22,7 @@ DEFAULT_STOCK_INDEX_REMOTE_URL = (
     "https://raw.githubusercontent.com/ZhuLinsen/daily_stock_analysis/"
     "main/apps/dsa-web/public/stocks.index.json"
 )
-DEFAULT_STOCK_INDEX_CACHE_PATH = REPO_ROOT / "data" / "cache" / "stocks.index.json"
+DEFAULT_STOCK_INDEX_CACHE_PATH = REPO_ROOT / "ai_stock" / "stock_data" / "cache" / "stocks.index.json"
 DEFAULT_STOCK_INDEX_REMOTE_TTL_HOURS = 48
 DEFAULT_STOCK_INDEX_REMOTE_TIMEOUT_SECONDS = 10
 DEFAULT_STOCK_INDEX_REMOTE_MAX_FAILURES = 3

@@ -2551,7 +2551,7 @@ class SystemConfigService:
         )
 
     def _build_setup_storage_check(self, effective_map: Dict[str, str]) -> Dict[str, Any]:
-        db_path = Path((effective_map.get("DATABASE_PATH") or "./data/stock_analysis.db").strip()).expanduser()
+        db_path = Path((effective_map.get("DATABASE_PATH") or "./ai_stock/stock_data/stock_analysis.db").strip()).expanduser()
         parent = db_path.parent if db_path.parent != Path("") else Path("")
         probe = parent
         while not probe.exists() and probe != probe.parent:

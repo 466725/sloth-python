@@ -131,7 +131,7 @@ python3 scripts/generate_index_from_csv.py         # 确认后生成
 
 ### 本地客户端自动获取最新索引
 
-新版客户端默认会从项目 GitHub `main` 分支读取最新的 `apps/dsa-web/public/stocks.index.json`，并缓存到本地 `data/cache/stocks.index.json`。前端仍访问本地 `/stocks.index.json`，不需要直接跨域请求 GitHub。
+新版客户端默认会从项目 GitHub `main` 分支读取最新的 `apps/dsa-web/public/stocks.index.json`，并缓存到本地 `ai_stock/stock_data/cache/stocks.index.json`。前端仍访问本地 `/stocks.index.json`，不需要直接跨域请求 GitHub。
 
 远程索引地址、检查频率和网络超时时间为系统内置值，不提供用户配置项；用户只需要决定是否启用：
 

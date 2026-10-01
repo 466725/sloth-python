@@ -758,7 +758,7 @@ def _load_usage_hmac_secret() -> Optional[bytes]:
 
 
 def _usage_hmac_secret_path() -> Path:
-    db_path = os.getenv("DATABASE_PATH", "./data/stock_analysis.db")
+    db_path = os.getenv("DATABASE_PATH", "./ai_stock/stock_data/stock_analysis.db")
     return Path(db_path).resolve().parent / ".llm_usage_hmac_secret"
 
 

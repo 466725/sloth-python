@@ -32,7 +32,7 @@ class MarketReviewExecutionLock:
 
 
 def market_review_lock_path(config: Config) -> Path:
-    database_path = getattr(config, "database_path", "./data/stock_analysis.db")
+    database_path = getattr(config, "database_path", "./ai_stock/stock_data/stock_analysis.db")
     return Path(database_path).parent / "market_review.lock"
 
 

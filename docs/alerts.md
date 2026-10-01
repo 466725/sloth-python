@@ -110,7 +110,7 @@
 - `src/storage.py` 管理 SQLite 连接、SQLAlchemy ORM 模型和 `DatabaseManager`。
 - `src/repositories/` 放置告警数据访问层。
 - `src/services/` 放置告警评估和通知业务逻辑。
-- 默认数据库路径跟随现有配置，通常落在 `data/stock_analysis.db`。
+- 默认数据库路径跟随现有配置，通常落在 `ai_stock/stock_data/stock_analysis.db`。
 
 P1/P2 实现告警持久化时，推荐优先复用以上模式：在 storage 层定义 alert ORM 模型，在 repository 层封装 CRUD 和查询，在 service 层处理规则校验、评估状态、通知结果和冷却语义。P0 不新建表，不改变现有数据库。
 

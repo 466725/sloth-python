@@ -57,7 +57,7 @@ def _ensure_env_loaded() -> None:
 
 def _get_data_dir() -> Path:
     """Return DATA_DIR as parent of DATABASE_PATH."""
-    db_path = os.getenv("DATABASE_PATH", "./data/stock_analysis.db")
+    db_path = os.getenv("DATABASE_PATH", "./ai_stock/stock_data/stock_analysis.db")
     return Path(db_path).resolve().parent
 
 
