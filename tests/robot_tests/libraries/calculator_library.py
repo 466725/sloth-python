@@ -2,10 +2,10 @@ from __future__ import annotations
 
 
 try:
-    from .calculator import CalculationError, Calculator
+    from skill_spring.fun_part.calculator.calculator import CalculationError, Calculator
 except ImportError:
     # Fallback for direct module execution from the calculator folder.
-    from calculator import CalculationError, Calculator
+    from skill_spring.fun_part.calculator.calculator import CalculationError, Calculator
 
 
 class CalculatorLibrary:
