@@ -275,7 +275,6 @@ def test_pipeline_uses_market_phase_effective_date_for_daily_market_context() ->
     )
     pipeline.query_source = "system"
     pipeline.analysis_phase = "auto"
-    pipeline.portfolio_context = None
     pipeline.fetcher_manager = MagicMock()
     pipeline.fetcher_manager.get_stock_name.return_value = "贵州茅台"
     pipeline.fetcher_manager.get_chip_distribution.return_value = None

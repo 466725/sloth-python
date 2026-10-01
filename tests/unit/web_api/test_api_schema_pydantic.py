@@ -40,14 +40,10 @@ DECISION_SIGNAL_SCHEMAS = (
 )
 P6_SIGNAL_LINKED_PATHS = (
     "/api/v1/alerts/triggers",
-    "/api/v1/portfolio/risk",
 )
 P6_SIGNAL_LINKED_SCHEMAS = (
     "AlertTriggerItem",
     "AlertTriggerListResponse",
-    "PortfolioDecisionSignalRiskBlock",
-    "PortfolioDecisionSignalRiskItem",
-    "PortfolioRiskResponse",
 )
 
 

@@ -115,7 +115,6 @@ const outcomeList: DecisionSignalOutcomeListResponse = {
       market: 'cn',
       planQuality: 'complete',
       dataQualityLevel: 'good',
-      holdingState: 'holding',
     },
   ],
   total: 1,

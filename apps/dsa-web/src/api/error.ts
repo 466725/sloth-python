@@ -6,8 +6,6 @@ export type ApiErrorCategory =
   | 'llm_not_configured'
   | 'model_tool_incompatible'
   | 'invalid_tool_call'
-  | 'portfolio_oversell'
-  | 'portfolio_busy'
   | 'upstream_llm_400'
   | 'upstream_timeout'
   | 'upstream_network'
@@ -320,26 +318,6 @@ export function parseApiError(error: unknown): ParsedApiError {
       rawMessage,
       status,
       category: 'missing_params',
-    });
-  }
-
-  if (errorCode === 'portfolio_oversell' || includesAny(matchText, ['oversell detected'])) {
-    return createParsedApiError({
-      title: '卖出数量超过可用持仓',
-      message: '卖出数量超过当前可用持仓，请删除或修正对应卖出流水后重试。',
-      rawMessage,
-      status,
-      category: 'portfolio_oversell',
-    });
-  }
-
-  if (errorCode === 'portfolio_busy' || includesAny(matchText, ['portfolio ledger is busy'])) {
-    return createParsedApiError({
-      title: '持仓账本正忙',
-      message: '持仓账本正在处理另一笔变更，请稍后重试。',
-      rawMessage,
-      status,
-      category: 'portfolio_busy',
     });
   }
 

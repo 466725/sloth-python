@@ -12,7 +12,7 @@ def _write_csv(tmp_path: Path, name: str, content: str) -> Path:
 
 @pytest.mark.unit
 def test_resolve_path_uses_repository_root_for_relative_paths():
-    csv_path = Path("pytest_tests/data_driven.csv")
+    csv_path = Path("robot_tests/data_driven.csv")
 
     assert resolve_path(csv_path) == Path(__file__).resolve().parents[1] / csv_path
     assert resolve_path(csv_path).is_file()

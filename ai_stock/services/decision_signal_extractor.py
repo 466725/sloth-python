@@ -33,7 +33,6 @@ def build_decision_signal_payload_from_report(
     result: AnalysisResult,
     *,
     context_snapshot: Dict[str, Any] | None = None,
-    portfolio_context: Dict[str, Any] | None = None,
     source_report_id: int | None = None,
     trace_id: str,
     query_source: str,
@@ -76,7 +75,6 @@ def build_decision_signal_payload_from_report(
     market_phase_summary = _extract_market_phase_summary(context_snapshot, result)
     if market_phase_summary:
         metadata["market_phase_summary"] = market_phase_summary
-    metadata["holding_state"] = _extract_holding_state(portfolio_context)
 
     payload: Dict[str, Any] = {
         "stock_code": raw_code,
@@ -115,7 +113,6 @@ def extract_and_persist_from_analysis_result(
     result: AnalysisResult,
     *,
     context_snapshot: Dict[str, Any] | None = None,
-    portfolio_context: Dict[str, Any] | None = None,
     source_report_id: int | None = None,
     trace_id: str,
     query_source: str,
@@ -128,7 +125,6 @@ def extract_and_persist_from_analysis_result(
         payload = build_decision_signal_payload_from_report(
             result,
             context_snapshot=context_snapshot,
-            portfolio_context=portfolio_context,
             source_report_id=source_report_id,
             trace_id=trace_id,
             query_source=query_source,
@@ -215,20 +211,6 @@ def _extract_data_quality(context_snapshot: Optional[Mapping[str, Any]], result:
     if snapshot_quality:
         return snapshot_quality
     return _as_mapping(getattr(result, "analysis_context_pack_overview", None)).get("data_quality")
-
-
-def _extract_holding_state(portfolio_context: Optional[Mapping[str, Any]]) -> str:
-    context = _as_mapping(portfolio_context)
-    quantity = context.get("quantity")
-    if quantity in (None, ""):
-        return "unknown"
-    try:
-        numeric_quantity = float(quantity)
-    except (TypeError, ValueError):
-        return "unknown"
-    if not math.isfinite(numeric_quantity):
-        return "unknown"
-    return "holding" if abs(numeric_quantity) > 0 else "empty"
 
 
 def _risk_summary(result: AnalysisResult, dashboard: Mapping[str, Any]) -> Optional[Any]:

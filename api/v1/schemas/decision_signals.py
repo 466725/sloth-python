@@ -97,7 +97,6 @@ class DecisionSignalOutcomeItem(BaseModel):
     source_agent: Optional[str] = None
     plan_quality: Optional[str] = None
     data_quality_level: Optional[str] = None
-    holding_state: str
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 

@@ -1,6 +1,5 @@
 import type React from 'react';
-import { useEffect, useMemo, useState } from 'react';
-import { portfolioApi } from '../../api/portfolio';
+import { useMemo, useState } from 'react';
 import type {
   AlertRuleCreateRequest,
   AlertSeverity,
@@ -8,9 +7,7 @@ import type {
   AlertType,
   MarketLightStatus,
   MarketRegion,
-  PortfolioStopLossMode,
 } from '../../types/alerts';
-import type { PortfolioAccountItem } from '../../types/portfolio';
 import { useUiLanguage } from '../../contexts/UiLanguageContext';
 import { formatUiText, type UiLanguage } from '../../i18n/uiText';
 import {
@@ -20,10 +17,8 @@ import {
   ALERT_MARKET_LIGHT_STATUS_OPTIONS,
   ALERT_MARKET_REGION_OPTIONS,
   ALERT_MARKET_TYPE_OPTIONS,
-  ALERT_PORTFOLIO_TYPE_OPTIONS,
   ALERT_PRICE_DIRECTION_OPTIONS,
   ALERT_SEVERITY_OPTIONS,
-  ALERT_STOP_LOSS_MODE_OPTIONS,
   ALERT_SYMBOL_TYPE_OPTIONS,
   ALERT_TARGET_SCOPE_OPTIONS,
   ALERT_THRESHOLD_DIRECTION_OPTIONS,
@@ -42,13 +37,6 @@ const SYMBOL_ALERT_TYPE_OPTIONS = [
   { value: 'cci_threshold', label: 'CCI 阈值' },
 ];
 
-const PORTFOLIO_ALERT_TYPE_OPTIONS = [
-  { value: 'portfolio_stop_loss', label: '组合止损' },
-  { value: 'portfolio_concentration', label: '组合集中度' },
-  { value: 'portfolio_drawdown', label: '组合回撤' },
-  { value: 'portfolio_price_stale', label: '组合价格状态' },
-];
-
 const MARKET_ALERT_TYPE_OPTIONS = [
   { value: 'market_light_status', label: '大盘红绿灯状态' },
   { value: 'market_light_score_drop', label: '大盘红绿灯分数下降' },
@@ -57,8 +45,6 @@ const MARKET_ALERT_TYPE_OPTIONS = [
 const TARGET_SCOPE_OPTIONS = [
   { value: 'single_symbol', label: '单标的' },
   { value: 'watchlist', label: '自选股' },
-  { value: 'portfolio_holdings', label: '持仓标的' },
-  { value: 'portfolio_account', label: '持仓账户' },
   { value: 'market', label: '大盘市场' },
 ];
 
@@ -88,11 +74,6 @@ const CROSS_DIRECTION_OPTIONS = [
   { value: 'bearish_cross', label: '死叉' },
 ];
 
-const STOP_LOSS_MODE_OPTIONS = [
-  { value: 'near', label: '接近止损' },
-  { value: 'breach', label: '已触发止损' },
-];
-
 const MARKET_REGION_OPTIONS = [
   { value: 'cn', label: 'A 股（cn）' },
   { value: 'hk', label: '港股（hk）' },
@@ -111,22 +92,18 @@ interface AlertRuleFormProps {
   isSubmitting?: boolean;
 }
 
-function isPortfolioScope(scope: AlertTargetScope): boolean {
-  return scope === 'portfolio_holdings' || scope === 'portfolio_account';
-}
-
 function defaultAlertTypeForScope(scope: AlertTargetScope): AlertType {
   if (scope === 'market') return 'market_light_status';
-  return scope === 'portfolio_account' ? 'portfolio_stop_loss' : 'price_cross';
+  return 'price_cross';
 }
 
 function optionsForScope(scope: AlertTargetScope, language: UiLanguage) {
   if (language === 'zh') {
     if (scope === 'market') return MARKET_ALERT_TYPE_OPTIONS;
-    return scope === 'portfolio_account' ? PORTFOLIO_ALERT_TYPE_OPTIONS : SYMBOL_ALERT_TYPE_OPTIONS;
+    return SYMBOL_ALERT_TYPE_OPTIONS;
   }
   if (scope === 'market') return ALERT_MARKET_TYPE_OPTIONS[language];
-  return scope === 'portfolio_account' ? ALERT_PORTFOLIO_TYPE_OPTIONS[language] : ALERT_SYMBOL_TYPE_OPTIONS[language];
+  return ALERT_SYMBOL_TYPE_OPTIONS[language];
 }
 
 export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmitting = false }) => {
@@ -135,10 +112,7 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
   const [name, setName] = useState('');
   const [targetScope, setTargetScope] = useState<AlertTargetScope>('single_symbol');
   const [target, setTarget] = useState('');
-  const [portfolioTarget, setPortfolioTarget] = useState('all');
   const [marketRegion, setMarketRegion] = useState<MarketRegion>('cn');
-  const [accounts, setAccounts] = useState<PortfolioAccountItem[]>([]);
-  const [accountsError, setAccountsError] = useState<string | null>(null);
   const [alertType, setAlertType] = useState<AlertType>('price_cross');
   const [severity, setSeverity] = useState<AlertSeverity>('warning');
   const [enabled, setEnabled] = useState(true);
@@ -146,7 +120,6 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
   const [changeDirection, setChangeDirection] = useState<'up' | 'down'>('up');
   const [thresholdDirection, setThresholdDirection] = useState<'above' | 'below'>('above');
   const [crossDirection, setCrossDirection] = useState<'bullish_cross' | 'bearish_cross'>('bullish_cross');
-  const [stopLossMode, setStopLossMode] = useState<PortfolioStopLossMode>('near');
   const [price, setPrice] = useState('');
   const [changePct, setChangePct] = useState('');
   const [multiplier, setMultiplier] = useState('');
@@ -162,33 +135,7 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
   const [minDrop, setMinDrop] = useState('10');
   const [formError, setFormError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!isPortfolioScope(targetScope)) return undefined;
-    let cancelled = false;
-    void portfolioApi.getAccounts(false)
-      .then((response) => {
-        if (cancelled) return;
-        setAccounts(response.accounts ?? []);
-        setAccountsError(null);
-      })
-      .catch((error: unknown) => {
-        if (cancelled) return;
-        setAccounts([]);
-        setAccountsError(error instanceof Error ? error.message : text.accountLoadFailed);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [targetScope, text.accountLoadFailed]);
-
   const alertTypeOptions = useMemo(() => optionsForScope(targetScope, language), [language, targetScope]);
-  const portfolioTargetOptions = useMemo(() => [
-    { value: 'all', label: text.allAccounts },
-    ...accounts.map((account) => ({
-      value: String(account.id),
-      label: `${account.name} #${account.id}`,
-    })),
-  ], [accounts, text.allAccounts]);
 
   const resetParameters = (nextType: AlertType) => {
     if (nextType === 'price_cross') {
@@ -220,8 +167,6 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
       setThresholdDirection('above');
       setPeriod('14');
       setThreshold('');
-    } else if (nextType === 'portfolio_stop_loss') {
-      setStopLossMode('near');
     } else if (nextType === 'market_light_status') {
       setMarketLightStatuses(['red', 'yellow']);
     } else if (nextType === 'market_light_score_drop') {
@@ -344,9 +289,6 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
       if (parsedPeriod == null || parsedThreshold == null) return null;
       return { direction: thresholdDirection, period: parsedPeriod, threshold: parsedThreshold };
     }
-    if (alertType === 'portfolio_stop_loss') {
-      return { mode: stopLossMode };
-    }
     if (alertType === 'market_light_status') {
       if (marketLightStatuses.length === 0) {
         setFormError(text.noMarketStatus);
@@ -367,7 +309,6 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
     const nextType = defaultAlertTypeForScope(nextScope);
     setTargetScope(nextScope);
     setAlertType(nextType);
-    setPortfolioTarget('all');
     setMarketRegion('cn');
     resetParameters(nextType);
     setFormError(null);
@@ -387,8 +328,6 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
       resolvedTarget = 'default';
     } else if (targetScope === 'market') {
       resolvedTarget = marketRegion;
-    } else {
-      resolvedTarget = portfolioTarget;
     }
 
     const parameters = buildParameters();
@@ -407,7 +346,6 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
     if (submitted === false) return;
     setName('');
     setTarget('');
-    setPortfolioTarget('all');
     setMarketRegion('cn');
     setPrice('');
     setChangePct('');
@@ -459,18 +397,7 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
         />
       );
     }
-    return (
-      <div className="space-y-2">
-        <Select
-          label={text.account}
-          value={portfolioTarget}
-          options={portfolioTargetOptions}
-          disabled={isSubmitting}
-          onChange={setPortfolioTarget}
-        />
-        {accountsError ? <p role="alert" className="text-xs text-warning">{accountsError}</p> : null}
-      </div>
-    );
+    return null;
   };
 
   return (
@@ -732,16 +659,6 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
               disabled={isSubmitting}
             />
           </div>
-        ) : null}
-
-        {alertType === 'portfolio_stop_loss' ? (
-          <Select
-            label={text.stopLossMode}
-            value={stopLossMode}
-            options={language === 'zh' ? STOP_LOSS_MODE_OPTIONS : ALERT_STOP_LOSS_MODE_OPTIONS[language]}
-            disabled={isSubmitting}
-            onChange={(value) => setStopLossMode(value as PortfolioStopLossMode)}
-          />
         ) : null}
 
         {alertType === 'market_light_status' ? (

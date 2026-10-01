@@ -106,15 +106,15 @@ def sanitize_context_snapshot_for_api(context_snapshot: Any) -> Any:
     snapshot = _as_mapping(context_snapshot)
     if snapshot is not None:
         sanitized = dict(snapshot)
+        sanitized.pop("portfolio_context", None)
         sanitized.pop(ANALYSIS_CONTEXT_PACK_OVERVIEW_KEY, None)
         sanitized.pop(MARKET_PHASE_SUMMARY_KEY, None)
         sanitized.pop("daily_market_context_summary", None)
-        sanitized.pop("portfolio_context", None)
         enhanced_context = sanitized.get("enhanced_context")
         if isinstance(enhanced_context, Mapping):
             safe_enhanced_context = dict(enhanced_context)
-            safe_enhanced_context.pop("daily_market_context_summary", None)
             safe_enhanced_context.pop("portfolio_context", None)
+            safe_enhanced_context.pop("daily_market_context_summary", None)
             sanitized["enhanced_context"] = safe_enhanced_context
         return sanitized
     return context_snapshot

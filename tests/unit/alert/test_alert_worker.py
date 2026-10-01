@@ -436,14 +436,6 @@ class AlertWorkerTestCase(unittest.TestCase):
                     display_target="cn",
                 ),
                 SimpleNamespace(
-                    key="portfolio_account:all",
-                    rule=SimpleNamespace(target_scope="portfolio_account", target="all", metadata={}),
-                    source="db",
-                    severity="warning",
-                    effective_target="portfolio_account:all",
-                    display_target="all accounts",
-                ),
-                SimpleNamespace(
                     key="single_symbol:SPX",
                     rule=SimpleNamespace(
                         target_scope="single_symbol",
@@ -1231,42 +1223,6 @@ class AlertWorkerTestCase(unittest.TestCase):
         self.assertEqual(stats["loaded"], 100)
         self.assertEqual(stats["degraded"], 0)
         self.assertEqual(self._triggers(status="degraded"), [])
-
-    def test_p6_portfolio_account_risk_uses_account_effective_target_and_diagnostics(self) -> None:
-        rule = self._create_rule(
-            name="Portfolio risk",
-            target_scope="portfolio_account",
-            target="all",
-            alert_type="portfolio_concentration",
-            parameters={},
-        )
-        notifier = self._notifier()
-
-        async def _evaluate_portfolio(rule_obj, *_args, **_kwargs):
-            return {
-                "rule_id": self.service._runtime_rule_id(rule_obj),
-                "status": "triggered",
-                "record_status": "triggered",
-                "triggered": True,
-                "observed_value": 42.0,
-                "threshold": 35.0,
-                "data_source": "portfolio_risk",
-                "data_timestamp": None,
-                "reason": "account all concentration top weight 42.00%",
-                "message": "account all concentration top weight 42.00%",
-                "diagnostics": '{"account_id":"all","currency":"CNY","as_of":"2026-05-20"}',
-            }
-
-        worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
-        with patch.object(self.service, "_evaluate_rule", new=_evaluate_portfolio):
-            stats = worker.run_once()
-
-        self.assertEqual(stats["triggered"], 1)
-        triggers = self._triggers(rule_id=rule["id"], status="triggered")
-        self.assertEqual(len(triggers), 1)
-        self.assertEqual(triggers[0]["target"], "account:all")
-        self.assertIn("account_id", triggers[0]["diagnostics"])
-
 
 if __name__ == "__main__":
     unittest.main()

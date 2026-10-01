@@ -905,14 +905,6 @@ class Config:
     # 基本面缓存最大条目数（避免长时间运行内存增长）
     fundamental_cache_max_entries: int = 256
 
-    # === Portfolio PR2: import/risk/fx settings ===
-    portfolio_risk_concentration_alert_pct: float = 35.0
-    portfolio_risk_drawdown_alert_pct: float = 15.0
-    portfolio_risk_stop_loss_alert_pct: float = 10.0
-    portfolio_risk_stop_loss_near_ratio: float = 0.8
-    portfolio_risk_lookback_days: int = 180
-    portfolio_fx_update_enabled: bool = True
-
     # Discord 机器人状态
     discord_bot_status: str = "A股智能分析 | /help"
 
@@ -1766,37 +1758,6 @@ class Config:
                 field_name='FUNDAMENTAL_CACHE_MAX_ENTRIES',
                 minimum=1,
             ),
-            portfolio_risk_concentration_alert_pct=parse_env_float(
-                os.getenv('PORTFOLIO_RISK_CONCENTRATION_ALERT_PCT'),
-                35.0,
-                field_name='PORTFOLIO_RISK_CONCENTRATION_ALERT_PCT',
-                minimum=0.0,
-            ),
-            portfolio_risk_drawdown_alert_pct=parse_env_float(
-                os.getenv('PORTFOLIO_RISK_DRAWDOWN_ALERT_PCT'),
-                15.0,
-                field_name='PORTFOLIO_RISK_DRAWDOWN_ALERT_PCT',
-                minimum=0.0,
-            ),
-            portfolio_risk_stop_loss_alert_pct=parse_env_float(
-                os.getenv('PORTFOLIO_RISK_STOP_LOSS_ALERT_PCT'),
-                10.0,
-                field_name='PORTFOLIO_RISK_STOP_LOSS_ALERT_PCT',
-                minimum=0.0,
-            ),
-            portfolio_risk_stop_loss_near_ratio=parse_env_float(
-                os.getenv('PORTFOLIO_RISK_STOP_LOSS_NEAR_RATIO'),
-                0.8,
-                field_name='PORTFOLIO_RISK_STOP_LOSS_NEAR_RATIO',
-                minimum=0.0,
-            ),
-            portfolio_risk_lookback_days=parse_env_int(
-                os.getenv('PORTFOLIO_RISK_LOOKBACK_DAYS'),
-                180,
-                field_name='PORTFOLIO_RISK_LOOKBACK_DAYS',
-                minimum=1,
-            ),
-            portfolio_fx_update_enabled=os.getenv('PORTFOLIO_FX_UPDATE_ENABLED', 'true').lower() == 'true',
         )
     
     @classmethod

@@ -45,7 +45,6 @@ OUTCOME_VALUES = frozenset({"hit", "miss", "neutral"})
 EVAL_STATUSES = frozenset({"completed", "unable"})
 FEEDBACK_VALUES = frozenset({"useful", "not_useful"})
 FEEDBACK_SOURCES = frozenset({"web", "api"})
-HOLDING_STATES = frozenset({"holding", "empty", "unknown"})
 RETRYABLE_UNABLE_REASONS = frozenset({
     "missing_anchor_price",
     "invalid_anchor_price",
@@ -324,7 +323,6 @@ class DecisionSignalOutcomeService:
             "source_agent",
             "plan_quality",
             "data_quality_level",
-            "holding_state",
         )
         breakdowns = {
             dimension: self._breakdown(rows, dimension)
@@ -451,7 +449,6 @@ class DecisionSignalOutcomeService:
 
     def _snapshot_fields(self, signal: DecisionSignalRecord, horizon: str) -> Dict[str, Any]:
         data_quality_level = self._data_quality_level(signal)
-        holding_state = self._holding_state(signal)
         return {
             "signal_id": signal.id,
             "horizon": horizon,
@@ -463,7 +460,6 @@ class DecisionSignalOutcomeService:
             "source_agent": signal.source_agent,
             "plan_quality": signal.plan_quality,
             "data_quality_level": data_quality_level,
-            "holding_state": holding_state,
         }
 
     @staticmethod
@@ -514,14 +510,6 @@ class DecisionSignalOutcomeService:
                 return self._short_label(nested.get("level"))
         if isinstance(value, str) and value.strip():
             return self._short_label(value)
-        return "unknown"
-
-    def _holding_state(self, signal: DecisionSignalRecord) -> str:
-        metadata = self._json_loads(signal.metadata_json)
-        if isinstance(metadata, dict):
-            value = str(metadata.get("holding_state") or "").strip().lower()
-            if value in HOLDING_STATES:
-                return value
         return "unknown"
 
     @staticmethod
@@ -654,7 +642,6 @@ class DecisionSignalOutcomeService:
             "source_agent": row.source_agent,
             "plan_quality": row.plan_quality,
             "data_quality_level": row.data_quality_level,
-            "holding_state": row.holding_state,
             "created_at": row.created_at.isoformat() if row.created_at else None,
             "updated_at": row.updated_at.isoformat() if row.updated_at else None,
         }

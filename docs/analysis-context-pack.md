@@ -1,6 +1,6 @@
-# AnalysisContextPack：P0 盘点、P1/P2 契约、P3 Runtime Consumption、P4 可见性、P5 数据质量、#1386 P6 联动与 #1389 P6 迁移回滚
+# AnalysisContextPack：契约、Runtime Consumption、可见性与数据质量
 
-本页是 Issue #1389 的专题文档，用于记录当前 DSA 分析上下文的真实来源、消费路径、字段状态边界，以及 `AnalysisContextPack` 内部契约、builder、运行态消费、低敏可见性、数据质量评分、告警/持仓/历史/回测联动、迁移和回滚边界。P0 负责现状盘点和契约边界；P1 只新增内部 schema/envelope、block catalog、类型约定和脱敏序列化；P2 只从 pipeline 已有 artifacts 组装 pack；P3 只把低敏摘要接入普通分析和 Agent 初始 Prompt；P4 只把低敏 overview 接入历史详情、同步分析响应、completed task status 和 Web 报告页；P5 在同一 `PACK_VERSION = "1.0"` 内补齐数据质量评分、`fetch_failed` 状态、Prompt 数据限制和 overview 低敏展示；#1386 P6 复用同一公开 overview 做告警、持仓、历史、回测和通知联动，并在手动持仓分析时加入可选辅助 `portfolio` block；#1389 P6 只补齐文档、配置可见性、迁移和回滚说明，不新增 pack runtime、pack feature flag、DB migration 或 schema 版本。
+本页记录当前 DSA 分析上下文的真实来源、消费路径、字段状态边界，以及 `AnalysisContextPack` 内部契约、builder、运行态消费、低敏可见性、数据质量评分、告警/历史/回测联动和回滚边界。当前 pack 由 pipeline artifacts 组装，低敏摘要接入普通分析、Agent、历史详情、同步分析响应、completed task status 和 Web 报告页；`PACK_VERSION = "1.0"` 内含数据质量评分、`fetch_failed` 状态和 Prompt 数据限制。没有独立的 pack feature flag 或数据库迁移。
 
 ## 术语与边界
 
@@ -60,7 +60,6 @@ P1 Block Catalog：
 | `technical` | 技术指标、量价结构和形态 | P1 不生成指标。 |
 | `fundamentals` | 估值、成长、盈利、财报和股东回报 | P1 不新增基本面 fetcher。 |
 | `news` | 新闻、公告、舆情和催化事件输入 | P1 不改变新闻搜索。 |
-| `portfolio` | 是否持仓、账户摘要、成本、数量、仓位和 stale 摘要 | P1 不纳入交易流水、现金流水或完整账户隐私数据。 |
 | `chip` / `capital_flow` | 筹码、资金流和主力行为 | 后续扩展键，P1 只允许契约表达。 |
 | `events` / `market_context` | 风险事件、市场宽度、指数、板块和热点环境 | 后续扩展键，不把 `market_review` / `market_light` 作为首版单股 pack。 |
 
@@ -91,7 +90,7 @@ P2 block 组装边界：
 - `fundamentals` 只读 `fundamental_context` 参数；`ok` 映射为 `available`，`not_supported` 映射为 `not_supported`，`partial` 映射为 `partial`，P5 后 `failed` 映射为 `fetch_failed` + 稳定 reason code `fundamental_pipeline_failed`；不写入 `errors[]` 原文。
 - `news` 非空白字符串为 `available`，空白或缺失为 `missing`；`news_result_count` 写入 pack metadata。
 
-P2 不组装 `portfolio`、`events`、`market_context`，也不把 `capital_flow` 拆成独立 block；首版只把它保留在 fundamentals 的 coverage/source chain metadata 中。P2 当时也不改变 Prompt、不让普通分析或 Agent runtime 消费 pack、不写入 history/task/report metadata、不暴露完整 pack 到 API/Web/Bot/Desktop/通知；P5 只在现有 builder 上追加低敏评分、`fetch_failed` 细分和 Prompt 限制，不新增 fetcher。
+P2 不组装扩展 block，也不把 `capital_flow` 拆成独立 block；首版只把它保留在 fundamentals 的 coverage/source chain metadata 中。P2 当时也不改变 Prompt、不让普通分析或 Agent runtime 消费 pack、不写入 history/task/report metadata、不暴露完整 pack 到 API/Web/Bot/Desktop/通知；P5 只在现有 builder 上追加低敏评分、`fetch_failed` 细分和 Prompt 限制，不新增 fetcher。
 
 ## P3 Runtime Consumption
 
@@ -159,17 +158,14 @@ Prompt 数据限制只在 `format_analysis_context_pack_prompt_section()` 内渲
 
 overview 只扩展现有公开面：`analysis_context_pack_overview.data_quality` 白名单包含 `overall_score`、`level`、`block_scores`、`limitations`，不重复公开 `warnings`。`render_analysis_context_pack_overview()` 与 `extract_analysis_context_pack_overview()` / persisted sanitizer 都会清洗该对象；旧 overview 缺少 `data_quality` 时仍正常读取。`details.context_snapshot` 继续剥离顶层 `analysis_context_pack_overview`，不公开完整 pack。
 
-## P6 告警、持仓、历史和回测联动
+## P6 告警、历史和回测联动
 
 #1386 P6 不新增 pack 版本，也不把完整 pack 暴露到更多公共面。它只复用 P4/P5 已定义的 `analysis_context_pack_overview` 和 #1386 已定义的 `market_phase_summary`：
 
 - 告警触发记录仍写入现有 `alert_triggers.diagnostics` 文本字段；当 diagnostics 可 JSON 化时，worker 会合并 `analysis_visibility.analysis_context_pack_overview`，来源只允许 evaluator 已带 overview 或最近 30 天历史 snapshot。旧纯文本 diagnostics 不被覆盖，API 派生字段为空且 source 为 `legacy_text`。
-- 持仓手动分析通过 API 构造低敏 `portfolio_context` 并传入 pipeline；builder 会在 pack 中加入可选 `portfolio` block。该 block 只包含账户 ID/name、symbol、market、currency、quantity、avg cost、total cost、unrealized PnL、price source/provider/date/stale/available 和 cost method，不包含交易流水、现金流水、新闻正文、Prompt、密钥或 webhook。
-- `portfolio` block 是辅助块，`metadata={"auxiliary": true, "quality_weighted": false}`，不改变 P5 固定六块 `quote`、`daily_bars`、`technical`、`news`、`fundamentals`、`chip` 的权重、总分或 limitations 口径。
-- `portfolio_context` 只在任务执行内部透传；`TaskInfo.to_dict()`、任务列表、SSE `task_created/task_started/task_completed/task_failed/task_progress` payload 不暴露该对象。
 - 历史列表、单股历史、StockBar 和回测结果只读取 `context_snapshot` 顶层的公开 `market_phase_summary`；旧记录、`SAVE_CONTEXT_SNAPSHOT=false` 或解析失败返回 `null` / `unknown`，不失败。
 - 回测 phase filter 只基于公开 summary 做 bucket：`premarket` 保持 premarket，`intraday|lunch_break|closing_auction` 归入 intraday，`postmarket` 保持 postmarket，`non_trading|missing|invalid` 归入 unknown。带 phase 过滤时 repository 先按 SQL 条件批量读取结果和 snapshot，服务层 bucket 后再分页和统计，避免 API 层分页后临时过滤。
-- 通知摘要只消费 `market_phase_summary` 与 `analysis_context_pack_overview.data_quality`，输出阶段、trigger source、partial-bar warning、质量等级和前两条 limitations；不输出 raw pack、`analysis_context_pack_summary` Prompt 字符串、新闻正文或持仓敏感细节。
+- 通知摘要只消费 `market_phase_summary` 与 `analysis_context_pack_overview.data_quality`，输出阶段、trigger source、partial-bar warning、质量等级和前两条 limitations；不输出 raw pack、`analysis_context_pack_summary` Prompt 字符串或新闻正文。旧历史快照中的持仓上下文仍由 sanitizer 清除。
 
 ## P6 文档、迁移与回滚
 
@@ -272,12 +268,6 @@ Agent 工具还会独立调用 `get_realtime_quote`、`get_daily_history`、`get
 
 首版 pack 不把告警规则评估作为输入数据块；告警后续只消费 pack 的字段质量摘要，例如核心行情是否 fallback、是否 stale、是否 partial。
 
-### 持仓
-
-持仓快照在 `src/services/portfolio_service.py` 中聚合账户、仓位、成本、价格、汇率和风险输入，API 输出结构在 `api/v1/schemas/portfolio.py`。当前已有 `price_source`、`price_provider`、`price_date`、`price_stale`、`price_available`、`fx_stale` 等字段。
-
-首版 pack 可记录“是否持仓、账户摘要、成本、数量、仓位、浮盈浮亏、价格/汇率 stale 摘要”，但不纳入交易流水、现金流水、公司行动或完整账户隐私数据。
-
 ### 回测
 
 回测服务在 `src/services/backtest_service.py` 和 `src/repositories/backtest_repo.py` 中消费历史分析记录与日线数据。现有 `parse_analysis_date_from_snapshot()` 依赖 `analysis_history.context_snapshot.enhanced_context.date` 解析分析日期。
@@ -303,7 +293,6 @@ P0 只记录历史消费面。完整 pack 不应默认公开到历史详情或�
 | 普通分析 | `src/core/pipeline.py`, `src/storage.py`, `src/analyzer.py` |
 | Agent | `src/agent/orchestrator.py`, `src/agent/executor.py`, `src/agent/tools/data_tools.py` |
 | 告警 | `src/services/alert_worker.py`, `docs/alerts.md` |
-| 持仓 | `src/services/portfolio_service.py`, `api/v1/schemas/portfolio.py` |
 | 回测 | `src/services/backtest_service.py`, `src/repositories/backtest_repo.py` |
 | 历史 | `src/services/history_service.py`, `api/v1/endpoints/history.py`, `api/v1/endpoints/analysis.py`, `api/v1/schemas/history.py` |
 | 通知 | `src/notification.py`, `docs/notifications.md` |

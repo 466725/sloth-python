@@ -104,7 +104,7 @@ class TestAskCommandMultiStock(unittest.TestCase):
             },
         }
 
-    def test_analyze_multi_includes_portfolio_overlay(self):
+    def test_analyze_multi_returns_stock_comparison_without_portfolio_overlay(self):
         command = AskCommand()
         config = SimpleNamespace()
         message = self._message()
@@ -119,12 +119,11 @@ class TestAskCommandMultiStock(unittest.TestCase):
                 )
 
         with patch("ai_stock.agent.factory.build_agent_executor", return_value=FakeExecutor()):
-            with patch.object(command, "_build_portfolio_section", return_value="## 组合视角\n组合摘要"):
-                with patch("ai_stock.agent.conversation.conversation_manager"):
-                    response = command._analyze_multi(config, message, ["600519", "000858"], None, "")
+            with patch("ai_stock.agent.conversation.conversation_manager"):
+                response = command._analyze_multi(config, message, ["600519", "000858"], None, "")
 
         self.assertTrue(response.markdown)
-        self.assertIn("## 组合视角", response.text)
+        self.assertNotIn("## 组合视角", response.text)
         self.assertIn("| 600519 | buy | 72% |", response.text)
         self.assertIn("### 000858", response.text)
 
@@ -161,9 +160,8 @@ class TestAskCommandMultiStock(unittest.TestCase):
                 )
 
         with patch("ai_stock.agent.factory.build_agent_executor", return_value=FakeExecutor()):
-            with patch.object(command, "_build_portfolio_section", return_value=""):
-                with patch("ai_stock.agent.conversation.conversation_manager"):
-                    response = command._analyze_multi(config, message, ["600519", "000858"], None, "")
+            with patch("ai_stock.agent.conversation.conversation_manager"):
+                response = command._analyze_multi(config, message, ["600519", "000858"], None, "")
 
         self.assertIn("600519 自由文本分析", response.text)
         self.assertNotIn("⚠️ 分析失败: Failed to parse dashboard JSON", response.text)
@@ -183,9 +181,8 @@ class TestAskCommandMultiStock(unittest.TestCase):
                 )
 
         with patch("ai_stock.agent.factory.build_agent_executor", return_value=FakeExecutor()):
-            with patch.object(command, "_build_portfolio_section", return_value=""):
-                with patch("ai_stock.agent.conversation.conversation_manager") as mock_cm:
-                    command._analyze_multi(config, message, ["600519", "000858"], None, "")
+            with patch("ai_stock.agent.conversation.conversation_manager") as mock_cm:
+                command._analyze_multi(config, message, ["600519", "000858"], None, "")
 
         assistant_messages = [
             call.args[2]
@@ -213,10 +210,9 @@ class TestAskCommandMultiStock(unittest.TestCase):
 
         with patch("bot.commands.ask.get_db", side_effect=lambda: call_order.append("db")) as mock_get_db:
             with patch("ai_stock.agent.factory.build_agent_executor", return_value=FakeExecutor()):
-                with patch.object(command, "_build_portfolio_section", return_value=""):
-                    with patch("ai_stock.agent.conversation.conversation_manager") as mock_cm:
-                        mock_cm.add_message.side_effect = lambda *args, **kwargs: call_order.append("history")
-                        command._analyze_multi(config, message, ["600519", "000858"], None, "")
+                with patch("ai_stock.agent.conversation.conversation_manager") as mock_cm:
+                    mock_cm.add_message.side_effect = lambda *args, **kwargs: call_order.append("history")
+                    command._analyze_multi(config, message, ["600519", "000858"], None, "")
 
         mock_get_db.assert_called_once_with()
         self.assertTrue(call_order)

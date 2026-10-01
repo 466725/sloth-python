@@ -94,10 +94,7 @@ def _payload(**overrides):
         "stop_loss": 95,
         "reason": "突破平台",
         "data_quality_summary": {"level": "good"},
-        "metadata": {
-            "market_phase_summary": {"session_date": "2024-01-02"},
-            "holding_state": "holding",
-        },
+        "metadata": {"market_phase_summary": {"session_date": "2024-01-02"}},
     }
     payload.update(overrides)
     return payload
@@ -128,7 +125,7 @@ def test_outcome_run_list_stats_signal_outcomes_and_feedback(client_and_db) -> N
     assert run_data["created"] == 1
     assert run_data["items"][0]["outcome"] == "hit"
     assert run_data["items"][0]["stock_return_pct"] == 5.0
-    assert run_data["items"][0]["holding_state"] == "holding"
+    assert "holding_state" not in run_data["items"][0]
 
     second_run_resp = client.post(
         "/api/v1/decision-signals/outcomes/run",

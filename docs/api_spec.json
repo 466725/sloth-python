@@ -853,7 +853,7 @@
           "DecisionSignals"
         ],
         "summary": "查询决策信号列表",
-        "description": "分页查询 DecisionSignal；读取前会懒过期已到 expires_at 的 active 信号。当 source_type=analysis 且只传 source_report_id 查询时，若无命中信号会尝试基于该历史报告一次性懒回填 （仅首次命中列表场景，且该精确查询会触发历史决策信号回填写入，属于 read-with-write 行为；不影响其他分页列表筛选参数场景）。holding_only=true 只读取 active 账户的 portfolio_positions 缓存持仓，不触发 portfolio snapshot replay。",
+        "description": "分页查询 DecisionSignal；读取前会懒过期已到 expires_at 的 active 信号。当 source_type=analysis 且只传 source_report_id 查询时，若无命中信号会尝试基于该历史报告一次性懒回填 （仅首次命中列表场景，且该精确查询会触发历史决策信号回填写入，属于 read-with-write 行为；不影响其他分页列表筛选参数场景）。",
         "operationId": "listDecisionSignals",
         "security": [
           {
@@ -1094,36 +1094,6 @@
               "title": "Expires To"
             },
             "description": "Inclusive expires_at upper bound"
-          },
-          {
-            "name": "holding_only",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "Filter to active cached portfolio holdings only",
-              "default": false,
-              "title": "Holding Only"
-            },
-            "description": "Filter to active cached portfolio holdings only"
-          },
-          {
-            "name": "account_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Optional active portfolio account id for holding_only",
-              "title": "Account Id"
-            },
-            "description": "Optional active portfolio account id for holding_only"
           },
           {
             "name": "page",
@@ -2430,108 +2400,6 @@
                 }
               }
             }
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/portfolio/risk": {
-      "get": {
-        "tags": [
-          "Portfolio"
-        ],
-        "summary": "Get portfolio risk report",
-        "operationId": "get_risk_report_api_v1_portfolio_risk_get",
-        "parameters": [
-          {
-            "name": "account_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Optional account id",
-              "title": "Account Id"
-            },
-            "description": "Optional account id"
-          },
-          {
-            "name": "as_of",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "date"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Risk report date, default today",
-              "title": "As Of"
-            },
-            "description": "Risk report date, default today"
-          },
-          {
-            "name": "cost_method",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "description": "Cost method: fifo or avg",
-              "default": "fifo",
-              "title": "Cost Method"
-            },
-            "description": "Cost method: fifo or avg"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PortfolioRiskResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Bad Request"
           },
           "500": {
             "content": {
@@ -5546,10 +5414,6 @@
             ],
             "title": "Data Quality Level"
           },
-          "holding_state": {
-            "type": "string",
-            "title": "Holding State"
-          },
           "created_at": {
             "anyOf": [
               {
@@ -5579,8 +5443,7 @@
           "signal_id",
           "horizon",
           "engine_version",
-          "eval_status",
-          "holding_state"
+          "eval_status"
         ],
         "title": "DecisionSignalOutcomeItem"
       },
@@ -6158,132 +6021,6 @@
           "page_size"
         ],
         "title": "AlertTriggerListResponse"
-      },
-      "PortfolioDecisionSignalRiskBlock": {
-        "properties": {
-          "available": {
-            "type": "boolean",
-            "title": "Available",
-            "default": true
-          },
-          "total": {
-            "type": "integer",
-            "title": "Total",
-            "default": 0
-          },
-          "actions": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "type": "object",
-            "title": "Actions"
-          },
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/PortfolioDecisionSignalRiskItem"
-            },
-            "type": "array",
-            "title": "Items"
-          }
-        },
-        "type": "object",
-        "title": "PortfolioDecisionSignalRiskBlock"
-      },
-      "PortfolioDecisionSignalRiskItem": {
-        "properties": {
-          "account_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Account Id"
-          },
-          "symbol": {
-            "type": "string",
-            "title": "Symbol"
-          },
-          "market": {
-            "type": "string",
-            "title": "Market"
-          },
-          "signal": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Signal"
-          }
-        },
-        "type": "object",
-        "required": [
-          "symbol",
-          "market"
-        ],
-        "title": "PortfolioDecisionSignalRiskItem"
-      },
-      "PortfolioRiskResponse": {
-        "properties": {
-          "as_of": {
-            "type": "string",
-            "title": "As Of"
-          },
-          "account_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Account Id"
-          },
-          "cost_method": {
-            "type": "string",
-            "title": "Cost Method"
-          },
-          "currency": {
-            "type": "string",
-            "title": "Currency"
-          },
-          "thresholds": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Thresholds"
-          },
-          "concentration": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Concentration"
-          },
-          "sector_concentration": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Sector Concentration"
-          },
-          "drawdown": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Drawdown"
-          },
-          "stop_loss": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Stop Loss"
-          },
-          "decision_signal_risk": {
-            "$ref": "#/components/schemas/PortfolioDecisionSignalRiskBlock"
-          }
-        },
-        "type": "object",
-        "required": [
-          "as_of",
-          "cost_method",
-          "currency"
-        ],
-        "title": "PortfolioRiskResponse"
       },
       "MarketPhaseSummary": {
         "properties": {

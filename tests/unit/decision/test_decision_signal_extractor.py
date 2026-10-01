@@ -91,7 +91,6 @@ def test_build_payload_maps_report_context_and_price_plan() -> None:
     payload = build_decision_signal_payload_from_report(
         result,
         context_snapshot=context_snapshot,
-        portfolio_context={"quantity": "200"},
         source_report_id=88,
         trace_id="trace-88",
         query_source="api",
@@ -124,7 +123,6 @@ def test_build_payload_maps_report_context_and_price_plan() -> None:
         "session_date": "2026-06-15",
         "minutes_to_close": 120,
     }
-    assert payload["metadata"]["holding_state"] == "holding"
 
 
 def test_build_payload_uses_result_fallbacks_and_optional_catalysts() -> None:
@@ -157,22 +155,6 @@ def test_build_payload_uses_result_fallbacks_and_optional_catalysts() -> None:
     assert "catalyst_summary" not in payload
     assert payload["trigger_source"] == "system"
     assert payload["confidence"] == 0.4
-    assert payload["metadata"]["holding_state"] == "unknown"
-
-
-def test_build_payload_records_empty_holding_state_from_explicit_portfolio_context() -> None:
-    payload = build_decision_signal_payload_from_report(
-        _result(),
-        portfolio_context={"quantity": 0},
-        trace_id="trace-empty-holding",
-        query_source="api",
-        report_type="simple",
-    )
-
-    assert payload is not None
-    assert payload["metadata"]["holding_state"] == "empty"
-
-
 def test_runtime_decision_signal_summary_is_not_serialized_by_analysis_result_to_dict() -> None:
     result = _result()
     setattr(result, "decision_signal_summary", {"action": "sell", "reason": "risk"})
@@ -272,7 +254,6 @@ def test_extract_and_persist_reuses_service_dedup_and_sanitization(isolated_db) 
     first = extract_and_persist_from_analysis_result(
         result,
         context_snapshot={"market_phase_summary": {"phase": "intraday"}},
-        portfolio_context={"quantity": 10},
         source_report_id=901,
         trace_id="trace-901",
         query_source="api",
@@ -282,7 +263,6 @@ def test_extract_and_persist_reuses_service_dedup_and_sanitization(isolated_db) 
     second = extract_and_persist_from_analysis_result(
         result,
         context_snapshot={"market_phase_summary": {"phase": "intraday"}},
-        portfolio_context={"quantity": 10},
         source_report_id=901,
         trace_id="trace-901",
         query_source="api",
@@ -303,7 +283,6 @@ def test_extract_and_persist_reuses_service_dedup_and_sanitization(isolated_db) 
     assert listed["total"] == 1
     persisted = listed["items"][0]
     assert persisted["source_report_id"] == 901
-    assert persisted["metadata"]["holding_state"] == "holding"
     assert persisted["reason"] == "趋势确认 token=[REDACTED]"
     assert persisted["entry_low"] == 1690.0
     assert persisted["entry_high"] == 1700.0

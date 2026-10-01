@@ -99,8 +99,6 @@ export interface DecisionSignalListParams {
   createdTo?: string;
   expiresFrom?: string;
   expiresTo?: string;
-  holdingOnly?: boolean;
-  accountId?: number;
   page?: number;
   pageSize?: number;
 }
@@ -152,7 +150,6 @@ export interface DecisionSignalOutcomeItem {
   sourceAgent?: string | null;
   planQuality?: DecisionSignalPlanQuality | null;
   dataQualityLevel?: string | null;
-  holdingState: 'holding' | 'empty' | 'unknown';
   createdAt?: string | null;
   updatedAt?: string | null;
 }

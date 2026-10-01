@@ -1768,7 +1768,7 @@ const settingsHelpEnUS: SettingsHelpMap = {
     summary: 'Configures basic price and volume alert rules via a JSON array.',
     usage: 'JSON array format. Each rule has alert_type, stock_code, and condition fields. Only price_cross, price_change_percent, and volume_spike are supported.',
     valueNotes: [
-      'Technical indicator, watchlist, portfolio, and market light rules are managed through the Alert API or Web alert center, not this JSON.',
+      'Technical indicator, watchlist, and market light rules are managed through the Alert API or Web alert center, not this JSON.',
       'Rules are evaluated periodically by the event monitor in schedule mode.',
     ],
     impact: ['Affects background alert detection and notification delivery.'],

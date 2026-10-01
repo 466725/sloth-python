@@ -11,7 +11,6 @@ from ai_stock.agent.agents.technical_agent import TechnicalAgent
 from ai_stock.agent.agents.intel_agent import IntelAgent
 from ai_stock.agent.agents.decision_agent import DecisionAgent
 from ai_stock.agent.agents.risk_agent import RiskAgent
-from ai_stock.agent.agents.portfolio_agent import PortfolioAgent
 
 __all__ = [
     "BaseAgent",
@@ -19,5 +18,4 @@ __all__ = [
     "IntelAgent",
     "DecisionAgent",
     "RiskAgent",
-    "PortfolioAgent",
 ]

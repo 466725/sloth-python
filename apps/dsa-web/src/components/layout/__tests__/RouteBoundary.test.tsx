@@ -42,7 +42,7 @@ describe('RouteOutletBoundary', () => {
               )}
             >
               <Route path="/chat" element={<BrokenLazyRoute />} />
-              <Route path="/portfolio" element={<div data-testid="portfolio-page">Portfolio</div>} />
+              <Route path="/" element={<div data-testid="home-page">Home</div>} />
             </Route>
           </Routes>
         </MemoryRouter>,
@@ -53,9 +53,9 @@ describe('RouteOutletBoundary', () => {
       expect(screen.getByRole('button', { name: '重新加载页面' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: '返回首页' })).toBeInTheDocument();
 
-      fireEvent.click(screen.getByRole('link', { name: '持仓' }));
+      fireEvent.click(screen.getByRole('link', { name: '首页' }));
 
-      expect(await screen.findByTestId('portfolio-page')).toBeInTheDocument();
+      expect(await screen.findByTestId('home-page')).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: '页面加载失败' })).not.toBeInTheDocument();
     } finally {
       consoleError.mockRestore();

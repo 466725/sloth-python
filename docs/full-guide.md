@@ -4,7 +4,7 @@ This is the main guide for Daily Stock Analysis (DSA). It covers features, quick
 
 ## 1. Overview
 
-DSA reads a watchlist and market data, combines technical indicators, news, and an LLM to generate analysis reports, and can save results to history or send them through notification channels. The Web workspace also provides Ask Stock, backtesting, portfolio views, alerts, and AI decision signals.
+DSA reads a watchlist and market data, combines technical indicators, news, and an LLM to generate analysis reports, and can save results to history or send them through notification channels. The Web workspace also provides Ask Stock, backtesting, alerts, and AI decision signals.
 
 ### Key Features
 
@@ -12,14 +12,14 @@ DSA reads a watchlist and market data, combines technical indicators, news, and 
 |---|---|
 | AI decision reports | Core conclusion, score, trend, entry/exit levels, risk alerts, catalysts, and action checklist |
 | Multi-market data | A-shares, Hong Kong, US, ETFs: quotes, K-lines, technical indicators, capital flow, chips, news, announcements, and fundamentals. Japan/Korea (Yahoo `.T` / `.KS` / `.KQ`): see market coverage below |
-| Web / desktop workspace | Manual analysis, task progress, history, full Markdown reports, backtest, portfolio, settings, and light/dark themes |
+| Web / desktop workspace | Manual analysis, task progress, history, full Markdown reports, backtest, settings, and light/dark themes |
 | Agent strategy chat | Multi-turn Q&A with 15 built-in strategies across Web/Bot/API |
 | Smart import & autocomplete | Image, CSV/Excel, clipboard import; code/name/pinyin/alias autocomplete |
 | Automation & notifications | GitHub Actions, Docker, local scheduler, FastAPI service, and WeChat Work / Feishu / Telegram / Discord / Slack / Email delivery |
 
 ### Market Coverage
 
-Coverage differs by market. A-shares, Hong Kong, and US stocks have the broadest support. Japan uses the `.T` suffix, Korea KOSPI uses `.KS`, and KOSDAQ uses `.KQ`. Japan/Korea currently use only the YFinance path: daily bars, basic/delayed quotes, and technical indicators. The following are **not guaranteed** for these markets: real-time quotes, full fundamentals, a complete market-wide symbol list, capital flow, dragon-tiger data, sector/board data, and market review. JPY/KRW exchange rates and portfolio valuation are also incomplete. **Missing data is not a zero value and not a bullish/bearish signal.**
+Coverage differs by market. A-shares, Hong Kong, and US stocks have the broadest support. Japan uses the `.T` suffix, Korea KOSPI uses `.KS`, and KOSDAQ uses `.KQ`. Japan/Korea currently use only the YFinance path: daily bars, basic/delayed quotes, and technical indicators. The following are **not guaranteed** for these markets: real-time quotes, full fundamentals, a complete market-wide symbol list, capital flow, dragon-tiger data, sector/board data, and market review. **Missing data is not a zero value and not a bullish/bearish signal.**
 
 ### Tech Stack & Data Sources
 
@@ -193,14 +193,14 @@ Multiple data sources fall back according to availability. A single source timin
 
 ## 6. Web UI and Main Workflows
 
-The Web workspace supports settings, task monitoring, manual analysis, history, full Markdown reports, Agent strategy chat, backtesting, portfolio management, alerts, decision signals, smart import, and light/dark themes. Authentication, smart import, autocomplete, report copying, and cloud-server access are documented in Local WebUI Management.
+The Web workspace supports settings, task monitoring, manual analysis, history, full Markdown reports, Agent strategy chat, backtesting, alerts, decision signals, smart import, and light/dark themes. Authentication, smart import, autocomplete, report copying, and cloud-server access are documented in Local WebUI Management.
 
 - **Analysis report:** submit a symbol from the Web home page, CLI, API, or Bot. Review the conclusion, risks, data sources, and report history. Reports are research aids, not investment advice.
 - **Market review:** can be triggered from the CLI, Web, or a scheduled task. It uses a different market context from single-stock analysis.
 - **Ask Stock / Agent strategy chat:** see below.
-- **Backtesting and portfolio:** backtesting evaluates historical rules; the portfolio page summarizes account snapshots and risk information. Results depend on market coverage, trading days, and data quality, and are not guarantees of future performance.
-- **AI decision signals:** organize the action tendency, evidence, risks, and follow-up watch conditions from a report in a structured way. They can be queried, given feedback, and evaluated against subsequent daily bars. Signals are research aids; they do not place orders or rebalance a portfolio.
-- **Real-time alerts:** evaluate market or portfolio conditions against rules, and record triggered, skipped, and degraded results along with notification attempts. See the alert guide for configuration and operating boundaries.
+- **Backtesting:** evaluates historical rules. Results depend on market coverage, trading days, and data quality, and are not guarantees of future performance.
+- **AI decision signals:** organize the action tendency, evidence, risks, and follow-up watch conditions from a report in a structured way. They can be queried, given feedback, and evaluated against subsequent daily bars. Signals are research aids; they do not place orders.
+- **Real-time alerts:** evaluate symbol, watchlist, or market conditions against rules, and record triggered, skipped, and degraded results along with notification attempts. See the alert guide for configuration and operating boundaries.
 - **Notifications and Bots:** see the Notification Guide for channels, routing, and diagnostics, and the Bot Guide for commands and supported messaging transports.
 - **Smart import:** supports image, CSV/Excel, and clipboard import, with code/name/pinyin/alias autocomplete. Image import requires a configured vision-capable model. Always verify recognized codes, names, and market suffixes manually, especially for similar-looking codes.
 - **AnalysisContextPack:** summarizes available data blocks and quality states. It improves visibility into missing, stale, or fallback data, but does not make unavailable data reliable.

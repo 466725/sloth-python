@@ -2008,31 +2008,6 @@ textarea {
   transform: none;
 }
 
-:root:not(.dark) .portfolio-page .btn-primary:not(:disabled),
-:root:not(.dark) .portfolio-page .btn-secondary:not(:disabled) {
-  box-shadow:
-    inset 0 1px 0 hsl(0 0% 100% / 0.7),
-    0 3px 8px hsl(220 18% 30% / 0.045),
-    0 10px 20px hsl(220 18% 30% / 0.075);
-}
-
-:root:not(.dark) .portfolio-page .btn-secondary:not(:disabled) {
-  border-color: hsl(218 22% 82% / 0.92);
-}
-
-:root:not(.dark) .portfolio-page .btn-secondary:hover:not(:disabled) {
-  box-shadow:
-    inset 0 1px 0 hsl(0 0% 100% / 0.76),
-    0 5px 12px hsl(220 18% 30% / 0.06),
-    0 14px 26px hsl(220 18% 30% / 0.1);
-}
-
-:root:not(.dark) .portfolio-page .btn-primary:hover:not(:disabled) {
-  box-shadow:
-    inset 0 1px 0 hsl(0 0% 100% / 0.18),
-    0 18px 34px rgba(0, 212, 255, 0.22);
-}
-
 .bg-hover {
   background: var(--bg-hover);
 }

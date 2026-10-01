@@ -11,7 +11,7 @@ from api.v1.schemas.history import AnalysisContextPackOverview
 from api.v1.schemas.market_phase import MarketPhaseSummary
 
 
-TargetScopeValue = Literal["single_symbol", "watchlist", "portfolio_holdings", "portfolio_account", "market"]
+TargetScopeValue = Literal["single_symbol", "watchlist", "market"]
 SeverityValue = Literal["info", "warning", "critical"]
 DryRunStatusValue = Literal["triggered", "not_triggered", "evaluation_error"]
 TargetRecordStatusValue = Literal["triggered", "skipped", "degraded", "failed"]

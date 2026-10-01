@@ -1,18 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { UiLanguageProvider } from '../../../contexts/UiLanguageContext';
-import { UI_LANGUAGE_STORAGE_KEY } from '../../../utils/uiLanguage';
 import { AlertRuleForm } from '../AlertRuleForm';
-
-const { getAccounts } = vi.hoisted(() => ({
-  getAccounts: vi.fn(),
-}));
-
-vi.mock('../../../api/portfolio', () => ({
-  portfolioApi: {
-    getAccounts,
-  },
-}));
 
 describe('AlertRuleForm', () => {
   const onSubmit = vi.fn();
@@ -20,19 +8,8 @@ describe('AlertRuleForm', () => {
   beforeEach(() => {
     onSubmit.mockReset();
     onSubmit.mockResolvedValue(undefined);
-    getAccounts.mockReset();
     window.localStorage.clear();
-    getAccounts.mockResolvedValue({ accounts: [{ id: 9, name: 'Main', market: 'us', baseCurrency: 'USD', isActive: true }] });
   });
-
-  function renderEnglishForm() {
-    window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'en');
-    render(
-      <UiLanguageProvider>
-        <AlertRuleForm onSubmit={onSubmit} />
-      </UiLanguageProvider>,
-    );
-  }
 
   it('submits a price_cross rule payload', async () => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
@@ -202,38 +179,6 @@ describe('AlertRuleForm', () => {
     });
   });
 
-  it('loads accounts and submits portfolio stop-loss mode', async () => {
-    render(<AlertRuleForm onSubmit={onSubmit} />);
-
-    fireEvent.change(screen.getByLabelText('目标范围'), { target: { value: 'portfolio_account' } });
-    await waitFor(() => expect(getAccounts).toHaveBeenCalledWith(false));
-    expect(screen.queryByText('价格突破')).not.toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText('账户'), { target: { value: '9' } });
-    fireEvent.change(screen.getByLabelText('止损模式'), { target: { value: 'breach' } });
-    fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
-    await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
-        targetScope: 'portfolio_account',
-        target: '9',
-        alertType: 'portfolio_stop_loss',
-        parameters: { mode: 'breach' },
-      }));
-    });
-  });
-
-  it('renders portfolio alert type options in English UI mode', async () => {
-    renderEnglishForm();
-
-    fireEvent.change(screen.getByLabelText('Target scope'), { target: { value: 'portfolio_account' } });
-
-    await waitFor(() => expect(getAccounts).toHaveBeenCalledWith(false));
-    expect(screen.getByRole('option', { name: 'Portfolio drawdown' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'Portfolio stop loss' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'Info' })).toBeInTheDocument();
-    expect(screen.queryByText('组合回撤')).not.toBeInTheDocument();
-  });
-
   it('submits a market light status rule payload', async () => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
 
@@ -268,15 +213,6 @@ describe('AlertRuleForm', () => {
         parameters: { minDrop: 12 },
       }));
     });
-  });
-
-  it('keeps all account option when account loading fails', async () => {
-    getAccounts.mockRejectedValueOnce(new Error('boom'));
-    render(<AlertRuleForm onSubmit={onSubmit} />);
-
-    fireEvent.change(screen.getByLabelText('目标范围'), { target: { value: 'portfolio_holdings' } });
-    expect(await screen.findByRole('alert')).toHaveTextContent('boom');
-    expect(screen.getByLabelText('账户')).toHaveValue('all');
   });
 
   it('keeps form values when submit reports failure', async () => {

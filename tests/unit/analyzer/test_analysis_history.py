@@ -1760,7 +1760,6 @@ class AnalysisHistoryTestCase(unittest.TestCase):
                 market="cn",
                 source_type="analysis",
                 plan_quality="minimal",
-                holding_state="holding",
             ))
             session.add(DecisionSignalFeedbackRecord(
                 signal_id=linked_signal_id,

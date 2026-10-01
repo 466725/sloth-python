@@ -58,10 +58,7 @@ def _add_signal(
             horizon=horizon,
             reason="unit test",
             data_quality_summary_json=json.dumps({"level": "good"}),
-            metadata_json=json.dumps({
-                "market_phase_summary": {"session_date": session_date},
-                "holding_state": "holding",
-            }),
+            metadata_json=json.dumps({"market_phase_summary": {"session_date": session_date}}),
             plan_quality="complete",
             status=status,
         )
@@ -124,14 +121,12 @@ def test_run_outcomes_evaluates_supported_horizons_and_stats(isolated_db) -> Non
     assert by_horizon["1d"]["outcome"] == "hit"
     assert by_horizon["3d"]["stock_return_pct"] == 5.0
     assert by_horizon["10d"]["eval_window_days"] == 10
-    assert by_horizon["10d"]["holding_state"] == "holding"
     assert by_horizon["10d"]["data_quality_level"] == "good"
 
     stats = service.get_stats(horizons=["1d", "3d", "5d", "10d"])
     assert stats["total"] == 4
     assert stats["hit"] == 4
     assert stats["breakdowns"]["action"][0]["value"] == "buy"
-    assert stats["breakdowns"]["holding_state"][0]["value"] == "holding"
 
 
 def test_stats_default_statuses_exclude_archived(isolated_db) -> None:

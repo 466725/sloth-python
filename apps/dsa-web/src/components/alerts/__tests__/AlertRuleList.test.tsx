@@ -2,9 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import type React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AlertRuleList } from '../AlertRuleList';
-import { UiLanguageProvider } from '../../../contexts/UiLanguageContext';
 import type { AlertRuleItem } from '../../../types/alerts';
-import { UI_LANGUAGE_STORAGE_KEY } from '../../../utils/uiLanguage';
 
 const rules: AlertRuleItem[] = [
   {
@@ -85,29 +83,6 @@ describe('AlertRuleList', () => {
     );
   }
 
-  function renderEnglishList(overrides: Partial<React.ComponentProps<typeof AlertRuleList>> = {}) {
-    window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'en');
-    render(
-      <UiLanguageProvider>
-        <AlertRuleList
-          rules={rules}
-          total={40}
-          page={1}
-          pageSize={20}
-          enabledFilter="all"
-          alertTypeFilter="all"
-          onEnabledFilterChange={onEnabledFilterChange}
-          onAlertTypeFilterChange={onAlertTypeFilterChange}
-          onPageChange={onPageChange}
-          onToggleEnabled={onToggleEnabled}
-          onDelete={onDelete}
-          onTest={onTest}
-          {...overrides}
-        />
-      </UiLanguageProvider>,
-    );
-  }
-
   it('renders rules, filters, and pagination', () => {
     renderList();
 
@@ -141,70 +116,6 @@ describe('AlertRuleList', () => {
     });
 
     expect(screen.getByText('未冷却')).toBeInTheDocument();
-  });
-
-  it('renders portfolio scope labels and child-target cooldown hint', () => {
-    renderList({
-      rules: [
-        {
-          id: 4,
-          name: '持仓 RSI',
-          targetScope: 'portfolio_holdings',
-          target: 'all',
-          alertType: 'rsi_threshold',
-          parameters: { direction: 'below', period: 12, threshold: 30 },
-          severity: 'warning',
-          enabled: true,
-          source: 'api',
-          cooldownActive: false,
-        },
-        {
-          id: 5,
-          name: '组合止损',
-          targetScope: 'portfolio_account',
-          target: '9',
-          alertType: 'portfolio_stop_loss',
-          parameters: { mode: 'breach' },
-          severity: 'critical',
-          enabled: true,
-          source: 'api',
-          cooldownActive: false,
-        },
-      ],
-    });
-
-    expect(screen.getByText('持仓标的')).toBeInTheDocument();
-    expect(screen.getByText('子目标见触发历史')).toBeInTheDocument();
-    expect(screen.getByText('账户 9')).toBeInTheDocument();
-    expect(screen.getAllByText('组合止损').length).toBeGreaterThan(0);
-    expect(screen.getByText('已触发止损')).toBeInTheDocument();
-  });
-
-  it('renders portfolio drawdown alert labels in English UI mode', () => {
-    renderEnglishList({
-      rules: [
-        {
-          id: 8,
-          name: 'Drawdown rule',
-          targetScope: 'portfolio_account',
-          target: 'all',
-          alertType: 'portfolio_drawdown',
-          parameters: {},
-          severity: 'warning',
-          enabled: true,
-          source: 'api',
-          cooldownActive: false,
-        },
-      ],
-    });
-
-    expect(screen.getByText('Alert rules')).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'All statuses' })).toBeInTheDocument();
-    expect(screen.getAllByText('Portfolio drawdown').length).toBeGreaterThan(0);
-    expect(screen.getByText('Portfolio account')).toBeInTheDocument();
-    expect(screen.getAllByText('Enabled').length).toBeGreaterThan(0);
-    expect(screen.getByText('Warning')).toBeInTheDocument();
-    expect(screen.queryByText('组合回撤')).not.toBeInTheDocument();
   });
 
   it('renders market scope labels, filters, and parameters', () => {

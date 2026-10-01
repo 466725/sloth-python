@@ -18,7 +18,6 @@ from api.v1.endpoints import (
     auth,
     agent,
     usage,
-    portfolio,
     alerts,
     decision_signals,
 )
@@ -32,7 +31,6 @@ __all__ = [
     "auth",
     "agent",
     "usage",
-    "portfolio",
     "alerts",
     "decision_signals",
 ]

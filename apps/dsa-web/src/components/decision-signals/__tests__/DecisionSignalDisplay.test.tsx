@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { UiLanguageProvider } from '../../../contexts/UiLanguageContext';
 import type { DecisionSignalItem } from '../../../types/decisionSignals';
-import { DecisionSignalCard, DecisionSignalDetails, PortfolioSignalSummary } from '../DecisionSignalDisplay';
+import { DecisionSignalCard, DecisionSignalDetails } from '../DecisionSignalDisplay';
 
 const signal: DecisionSignalItem = {
   id: 7,
@@ -177,7 +177,6 @@ describe('DecisionSignalDetails', () => {
               market: 'cn',
               planQuality: 'complete',
               dataQualityLevel: 'good',
-              holdingState: 'holding',
             },
           ]}
           feedback={{
@@ -204,15 +203,4 @@ describe('DecisionSignalDetails', () => {
     expect(onFeedbackSubmit).toHaveBeenCalledWith('not_useful');
   });
 
-  it('renders portfolio signal horizon using the current UI language', () => {
-    window.localStorage.setItem('dsa.uiLanguage', 'en');
-    render(
-      <UiLanguageProvider>
-        <PortfolioSignalSummary item={{ ...signal, horizon: '10d', action: 'sell', actionLabel: null }} />
-      </UiLanguageProvider>,
-    );
-
-    expect(screen.getByText('10 days')).toBeInTheDocument();
-    expect(screen.queryByText('10d')).not.toBeInTheDocument();
-  });
 });

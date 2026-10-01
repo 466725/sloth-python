@@ -27,24 +27,17 @@ from ai_stock.services.alert_indicators import (
     normalize_indicator_parameters,
     threshold_for_indicator,
 )
-from ai_stock.services.portfolio_alerts import (
+from ai_stock.services.alert_runtime import (
     DRY_RUN_TARGET_TIMEOUT_SECONDS,
     DRY_RUN_TOTAL_TIMEOUT_SECONDS,
-    PORTFOLIO_ALERT_TYPES,
     SYMBOL_BATCH_TARGET_SCOPES,
-    PortfolioRiskAlert,
     RuntimeAlertPayload,
     StaticAlertEvaluation,
     aggregate_dry_run_results,
-    ensure_active_portfolio_account,
-    evaluate_portfolio_risk_alert,
     evaluate_static_alert,
     expand_symbol_targets,
-    make_portfolio_risk_payload,
     make_static_payload,
     normalize_batch_target_scope_target,
-    normalize_portfolio_alert_parameters,
-    portfolio_effective_target,
     result_to_target_result,
 )
 from ai_stock.services.market_light_alerts import (
@@ -74,8 +67,8 @@ from ai_stock.utils.sanitize import sanitize_diagnostic_text
 
 LEGACY_RUNTIME_ALERT_TYPES = frozenset({"price_cross", "price_change_percent", "volume_spike"})
 SYMBOL_ALERT_TYPES = LEGACY_RUNTIME_ALERT_TYPES | TECHNICAL_ALERT_TYPES
-SUPPORTED_ALERT_TYPES = SYMBOL_ALERT_TYPES | PORTFOLIO_ALERT_TYPES | MARKET_ALERT_TYPES
-SUPPORTED_TARGET_SCOPES = frozenset({"single_symbol", "watchlist", "portfolio_holdings", "portfolio_account", "market"})
+SUPPORTED_ALERT_TYPES = SYMBOL_ALERT_TYPES | MARKET_ALERT_TYPES
+SUPPORTED_TARGET_SCOPES = frozenset({"single_symbol", "watchlist", "market"})
 SUPPORTED_SEVERITIES = frozenset({"info", "warning", "critical"})
 NULLABLE_RULE_UPDATE_FIELDS = frozenset({"cooldown_policy", "notification_policy"})
 
@@ -217,8 +210,6 @@ class AlertService:
             return await self._evaluate_volume(rule)
         if isinstance(rule, TechnicalIndicatorAlert):
             return await self._evaluate_technical_indicator(rule, daily_cache=daily_cache)
-        if isinstance(rule, PortfolioRiskAlert):
-            return await asyncio.to_thread(evaluate_portfolio_risk_alert, rule)
         if isinstance(rule, MarketLightAlert):
             return await asyncio.to_thread(evaluate_market_light_alert, rule, cache=daily_cache)
         if isinstance(rule, StaticAlertEvaluation):
@@ -695,8 +686,6 @@ class AlertService:
             return abs(float(rule.change_pct))
         if isinstance(rule, TechnicalIndicatorAlert):
             return threshold_for_indicator(rule.alert_type, rule.indicator_params)
-        if isinstance(rule, PortfolioRiskAlert):
-            return None
         if isinstance(rule, MarketLightAlert):
             if rule.alert_type == "market_light_score_drop":
                 return float(rule.parameters.get("min_drop", 0) or 0)
@@ -711,8 +700,6 @@ class AlertService:
             return "daily_data"
         if isinstance(rule, TechnicalIndicatorAlert):
             return "daily_data"
-        if isinstance(rule, PortfolioRiskAlert):
-            return "portfolio_risk"
         if isinstance(rule, MarketLightAlert):
             return MARKET_LIGHT_DATA_SOURCE
         return None
@@ -924,13 +911,7 @@ class AlertService:
             return
         if alert_type in MARKET_ALERT_TYPES:
             raise AlertServiceError("market alert types require target_scope=market")
-        if target_scope == "portfolio_account":
-            if alert_type not in PORTFOLIO_ALERT_TYPES:
-                raise AlertServiceError("portfolio_account only supports portfolio alert types")
-            return
-        if alert_type in PORTFOLIO_ALERT_TYPES:
-            raise AlertServiceError("portfolio alert types require target_scope=portfolio_account")
-        if target_scope in {"single_symbol", "watchlist", "portfolio_holdings"} and alert_type not in SYMBOL_ALERT_TYPES:
+        if target_scope in {"single_symbol", "watchlist"} and alert_type not in SYMBOL_ALERT_TYPES:
             raise UnsupportedAlertTypeError(f"unsupported alert_type for {target_scope}: {alert_type}")
 
     def _normalize_target(self, target_scope: str, target: str) -> str:
@@ -943,8 +924,6 @@ class AlertService:
                 raise AlertServiceError(str(exc)) from exc
         try:
             normalized = normalize_batch_target_scope_target(target_scope, target)
-            if target_scope in {"portfolio_holdings", "portfolio_account"}:
-                ensure_active_portfolio_account(normalized)
             return normalized
         except ValueError as exc:
             raise AlertServiceError(str(exc)) from exc
@@ -977,12 +956,6 @@ class AlertService:
             except ValueError as exc:
                 raise AlertServiceError(str(exc)) from exc
 
-        if alert_type in PORTFOLIO_ALERT_TYPES:
-            try:
-                return normalize_portfolio_alert_parameters(alert_type, parameters)
-            except ValueError as exc:
-                raise AlertServiceError(str(exc)) from exc
-
         if alert_type in MARKET_ALERT_TYPES:
             try:
                 return normalize_market_alert_parameters(alert_type, parameters)
@@ -1009,15 +982,20 @@ class AlertService:
         include_overflow_payload: bool = True,
     ) -> List[RuntimeAlertPayload]:
         data = self._serialize_rule_base(row)
+        if data["target_scope"] not in SUPPORTED_TARGET_SCOPES or data["alert_type"] not in SUPPORTED_ALERT_TYPES:
+            logger.info(
+                "[AlertService] Skipping retired alert rule %s with scope=%s type=%s",
+                data["id"],
+                data["target_scope"],
+                data["alert_type"],
+            )
+            return []
         parent_key = self._semantic_key(
             data["target_scope"],
             data["target"],
             data["alert_type"],
             data["parameters"],
         )
-
-        if data["alert_type"] in PORTFOLIO_ALERT_TYPES:
-            return [make_portfolio_risk_payload(parent_key=parent_key, data=data)]
 
         if data["alert_type"] in MARKET_ALERT_TYPES:
             return [make_market_light_payload(parent_key=parent_key, data=data, config=config)]
@@ -1079,7 +1057,7 @@ class AlertService:
                     overflow_count,
                 )
             if not payloads:
-                scope_label = "watchlist" if data["target_scope"] == "watchlist" else "portfolio holdings"
+                scope_label = "watchlist"
                 payloads.append(
                     make_static_payload(
                         parent_key=parent_key,
@@ -1176,14 +1154,9 @@ class AlertService:
 
     def _cooldown_summary_for_rule(self, row: AlertRuleRecord) -> Dict[str, Any]:
         try:
-            cooldown_target = (
-                portfolio_effective_target(str(row.target))
-                if str(row.target_scope) == "portfolio_account"
-                else str(row.target)
-            )
             cooldown = self.repo.get_rule_cooldown_summary(
                 rule_id=int(row.id),
-                target=cooldown_target,
+                target=str(row.target),
                 severity=str(row.severity) if row.severity else None,
             )
         except Exception as exc:
@@ -1293,14 +1266,6 @@ class AlertService:
             return f"{target} KDJ {parameters['direction']}"
         if alert_type == "cci_threshold":
             return f"{target} CCI{parameters['period']} {parameters['direction']} {parameters['threshold']}"
-        if alert_type == "portfolio_stop_loss":
-            return f"{target} portfolio stop loss {parameters.get('mode', 'near')}"
-        if alert_type == "portfolio_concentration":
-            return f"{target} portfolio concentration"
-        if alert_type == "portfolio_drawdown":
-            return f"{target} portfolio drawdown"
-        if alert_type == "portfolio_price_stale":
-            return f"{target} portfolio stale price"
         if alert_type == "market_light_status":
             statuses = ",".join(parameters.get("statuses") or ["red", "yellow"])
             return f"{target} market light status {statuses}"

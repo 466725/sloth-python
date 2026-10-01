@@ -238,7 +238,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
             {"query_id": "q-legacy", "trigger_source": "api"},
         )
 
-    def test_context_snapshot_strips_runtime_portfolio_context(self):
+    def test_context_snapshot_strips_runtime_prompt_context(self):
         pipeline = _make_pipeline(agent_mode=False, save_context_snapshot=True)
 
         snapshot = pipeline._build_context_snapshot(
@@ -246,11 +246,6 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
                 "code": "600519",
                 "daily_market_context_summary": "仅供prompt注入，不应入库存档",
                 "market_phase_context": _phase_payload(),
-                "portfolio_context": {
-                    "quantity": 100,
-                    "avg_cost": 1800,
-                    "unrealized_pnl_base": 5000,
-                },
             },
             news_content=None,
             realtime_quote=None,
@@ -258,9 +253,7 @@ class PipelineMarketPhaseContextTestCase(unittest.TestCase):
         )
 
         self.assertNotIn("market_phase_context", snapshot["enhanced_context"])
-        self.assertNotIn("portfolio_context", snapshot["enhanced_context"])
         self.assertNotIn("daily_market_context_summary", snapshot["enhanced_context"])
-        self.assertNotIn("avg_cost", str(snapshot))
 
     def test_agent_analysis_artifacts_helper_maps_initial_context_zero_fetch(self):
         pipeline = _make_pipeline(agent_mode=True, save_context_snapshot=True)

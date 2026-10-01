@@ -130,7 +130,7 @@ def test_format_public_phase_pack_excerpt_limits_and_redacts_public_fields() -> 
         {
             "phase": "intraday",
             "market": "cn",
-            "trigger_source": "portfolio",
+            "trigger_source": "api",
             "is_partial_bar": True,
         },
         {
@@ -148,7 +148,7 @@ def test_format_public_phase_pack_excerpt_limits_and_redacts_public_fields() -> 
     )
 
     assert "阶段：intraday" in excerpt
-    assert "触发来源：portfolio" in excerpt
+    assert "触发来源：api" in excerpt
     assert "摘要来源：最近分析快照" in excerpt
     assert "盘中数据提示" in excerpt
     assert "数据质量: limited" in excerpt

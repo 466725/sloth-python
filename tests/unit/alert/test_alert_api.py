@@ -27,7 +27,6 @@ from api.app import create_app
 from ai_stock.config import Config
 from ai_stock.repositories.alert_repo import AlertRepository
 from ai_stock.services.alert_service import AlertService
-from ai_stock.services.portfolio_service import PortfolioService
 from ai_stock.storage import AlertCooldownRecord, AlertNotificationRecord, AlertTriggerRecord, Base, DatabaseManager
 
 
@@ -313,68 +312,18 @@ class AlertApiTestCase(unittest.TestCase):
             self.assertEqual(resp.status_code, 400, resp.text)
             self.assertEqual(resp.json()["error"], "validation_error")
 
-    def test_p6_scope_type_matrix_and_target_validation(self) -> None:
-        account = PortfolioService().create_account(
-            name="Main",
-            broker="Demo",
-            market="us",
-            base_currency="USD",
-        )
-        valid_cases = [
-            {
-                "target_scope": "watchlist",
-                "target": "default",
-                "alert_type": "price_cross",
-                "parameters": {"direction": "above", "price": 10},
-            },
-            {
-                "target_scope": "portfolio_holdings",
-                "target": str(account["id"]),
-                "alert_type": "rsi_threshold",
-                "parameters": {"direction": "below", "period": 12, "threshold": 30},
-            },
-            {
-                "target_scope": "portfolio_account",
-                "target": "all",
-                "alert_type": "portfolio_stop_loss",
-                "parameters": {"mode": "breach"},
-            },
-        ]
-        for body in valid_cases:
-            resp = self.client.post("/api/v1/alerts/rules", json=body)
-            self.assertEqual(resp.status_code, 200, resp.text)
-            self.assertEqual(resp.json()["target_scope"], body["target_scope"])
-
-        invalid_cases = [
-            {
-                "target_scope": "watchlist",
-                "target": "600519",
-                "alert_type": "price_cross",
-                "parameters": {"direction": "above", "price": 10},
-            },
-            {
-                "target_scope": "portfolio_account",
-                "target": "all",
-                "alert_type": "price_cross",
-                "parameters": {"direction": "above", "price": 10},
-            },
-            {
-                "target_scope": "portfolio_holdings",
-                "target": "all",
-                "alert_type": "portfolio_drawdown",
-                "parameters": {},
-            },
-            {
-                "target_scope": "portfolio_account",
-                "target": "99999",
-                "alert_type": "portfolio_drawdown",
-                "parameters": {},
-            },
-        ]
-        for body in invalid_cases:
-            resp = self.client.post("/api/v1/alerts/rules", json=body)
-            self.assertEqual(resp.status_code, 400, resp.text)
-            self.assertEqual(resp.json()["error"], "validation_error")
+    def test_retired_portfolio_alert_scopes_are_rejected(self) -> None:
+        for target_scope in ("portfolio_holdings", "portfolio_account"):
+            resp = self.client.post(
+                "/api/v1/alerts/rules",
+                json={
+                    "target_scope": target_scope,
+                    "target": "all",
+                    "alert_type": "price_cross",
+                    "parameters": {"direction": "above", "price": 10},
+                },
+            )
+            self.assertEqual(resp.status_code, 422, resp.text)
 
     def test_p6_watchlist_dry_run_aggregates_targets_without_stock_code_validation(self) -> None:
         rule = self._create_rule({
@@ -426,32 +375,6 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(payload["skipped_count"], 1)
         self.assertEqual(payload["target_results"][0]["record_status"], "skipped")
         self.assertIn("timed out", payload["target_results"][0]["message"])
-
-    def test_p6_portfolio_account_cooldown_summary_uses_effective_target(self) -> None:
-        created = self._create_rule({
-            "name": "Portfolio drawdown",
-            "target_scope": "portfolio_account",
-            "target": "all",
-            "alert_type": "portfolio_drawdown",
-            "parameters": {},
-        })
-        repo = AlertRepository(self.db)
-        now_dt = datetime.now()
-        cooldown_until = now_dt + timedelta(minutes=5)
-        repo.upsert_cooldown(
-            rule_id=created["id"],
-            rule_key="portfolio_account:all:portfolio_drawdown:{}|account:all",
-            target="account:all",
-            severity="warning",
-            last_triggered_at=now_dt,
-            cooldown_until=cooldown_until,
-            reason="active cooldown",
-        )
-
-        detail_resp = self.client.get(f"/api/v1/alerts/rules/{created['id']}")
-
-        self.assertEqual(detail_resp.status_code, 200, detail_resp.text)
-        self.assertTrue(detail_resp.json()["cooldown_active"])
 
     def test_rejects_unsupported_and_invalid_rules(self) -> None:
         unsupported = self.client.post(

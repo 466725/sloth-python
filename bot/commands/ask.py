@@ -355,17 +355,6 @@ class AskCommand(BotCommand):
 
         parts = [f"📊 **多股对比分析** | 技能: {skill_name}", f"{'─' * 30}", ""]
 
-        remaining_timeout_s = max(0.0, overall_timeout_s - (time.monotonic() - started_at))
-        portfolio_section = self._build_portfolio_section(
-            config,
-            codes,
-            results,
-            timeout_s=remaining_timeout_s,
-        )
-        if portfolio_section:
-            parts.append(portfolio_section)
-            parts.append("")
-
         if len(results) >= 2:
             parts.append("| 股票 | 信号 | 置信度 | 摘要 |")
             parts.append("|------|------|--------|------|")
@@ -437,6 +426,15 @@ class AskCommand(BotCommand):
         return {"高": 0.85, "中": 0.65, "低": 0.45}.get(level)
 
     @staticmethod
+    def _extract_risk_flags(dashboard: Optional[Dict[str, Any]]) -> List[str]:
+        if not isinstance(dashboard, dict):
+            return []
+        risk_warning = dashboard.get("risk_warning")
+        if isinstance(risk_warning, str) and risk_warning.strip():
+            return [risk_warning.strip()]
+        return []
+
+    @staticmethod
     def _extract_summary(stock_code: str, dashboard: Optional[Dict[str, Any]], raw_content: str) -> str:
         if isinstance(dashboard, dict):
             for key in ("analysis_summary", "risk_warning", "trend_prediction"):
@@ -458,27 +456,6 @@ class AskCommand(BotCommand):
             if stripped and len(stripped) > 4 and not stripped.startswith(("{", "}", "\"")):
                 return stripped[:120]
         return f"{stock_code} 分析完成"
-
-    @staticmethod
-    def _extract_risk_flags(dashboard: Optional[Dict[str, Any]]) -> List[Dict[str, str]]:
-        if not isinstance(dashboard, dict):
-            return []
-
-        flags: List[Dict[str, str]] = []
-        dashboard_block = dashboard.get("dashboard")
-        if not isinstance(dashboard_block, dict):
-            dashboard_block = {}
-        intelligence = dashboard_block.get("intelligence")
-        if not isinstance(intelligence, dict):
-            intelligence = {}
-        for alert in intelligence.get("risk_alerts", [])[:5]:
-            if isinstance(alert, str) and alert.strip():
-                flags.append({"category": "portfolio_input", "description": alert.strip(), "severity": "medium"})
-
-        risk_warning = dashboard.get("risk_warning")
-        if isinstance(risk_warning, str) and risk_warning.strip():
-            flags.append({"category": "portfolio_input", "description": risk_warning.strip(), "severity": "medium"})
-        return flags
 
     @staticmethod
     def _format_sniper_value(value: Any) -> Optional[str]:
@@ -559,117 +536,3 @@ class AskCommand(BotCommand):
 
         return "\n\n".join(lines) if lines else raw_content[:800]
 
-    def _build_portfolio_section(
-        self,
-        config,
-        codes: List[str],
-        results: Dict[str, Dict[str, Any]],
-        timeout_s: Optional[float] = None,
-    ) -> str:
-        """Generate a portfolio-level overlay for multi-stock ask results."""
-        if len(results) < 2:
-            return ""
-
-        if timeout_s is not None and timeout_s <= 0:
-            logger.info("[AskCommand] Skip portfolio overlay because no timeout budget remains")
-            return ""
-
-        def _render_overlay() -> str:
-            from ai_stock.agent.agents.portfolio_agent import PortfolioAgent
-            from ai_stock.agent.factory import get_tool_registry
-            from ai_stock.agent.llm_adapter import LLMToolAdapter
-            from ai_stock.agent.protocols import AgentContext
-
-            stock_opinions: Dict[str, Dict[str, Any]] = {}
-            risk_flags: List[Dict[str, str]] = []
-            stock_list: List[str] = []
-            for code in codes:
-                item = results.get(code)
-                if not item:
-                    continue
-                stock_list.append(code)
-                stock_opinions[code] = {
-                    "signal": item.get("signal", "unknown"),
-                    "confidence": item.get("confidence", 0.5),
-                    "summary": item.get("summary", ""),
-                    "stock_name": item.get("stock_name", code),
-                }
-                risk_flags.extend(item.get("risk_flags", []))
-
-            ctx = AgentContext(query=f"Portfolio overlay for {', '.join(stock_list)}")
-            ctx.data["stock_opinions"] = stock_opinions
-            ctx.data["stock_list"] = stock_list
-            ctx.risk_flags.extend(risk_flags[:10])
-
-            agent = PortfolioAgent(
-                tool_registry=get_tool_registry(),
-                llm_adapter=LLMToolAdapter(config),
-            )
-            stage_result = agent.run(ctx)
-            if not stage_result.success:
-                return ""
-
-            assessment = ctx.data.get("portfolio_assessment")
-            if not isinstance(assessment, dict):
-                return ""
-
-            lines = ["## 组合视角", ""]
-            summary = assessment.get("summary")
-            if isinstance(summary, str) and summary.strip():
-                lines.append(summary.strip())
-                lines.append("")
-
-            risk_score = assessment.get("portfolio_risk_score")
-            if risk_score is not None:
-                lines.append(f"- 组合风险分: {risk_score}")
-            sector_warnings = assessment.get("sector_warnings") or []
-            if sector_warnings:
-                lines.append(f"- 行业集中: {'；'.join(str(item) for item in sector_warnings[:3])}")
-            correlation_warnings = assessment.get("correlation_warnings") or []
-            if correlation_warnings:
-                lines.append(f"- 相关性风险: {'；'.join(str(item) for item in correlation_warnings[:3])}")
-            rebalance = assessment.get("rebalance_suggestions") or []
-            if rebalance:
-                lines.append(f"- 调仓建议: {'；'.join(str(item) for item in rebalance[:3])}")
-            positions = assessment.get("positions") or []
-            if positions:
-                position_parts = []
-                for position in positions[:5]:
-                    if not isinstance(position, dict):
-                        continue
-                    code = position.get("code")
-                    weight = position.get("suggested_weight")
-                    signal = position.get("signal")
-                    if code and weight is not None:
-                        try:
-                            weight_text = f"{float(weight):.0%}"
-                        except (TypeError, ValueError):
-                            weight_text = str(weight)
-                        suffix = f" ({signal})" if signal else ""
-                        position_parts.append(f"{code}: {weight_text}{suffix}")
-                if position_parts:
-                    lines.append(f"- 建议仓位: {'；'.join(position_parts)}")
-
-            return "\n".join(lines)
-
-        if timeout_s is None:
-            try:
-                return _render_overlay()
-            except Exception as exc:
-                logger.warning("[AskCommand] Portfolio overlay failed: %s", exc)
-                return ""
-
-        from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
-
-        pool = ThreadPoolExecutor(max_workers=1)
-        future = pool.submit(_render_overlay)
-        try:
-            return future.result(timeout=timeout_s)
-        except FutureTimeoutError:
-            logger.warning("[AskCommand] Portfolio overlay timed out after %.2fs", timeout_s)
-            return ""
-        except Exception as exc:
-            logger.warning("[AskCommand] Portfolio overlay failed: %s", exc)
-            return ""
-        finally:
-            pool.shutdown(wait=False, cancel_futures=True)

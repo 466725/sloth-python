@@ -35,12 +35,6 @@ vi.mock('../../api/alerts', () => ({
   },
 }));
 
-vi.mock('../../api/portfolio', () => ({
-  portfolioApi: {
-    getAccounts: vi.fn().mockResolvedValue({ accounts: [] }),
-  },
-}));
-
 const parsedError = {
   title: '加载失败',
   message: '告警 API 不可用',

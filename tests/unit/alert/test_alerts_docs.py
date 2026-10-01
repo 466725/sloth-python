@@ -203,19 +203,13 @@ def test_alerts_doc_defines_p5_indicator_scope() -> None:
         assert token in doc
 
 
-def test_alerts_doc_defines_p6_portfolio_and_watchlist_scope() -> None:
+def test_alerts_doc_defines_p6_watchlist_scope() -> None:
     doc = _read_doc()
 
     for token in (
-        "## P6 持仓与自选股联动",
+        "## P6 自选股联动",
         "P6 scope/type 矩阵",
         "`watchlist`",
-        "`portfolio_holdings`",
-        "`portfolio_account`",
-        "`portfolio_stop_loss`",
-        "`portfolio_concentration`",
-        "`portfolio_drawdown`",
-        "`portfolio_price_stale`",
         "Target Identity Contract",
         "`effective_target`",
         "`RuntimeAlertRule.key`",
@@ -225,11 +219,12 @@ def test_alerts_doc_defines_p6_portfolio_and_watchlist_scope() -> None:
         "soft cap",
         "cooldown_active",
         "父规则摘要",
-        "legacy `AGENT_EVENT_ALERT_RULES_JSON` 不支持 watchlist、portfolio",
-        "sector 级集中度",
+        "legacy `AGENT_EVENT_ALERT_RULES_JSON` 不支持 watchlist",
         "P6 PR",
     ):
         assert token in doc
+
+    assert "portfolio_" not in doc
 
 
 def test_alerts_doc_defines_p7_market_light_scope() -> None:

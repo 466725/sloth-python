@@ -172,8 +172,6 @@ function toListParams(params: DecisionSignalListParams = {}): Record<string, str
     created_to: params.createdTo,
     expires_from: params.expiresFrom,
     expires_to: params.expiresTo,
-    holding_only: params.holdingOnly,
-    account_id: params.accountId,
     page: params.page,
     page_size: params.pageSize,
   }) as Record<string, string | number | boolean>;

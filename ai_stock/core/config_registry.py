@@ -3883,7 +3883,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "description": (
             "JSON array of Event Monitor rules loaded by schedule mode. "
             "Legacy JSON supports only price_cross, price_change_percent, and volume_spike. "
-            "Technical indicator, watchlist, portfolio, and market light alert rules "
+            "Technical indicator, watchlist, and market light alert rules "
             "are available through the Alert API/Web center."
         ),
         "category": "agent",

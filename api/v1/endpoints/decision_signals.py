@@ -118,7 +118,6 @@ def create_signal(request: DecisionSignalCreateRequest) -> DecisionSignalMutatio
         "当 source_type=analysis 且只传 source_report_id 查询时，若无命中信号会尝试基于该历史报告一次性懒回填 "
         "（仅首次命中列表场景，且该精确查询会触发历史决策信号回填写入，属于 read-with-write 行为；"
         "不影响其他分页列表筛选参数场景）。"
-        "holding_only=true 只读取 active 账户的 portfolio_positions 缓存持仓，不触发 portfolio snapshot replay。"
     ),
     operation_id="listDecisionSignals",
 )
@@ -136,11 +135,6 @@ def list_signals(
     created_to: Optional[str] = Query(None, description="Inclusive created_at upper bound"),
     expires_from: Optional[str] = Query(None, description="Inclusive expires_at lower bound"),
     expires_to: Optional[str] = Query(None, description="Inclusive expires_at upper bound"),
-    holding_only: bool = Query(False, description="Filter to active cached portfolio holdings only"),
-    account_id: Optional[int] = Query(
-        None,
-        description="Optional active portfolio account id for holding_only",
-    ),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
 ) -> DecisionSignalListResponse:
@@ -161,8 +155,6 @@ def list_signals(
                 created_to=created_to,
                 expires_from=expires_from,
                 expires_to=expires_to,
-                holding_only=holding_only,
-                account_id=account_id,
                 page=page,
                 page_size=page_size,
             )

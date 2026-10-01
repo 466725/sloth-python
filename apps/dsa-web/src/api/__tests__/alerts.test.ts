@@ -233,17 +233,17 @@ describe('alertsApi', () => {
     expect(scoreDropRule.parameters.minDrop).toBe(12);
   });
 
-  it('creates portfolio alert rules and maps batch dry-run fields', async () => {
+  it('creates watchlist alert rules and maps batch dry-run fields', async () => {
     post
       .mockResolvedValueOnce({
         data: {
           id: 5,
-          name: 'portfolio stop loss',
-          target_scope: 'portfolio_account',
-          target: 'all',
-          alert_type: 'portfolio_stop_loss',
-          parameters: { mode: 'breach' },
-          severity: 'critical',
+          name: 'watchlist RSI',
+          target_scope: 'watchlist',
+          target: 'default',
+          alert_type: 'rsi_threshold',
+          parameters: { direction: 'below', period: 12, threshold: 30 },
+          severity: 'warning',
           enabled: true,
           source: 'api',
         },
@@ -276,26 +276,26 @@ describe('alertsApi', () => {
       });
 
     const created = await alertsApi.createRule({
-      name: 'portfolio stop loss',
-      targetScope: 'portfolio_account',
-      target: 'all',
-      alertType: 'portfolio_stop_loss',
-      parameters: { mode: 'breach' },
-      severity: 'critical',
+      name: 'watchlist RSI',
+      targetScope: 'watchlist',
+      target: 'default',
+      alertType: 'rsi_threshold',
+      parameters: { direction: 'below', period: 12, threshold: 30 },
+      severity: 'warning',
       enabled: true,
     });
     const dryRun = await alertsApi.testRule(5);
 
     expect(post).toHaveBeenNthCalledWith(1, '/api/v1/alerts/rules', {
-      name: 'portfolio stop loss',
-      target_scope: 'portfolio_account',
-      target: 'all',
-      alert_type: 'portfolio_stop_loss',
-      parameters: { mode: 'breach' },
-      severity: 'critical',
+      name: 'watchlist RSI',
+      target_scope: 'watchlist',
+      target: 'default',
+      alert_type: 'rsi_threshold',
+      parameters: { direction: 'below', period: 12, threshold: 30 },
+      severity: 'warning',
       enabled: true,
     });
-    expect(created.parameters.mode).toBe('breach');
+    expect(created.targetScope).toBe('watchlist');
     expect(dryRun.evaluatedCount).toBe(2);
     expect(dryRun.degradedCount).toBe(1);
     expect(dryRun.targetResults?.[0].displayTarget).toBe('自选股 - 600519');

@@ -456,7 +456,7 @@ def test_list_signals_does_not_backfill_ambiguous_history_default_decision_type_
         assert session.query(DecisionSignalRecord).count() == 0
 
 
-def test_list_signals_explicit_stock_identities_override_holding_only_and_intersect_filters(isolated_db) -> None:
+def test_list_signals_explicit_stock_identities_intersect_filters(isolated_db) -> None:
     service = DecisionSignalService(db_manager=isolated_db)
     service.create_signal(
         _payload(
@@ -478,7 +478,6 @@ def test_list_signals_explicit_stock_identities_override_holding_only_and_inters
 
     listed = service.list_signals(
         stock_identities=[("cn", "000001")],
-        holding_only=True,
         status="active",
     )
 

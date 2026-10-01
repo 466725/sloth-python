@@ -475,28 +475,3 @@ export const DecisionSignalDetails: React.FC<DecisionSignalDetailsProps> = ({
   );
 };
 
-type PortfolioSignalSummaryProps = {
-  item?: DecisionSignalItem;
-  loading?: boolean;
-};
-
-export const PortfolioSignalSummary: React.FC<PortfolioSignalSummaryProps> = ({ item, loading = false }) => {
-  const { t } = useUiLanguage();
-  if (loading && !item) {
-    return <span className="text-xs text-secondary-text">{t('decisionSignals.portfolioLoading')}</span>;
-  }
-  if (!item) {
-    return <span className="text-xs text-muted-text">{t('decisionSignals.portfolioEmpty')}</span>;
-  }
-  const actionLabel = getActionLabel(item, t);
-  return (
-    <div className="min-w-[11rem] max-w-[18rem] text-left">
-      <div className="flex flex-wrap items-center justify-end gap-1.5">
-        <Badge variant={getActionVariant(item)}>{actionLabel}</Badge>
-        {item.horizon ? <span className="text-[11px] text-secondary-text">{getDecisionSignalHorizonLabel(item.horizon, t)}</span> : null}
-      </div>
-      {item.riskSummary ? <p className="mt-1 line-clamp-2 text-[11px] text-warning">{item.riskSummary}</p> : null}
-      {item.watchConditions ? <p className="mt-1 line-clamp-2 text-[11px] text-secondary-text">{item.watchConditions}</p> : null}
-    </div>
-  );
-};

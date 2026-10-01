@@ -70,7 +70,6 @@ const outcome: DecisionSignalOutcomeItem = {
   outcome: 'hit',
   directionExpected: 'not_down',
   directionCorrect: true,
-  holdingState: 'holding',
 };
 
 const nextOutcome: DecisionSignalOutcomeItem = {

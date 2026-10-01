@@ -82,7 +82,6 @@ class TaskInfo:
     original_query: Optional[str] = None
     selection_source: Optional[str] = None
     query_source: str = "api"
-    portfolio_context: Optional[Dict[str, Any]] = None
     skills: Optional[List[str]] = None
     report_language: Optional[str] = None
     trace_id: Optional[str] = None
@@ -128,7 +127,6 @@ class TaskInfo:
             original_query=self.original_query,
             selection_source=self.selection_source,
             query_source=self.query_source,
-            portfolio_context=dict(self.portfolio_context) if isinstance(self.portfolio_context, dict) else None,
             skills=list(self.skills) if self.skills is not None else None,
             report_language=self.report_language,
             trace_id=self.trace_id or self.task_id,
@@ -326,7 +324,6 @@ class AnalysisTaskQueue:
         original_query: Optional[str] = None,
         selection_source: Optional[str] = None,
         query_source: str = "api",
-        portfolio_context: Optional[Dict[str, Any]] = None,
         report_type: str = "detailed",
         analysis_phase: str = "auto",
         force_refresh: bool = False,
@@ -361,7 +358,6 @@ class AnalysisTaskQueue:
             original_query=original_query,
             selection_source=selection_source,
             query_source=query_source,
-            portfolio_context=portfolio_context,
             report_type=report_type,
             analysis_phase=analysis_phase,
             force_refresh=force_refresh,
@@ -379,7 +375,6 @@ class AnalysisTaskQueue:
         original_query: Optional[str] = None,
         selection_source: Optional[str] = None,
         query_source: str = "api",
-        portfolio_context: Optional[Dict[str, Any]] = None,
         report_type: str = "detailed",
         analysis_phase: str = "auto",
         force_refresh: bool = False,
@@ -426,7 +421,6 @@ class AnalysisTaskQueue:
                     original_query=original_query,
                     selection_source=selection_source,
                     query_source=query_source or "api",
-                    portfolio_context=dict(portfolio_context) if isinstance(portfolio_context, dict) else None,
                     skills=task_skills,
                     report_language=report_language,
                 )
@@ -688,7 +682,6 @@ class AnalysisTaskQueue:
             trace_id = task.trace_id or task_id
             analysis_phase = task.analysis_phase
             query_source = task.query_source or "api"
-            portfolio_context = dict(task.portfolio_context) if isinstance(task.portfolio_context, dict) else None
             task.status = TaskStatus.PROCESSING
             task.started_at = datetime.now()
             task.message = "正在分析中..."
@@ -727,7 +720,6 @@ class AnalysisTaskQueue:
                 skills=skills,
                 analysis_phase=analysis_phase,
                 query_source=query_source,
-                portfolio_context=portfolio_context,
                 report_language=report_language,
             )
             reset_run_diagnostic_context(diag_token)

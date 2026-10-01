@@ -430,7 +430,7 @@ class AlertWorker:
             or metadata.get("target_scope")
             or ""
         ).strip()
-        if target_scope in {"market", "portfolio_account"}:
+        if target_scope == "market":
             return None
         target = str(
             metadata.get("effective_target")
@@ -544,8 +544,6 @@ class AlertWorker:
             target_scope = str(getattr(rule, "target_scope", "") or "")
             if target_scope == "market":
                 market = normalize_market_region(getattr(rule, "target", self._effective_target(runtime_rule)))
-            elif target_scope in {"portfolio_account"}:
-                market = None
             else:
                 market = get_market_for_stock(normalize_stock_code(self._effective_target(runtime_rule)))
             context = build_market_phase_context(
@@ -576,7 +574,7 @@ class AlertWorker:
     def _recent_history_pack_overview(self, runtime_rule: RuntimeAlertRule) -> Optional[Dict[str, Any]]:
         rule = getattr(runtime_rule, "rule", runtime_rule)
         target_scope = str(getattr(rule, "target_scope", "") or "")
-        if target_scope in {"market", "portfolio_account"}:
+        if target_scope == "market":
             return None
         target = self._effective_target(runtime_rule)
         if not target or target == "?":

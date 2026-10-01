@@ -60,13 +60,10 @@ function formatParameters(rule: AlertRuleItem, language: UiLanguage): string {
     }
     return `KDJ(${rule.parameters.period ?? '--'},${rule.parameters.kPeriod ?? '--'},${rule.parameters.dPeriod ?? '--'}) ${direction}`;
   }
-  if (rule.alertType === 'portfolio_stop_loss') {
-    return rule.parameters.mode === 'breach' ? directionLabels.stopLossBreach : directionLabels.stopLossNear;
+  if (rule.alertType === 'cci_threshold') {
+    return `CCI${rule.parameters.period ?? '--'} ${rule.parameters.direction === 'below' ? directionLabels.belowThreshold : directionLabels.aboveThreshold} ${rule.parameters.threshold ?? '--'}`;
   }
-  if (rule.alertType === 'portfolio_concentration') return 'top_weight_pct';
-  if (rule.alertType === 'portfolio_drawdown') return 'max_drawdown_pct';
-  if (rule.alertType === 'portfolio_price_stale') return 'price_stale / price_available';
-  return `CCI${rule.parameters.period ?? '--'} ${rule.parameters.direction === 'below' ? directionLabels.belowThreshold : directionLabels.aboveThreshold} ${rule.parameters.threshold ?? '--'}`;
+  return '--';
 }
 
 function isCoolingDown(rule: AlertRuleItem): boolean {
@@ -76,17 +73,11 @@ function isCoolingDown(rule: AlertRuleItem): boolean {
 function formatTarget(rule: AlertRuleItem, language: UiLanguage): string {
   if (rule.targetScope === 'market') return ALERT_MARKET_REGION_LABELS[language][rule.target as MarketRegion] ?? rule.target;
   if (rule.targetScope === 'watchlist') return 'default';
-  if (rule.targetScope === 'portfolio_account' || rule.targetScope === 'portfolio_holdings') {
-    const text = ALERT_LIST_TEXT[language];
-    return rule.target === 'all'
-      ? text.allAccounts
-      : formatUiText(text.accountTarget, { target: rule.target });
-  }
   return rule.target;
 }
 
 function hasChildTargetCooldown(rule: AlertRuleItem): boolean {
-  return rule.targetScope === 'watchlist' || rule.targetScope === 'portfolio_holdings';
+  return rule.targetScope === 'watchlist';
 }
 
 interface AlertRuleListProps {
@@ -196,7 +187,7 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
                   </td>
                   <td className="px-3 py-3">
                     <div className="flex flex-col items-start gap-1">
-                      <Badge variant="info">{ALERT_TYPE_LABELS[language][rule.alertType]}</Badge>
+                      <Badge variant="info">{ALERT_TYPE_LABELS[language][rule.alertType] ?? rule.alertType}</Badge>
                       <Badge variant={rule.severity === 'critical' ? 'danger' : rule.severity === 'warning' ? 'warning' : 'default'}>
                         {ALERT_SEVERITY_LABELS[language][rule.severity] ?? rule.severity}
                       </Badge>
