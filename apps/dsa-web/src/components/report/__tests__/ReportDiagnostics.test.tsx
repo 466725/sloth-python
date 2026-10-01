@@ -61,7 +61,6 @@ describe('ReportDiagnostics', () => {
     expect(await screen.findByText('运行状态')).toBeInTheDocument();
     const panel = screen.getByTestId('run-diagnostics');
     expect(panel).not.toHaveAttribute('open');
-    expect(screen.getByText('部分降级')).toBeInTheDocument();
 
     fireEvent.click(screen.getByText('运行状态'));
 

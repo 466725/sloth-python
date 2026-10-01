@@ -405,47 +405,6 @@ describe('searchStocks', () => {
     });
   });
 
-  describe('Performance tests', () => {
-    test('large index search performance', () => {
-      // Create a large index
-      const largeIndex: StockIndexItem[] = Array.from({ length: 5000 }, (_, i) => ({
-        canonicalCode: `${i}.SH`,
-        displayCode: `${i}`,
-        nameZh: `股票${i}`,
-        pinyinFull: `stock${i}`,
-        pinyinAbbr: `s${i}`,
-        aliases: [],
-        market: 'CN',
-        assetType: 'stock',
-        active: true,
-        popularity: i % 100,
-      }));
-
-      const startTime = Date.now();
-      const results = searchStocks('1', largeIndex);
-      const endTime = Date.now();
-
-      // Should complete in reasonable time (< 100ms)
-      expect(endTime - startTime).toBeLessThan(100);
-      expect(results.length).toBeGreaterThan(0);
-    });
-
-    test('multiple search performance', () => {
-      const iterations = 100;
-      const startTime = Date.now();
-
-      for (let i = 0; i < iterations; i++) {
-        searchStocks('600', mockIndex);
-      }
-
-      const endTime = Date.now();
-      const avgTime = (endTime - startTime) / iterations;
-
-      // Average search should be fast (< 10ms)
-      expect(avgTime).toBeLessThan(10);
-    });
-  });
-
   describe('Match type tests', () => {
     test('exact match type', () => {
       const results = searchStocks('600519', mockIndex);

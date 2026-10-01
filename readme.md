@@ -653,7 +653,6 @@ sloth-python/
 ├── robot_tests/                # Robot Framework API, calculator, UI, DDT, and unit suites
 ├── self_healing/               # Shared Playwright locator-recovery framework
 ├── skill_spring/               # Learning and research tracks
-├── test_data/                  # Test-data creation scripts and fixtures
 ├── utils/                      # Domain-oriented shared helpers (shared config lives in utils/config/config.py)
 ├── temps/                      # Generated reports, logs, videos, static build output, and temporary results
 ├── .github/workflows/          # GitHub Actions CI/CD definitions

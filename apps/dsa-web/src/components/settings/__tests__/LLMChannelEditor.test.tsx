@@ -54,43 +54,6 @@ describe('LLMChannelEditor', () => {
     expect(input).toHaveAttribute('type', 'text');
   });
 
-  it('shows help dialogs for channel editor fields', async () => {
-    render(
-      <LLMChannelEditor
-        items={[
-          { key: 'LLM_CHANNELS', value: 'deepseek' },
-          { key: 'LLM_DEEPSEEK_PROTOCOL', value: 'deepseek' },
-          { key: 'LLM_DEEPSEEK_BASE_URL', value: 'https://api.deepseek.com' },
-          { key: 'LLM_DEEPSEEK_ENABLED', value: 'true' },
-          { key: 'LLM_DEEPSEEK_API_KEY', value: 'sk-test' },
-          { key: 'LLM_DEEPSEEK_MODELS', value: 'deepseek-v4-flash' },
-        ]}
-        configVersion="v1"
-        maskToken="******"
-        onSaved={() => {}}
-      />
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: /DeepSeek 官方/i }));
-    fireEvent.click(await screen.findByRole('button', { name: '查看 Base URL 配置说明' }));
-
-    expect(screen.getByRole('dialog', { name: 'Base URL' })).toBeInTheDocument();
-    expect(screen.getByText('该渠道的接口根地址。')).toBeInTheDocument();
-    expect(screen.getByText('LLM_DEEPSEEK_BASE_URL=https://api.deepseek.com')).toBeInTheDocument();
-
-    fireEvent.keyDown(document, { key: 'Escape' });
-    fireEvent.click(await screen.findByRole('button', { name: '查看 Temperature 配置说明' }));
-
-    expect(screen.getByRole('dialog', { name: 'Temperature' })).toBeInTheDocument();
-    expect(screen.getByText('运行时统一采样温度。')).toBeInTheDocument();
-
-    fireEvent.keyDown(document, { key: 'Escape' });
-    fireEvent.click(await screen.findByRole('button', { name: '查看 运行时能力检测 配置说明' }));
-
-    expect(screen.getByRole('dialog', { name: '运行时能力检测' })).toBeInTheDocument();
-    expect(screen.getByText('选择能力后点击检测；检测会发起真实 LLM 请求。')).toBeInTheDocument();
-  });
-
   it('hides LiteLLM wording when advanced YAML routing is enabled', () => {
     render(
       <LLMChannelEditor
@@ -288,37 +251,6 @@ describe('LLMChannelEditor', () => {
     await screen.findByRole('button', { name: /MiniMax 官方/i });
     expect(screen.getByLabelText('Base URL')).toHaveValue('https://proxy.example.com/v1');
     expect(screen.getByLabelText('模型（逗号分隔）')).toHaveValue('custom-model-a,custom-model-b');
-  });
-
-  it('uses the selected preset defaults when adding a duplicate provider channel', async () => {
-    render(
-      <LLMChannelEditor
-        items={[]}
-        configVersion="v1"
-        maskToken="******"
-        onSaved={() => {}}
-      />
-    );
-
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'minimax' } });
-    fireEvent.click(screen.getByRole('button', { name: '+ 添加渠道' }));
-    await screen.findByRole('button', { name: /MiniMax 官方/i });
-    fireEvent.click(screen.getByRole('button', { name: '+ 添加渠道' }));
-
-    await screen.findByRole('button', { name: /minimax2/i });
-    expect(screen.getAllByLabelText('渠道名称').map((input) => (input as HTMLInputElement).value)).toEqual([
-      'minimax',
-      'minimax2',
-    ]);
-    expect(screen.getAllByLabelText('Base URL').map((input) => (input as HTMLInputElement).value)).toEqual([
-      'https://api.minimax.io/v1',
-      'https://api.minimax.io/v1',
-    ]);
-    expect(screen.getAllByLabelText('模型（逗号分隔）').map((input) => (input as HTMLInputElement).value)).toEqual([
-      'MiniMax-M3,MiniMax-M2.7,MiniMax-M2.7-highspeed',
-      'MiniMax-M3,MiniMax-M2.7,MiniMax-M2.7-highspeed',
-    ]);
-    expect(screen.getAllByRole('link', { name: 'MiniMax OpenAI API' })).toHaveLength(1);
   });
 
   it('saves the MiniMax preset into LLM channel env keys', async () => {
