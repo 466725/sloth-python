@@ -4,10 +4,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Cypress
-cypress/screenshots/
-cypress/videos/
-cypress/downloads/
+# Cypress output now lives under the repo-root temps/ folder (see ../../temps/cypress_dsa_web)
 
 # TypeScript
 *.tsbuildinfo
@@ -34,12 +31,8 @@ Thumbs.db
 logs
 *.log
 
-# Allure results
-allure-report/
-allure-results/
+# Allure results (Playwright only; Cypress output lives under ../../temps/cypress_dsa_web)
 test-results/
-cypress/allure-report/
-cypress/allure-results/
 playwright/allure-report/
 playwright/allure-results/
 playwright/screenshots/

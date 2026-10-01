@@ -1,0 +1,7 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","1722","should show dynamic menu when hovering over Save","","2026-03-17","passed","2026-03-17","","Tangerine Homepage","",""
+"","1380","should display 'Get Our App' links","","2026-03-17","passed","2026-03-17","","Tangerine Homepage","",""
+"","3535","should load the homepage and show the logo","","2026-03-17","passed","2026-03-17","","Tangerine Homepage","",""
+"","4814","should verify the Sign Up page loads","","2026-03-17","passed","2026-03-17","","Tangerine Registration","",""
+"","10650","Logging in input should be displayed","","2026-03-17","passed","2026-03-17","","Tangerine Login Page","",""
+"","6960","should capture analytics events","","2026-03-17","passed","2026-03-17","","Tangerine Homepage","",""

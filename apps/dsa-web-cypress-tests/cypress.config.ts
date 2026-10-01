@@ -1,7 +1,10 @@
 import { defineConfig } from "cypress";
+import path from "node:path";
 import allureWriter from "@shelex/cypress-allure-plugin/writer";
 
 const baseUrl = process.env.BASE_URL || "https://www.tangerine.ca/en/personal";
+// Shared test-output root used across the repo (gitignored at the project root).
+const reportsRoot = path.resolve(__dirname, "../../temps/cypress_dsa_web");
 
 export default defineConfig({
 
@@ -12,6 +15,10 @@ export default defineConfig({
   chromeWebSecurity: false,
   video: false,
 
+  screenshotsFolder: path.join(reportsRoot, "screenshots"),
+  videosFolder: path.join(reportsRoot, "videos"),
+  downloadsFolder: path.join(reportsRoot, "downloads"),
+
   retries: {
     runMode: 2,
     openMode: 0
@@ -20,7 +27,7 @@ export default defineConfig({
   env: {
     environment: "prod",
     allure: true,
-    allureResultsPath: "cypress/allure-results"
+    allureResultsPath: path.join(reportsRoot, "allure-results")
   },
 
   e2e: {
