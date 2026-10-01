@@ -17,10 +17,10 @@ Tushare 股票列表获取脚本
         * 美股：120积分试用，5000积分正式权限
 
 输出文件：
-    - data/stock_list_a.csv      A股列表（--a-rk 时会覆盖为修正后名称）
-    - data/stock_list_hk.csv     港股列表
-    - data/stock_list_us.csv     美股列表
-    - data/README_stock_list.md  数据说明文档
+    - ai_stock/stock_data/stock_list_a.csv      A股列表（--a-rk 时会覆盖为修正后名称）
+    - ai_stock/stock_data/stock_list_hk.csv     港股列表
+    - ai_stock/stock_data/stock_list_us.csv     美股列表
+    - ai_stock/stock_data/README_stock_list.md  数据说明文档
 """
 
 import argparse
@@ -51,7 +51,7 @@ except ImportError:
 load_dotenv()
 
 TUSHARE_TOKEN = os.getenv('TUSHARE_TOKEN')
-OUTPUT_DIR = Path(__file__).parent.parent / "data"
+OUTPUT_DIR = Path(__file__).parent.parent / "ai_stock" / "stock_data"
 PAGE_SIZE = 5000  # 美股每页读取数量（API 最大6000，设置5000留余量）
 SLEEP_MIN = 5     # 最小睡眠时间（秒）
 SLEEP_MAX = 10    # 最大睡眠时间（秒）
@@ -532,13 +532,13 @@ BABA,阿里巴巴,Alibaba Group Holding Ltd.,ADR,20140919,
 import pandas as pd
 
 # 读取 A股数据
-a_stocks = pd.read_csv('data/{a_filename}')
+a_stocks = pd.read_csv('ai_stock/stock_data/{a_filename}')
 
 # 读取港股数据
-hk_stocks = pd.read_csv('data/stock_list_hk.csv')
+hk_stocks = pd.read_csv('ai_stock/stock_data/stock_list_hk.csv')
 
 # 读取美股数据
-us_stocks = pd.read_csv('data/stock_list_us.csv')
+us_stocks = pd.read_csv('ai_stock/stock_data/stock_list_us.csv')
 ```
 
 ### 代码格式说明

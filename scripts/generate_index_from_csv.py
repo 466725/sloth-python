@@ -95,7 +95,7 @@ def load_tushare_data(data_dir: Path) -> List[Dict[str, Any]]:
     """
     all_stocks = []
     seed_dir = Path(__file__).parent / 'stock_index_seeds'
-    default_data_dir = Path(__file__).parent.parent / 'data'
+    default_data_dir = Path(__file__).parent.parent / 'ai_stock' / 'stock_data'
     use_seed_fallback = data_dir.resolve() == default_data_dir.resolve()
 
     def _csv_path(file_name: str) -> Path:
@@ -643,7 +643,7 @@ def main():
     # 加载数据
     print("\n[1/5] 读取 CSV 数据...")
     if args.source == 'tushare':
-        data_dir = Path(__file__).parent.parent / 'data'
+        data_dir = Path(__file__).parent.parent / 'ai_stock' / 'stock_data'
         stocks = load_tushare_data(data_dir)
     elif args.source == 'akshare':
         logs_dir = Path(__file__).parent.parent / 'logs'

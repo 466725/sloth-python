@@ -22,7 +22,7 @@ TUSHARE_TOKEN=你的tushare_token
 python3 scripts/fetch_tushare_stock_list.py
 ```
 
-如需针对 A 股名称状态做修正，可以加上 `--a-rk`，脚本会保持 `stock_basic` 作为基础来源，再用 `rt_k` 对带 `XD`、`XR`、`DR`、`N`、`C` 前缀的名称进行回填，并覆盖输出到 `data/stock_list_a.csv`：
+如需针对 A 股名称状态做修正，可以加上 `--a-rk`，脚本会保持 `stock_basic` 作为基础来源，再用 `rt_k` 对带 `XD`、`XR`、`DR`、`N`、`C` 前缀的名称进行回填，并覆盖输出到 `ai_stock/stock_data/stock_list_a.csv`：
 
 ```bash
 python3 scripts/fetch_tushare_stock_list.py --a-rk
@@ -93,7 +93,7 @@ BABA,阿里巴巴,Alibaba Group,ADR,20140919,...
 import pandas as pd
 
 # 读取 A股
-a_stocks = pd.read_csv('data/stock_list_a.csv')
+a_stocks = pd.read_csv('ai_stock/stock_data/stock_list_a.csv')
 print(f"A股数量: {len(a_stocks)}")
 
 # 筛选主板股票

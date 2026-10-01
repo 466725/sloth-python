@@ -82,12 +82,12 @@ Set the required provider key, such as `OPENAI_API_KEY`, through the environment
 Quick local check for shared settings:
 
 ```powershell
-python -m config.config
+python -m utils.config.config
 ```
 
 ## 🐳 Docker and Database
 
-The local MySQL service is defined in `docker_compose.yml`. It stores data in the named `mysql-data` Docker volume, so stopping or recreating the container does not remove the database.
+The local MySQL service is defined in `docker/docker-compose.yml`. It stores data in the named `mysql-data` Docker volume, so stopping or recreating the container does not remove the database.
 
 ### Start and manage MySQL
 
@@ -95,19 +95,19 @@ Run these commands from the repository root:
 
 ```powershell
 # Start MySQL in the background
-docker compose -f docker_compose.yml up -d mysql
+docker compose -f docker/docker-compose.yml up -d mysql
 
 # Check container and health status
-docker compose -f docker_compose.yml ps mysql
+docker compose -f docker/docker-compose.yml ps mysql
 
 # Follow MySQL startup and server logs
-docker compose -f docker_compose.yml logs -f mysql
+docker compose -f docker/docker-compose.yml logs -f mysql
 
 # Stop MySQL while retaining its data volume
-docker compose -f docker_compose.yml stop mysql
+docker compose -f docker/docker-compose.yml stop mysql
 
 # Start an existing stopped MySQL container
-docker compose -f docker_compose.yml start mysql
+docker compose -f docker/docker-compose.yml start mysql
 ```
 
 The service is exposed at `localhost:3306` by default. Set `SLOTH_MYSQL_PORT` before starting Compose to use another host port.
@@ -646,22 +646,22 @@ Each runnable subproject carries its own setup instructions. For the Claude/MCP 
 ```text
 sloth-python/
 ├── ai_gen/                     # AI + MCP prompt-to-test generation
-├── ai_stock/                   # AI-assisted stock analysis and reporting
-├── config/                     # Shared runtime configuration
+├── ai_stock/                   # AI-assisted stock analysis and reporting (storage, templates, cache under ai_stock/stock_data)
+├── apps/                       # dsa-web (React/Vite frontend) and dsa-web-cypress-tests
 ├── load_tests/                 # JMeter, load-runner, and Postman assets
 ├── pytest_tests/               # Pytest unit, API, UI, DDT, and AI tests
 ├── robot_tests/                # Robot Framework API, calculator, UI, DDT, and unit suites
 ├── self_healing/               # Shared Playwright locator-recovery framework
 ├── skill_spring/               # Learning and research tracks
 ├── test_data/                  # Test-data creation scripts and fixtures
-├── utils/                      # Domain-oriented shared helpers
-├── temps/                      # Generated reports, logs, videos, and temporary results
+├── utils/                      # Domain-oriented shared helpers (shared config lives in utils/config/config.py)
+├── temps/                      # Generated reports, logs, videos, static build output, and temporary results
 ├── .github/workflows/          # GitHub Actions CI/CD definitions
 ├── .vscode/                    # Workspace settings
+├── docs/                       # Guides, including the security policy
 ├── pyproject.toml              # Python tooling and pytest configuration
 ├── readme.md                   # Project documentation
 ├── requirements.txt            # Python dependencies
-├── security.md                 # Security policy
 └── uv.lock                     # uv dependency lock file
 ```
 
@@ -673,6 +673,8 @@ sloth-python/
 | Self-healing locators | [Self-Healing Framework](#-self-healing-framework-playwright) |
 | AI-assisted test generation | [AI-Generated UI Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp) |
 | Stock analysis | [AI Stock Architecture](ai_stock/readme.md), [DSA User Guide](#-daily-stock-analysis-dsa-user-guide) |
+| DSA Web frontend | [dsa-web Readme](apps/dsa-web/readme.md) |
+| DSA Web Cypress tests | [dsa-web-cypress-tests Readme](apps/dsa-web-cypress-tests/Readme.md) |
 | Database utilities | [Database Utilities](utils/data_base/README.md) |
 | Learning material | [Skill Spring Learning Notes](skill_spring/claude_code/claude_code_learning.md) |
 

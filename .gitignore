@@ -19,6 +19,9 @@ ai_stock/stock_data/*
 !ai_stock/stock_data/*.py
 ai_stock/stock_data/cache/
 
+### Legacy root-level data dir (superseded by ai_stock/stock_data; some scripts/tests still regen this by accident) ###
+/data/
+
 ### Packaging / build artifacts ###
 build/
 dist/
