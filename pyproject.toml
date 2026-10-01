@@ -59,7 +59,8 @@ norecursedirs = [
   "dist",
   "local",
   "node_modules",
-  "*/node_modules/*"
+  "*/node_modules/*",
+  "skill_spring"
 ]
 
 markers = [
