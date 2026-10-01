@@ -32,7 +32,13 @@ jobs:
         run: python -m pytest -m "unit or api" --tb=short
 
       - name: Run Robot Framework smoke tests
-        run: python -m robot --outputdir temps/robot_smoke tests/robot_tests/
+        run: >
+          python -m robot --outputdir temps/robot_smoke
+          tests/robot_tests/api_suites
+          tests/robot_tests/test_basics.robot
+          tests/robot_tests/test_data_driven.robot
+          tests/robot_tests/test_data_driven_with_csv.robot
+          tests/robot_tests/test_keyword_driven.robot
 
       - name: Upload smoke artifacts
         if: always()
