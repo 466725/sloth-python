@@ -2,7 +2,7 @@ import { defineConfig } from "cypress";
 import path from "node:path";
 import allureWriter from "@shelex/cypress-allure-plugin/writer";
 
-const baseUrl = process.env.BASE_URL || "https://www.tangerine.ca/en/personal";
+const baseUrl = process.env.BASE_URL || "http://localhost:8000";
 // Shared test-output root used across the repo (gitignored at the project root).
 const reportsRoot = path.resolve(__dirname, "../../temps/cypress_dsa_web");
 
@@ -27,7 +27,8 @@ export default defineConfig({
   env: {
     environment: "prod",
     allure: true,
-    allureResultsPath: path.join(reportsRoot, "allure-results")
+    // cypress-allure-plugin joins this with process.cwd() internally, so it must stay relative.
+    allureResultsPath: path.relative(__dirname, path.join(reportsRoot, "allure-results"))
   },
 
   e2e: {

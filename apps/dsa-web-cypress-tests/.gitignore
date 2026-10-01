@@ -31,11 +31,8 @@ Thumbs.db
 logs
 *.log
 
-# Allure results (Playwright only; Cypress output lives under ../../temps/cypress_dsa_web)
+# Allure results (Cypress output lives under ../../temps/cypress_dsa_web)
 test-results/
-playwright/allure-report/
-playwright/allure-results/
-playwright/screenshots/
 
 # Queries subproject generated logs
 queries/post-log.json

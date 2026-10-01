@@ -21,7 +21,6 @@
   "include": [
     "*.config.ts",
     "cypress/**/*.ts",
-    "playwright/**/*.ts",
     "src/**/*.ts"
   ],
   "exclude": [

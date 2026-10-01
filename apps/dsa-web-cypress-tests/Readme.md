@@ -2,10 +2,6 @@
 
 Frontend UI test automation package for the [`apps/dsa-web`](../dsa-web) application, using TypeScript. Cypress is the test runner, with Page Object Model classes and Allure reporting.
 
-## Status
-
-This package was bootstrapped from an earlier Tangerine Bank automation project. The specs under `cypress/tests/` and page objects under `cypress/support/pages/` still target `https://www.tangerine.ca/en/personal` and are **placeholders, not `dsa-web` coverage yet**. Real `dsa-web` specs will be added next; until then, use these files as structural references only (Page Object Model layout, Allure wiring, config shape).
-
 ## Tech Stack
 
 - Node.js 18+
@@ -19,9 +15,8 @@ This package was bootstrapped from an earlier Tangerine Bank automation project.
 ```text
 dsa-web-cypress-tests/
 |-- cypress/
-|   |-- tests/             # *.cy.ts specs (currently Tangerine placeholders)
+|   |-- tests/             # *.cy.ts specs
 |   `-- support/
-|       |-- commands.ts
 |       |-- config.ts
 |       |-- e2e.ts
 |       `-- pages/          # Page Object Model classes
@@ -67,24 +62,26 @@ npm install
 
 ### Base URL
 
-`cypress.config.ts` reads `BASE_URL`, currently defaulting to the Tangerine placeholder (`https://www.tangerine.ca/en/personal`). Update the default and/or set `BASE_URL` to point at the local `dsa-web` dev server once real specs are added.
+`cypress.config.ts` reads `BASE_URL`, defaulting to the local DSA backend (`http://localhost:8000`). The backend serves the built `dsa-web` app; start it before running tests (see the root [readme.md](../../readme.md) run modes, e.g. `python main.py --serve-only`).
 
 PowerShell:
 
 ```powershell
-$env:BASE_URL="http://localhost:5173"
+$env:BASE_URL="http://localhost:8000"
 npm test
 ```
 
 bash:
 
 ```bash
-BASE_URL="http://localhost:5173" npm test
+BASE_URL="http://localhost:8000" npm test
 ```
 
-### Test Credentials
+To instead test against the Vite dev server (`npm run dev` under `apps/dsa-web`, no backend required for static/UI-only checks), set `BASE_URL=http://localhost:5173`.
 
-Sample credentials are defined in `cypress/support/config.ts`. Do not commit real secrets; use environment variables for anything resembling production credentials.
+### Test Config Helpers
+
+`cypress/support/config.ts` exposes `getBaseUrl()` for specs/page objects that need the resolved base URL at runtime.
 
 ## Running Cypress Tests
 
@@ -97,8 +94,13 @@ Sample credentials are defined in `cypress/support/config.ts`. Do not commit rea
 
 ```bash
 # Run a single spec
-npx cypress run --spec "cypress/tests/login.cy.ts"
+npx cypress run --spec "cypress/tests/home.cy.ts"
 ```
+
+## Current Test Coverage
+
+- `cypress/tests/home.cy.ts` + `cypress/support/pages/DsaHomePage.ts`: home page loads and the "Analyze" button is visible.
+- `cypress/tests/dsa_web_smoke.cy.ts`: backend-independent sanity check that the app shell renders and the page title is correct; useful for verifying the Cypress setup itself without requiring the backend or auth to be configured.
 
 ## Allure Reporting
 
@@ -112,10 +114,9 @@ Results: `temps/cypress_dsa_web/allure-results`; report: `temps/cypress_dsa_web/
 ## Troubleshooting
 
 - `allure: command not found`: run `npm install` and confirm Java is installed (`java -version`).
-- Cypress fails on first page load: confirm `BASE_URL` points at a reachable target (Tangerine placeholder requires internet access; a local `dsa-web` target requires the dev server to be running).
+- Cypress fails on first page load: confirm `BASE_URL` points at a reachable target and the DSA backend (or Vite dev server) is running.
 
 ## Next Steps
 
-- Replace the Tangerine placeholder specs and page objects with coverage for `dsa-web` flows.
-- Point `cypress.config.ts` `baseUrl` at the `dsa-web` dev/preview server.
-- Add a CI workflow for this package once real specs exist.
+- Add specs/page objects for additional `dsa-web` flows (Ask Stock, Backtest, Alerts, Settings, login/auth).
+- Add a CI workflow for this package.
