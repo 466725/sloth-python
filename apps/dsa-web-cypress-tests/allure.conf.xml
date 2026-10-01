@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<resultsDirectory>${projectDir}/cypress/results</resultsDirectory>
+	<reportTitle>Tangerine Bank Test Report</reportTitle>
+	<extensions>
+		<extension>
+			<format>html</format>
+			<pattern>./allure-report</pattern>
+		</extension>
+	</extensions>
+</configuration>
