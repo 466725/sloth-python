@@ -2206,13 +2206,13 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "is_sensitive": False,
         "is_required": False,
         "is_editable": True,
-        "default_value": "templates",
+        "default_value": "ai_stock/templates",
         "options": [],
         "validation": {},
         "display_order": 57,
         "help_key": "settings.report.REPORT_TEMPLATES_DIR",
         "examples": [
-            "REPORT_TEMPLATES_DIR=templates",
+            "REPORT_TEMPLATES_DIR=ai_stock/templates",
             "REPORT_TEMPLATES_DIR=custom_templates",
         ],
         "docs": [

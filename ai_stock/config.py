@@ -797,7 +797,7 @@ class Config:
     report_show_llm_model: bool = True
 
     # Report Engine P0: Jinja2 renderer and integrity checks
-    report_templates_dir: str = "templates"  # Template directory (relative to project root)
+    report_templates_dir: str = "ai_stock/templates"  # Template directory (relative to project root)
     report_renderer_enabled: bool = False  # Enable Jinja2 rendering (default off for zero regression)
     report_integrity_enabled: bool = True  # Content integrity validation after LLM output
     report_integrity_retry: int = 1  # Retry count when mandatory fields missing (0 = placeholder only)
@@ -1611,7 +1611,7 @@ class Config:
             report_language=cls._parse_report_language(report_language_raw),
             report_summary_only=os.getenv('REPORT_SUMMARY_ONLY', 'false').lower() == 'true',
             report_show_llm_model=report_show_llm_model,
-            report_templates_dir=os.getenv('REPORT_TEMPLATES_DIR', 'templates'),
+            report_templates_dir=os.getenv('REPORT_TEMPLATES_DIR', 'ai_stock/templates'),
             report_renderer_enabled=os.getenv('REPORT_RENDERER_ENABLED', 'false').lower() == 'true',
             report_integrity_enabled=os.getenv('REPORT_INTEGRITY_ENABLED', 'true').lower() == 'true',
             report_integrity_retry=parse_env_int(os.getenv('REPORT_INTEGRITY_RETRY'), 1, field_name='REPORT_INTEGRITY_RETRY', minimum=0),

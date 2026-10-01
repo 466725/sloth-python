@@ -2,7 +2,7 @@ import importlib
 
 import pytest
 
-from utils import config as config_module
+from utils.config import config as config_module
 
 CONFIG_ENV_VARS = [
     "TANGERINE_URL",

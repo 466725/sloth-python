@@ -53,7 +53,7 @@ def _make_result(
 
 def _make_renderer_config(show_llm_model: bool = True) -> MagicMock:
     config = MagicMock()
-    config.report_templates_dir = "templates"
+    config.report_templates_dir = "ai_stock/templates"
     config.report_language = "zh"
     config.report_show_llm_model = show_llm_model
     return config
