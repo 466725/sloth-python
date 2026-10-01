@@ -71,7 +71,7 @@ def main(argv: List[str]) -> int:
     if len(argv) > 1:
         static_dir = Path(argv[1]).resolve()
     else:
-        static_dir = (Path(__file__).resolve().parent.parent / "static").resolve()
+        static_dir = (Path(__file__).resolve().parent.parent / "temps" / "static").resolve()
 
     print(f"[check_static_assets] inspecting {static_dir}")
 

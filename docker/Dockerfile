@@ -54,7 +54,7 @@ COPY bot/ ./bot/
 #COPY ai_stock/ ./src/
 COPY ai_stock/ ./ai_stock/
 COPY strategies/ ./strategies/
-COPY --from=web-builder /app/static ./static/
+COPY --from=web-builder /app/temps/static ./temps/static/
 COPY docker/entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 # 确保数据目录存在并授权给 non-root 用户

@@ -207,9 +207,9 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
     Returns:
         配置完成的 FastAPI 应用实例
     """
-    # 默认静态文件目录
+    # 默认静态文件目录（Vite 构建产物，已在 .gitignore 中忽略）
     if static_dir is None:
-        static_dir = Path(__file__).parent.parent / "static"
+        static_dir = Path(__file__).parent.parent / "temps" / "static"
     
     # 创建 FastAPI 实例
     app = FastAPI(

@@ -68,8 +68,8 @@ def _max_mtime(paths: Iterable[Path]) -> float:
 
 
 def _resolve_artifact_index(frontend_dir: Path) -> Path:
-    # Prefer static/index.html because it is the configured output path in this repo.
-    static_index = (frontend_dir / ".." / ".." / "static" / "index.html").resolve()
+    # Prefer temps/static/index.html because it is the configured Vite output path in this repo.
+    static_index = (frontend_dir / ".." / ".." / "temps" / "static" / "index.html").resolve()
     dist_index = frontend_dir / "dist" / "index.html"
     build_index = frontend_dir / "build" / "index.html"
     if static_index.exists():

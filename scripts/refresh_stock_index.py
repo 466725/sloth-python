@@ -5,7 +5,7 @@
 Default flow:
 1. Fetch Tushare stock lists into ``data/`` with ``--a-rk`` for A-share name correction.
 2. Generate ``apps/dsa-web/public/stocks.index.json`` from CSV plus JP/KR seed rows.
-3. Copy the generated index to ``static/stocks.index.json`` for backend use.
+3. Copy the generated index to ``temps/static/stocks.index.json`` to mirror the local dev build output.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ from typing import Sequence
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 WEB_INDEX_PATH = REPO_ROOT / "apps" / "dsa-web" / "public" / "stocks.index.json"
-STATIC_INDEX_PATH = REPO_ROOT / "static" / "stocks.index.json"
+STATIC_INDEX_PATH = REPO_ROOT / "temps" / "static" / "stocks.index.json"
 
 
 def _run(command: Sequence[str]) -> None:

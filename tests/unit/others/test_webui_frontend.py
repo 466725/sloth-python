@@ -13,8 +13,8 @@ def _prepare_fake_repo(tmp_path, monkeypatch):
 
 
 def _create_full_static(repo_root):
-    """Create static/index.html + static/assets/*.js/.css (complete build)."""
-    static_dir = repo_root / "static"
+    """Create temps/static/index.html + assets/*.js/.css (complete build)."""
+    static_dir = repo_root / "temps" / "static"
     assets_dir = static_dir / "assets"
     assets_dir.mkdir(parents=True)
     (static_dir / "index.html").write_text("<!doctype html>", encoding="utf-8")
@@ -55,7 +55,7 @@ def test_prepare_webui_frontend_assets_fails_without_static_or_source(tmp_path, 
 def test_prepare_webui_frontend_assets_warns_when_assets_missing(tmp_path, monkeypatch, caplog):
     """index.html 存在但 static/assets/ 缺失时应发出 WebUI 显示异常警告（Issue #944）。"""
     repo_root = _prepare_fake_repo(tmp_path, monkeypatch)
-    static_index = repo_root / "static" / "index.html"
+    static_index = repo_root / "temps" / "static" / "index.html"
     static_index.parent.mkdir(parents=True)
     static_index.write_text("<!doctype html>", encoding="utf-8")
     # No assets directory created — simulates incomplete/broken build
@@ -75,7 +75,7 @@ def test_prepare_webui_frontend_assets_warns_when_assets_missing(tmp_path, monke
 def test_prepare_webui_frontend_assets_auto_build_disabled_warns_when_assets_missing(tmp_path, monkeypatch, caplog):
     """WEBUI_AUTO_BUILD=false 且 assets 缺失时也应发出警告。"""
     repo_root = _prepare_fake_repo(tmp_path, monkeypatch)
-    static_index = repo_root / "static" / "index.html"
+    static_index = repo_root / "temps" / "static" / "index.html"
     static_index.parent.mkdir(parents=True)
     static_index.write_text("<!doctype html>", encoding="utf-8")
     # No assets directory — simulates state where only index.html exists

@@ -115,8 +115,8 @@ export default defineConfig({
     },
   },
   build: {
-    // 打包输出到项目根目录的 static 文件夹
-    outDir: path.resolve(__dirname, '../../static'),
+    // 打包输出到项目根目录的 temps/static 文件夹（已在 .gitignore 中忽略）
+    outDir: path.resolve(__dirname, '../../temps/static'),
     emptyOutDir: true,
     rollupOptions: {
       output: {
