@@ -38,7 +38,7 @@ jobs:
       - name: Run Robot Framework smoke tests
         run: |
           mkdir -p temps/robot_smoke
-          python -m robot --outputdir temps/robot_smoke tests/robot_tests/calculator/
+          python -m robot --outputdir temps/robot_smoke tests/robot_tests/
       - name: Upload smoke artifacts
         if: always()
         uses: actions/upload-artifact@v4

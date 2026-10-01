@@ -9,7 +9,6 @@
 - 遵循现有目录边界：
   - 后端逻辑优先放在 `../ai_stock`、`stock_data/`、`api/`、`bot/`
   - Web 前端改动在 `../apps/dsa-web`
-  - 桌面端改动在 `../apps/dsa-desktop`
   - 部署与流水线改动在 `../scripts`、`.github/workflows/`、`docker/`
 - 未经明确确认，不执行 `git commit`、`git tag`、`git push`。
 - commit message 使用英文，不添加 `Co-Authored-By`。
@@ -63,7 +62,6 @@ python scripts/check_ai_assets.py
   - `../main.py`：分析任务主入口
   - `../server.py`：FastAPI 服务入口
   - `../apps/dsa-web`：Web 前端
-  - `../apps/dsa-desktop`：Electron 桌面端
   - `../.github/workflows`：CI、发布、每日任务
 - 核心职责：
   - `src/core/`：主流程编排
@@ -105,16 +103,12 @@ python -m pytest -m "not network"
 python -m py_compile <changed_python_files>
 ```
 
-### Web / Desktop
+### Web
 
 ```bash
 cd apps/dsa-web
 npm ci
 npm run lint
-npm run build
-
-cd ../dsa-desktop
-npm install
 npm run build
 ```
 
@@ -130,8 +124,8 @@ gh run view <run_id> --log-failed
 
 1. 先判断任务类型：`fix / feat / refactor / docs / chore / test / review`
 2. 先读现有实现、配置、测试、脚本、工作流和文档，再动手修改。
-3. 识别改动边界：后端 / API / Web / Desktop / Workflow / Docs / AI 协作资产。
-4. 先判断是否命中高风险区域：配置语义、API / Schema、数据源 fallback、报告结构、认证、调度、发布流程、桌面端启动链路。
+3. 识别改动边界：后端 / API / Web / Workflow / Docs / AI 协作资产。
+4. 先判断是否命中高风险区域：配置语义、API / Schema、数据源 fallback、报告结构、认证、调度、发布流程。
 5. 只做和当前任务直接相关的最小改动，不顺手夹带无关重构。
 6. 如果发现文档、脚本、工作流描述不一致，优先信任实际代码与工作流，再决定是否顺手修正文档。
 7. 改完后按下面的验证矩阵执行检查。
@@ -173,13 +167,8 @@ gh run view <run_id> --log-failed
   - 默认执行：`cd apps/dsa-web && npm ci && npm run lint && npm run build`
   - 若涉及 API 联调、路由、状态管理、Markdown/图表渲染或认证状态，交付说明中要明确说明联动面和未覆盖风险。
 
-- 桌面端改动：
-  - 适用范围：`../apps/dsa-desktop`、`scripts/run-desktop.ps1`、`scripts/build-desktop*.ps1`、`scripts/build-*.sh`、`docs/desktop-package.md`
-  - 默认执行：先构建 Web，再构建桌面端
-  - 如受平台限制未能完整验证，需要明确说明是否验证了 Web 构建产物、Electron 构建以及 Release 工作流影响。
-
 - API / Schema / 认证联动改动：
-  - 适用范围：`api/**`、`src/schemas/**`、`src/services/**`、`apps/dsa-web/**`、`apps/dsa-desktop/**`
+  - 适用范围：`api/**`、`src/schemas/**`、`src/services/**`、`apps/dsa-web/**`
   - 至少覆盖对应后端验证 + 受影响客户端构建验证。
   - 若涉及登录、Cookie、会话、轮询状态、字段增删或枚举变化，必须明确写出兼容性影响。
 
@@ -203,15 +192,15 @@ gh run view <run_id> --log-failed
 ## 7. 稳定性护栏
 
 - 配置与运行入口：
-  - 修改 `../.env` 语义、默认值、CLI 参数、服务启动方式、调度语义时，要同时评估本地运行、Docker、GitHub Actions、API、Web、Desktop 的影响。
+  - 修改 `../.env` 语义、默认值、CLI 参数、服务启动方式、调度语义时，要同时评估本地运行、Docker、GitHub Actions、API、Web 的影响。
   - 新配置优先做到“不配置也可运行，配置后增强能力”，避免叠加开关和互斥模式。
 
 - 数据源与 fallback：
   - 修改 `data_provider/` 时，要关注数据源优先级、失败降级、字段标准化、缓存与超时策略。
   - 单一数据源失败不应拖垮整个分析流程，除非需求明确要求 fail-fast。
 
-- API / Web / Desktop 兼容：
-  - 改 API / Schema / 认证 / 报告载荷时，要同时检查后端、Web、Desktop 的兼容性。
+- API / Web 兼容：
+  - 改 API / Schema / 认证 / 报告载荷时，要同时检查后端、Web 的兼容性。
   - 默认优先追加字段、保留旧字段或提供兼容层，避免无提示破坏现有客户端。
 
 - 报告 / Prompt / 通知：
@@ -220,7 +209,7 @@ gh run view <run_id> --log-failed
   - 修改 `src/services/image_stock_extractor.py` 中 `EXTRACT_PROMPT` 时，要在 PR 描述中附完整最新 prompt。
 
 - 工作流 / 发布 / 打包：
-  - 修改自动 tag、Release、Docker 发布、日常分析或桌面端打包流程时，要评估触发条件、产物路径、权限边界和回滚方式。
+  - 修改自动 tag、Release、Docker 发布或日常分析流程时，要评估触发条件、产物路径、权限边界和回滚方式。
   - 自动 tag 默认保持 opt-in：只有 commit title 含 `#patch`、`#minor`、`#major` 才触发版本号更新，除非需求明确要求改变发布策略。
 
 ## 8. Issue / PR / Skill 工作流

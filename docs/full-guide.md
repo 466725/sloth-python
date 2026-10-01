@@ -12,7 +12,7 @@ DSA reads a watchlist and market data, combines technical indicators, news, and 
 |---|---|
 | AI decision reports | Core conclusion, score, trend, entry/exit levels, risk alerts, catalysts, and action checklist |
 | Multi-market data | A-shares, Hong Kong, US, ETFs: quotes, K-lines, technical indicators, capital flow, chips, news, announcements, and fundamentals. Japan/Korea (Yahoo `.T` / `.KS` / `.KQ`): see market coverage below |
-| Web / desktop workspace | Manual analysis, task progress, history, full Markdown reports, backtest, settings, and light/dark themes |
+| Web workspace | Manual analysis, task progress, history, full Markdown reports, backtest, settings, and light/dark themes |
 | Agent strategy chat | Multi-turn Q&A with 15 built-in strategies across Web/Bot/API |
 | Smart import & autocomplete | Image, CSV/Excel, clipboard import; code/name/pinyin/alias autocomplete |
 | Automation & notifications | GitHub Actions, Docker, local scheduler, FastAPI service, and WeChat Work / Feishu / Telegram / Discord / Slack / Email delivery |
@@ -152,8 +152,6 @@ docker compose -f docker/docker-compose.yml up -d server analyzer
 - The database, logs, and reports are persisted through mounted volumes.
 - Compose `env_file` injects **startup environment variables**; it does not create a writable `/app/.env` inside the container.
 - To keep settings saved through the Web UI across container recreation, point `ENV_FILE` to a writable file on a persistent volume, and avoid stale duplicate values in the startup environment.
-
-For desktop builds, see the Desktop Packaging Guide.
 
 ## 5. Configuration
 

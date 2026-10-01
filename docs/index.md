@@ -12,7 +12,6 @@ Start with the [project README](README_EN.md) for an overview, or use the [User 
 | Deploy Web/API to a cloud server | [User Guide](full-guide_EN.md#docker-deployment), [cloud access notes](deploy-webui-cloud.md) |
 | Understand supported markets | [User Guide](full-guide_EN.md#what-dsa-does) |
 | Configure messaging bots | [Bot guide](bot-command_EN.md) |
-| Package the desktop app | [Desktop packaging](desktop-package.md) |
 | Contribute | [Contributing guide](CONTRIBUTING_EN.md) |
 
 ## Maintained References
