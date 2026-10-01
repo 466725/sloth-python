@@ -10,7 +10,7 @@ from collections.abc import Callable, Generator, Mapping, Sequence
 from contextlib import contextmanager
 from typing import Any
 
-from config.config import DatabaseSettings, settings
+from utils.config.config import DatabaseSettings, settings
 
 DatabaseConfig = DatabaseSettings
 SqlParams = Sequence[Any] | Mapping[str, Any] | None

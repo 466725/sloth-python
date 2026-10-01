@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from config.config import LoggerSettings
+from utils.config.config import LoggerSettings
 from utils.observability.logger import WEEKDAY_NAMES, configure_logging, get_logger
 
 

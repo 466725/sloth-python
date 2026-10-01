@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from config.config import LoggerSettings, settings
+from utils.config.config import LoggerSettings, settings
 
 WEEKDAY_NAMES = (
     "monday",

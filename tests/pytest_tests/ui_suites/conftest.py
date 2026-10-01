@@ -8,7 +8,7 @@ import allure
 import pytest
 
 from ui_suites.tangerine_support import open_tangerine_homepage_playwright
-from config.config import settings
+from utils.config.config import settings
 
 logger = logging.getLogger(__name__)
 

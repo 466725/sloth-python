@@ -5,7 +5,7 @@ from pathlib import Path
 
 from ai_gen.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
 from ai_gen.paths import resolve_path
-from config.config import settings
+from utils.config.config import settings
 
 
 DEFAULT_INPUT_PATH = "temps/ai/check_ai_gen/example.txt"

@@ -14,7 +14,7 @@ if str(PROJECT_ROOT) not in sys.path:
     # Ensure local imports resolve when Robot runs this suite directly.
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from config.config import settings
+from utils.config.config import settings
 
 ROBOT_LIBRARY_SCOPE = "GLOBAL"
 

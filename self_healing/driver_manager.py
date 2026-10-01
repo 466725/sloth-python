@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 
-from config.config import settings
+from utils.config.config import settings
 
 
 @contextmanager

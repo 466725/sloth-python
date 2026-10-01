@@ -14,6 +14,11 @@
 *.pyc
 __pycache__/
 
+### Runtime data generated under ai_stock/stock_data (DB, secrets, cache) ###
+ai_stock/stock_data/*
+!ai_stock/stock_data/*.py
+ai_stock/stock_data/cache/
+
 ### Packaging / build artifacts ###
 build/
 dist/

@@ -41,7 +41,7 @@ playwright install
 
 ## ⚙️ Configuration
 
-Runtime settings are read from environment variables. Shared test and AI-generation settings are centralized in `config/config.py`; provider-specific `ai_stock` settings are documented in [ai_stock/readme.md](ai_stock/readme.md).
+Runtime settings are read from environment variables. Shared test and AI-generation settings are centralized in `utils/config`; provider-specific `ai_stock` settings are documented in [ai_stock/readme.md](ai_stock/readme.md).
 
 ### Shared URLs
 
@@ -690,7 +690,7 @@ Keep changes focused, reusable, and easy to validate.
 ### Python and Configuration
 
 - **Keep code typed and readable:** Use clear names, type hints, focused functions, and useful docstrings.
-- **Reuse shared utilities:** Prefer helpers in `utils/`, `config/`, and `self_healing/` before introducing duplicates.
+- **Reuse shared utilities:** Prefer helpers in `utils/`, `utils/config`, and `self_healing/` before introducing duplicates.
 - **Externalize settings:** Read URLs, feature flags, and integration settings from environment variables with safe defaults.
 - **Protect secrets:** Never commit API keys, tokens, or credentials; use environment variables and keep sensitive values out of logs.
 - **Format and lint consistently:** Run Ruff checks and formatting before finalizing substantial Python changes.
