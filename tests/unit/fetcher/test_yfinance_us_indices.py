@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-data_provider/yfinance_fetcher 中美股指数获取逻辑的单元测试
+ai_stock.stock_data/yfinance_fetcher 中美股指数获取逻辑的单元测试
 
 使用 unittest.mock 模拟 yfinance API 响应，覆盖：
 - fetch_yf_ticker_data 单指数数据解析

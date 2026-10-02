@@ -143,7 +143,7 @@ $robotExit = 0
 python -m pytest
 $pytestExit = $LASTEXITCODE
 
-python -m robot --outputdir temps/robot_all robot_tests/
+python -m robot --outputdir temps/robot_all tests/robot_tests/ui_suites/
 $robotExit = $LASTEXITCODE
 
 if ($pytestExit -ne 0 -or $robotExit -ne 0) {
@@ -165,12 +165,12 @@ python -m pytest
 python -m pytest -m "unit or api"
 
 # One file / one test
-python -m pytest pytest_tests/unit/test_csv_reader.py -q
-python -m pytest pytest_tests/unit/test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
+python -m pytest tests/pytest_tests/unit/test_csv_reader.py -q
+python -m pytest tests/pytest_tests/unit/test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
 
 # UI tests
 python -m pytest -m ui
-python -m pytest pytest_tests/ui/tangerine -q
+python -m pytest tests/pytest_tests/ui_suites/tangerine -q
 ```
 
 ### Playwright recording and debugging
@@ -186,7 +186,7 @@ Run a UI test visibly for debugging. Configure browser visibility and slow motio
 ```powershell
 $env:PW_HEADLESS = "false"
 $env:PW_SLOW_MO = "200"
-python -m pytest pytest_tests/ui/tangerine/test_codegen.py -q
+python -m pytest tests/pytest_tests/ui_suites/tangerine/test_codegen.py -q
 ```
 
 - `PW_HEADLESS=false` opens a visible browser
@@ -198,20 +198,17 @@ For AI-based test generation, see [AI-Generated UI Test Scripts](#-ai-generated-
 
 ### Robot Framework suites
 
-Robot demos live under `robot_tests`.
+Robot demos live under `tests/robot_tests/ui_suites/`.
 
 ```powershell
 # All Robot suites
-python -m robot --outputdir temps/robot_all robot_tests/
-
-# Calculator demo
-python -m robot --outputdir temps/robot_calculator robot_tests/calculator/
+python -m robot --outputdir temps/robot_all tests/robot_tests/ui_suites/
 
 # Tangerine Playwright suite
-python -m robot --outputdir temps/robot_tangerine_playwright robot_tests/ui/
+python -m robot --outputdir temps/robot_tangerine_playwright tests/robot_tests/ui_suites/
 
 # Dry run (syntax and keyword wiring only)
-python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun robot_tests/ui/
+python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun tests/robot_tests/ui_suites/
 ```
 
 Robot writes `output.xml`, `log.html`, and `report.html` to the selected directory under `temps/`.
@@ -247,7 +244,7 @@ Install the Playwright browsers once, then run a Tangerine UI test from the repo
 
 ```powershell
 python -m playwright install
-python -m pytest .\pytest_tests\ui\tangerine\test_signinpage.py -q
+python -m pytest .\tests\pytest_tests\ui_suites\tangerine\test_signinpage.py -q
 ```
 
 This opens the sign-in flow through the shared UI fixture and self-healing locator support. Set `PW_HEADLESS=false` to watch the browser, or add `PW_SLOW_MO=200` to slow Playwright actions while learning the flow.
@@ -320,7 +317,7 @@ Review generated code before committing. DOM input is limited by `AI_GEN_MAX_DOM
 Validate the generator with:
 
 ```powershell
-python -m pytest -q pytest_tests/ai/test_ai_generation.py
+python -m pytest -q tests/pytest_tests/ai_gen/test_ai_generation.py
 ```
 
 ## 📈 Daily Stock Analysis (DSA) User Guide
