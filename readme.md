@@ -352,9 +352,7 @@ Coverage differs by market. A-shares, Hong Kong, and US stocks have the broadest
 | News search | Anspire, SerpAPI, Tavily, Bocha, Brave, MiniMax, SearXNG |
 | Social sentiment | Stock Sentiment API for Reddit / X / Polymarket (US stocks only) |
 
-### 2. Quick Start
-
-#### Option 1: GitHub Actions (Recommended)
+### 2. Quick Start - GitHub Actions (Recommended)
 
 Deploy in about 5 minutes, with no server and no infrastructure cost.
 
@@ -413,31 +411,6 @@ More search providers, social sentiment, and fallback behavior are in the Search
 **4. Manual test.** **Actions → Daily Stock Analysis → Run workflow → Run workflow**.
 
 **Done.** By default, the workflow runs every weekday at 18:00 Beijing time and skips non-trading days. Forced runs, trading-day checks, and resume rules depend on the workflow configuration (see [Scheduled Tasks](#scheduled-tasks)).
-
-#### Option 2: Local Installation
-
-Requires Python 3.10 or later (check the project CI for the currently supported versions).
-
-```bash
-# Clone the project
-git clone https://github.com/ZhuLinsen/daily_stock_analysis.git && cd daily_stock_analysis
-
-# Create a virtual environment and install dependencies
-python -m venv .venv
-# Windows PowerShell: .\.venv\Scripts\Activate.ps1
-# macOS/Linux: source .venv/bin/activate
-pip install -r requirements.txt
-
-# Configure environment variables
-cp .env.example .env    # then edit .env
-
-# Run analysis
-python main.py
-```
-
-In `.env`, configure at least one usable LLM provider and `STOCK_LIST`. Notification channels, news search, and additional market-data providers are optional; when not configured, the system uses the available data sources and fallback paths. **Never commit real credentials to Git, issues, logs, or screenshots.**
-
-Common first-run checks: confirm `.env` is in the repository root, variable names are spelled correctly, the model name matches the channel, and review the backend logs in `logs/`. The Web settings page can be used to inspect and maintain supported runtime configuration.
 
 ### 3. Run Modes
 
