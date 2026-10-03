@@ -12,6 +12,7 @@ import os
 import sys
 import unittest
 from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
@@ -79,8 +80,11 @@ class TestAugmentHistoricalWithRealtime(unittest.TestCase):
     """_augment_historical_with_realtime 的测试。"""
 
     def setUp(self) -> None:
-        self._db_path = os.path.join(
-            os.path.dirname(__file__), "../../..", "data", "test_issue234.db"
+        self._db_path = str(
+            Path(__file__).resolve().parents[3]
+            / "ai_stock"
+            / "stock_data"
+            / "test_issue234.db"
         )
         os.makedirs(os.path.dirname(self._db_path), exist_ok=True)
         with patch.dict(os.environ, {"DATABASE_PATH": self._db_path}):
@@ -178,8 +182,11 @@ class TestEnhanceContextRealtimeOverride(unittest.TestCase):
     """_enhance_context 使用实时行情和趋势结果覆盖 today 的测试。"""
 
     def setUp(self) -> None:
-        self._db_path = os.path.join(
-            os.path.dirname(__file__), "../../..", "data", "test_issue234.db"
+        self._db_path = str(
+            Path(__file__).resolve().parents[3]
+            / "ai_stock"
+            / "stock_data"
+            / "test_issue234.db"
         )
         os.makedirs(os.path.dirname(self._db_path), exist_ok=True)
         with patch.dict(os.environ, {"DATABASE_PATH": self._db_path}):
