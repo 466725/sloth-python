@@ -22,6 +22,7 @@ def api_client(
     return TestClient(create_app(static_dir=tmp_path))
 
 
+@pytest.mark.api
 @pytest.mark.parametrize("endpoint", HEALTH_ENDPOINTS)
 def test_health_endpoint_returns_healthy_response(
     api_client: TestClient, endpoint: str
