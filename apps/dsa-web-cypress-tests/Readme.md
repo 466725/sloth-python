@@ -58,6 +58,22 @@ cd apps/dsa-web-cypress-tests
 npm install
 ```
 
+## Dependency Updates
+
+The repository's [Dependabot configuration](../../.github/dependabot.yml) checks this
+package's npm dependencies, including development dependencies such as Cypress,
+TypeScript, and Allure tooling, every Monday at 03:00 UTC.
+
+Dependabot opens up to five version-update pull requests at a time, requests review
+from `466725`, and applies the `type/dependencies` and `priority/low` labels. Major
+updates are not excluded, so review breaking changes before merging. Updates are
+not automatically merged.
+
+After an update, install dependencies with `npm ci` and run `npm test` against a
+running app with the appropriate `BASE_URL` (see below). This package does not yet
+have a dedicated CI workflow. To stop these scheduled npm updates, remove this
+package's npm entry from the Dependabot configuration; leave the pip entry intact.
+
 ## Configuration
 
 ### Base URL
