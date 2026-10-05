@@ -8,7 +8,7 @@ PyYAML>=6.0.3,<7
 # AI, LLM & Language Models
 # ===================================
 anthropic
-openai>=1.0.0
+openai>=3.23.0
 litellm!=1.82.7,!=1.82.8,>=1.102.1,<2.0.0
 mcp
 tiktoken>=0.8.0,<0.12.0
@@ -51,7 +51,7 @@ fake-useragent>=2.2.0
 # ===================================
 akshare>=1.12.0
 efinance>=0.5.9
-tushare>=1.4.0
+tushare>=1.4.29
 pytdx>=1.72
 baostock>=0.8.0
 # yfinance>=1.7.0
@@ -130,5 +130,4 @@ json-repair>=0.55.1
 # ===================================
 # Custom Packages
 # ===================================
-
 
