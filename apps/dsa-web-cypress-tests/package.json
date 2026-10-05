@@ -23,7 +23,7 @@
     "allure:open": "allure open ../../temps/cypress_dsa_web/allure-report"
   },
   "devDependencies": {
-    "@bahmutov/cy-grep": "^3.0.0",
+    "@bahmutov/cy-grep": "^3.0.5",
     "@shelex/cypress-allure-plugin": "^2.41.2",
     "@types/node": "^26.6.4",
     "allure-commandline": "^2.46.1",
