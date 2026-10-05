@@ -75,21 +75,9 @@ if TYPE_CHECKING:
 
 
 class NotificationChannel(Enum):
-    """Channel labels retained for old records; only EMAIL is supported."""
+    """Supported delivery channel and unknown-record fallback."""
 
     EMAIL = "email"
-    WECHAT = "wechat"
-    FEISHU = "feishu"
-    TELEGRAM = "telegram"
-    PUSHOVER = "pushover"
-    NTFY = "ntfy"
-    GOTIFY = "gotify"
-    PUSHPLUS = "pushplus"
-    SERVERCHAN3 = "serverchan3"
-    CUSTOM = "custom"
-    DISCORD = "discord"
-    SLACK = "slack"
-    ASTRBOT = "astrbot"
     UNKNOWN = "unknown"
 
 
@@ -389,7 +377,6 @@ class NotificationService(EmailSender):
     def send_to_context(self, content: str) -> bool:
         """Context sends are disabled; use configured email notifications."""
         return False
-        # 通过邮件发送
         
     def generate_daily_report(
         self,

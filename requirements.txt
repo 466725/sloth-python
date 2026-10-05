@@ -8,7 +8,7 @@ PyYAML>=6.0.3,<7
 # AI, LLM & Language Models
 # ===================================
 anthropic
-openai>=3.23.0
+openai>=2.20.0,<3.0.0
 litellm!=1.82.7,!=1.82.8,>=1.102.1,<2.0.0
 mcp
 tiktoken>=0.8.0,<0.12.0

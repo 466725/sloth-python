@@ -8,21 +8,7 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 LLMCapabilityCheck = Literal["json", "tools", "vision", "stream"]
-NotificationTestChannel = Literal[
-    "wechat",
-    "feishu",
-    "telegram",
-    "email",
-    "pushover",
-    "ntfy",
-    "gotify",
-    "pushplus",
-    "serverchan3",
-    "custom",
-    "discord",
-    "slack",
-    "astrbot",
-]
+NotificationTestChannel = Literal["email"]
 
 
 class SystemConfigOption(BaseModel):

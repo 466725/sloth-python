@@ -45,6 +45,7 @@ from ai_stock.core.config_registry import (
 from ai_stock.llm.errors import call_litellm_with_param_recovery
 from ai_stock.llm.generation_params import apply_litellm_generation_params
 from ai_stock.report.notification_noise import validate_notification_timezone
+from ai_stock.report.notification_contracts import is_retired_notification_key
 
 logger = logging.getLogger(__name__)
 
@@ -293,6 +294,7 @@ class SystemConfigService:
             for key in all_keys
             if not key.upper().startswith(self._REMOVED_CONFIG_KEY_PREFIXES)
             and key.upper() not in self._REMOVED_CONFIG_KEYS
+            and not is_retired_notification_key(key)
         }
 
         category_orders = {
@@ -1606,6 +1608,14 @@ class SystemConfigService:
         for item in items:
             key = item["key"].upper()
             value = item["value"]
+            if is_retired_notification_key(key):
+                issues.append({
+                    "key": key,
+                    "code": "unsupported_notification_setting",
+                    "message": "Only email notifications are supported. Remove this retired channel setting.",
+                    "severity": "error",
+                })
+                continue
             field_schema = get_field_definition(key, value)
             is_sensitive = bool(field_schema.get("is_sensitive", False))
 

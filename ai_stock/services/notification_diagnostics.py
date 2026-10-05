@@ -112,7 +112,12 @@ KEY_SPECS: Tuple[NotificationKeySpec, ...] = tuple(
     for key in P4_NOISE_ENV_KEYS
 )
 
-P0_ACTIONS_ENV_KEYS: Tuple[str, ...] = ()
+P0_ACTIONS_ENV_KEYS: Tuple[str, ...] = (
+    "EMAIL_SENDER",
+    "EMAIL_PASSWORD",
+    "EMAIL_RECEIVERS",
+    "EMAIL_SENDER_NAME",
+)
 
 P3_ROUTE_ENV_KEYS: Tuple[str, ...] = tuple(
     route["env_key"] for route in NOTIFICATION_ROUTE_CONFIGS.values()

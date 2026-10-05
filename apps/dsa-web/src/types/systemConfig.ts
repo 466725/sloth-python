@@ -191,20 +191,7 @@ export interface TestLLMChannelResponse {
   capabilityResults?: Partial<Record<LLMCapabilityCheck, LLMCapabilityCheckResult>>;
 }
 
-export type NotificationTestChannel =
-  | 'wechat'
-  | 'feishu'
-  | 'telegram'
-  | 'email'
-  | 'pushover'
-  | 'ntfy'
-  | 'gotify'
-  | 'pushplus'
-  | 'serverchan3'
-  | 'custom'
-  | 'discord'
-  | 'slack'
-  | 'astrbot';
+export type NotificationTestChannel = 'email';
 
 export interface NotificationTestAttempt {
   channel: NotificationTestChannel;

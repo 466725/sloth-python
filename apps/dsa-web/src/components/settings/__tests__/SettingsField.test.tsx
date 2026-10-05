@@ -326,21 +326,21 @@ describe('SettingsField', () => {
     expect(screen.getByText(/压缩时最近 N 个用户轮次及其后的回复保持原文/)).toHaveTextContent('留空则跟随当前上下文压缩策略 profile 默认值');
   });
 
-  it('renders localized custom webhook body template guidance', () => {
+  it('renders localized email sender name guidance', () => {
     const onChange = vi.fn();
 
     render(
       <SettingsField
         item={{
-          key: 'CUSTOM_WEBHOOK_BODY_TEMPLATE',
+          key: 'EMAIL_SENDER_NAME',
           value: '',
           rawValueExists: false,
           isMasked: false,
           schema: {
-            key: 'CUSTOM_WEBHOOK_BODY_TEMPLATE',
+            key: 'EMAIL_SENDER_NAME',
             category: 'notification',
             dataType: 'string',
-            uiControl: 'textarea',
+            uiControl: 'text',
             isSensitive: false,
             isRequired: false,
             isEditable: true,
@@ -354,9 +354,8 @@ describe('SettingsField', () => {
       />
     );
 
-    expect(screen.getByLabelText('自定义 Webhook Body 模板')).toBeInTheDocument();
-    expect(screen.getByText(/会先于 Bark、Slack、Discord 等自动 payload 生效/)).toBeInTheDocument();
-    expect(screen.getByText(/裸 \$content \/ \$title 不做 JSON 转义/)).toBeInTheDocument();
+    expect(screen.getByLabelText('邮件发件人名称')).toBeInTheDocument();
+    expect(screen.getByText(/不改变 SMTP 登录邮箱/)).toBeInTheDocument();
   });
 
   it('opens detailed field help when help metadata is available', () => {

@@ -4,7 +4,8 @@
 
 > 本页未引入新的外部 provider、模型名或 Base URL 兼容行为，仅整理配置参考与官方来源；实际兼容性仍以仓库当前运行时依赖与测试结论为准。
 
-> - 运行时基础：`requirements.txt` 当前锁定 `litellm>=1.80.10,!=1.82.7,!=1.82.8,<2.0.0`，兼容语义以该版本约束下实现为准。
+> - 运行时基础：`requirements.txt` 当前约束为 `litellm>=1.102.1,!=1.82.7,!=1.82.8,<2.0.0` 与 `openai>=2.20.0,<3.0.0`，兼容语义以该版本约束下实现为准。
+> - 安装兼容性：当前 LiteLLM 要求 OpenAI SDK `<3.0.0`；不要单独将 `openai` 升级到 3.x，否则 `pip install -r requirements.txt` 会报依赖冲突。修改版本约束后可先运行 `python -m pip install --dry-run -r requirements.txt` 验证解析结果。
 > - 验证闭环：系统配置链路回归见 `tests/test_system_config_service.py` 与 `../tests/unit/web_api/test_system_config_api.py`，`Web` 侧配置页交互回归见现有组件测试用例。
 > - 回退路径：保留旧变量不做自动迁移；可通过 Web/桌面导出备份后 `POST /api/v1/system/config/import` 回滚，或手动恢复历史 `LLM_*` / `LITELLM_*` / `AGENT_*` / `VISION_MODEL` 配置。
 
@@ -96,7 +97,7 @@ OpenAI-compatible Base URL 只填到服务商兼容入口，不额外拼接 `/ch
 | OpenRouter | [Models API](https://openrouter.ai/docs/api/api-reference/models/get-models) | OpenRouter 支持 `~anthropic/claude-sonnet-latest`、`~openai/gpt-latest` 等 latest router alias；2026-05-03 的一次手动 live smoke 以 Claude Sonnet latest 作为默认示例通过，GPT latest 保留为可按账号权限切换的备选。 |
 | LiteLLM | [OpenAI-Compatible Endpoints](https://docs.litellm.ai/docs/providers/openai_compatible) | OpenAI-compatible 端点需要把运行时模型写成 `openai/<model>`，Base URL 只填到服务商兼容入口，不额外拼接 `/chat/completions`。 |
 
-本页预设只保证配置形状与当前依赖的 OpenAI-compatible 路由规则一致；实际连通性仍取决于服务商账号权限、地域、额度和模型开通状态。当前 LiteLLM 版本约束为 `litellm>=1.80.10,!=1.82.7,!=1.82.8,<2.0.0`（见 `requirements.txt`），保留历史最低版本、显式排除 PyPI 事故版本，并避免未来大版本自动进入。
+本页预设只保证配置形状与当前依赖的 OpenAI-compatible 路由规则一致；实际连通性仍取决于服务商账号权限、地域、额度和模型开通状态。当前 LiteLLM 版本约束为 `litellm>=1.102.1,!=1.82.7,!=1.82.8,<2.0.0`（见 `requirements.txt`），显式排除 PyPI 事故版本，并避免未来大版本自动进入。
 
 ## OpenAI-compatible 与 LiteLLM 规则
 

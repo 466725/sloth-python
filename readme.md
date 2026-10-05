@@ -337,7 +337,7 @@ DSA reads a watchlist and market data, combines technical indicators, news, and 
 | Web workspace | Manual analysis, task progress, history, full Markdown reports, backtest, settings, and light/dark themes |
 | Agent strategy chat | Multi-turn Q&A with 15 built-in strategies across Web/Bot/API |
 | Smart import & autocomplete | Image, CSV/Excel, clipboard import; code/name/pinyin/alias autocomplete |
-| Automation & notifications | GitHub Actions, Docker, local scheduler, FastAPI service, and WeChat Work / Feishu / Telegram / Discord / Slack / Email delivery |
+| Automation & notifications | GitHub Actions, Docker, local scheduler, FastAPI service, and SMTP email delivery |
 
 #### Market Coverage
 
@@ -373,18 +373,13 @@ Deploy in about 5 minutes, with no server and no infrastructure cost.
 
 > Ollama is better suited for local or Docker deployment. GitHub Actions is usually smoother with a cloud API.
 
-**Notification channels (configure at least one).**
+**Email notifications (optional).**
 
 | Secret | Description |
 |---|---|
-| `WECHAT_WEBHOOK_URL` | WeChat Work bot |
-| `FEISHU_WEBHOOK_URL` | Feishu bot |
-| `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` | Telegram |
-| `DISCORD_WEBHOOK_URL` | Discord webhook |
-| `SLACK_BOT_TOKEN` + `SLACK_CHANNEL_ID` | Slack bot |
 | `EMAIL_SENDER` + `EMAIL_PASSWORD` | Email push |
 
-More channels, signatures, email groups, and Markdown-to-image settings are in the Notification Guide.
+Recipient groups, email testing, and Markdown-to-image settings are in the [Notification Guide](docs/notifications.md).
 
 **Watchlist (required).**
 
@@ -468,7 +463,7 @@ When a connection test fails, check model access, API key, Base URL, provider pr
 
 #### Notification Channels
 
-Configure one or more supported channels in `.env` or Web settings. The notification service routes report, alert, and error messages independently, so a failing channel should not invalidate the analysis report. To diagnose delivery, use the test action on the settings page or run `python main.py --check-notify`. Some channels have distinct modes; for example, Feishu group Webhook delivery is different from App Bot credentials and Stream Bot events. See the Notification Guide.
+Configure SMTP email in `.env` or Web settings. Email is the only notification transport; delivery failures do not invalidate analysis reports. To diagnose delivery, use the email test action on the settings page or run `python main.py --check-notify`. See the [Notification Guide](docs/notifications.md).
 
 #### Search and News
 

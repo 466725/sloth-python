@@ -955,37 +955,6 @@ def _is_truthy_env(var_name: str, default: str = "true") -> bool:
     return value not in {"0", "false", "no", "off"}
 
 
-def start_bot_stream_clients(config: Config) -> None:
-    """Start bot stream clients when enabled in config."""
-    # 启动钉钉 Stream 客户端
-    if config.dingtalk_stream_enabled:
-        try:
-            from bot.platforms import start_dingtalk_stream_background, DINGTALK_STREAM_AVAILABLE
-            if DINGTALK_STREAM_AVAILABLE:
-                if start_dingtalk_stream_background():
-                    logger.info("[Main] Dingtalk Stream client started in background.")
-                else:
-                    logger.warning("[Main] Dingtalk Stream client failed to start.")
-            else:
-                logger.warning("[Main] Dingtalk Stream enabled but SDK is missing.")
-                logger.warning("[Main] Run: pip install dingtalk-stream")
-        except Exception as exc:
-            logger.error(f"[Main] Failed to start Dingtalk Stream client: {exc}")
-
-    # 启动飞书 Stream 客户端
-    if getattr(config, 'feishu_stream_enabled', False):
-        try:
-            from bot.platforms import start_feishu_stream_background, FEISHU_SDK_AVAILABLE
-            if FEISHU_SDK_AVAILABLE:
-                if start_feishu_stream_background():
-                    logger.info("[Main] Feishu Stream client started in background.")
-                else:
-                    logger.warning("[Main] Feishu Stream client failed to start.")
-            else:
-                logger.warning("[Main] Feishu Stream enabled but SDK is missing.")
-                logger.warning("[Main] Run: pip install lark-oapi")
-        except Exception as exc:
-            logger.error(f"[Main] Failed to start Feishu Stream client: {exc}")
 
 
 def _resolve_scheduled_stock_codes(stock_codes: Optional[List[str]]) -> Optional[List[str]]:
@@ -1117,21 +1086,16 @@ def main() -> int:
             args.port = int(os.getenv('WEBUI_PORT'))
         _warn_if_public_webui_without_auth(args.host)
 
-    bot_clients_started = False
     if start_serve:
         if not prepare_webui_frontend_assets():
             logger.warning("前端静态资源未就绪，继续启动 FastAPI 服务（Web 页面可能不可用）")
         try:
             start_api_server(host=args.host, port=args.port, config=config)
-            bot_clients_started = True
         except Exception as e:
             logger.error(f"启动 FastAPI 服务失败: {e}")
             if args.serve_only:
                 return 1
             start_serve = False
-
-    if bot_clients_started:
-        start_bot_stream_clients(config)
 
     # === 仅 Web 服务模式：不自动执行分析 ===
     if args.serve_only:

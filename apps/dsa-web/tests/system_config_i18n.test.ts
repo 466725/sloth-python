@@ -14,29 +14,13 @@ const requiredLocalizedKeys = [
   'BIAS_THRESHOLD',
   'LLM_USAGE_HMAC_SECRET',
   'LLM_USAGE_HMAC_KEY_VERSION',
-  'TELEGRAM_BOT_TOKEN',
-  'TELEGRAM_CHAT_ID',
-  'TELEGRAM_MESSAGE_THREAD_ID',
-  'FEISHU_STREAM_ENABLED',
-  'DINGTALK_STREAM_ENABLED',
   'EMAIL_SENDER',
   'EMAIL_PASSWORD',
   'EMAIL_RECEIVERS',
-  'DISCORD_WEBHOOK_URL',
-  'DISCORD_BOT_TOKEN',
-  'DISCORD_MAIN_CHANNEL_ID',
-  'DISCORD_INTERACTIONS_PUBLIC_KEY',
-  'SLACK_BOT_TOKEN',
-  'SLACK_CHANNEL_ID',
-  'SLACK_WEBHOOK_URL',
-  'PUSHPLUS_TOPIC',
-  'PUSHOVER_USER_KEY',
-  'PUSHOVER_API_TOKEN',
-  'SERVERCHAN3_SENDKEY',
-  'ASTRBOT_URL',
-  'ASTRBOT_TOKEN',
-  'CUSTOM_WEBHOOK_BEARER_TOKEN',
-  'WEBHOOK_VERIFY_SSL',
+  'EMAIL_SENDER_NAME',
+  'MARKDOWN_TO_IMAGE_CHANNELS',
+  'MARKDOWN_TO_IMAGE_MAX_CHARS',
+  'MD2IMG_ENGINE',
   'SINGLE_STOCK_NOTIFY',
   'REPORT_TYPE',
   'REPORT_LANGUAGE',
@@ -80,6 +64,12 @@ const requiredLocalizedKeys = [
 ] as const;
 
 describe('systemConfigI18n required key coverage', () => {
+  it('does not provide help for removed notification transports', () => {
+    for (const language of ['zh-CN', 'en']) {
+      expect(getSettingsHelpContent('settings.notification.telegram', undefined, language)).toBeNull();
+      expect(getSettingsHelpContent('settings.notification.webhooks', undefined, language)).toBeNull();
+    }
+  });
   it('provides zh title and description mapping for known missing keys', () => {
     requiredLocalizedKeys.forEach((key) => {
       expect(getFieldTitleZh(key, key)).not.toBe(key);

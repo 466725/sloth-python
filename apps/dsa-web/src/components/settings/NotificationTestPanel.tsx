@@ -9,26 +9,8 @@ import type {
   TestNotificationChannelResponse,
   SystemConfigUpdateItem,
 } from '../../types/systemConfig';
-import { ApiErrorAlert, Badge, Button, InlineAlert, Input, Select } from '../common';
+import { ApiErrorAlert, Badge, Button, InlineAlert, Input } from '../common';
 import { SettingsSectionCard } from './SettingsSectionCard';
-
-function getChannelOptions(language: 'zh' | 'en'): Array<{ value: NotificationTestChannel; label: string }> {
-  return [
-    { value: 'wechat', label: language === 'en' ? 'WeCom' : '企业微信' },
-    { value: 'feishu', label: language === 'en' ? 'Feishu Webhook' : '飞书 Webhook' },
-    { value: 'telegram', label: 'Telegram' },
-    { value: 'email', label: language === 'en' ? 'Email' : '邮件' },
-    { value: 'pushover', label: 'Pushover' },
-    { value: 'ntfy', label: 'ntfy' },
-    { value: 'gotify', label: 'Gotify' },
-    { value: 'pushplus', label: 'PushPlus' },
-    { value: 'serverchan3', label: 'ServerChan3' },
-    { value: 'custom', label: language === 'en' ? 'Custom Webhook' : '自定义 Webhook' },
-    { value: 'discord', label: 'Discord' },
-    { value: 'slack', label: 'Slack' },
-    { value: 'astrbot', label: 'AstrBot' },
-  ];
-}
 
 interface NotificationTestPanelProps {
   items: SystemConfigUpdateItem[];
@@ -48,7 +30,7 @@ export const NotificationTestPanel: React.FC<NotificationTestPanelProps> = ({
   disabled = false,
 }) => {
   const { language, t } = useUiLanguage();
-  const [channel, setChannel] = useState<NotificationTestChannel>('wechat');
+  const channel: NotificationTestChannel = 'email';
   const [title, setTitle] = useState(t('settings.notificationTestTitleValue'));
   const [content, setContent] = useState(t('settings.notificationTestContent'));
   const [timeoutSeconds, setTimeoutSeconds] = useState('20');
@@ -113,12 +95,10 @@ export const NotificationTestPanel: React.FC<NotificationTestPanelProps> = ({
       )}
     >
       <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_120px]">
-        <Select
+        <Input
           label={t('settings.notificationTestChannel')}
-          value={channel}
-          options={getChannelOptions(language)}
-          disabled={disabled || isTesting}
-          onChange={(value) => setChannel(value as NotificationTestChannel)}
+          value={language === 'en' ? 'Email' : '邮件'}
+          readOnly
         />
         <Input
           label={t('settings.notificationTestTitle')}

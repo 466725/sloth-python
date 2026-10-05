@@ -75,10 +75,10 @@ describe('systemConfigApi', () => {
         latency_ms: 15,
         attempts: [
           {
-            channel: 'custom',
+            channel: 'email',
             success: true,
             message: 'sent',
-            target: 'https://example.com/hook?token=***',
+            target: 's***@example.com',
             error_code: null,
             stage: 'notification_send',
             retryable: false,
@@ -90,8 +90,8 @@ describe('systemConfigApi', () => {
     });
 
     const result = await systemConfigApi.testNotificationChannel({
-      channel: 'custom',
-      items: [{ key: 'CUSTOM_WEBHOOK_URLS', value: 'https://example.com/hook?token=secret' }],
+      channel: 'email',
+      items: [{ key: 'EMAIL_SENDER', value: 'sender@example.com' }],
       maskToken: '******',
       title: 'hello',
       content: 'world',
@@ -101,8 +101,8 @@ describe('systemConfigApi', () => {
     expect(post).toHaveBeenCalledWith(
       '/api/v1/system/config/notification/test-channel',
       {
-        channel: 'custom',
-        items: [{ key: 'CUSTOM_WEBHOOK_URLS', value: 'https://example.com/hook?token=secret' }],
+        channel: 'email',
+        items: [{ key: 'EMAIL_SENDER', value: 'sender@example.com' }],
         mask_token: '******',
         title: 'hello',
         content: 'world',

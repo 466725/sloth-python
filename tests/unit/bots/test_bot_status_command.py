@@ -27,9 +27,8 @@ def test_status_command_reports_unified_llm_and_notification_channels():
         ],
         llm_models_source="llm_channels",
         llm_model_list=model_list,
-        custom_webhook_urls=["https://example.com/webhook"],
-        slack_webhook_url="https://hooks.slack.com/services/T/B/C",
-        serverchan3_sendkey="SCT123",
+        email_sender="sender@example.com",
+        email_password="app-password",
     )
     command = StatusCommand()
 
@@ -40,9 +39,10 @@ def test_status_command_reports_unified_llm_and_notification_channels():
     assert "主模型: deepseek/deepseek-v4-flash" in text
     assert "Agent 模型: openai/gpt-4o-mini" in text
     assert "LLM 渠道: deepseek" in text
-    assert "自定义 Webhook: ✅" in text
-    assert "Slack: ✅" in text
-    assert "PushPlus/Pushover/Server酱3: ✅" in text
+    assert "邮件: ✅" in text
+    assert set(key for key in status if key.startswith("notify_")) == {"notify_email"}
+    assert "Webhook" not in text
+    assert "Slack" not in text
     assert "系统就绪" in text
 
 

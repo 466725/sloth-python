@@ -262,135 +262,6 @@ const settingsHelpZhCN: SettingsHelpMap = {
     impact: ['影响新闻上下文数量、时效性和报告长度。'],
     notes: ['窗口过长可能引入陈旧信息，过短可能遗漏慢发酵事件。'],
   },
-  'settings.notification.FEISHU_WEBHOOK_URL': {
-    title: '飞书群机器人 Webhook',
-    summary: '配置飞书自定义群机器人，用于把分析报告推送到指定飞书群。',
-    usage: '在飞书群中添加自定义机器人后，复制 open-apis/bot/v2/hook 开头的 Webhook URL 到这里。',
-    valueNotes: [
-      '如果机器人开启“签名校验”，还需要填写 FEISHU_WEBHOOK_SECRET。',
-      '如果机器人开启“关键词”，还需要填写 FEISHU_WEBHOOK_KEYWORD，系统会自动补到消息前。',
-      'FEISHU_APP_ID / FEISHU_APP_SECRET 用于飞书应用、云文档或 Stream Bot，不会直接启用群 Webhook 推送。',
-    ],
-    impact: [
-      '影响飞书通知渠道；失败时不应拖垮主分析流程，只影响该渠道送达。',
-    ],
-    notes: [
-      '不要把 FEISHU_APP_SECRET 当作 FEISHU_WEBHOOK_SECRET 使用。',
-      '如果飞书侧配置 IP 白名单，需要确认当前运行环境出口 IP 已加入白名单。',
-    ],
-  },
-  'settings.notification.FEISHU_STREAM_ENABLED': {
-    title: '飞书 Stream 模式',
-    summary: '启用飞书应用机器人 / Stream Bot 长连接模式，不是飞书群 Webhook 推送开关。',
-    usage: '只有在已创建飞书应用、完成应用发布、权限和事件订阅配置后才开启；同时需要 FEISHU_APP_ID 和 FEISHU_APP_SECRET。',
-    valueNotes: [
-      'true 表示允许运行时使用应用机器人 Stream 模式。',
-      'false 表示不启用 Stream 模式；群消息推送仍应使用 FEISHU_WEBHOOK_URL。',
-      '只填写 App ID/Secret 或只开启 Stream，不等于启用群 Webhook 推送。',
-    ],
-    impact: [
-      '影响飞书应用机器人交互或 Stream Bot 链路。',
-      '不会改变 FEISHU_WEBHOOK_URL 的群机器人 Webhook 推送语义。',
-    ],
-    notes: [
-      '保存后通常需要重启相关 bot/服务进程，已运行的长连接不会自动重建。',
-      '失败只应影响飞书应用机器人链路，不应拖垮主分析流程。',
-    ],
-  },
-  'settings.notification.FEISHU_CHAT_ID': {
-    title: '飞书 App Bot 推送目标',
-    summary: '配置飞书应用机器人主动推送的目标 chat_id（群聊模式）或 open_id（私聊模式）。',
-    usage: '需要同时填写 FEISHU_APP_ID 和 FEISHU_APP_SECRET。群聊模式填写 oc_ 开头的 chat_id；私聊模式填写 ou_ 开头的 open_id 并将 FEISHU_RECEIVE_ID_TYPE 设为 open_id。',
-    valueNotes: [
-      '仅凭 FEISHU_APP_ID / FEISHU_APP_SECRET 不会自动启用群 Webhook 推送。',
-      'App Bot 模式与 Webhook 模式互斥：Webhook URL 优先，未配置 Webhook 时才走 App Bot。',
-    ],
-    impact: [
-      '影响飞书 App Bot 通知渠道的送达目标。',
-      '失败时不应拖垮主分析流程，只影响该渠道送达。',
-    ],
-    notes: [
-      'App Bot 需要应用拥有 im:message:send_as_bot 权限。',
-      '私聊需要用户在飞书端主动打开过与应用机器人的对话框。',
-    ],
-  },
-  'settings.notification.FEISHU_RECEIVE_ID_TYPE': {
-    title: '飞书接收方 ID 类型',
-    summary: '指定 FEISHU_CHAT_ID 的类型：chat_id 表示群聊，open_id 表示私聊。',
-    usage: '群聊选择 chat_id；私聊（给指定用户发 P2P 消息）选择 open_id。',
-    valueNotes: [
-      '仅当 FEISHU_CHAT_ID 已填写时生效。',
-      '填错类型会导致消息发送失败；如果收到 invalid receive_id 错误，需要确认该值与前端的实际 ID 类型一致。',
-    ],
-    impact: ['影响飞书 App Bot 消息的路由方式。'],
-    notes: ['大多数场景使用 chat_id 即可；如果值不是 chat_id 或 open_id，运行时会自动回退到 chat_id。'],
-  },
-  'settings.notification.FEISHU_DOMAIN': {
-    title: '飞书 API 域名',
-    summary: '选择飞书 API 的区域：feishu 对应飞书国内版（feishu.cn），lark 对应 Lark 国际版（larksuite.com）。',
-    usage: '国内用户选择 feishu；海外 / Lark 用户选择 lark。',
-    valueNotes: [
-      '仅影响 App Bot 主动推送的 API 调用域名，不影响 Webhook URL。',
-      '选错会导致 API 调用失败（SDK 连错服务器）。',
-    ],
-    impact: ['影响飞书 App Bot 主动推送的 API 连通性。'],
-    notes: ['如果值不是 feishu 或 lark，运行时会自动回退到 feishu。'],
-  },
-  'settings.notification.DINGTALK_STREAM_ENABLED': {
-    title: '钉钉 Stream 模式',
-    summary: '启用钉钉应用机器人长连接模式，不是普通钉钉群机器人 Webhook 开关。',
-    usage: '需要先在钉钉开放平台配置应用机器人，并填写 DINGTALK_APP_KEY 和 DINGTALK_APP_SECRET。',
-    valueNotes: [
-      'true 表示允许运行时使用钉钉应用机器人 Stream/长连接模式。',
-      'false 表示不启用该长连接模式；自定义 Webhook 中的钉钉群机器人地址仍走 CUSTOM_WEBHOOK_URLS。',
-    ],
-    impact: [
-      '影响钉钉应用机器人交互或长连接链路。',
-      '不会改变自定义 Webhook 通知的发送路径。',
-    ],
-    notes: [
-      '保存后通常需要重启相关 bot/服务进程，已运行的长连接不会自动重建。',
-      '不要把 Stream 模式和群机器人 Webhook 混为一条配置路径。',
-    ],
-  },
-  'settings.notification.webhooks': {
-    title: '企业微信 Webhook',
-    summary: '配置企业微信群机器人 Webhook，用于把分析报告推送到指定群。',
-    usage: '在企业微信群中创建机器人后，复制 qyapi.weixin.qq.com/cgi-bin/webhook/send 开头的 Webhook URL。',
-    valueNotes: [
-      'Webhook URL 通常包含敏感 token，应按密钥处理。',
-      '不同平台对消息长度、格式和频率限制不同。',
-    ],
-    impact: ['影响对应 Webhook 通知渠道的报告送达。'],
-    notes: ['单个通知渠道失败不应阻断主分析流程。'],
-  },
-  'settings.notification.CUSTOM_WEBHOOK_URLS': {
-    title: '自定义 Webhook',
-    summary: '向任意支持 POST JSON 的服务推送报告。',
-    usage: '多个 URL 使用英文逗号分隔；如需自定义 body，可配置 CUSTOM_WEBHOOK_BODY_TEMPLATE。',
-    valueNotes: [
-      '模板必须渲染为 JSON object。',
-      '推荐使用 $content_json、$title_json 避免换行和引号破坏 JSON。',
-    ],
-    impact: ['影响 AstrBot、NapCat、自建服务等自定义推送。'],
-    notes: ['先用一个 Webhook 验证成功，再扩展到多个目标。'],
-  },
-  'settings.notification.WEBHOOK_VERIFY_SSL': {
-    title: 'Webhook SSL 校验',
-    summary: '控制发送 HTTPS Webhook 时是否校验证书。',
-    usage: '默认保持 true；只有可信内网自签证书场景才考虑 false。',
-    valueNotes: ['关闭校验会降低中间人攻击防护。'],
-    impact: ['影响所有自定义 Webhook HTTPS 请求的 TLS 校验行为。'],
-    notes: ['公网环境不要关闭 SSL 校验。'],
-  },
-  'settings.notification.telegram': {
-    title: 'Telegram 推送',
-    summary: '通过 Telegram Bot 向个人、群组或 Topic 推送报告。',
-    usage: '使用 @BotFather 创建 Bot，填写 Bot Token 和目标 Chat ID；群组 Topic 可额外填写 Thread ID。',
-    valueNotes: ['Bot 需要被加入目标群组并具备发言权限。'],
-    impact: ['影响 Telegram 通知渠道。'],
-    notes: ['群组 Chat ID 通常是负数或 -100 开头。'],
-  },
   'settings.notification.email': {
     title: '邮件通知',
     summary: '通过 SMTP 邮箱发送分析报告。',
@@ -401,14 +272,6 @@ const settingsHelpZhCN: SettingsHelpMap = {
     ],
     impact: ['影响邮件报告发送、分组收件和大盘复盘邮件送达。'],
     notes: ['不同邮箱服务商需要先开启 SMTP 服务。'],
-  },
-  'settings.notification.chat_bots': {
-    title: '聊天平台 Bot',
-    summary: '配置 Discord、Slack、Pushover、ServerChan 等聊天或推送平台。',
-    usage: '按平台选择 Webhook 或 Bot Token 模式；Bot 模式通常还需要频道 ID。',
-    valueNotes: ['同一平台同时配置 Bot 与 Webhook 时，代码可能按既定优先级选择其中一种。'],
-    impact: ['影响对应聊天平台通知渠道。'],
-    notes: ['Bot Token、Webhook URL、SendKey 都应按密钥处理。'],
   },
   'settings.notification.report_output': {
     title: '报告输出设置',
@@ -915,12 +778,12 @@ const settingsHelpZhCN: SettingsHelpMap = {
   'settings.notification.channel_routing': {
     title: '通知渠道路由',
     summary: '为不同类型的通知指定目标推送渠道。',
-    usage: '三个路由字段分别控制报告推送、告警推送和系统错误推送的目标渠道。使用英文逗号分隔渠道名；留空则推送到所有已配置渠道。',
+    usage: '三个路由字段分别用于报告、告警和系统错误通知。仅支持 email；留空同样使用已配置的邮箱。',
     valueNotes: [
       'NOTIFICATION_REPORT_CHANNELS 控制日常分析报告推送渠道。',
       'NOTIFICATION_ALERT_CHANNELS 控制事件告警推送渠道。',
       'NOTIFICATION_SYSTEM_ERROR_CHANNELS 控制系统错误推送渠道。',
-      '可用渠道取决于已配置的通知渠道（如 email、feishu、telegram 等）。',
+      '仅支持邮件，需同时配置 EMAIL_SENDER 和 EMAIL_PASSWORD。',
     ],
     impact: ['影响不同通知类型的推送目标。'],
     notes: ['指定的渠道必须已完成对应配置，否则不会生效。'],
@@ -1250,127 +1113,6 @@ const settingsHelpEnUS: SettingsHelpMap = {
     impact: ['Affects news context size, freshness, and report length.'],
     notes: ['Too wide can include stale news; too narrow can miss slow-moving events.'],
   },
-  'settings.notification.FEISHU_WEBHOOK_URL': {
-    title: 'Feishu Webhook URL',
-    summary: 'Sends analysis reports to a Feishu group through a custom bot webhook.',
-    usage: 'Create a custom bot in the target Feishu group and paste the open-apis/bot/v2/hook webhook URL here.',
-    valueNotes: [
-      'If signing is enabled, also set FEISHU_WEBHOOK_SECRET.',
-      'If keyword protection is enabled, also set FEISHU_WEBHOOK_KEYWORD; the sender prepends it automatically.',
-      'FEISHU_APP_ID / FEISHU_APP_SECRET are for app, cloud-doc, or Stream Bot modes and do not enable group webhook delivery.',
-    ],
-    impact: ['Affects only the Feishu notification channel; delivery failure should not block the main analysis flow.'],
-    notes: [
-      'Do not use FEISHU_APP_SECRET as FEISHU_WEBHOOK_SECRET.',
-      'If IP allowlisting is enabled in Feishu, add the outbound IP of your runtime environment.',
-    ],
-  },
-  'settings.notification.FEISHU_STREAM_ENABLED': {
-    title: 'Feishu Stream Mode',
-    summary: 'Enables Feishu application bot / Stream Bot long-connection mode. It is not the Feishu group webhook switch.',
-    usage: 'Enable it only after the Feishu app is created, published, granted permissions, and configured for events. FEISHU_APP_ID and FEISHU_APP_SECRET are also required.',
-    valueNotes: [
-      'true allows runtime Feishu app bot stream mode.',
-      'false disables stream mode; group message delivery still uses FEISHU_WEBHOOK_URL.',
-      'App credentials or this switch alone do not enable group webhook delivery.',
-    ],
-    impact: [
-      'Affects Feishu application bot interaction or Stream Bot paths.',
-      'Does not change FEISHU_WEBHOOK_URL group webhook delivery semantics.',
-    ],
-    notes: [
-      'Restart the relevant bot/service process after saving; existing long connections are not rebuilt automatically.',
-      'Failures should affect only the Feishu app bot path, not the main analysis flow.',
-    ],
-  },
-  'settings.notification.FEISHU_CHAT_ID': {
-    title: 'Feishu App Bot Push Target',
-    summary: 'Configures the target chat_id (group mode) or open_id (P2P mode) for Feishu App Bot notification delivery.',
-    usage: 'FEISHU_APP_ID and FEISHU_APP_SECRET must also be configured. For groups, use a chat_id starting with oc_. For P2P, use an open_id starting with ou_ and set FEISHU_RECEIVE_ID_TYPE to open_id.',
-    valueNotes: [
-      'FEISHU_APP_ID / FEISHU_APP_SECRET alone do not enable group webhook delivery.',
-      'App Bot mode and Webhook mode are mutually exclusive: webhook URL takes priority; App Bot is used only when no webhook URL is configured.',
-    ],
-    impact: [
-      'Affects the target destination for the Feishu App Bot notification channel.',
-      'Delivery failure should not block the main analysis flow.',
-    ],
-    notes: [
-      'The app bot needs the im:message:send_as_bot permission.',
-      'For P2P messages, the target user must have previously opened the conversation with the app bot in Feishu.',
-    ],
-  },
-  'settings.notification.FEISHU_RECEIVE_ID_TYPE': {
-    title: 'Feishu Receive ID Type',
-    summary: 'Specifies the type of FEISHU_CHAT_ID: chat_id for group chat, open_id for P2P private message.',
-    usage: 'Choose chat_id for groups; choose open_id for sending P2P messages to a specific user.',
-    valueNotes: [
-      'Only takes effect when FEISHU_CHAT_ID is also configured.',
-      'If the type does not match the actual ID, sending will fail with an invalid receive_id error.',
-    ],
-    impact: ['Affects the routing of Feishu App Bot messages.'],
-    notes: ['chat_id covers most use cases. If the value is neither chat_id nor open_id, the runtime falls back to chat_id.'],
-  },
-  'settings.notification.FEISHU_DOMAIN': {
-    title: 'Feishu API Domain',
-    summary: 'Selects the Feishu API region: feishu for mainland China (feishu.cn), lark for international (larksuite.com).',
-    usage: 'Mainland China users choose feishu; international / Lark users choose lark.',
-    valueNotes: [
-      'Only affects the API domain used by App Bot notification delivery; does not affect webhook URLs.',
-      'Choosing the wrong domain causes API errors (SDK connects to the wrong server).',
-    ],
-    impact: ['Affects API connectivity for Feishu App Bot notification delivery.'],
-    notes: ['If the value is neither feishu nor lark, the runtime falls back to feishu.'],
-  },
-  'settings.notification.DINGTALK_STREAM_ENABLED': {
-    title: 'DingTalk Stream Mode',
-    summary: 'Enables DingTalk application bot long-connection mode. It is not the regular DingTalk group webhook switch.',
-    usage: 'Configure a DingTalk application bot first, then provide DINGTALK_APP_KEY and DINGTALK_APP_SECRET.',
-    valueNotes: [
-      'true allows runtime DingTalk app bot stream/long-connection mode.',
-      'false disables that long-connection mode; DingTalk group webhook URLs in CUSTOM_WEBHOOK_URLS still use the custom webhook path.',
-    ],
-    impact: [
-      'Affects DingTalk application bot interaction or long-connection paths.',
-      'Does not change custom webhook notification delivery.',
-    ],
-    notes: [
-      'Restart the relevant bot/service process after saving; existing long connections are not rebuilt automatically.',
-      'Do not treat Stream mode and group bot Webhook as the same delivery path.',
-    ],
-  },
-  'settings.notification.webhooks': {
-    title: 'Enterprise WeChat Webhook',
-    summary: 'Configures an Enterprise WeChat group bot webhook for report delivery.',
-    usage: 'Create a group bot in Enterprise WeChat and paste the Webhook URL that starts with qyapi.weixin.qq.com/cgi-bin/webhook/send.',
-    valueNotes: ['Webhook URLs often contain sensitive tokens.', 'Platforms differ in message length, format, and rate limits.'],
-    impact: ['Affects delivery for the corresponding webhook channel.'],
-    notes: ['A single notification failure should not block the main analysis flow.'],
-  },
-  'settings.notification.CUSTOM_WEBHOOK_URLS': {
-    title: 'Custom Webhooks',
-    summary: 'Pushes reports to any service that accepts POST JSON.',
-    usage: 'Use comma-separated URLs. CUSTOM_WEBHOOK_BODY_TEMPLATE can customize the JSON body.',
-    valueNotes: ['The template must render to a JSON object.', 'Prefer $content_json and $title_json to avoid invalid JSON.'],
-    impact: ['Affects AstrBot, NapCat, or self-hosted push integrations.'],
-    notes: ['Validate one webhook before adding multiple targets.'],
-  },
-  'settings.notification.WEBHOOK_VERIFY_SSL': {
-    title: 'Webhook SSL Verification',
-    summary: 'Controls HTTPS certificate verification for webhook requests.',
-    usage: 'Keep true by default. Use false only for trusted internal self-signed certificates.',
-    valueNotes: ['Disabling verification weakens MITM protection.'],
-    impact: ['Affects TLS verification for custom webhook HTTPS requests.'],
-    notes: ['Do not disable SSL verification on public networks.'],
-  },
-  'settings.notification.telegram': {
-    title: 'Telegram Delivery',
-    summary: 'Sends reports through a Telegram Bot.',
-    usage: 'Create a bot with @BotFather, then set Bot Token and Chat ID. Topic delivery can also set Thread ID.',
-    valueNotes: ['The bot must be added to the target group and allowed to post.'],
-    impact: ['Affects Telegram notifications.'],
-    notes: ['Group Chat IDs are often negative or start with -100.'],
-  },
   'settings.notification.email': {
     title: 'Email Delivery',
     summary: 'Sends analysis reports through SMTP.',
@@ -1378,14 +1120,6 @@ const settingsHelpEnUS: SettingsHelpMap = {
     valueNotes: ['EMAIL_PASSWORD is usually an app authorization code, not the web login password.', 'STOCK_GROUP_N and EMAIL_GROUP_N can route groups to different receivers.'],
     impact: ['Affects email reports, grouped recipients, and market-review emails.'],
     notes: ['Enable SMTP in the mailbox provider first.'],
-  },
-  'settings.notification.chat_bots': {
-    title: 'Chat Platform Bots',
-    summary: 'Configures Discord, Slack, Pushover, ServerChan, and similar channels.',
-    usage: 'Choose Webhook or Bot Token mode for the platform; Bot mode usually also needs a channel ID.',
-    valueNotes: ['When both Bot and Webhook are configured, existing code may prefer one mode.'],
-    impact: ['Affects the corresponding chat notification channel.'],
-    notes: ['Bot tokens, webhook URLs, and SendKeys are secrets.'],
   },
   'settings.notification.report_output': {
     title: 'Report Output',
@@ -1884,12 +1618,12 @@ const settingsHelpEnUS: SettingsHelpMap = {
   'settings.notification.channel_routing': {
     title: 'Notification Channel Routing',
     summary: 'Specifies target push channels for different notification types.',
-    usage: 'Three routing fields control the target channels for report pushes, alert pushes, and system error pushes. Use comma-separated channel names. Leave empty to push to all configured channels.',
+    usage: 'The routing fields cover reports, alerts, and system errors. Only email is supported; an empty value also uses the configured email transport.',
     valueNotes: [
       'NOTIFICATION_REPORT_CHANNELS controls daily analysis report delivery.',
       'NOTIFICATION_ALERT_CHANNELS controls event alert delivery.',
       'NOTIFICATION_SYSTEM_ERROR_CHANNELS controls system error delivery.',
-      'Available channels depend on configured notification channels (e.g. email, feishu, telegram).',
+      'Only email is supported; configure both EMAIL_SENDER and EMAIL_PASSWORD.',
     ],
     impact: ['Affects the push targets for different notification types.'],
     notes: ['Specified channels must be properly configured, or they will not work.'],

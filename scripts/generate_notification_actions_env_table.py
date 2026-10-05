@@ -25,7 +25,7 @@ from ai_stock.services.notification_diagnostics import (  # noqa: E402
     P6_CHANNEL_ACTIONS_ENV_KEYS,
 )
 
-WORKFLOW_PATH = ROOT_DIR / ".github/workflows/00-daily-analysis.yml"
+WORKFLOW_PATH = ROOT_DIR / ".github/workflows/disabled/00-daily-analysis.yml"
 DOCS_PATH = ROOT_DIR / "docs/notifications.md"
 TABLE_START = "<!-- notification-actions-env-table:start -->"
 TABLE_END = "<!-- notification-actions-env-table:end -->"

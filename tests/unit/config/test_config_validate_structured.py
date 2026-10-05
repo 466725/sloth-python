@@ -40,21 +40,8 @@ def _make_config(**kwargs) -> Config:
         serpapi_keys=[],
         searxng_base_urls=[],
         searxng_public_instances_enabled=True,
-        wechat_webhook_url="https://example.com/webhook",
-        feishu_webhook_url=None,
-        telegram_bot_token=None,
-        telegram_chat_id=None,
-        email_sender=None,
-        email_password=None,
-        pushover_user_key=None,
-        pushover_api_token=None,
-        pushplus_token=None,
-        serverchan3_sendkey=None,
-        custom_webhook_urls=[],
-        discord_bot_token=None,
-        discord_main_channel_id=None,
-        discord_webhook_url=None,
-        discord_interactions_public_key=None,
+        email_sender="sender@example.com",
+        email_password="app-password",
         llm_channels=[],
         litellm_config_path=None,
         gemini_api_key=None,
@@ -356,7 +343,7 @@ class TestValidateStructuredLLM:
 
 class TestValidateStructuredNotification:
     def test_notification_configured_no_warning(self):
-        cfg = _make_config(wechat_webhook_url="https://example.com/wh")
+        cfg = _make_config(email_sender="sender@example.com", email_password="app-password")
         issues = cfg.validate_structured()
         assert not any(i.severity == "warning" and "通知渠道" in i.message for i in issues)
 
@@ -378,57 +365,10 @@ class TestValidateStructuredNotification:
             for i in issues
         )
 
-    def test_astrbot_url_counts_as_notification_channel(self):
-        cfg = _make_config(
-            wechat_webhook_url=None,
-            astrbot_url="https://astrbot.example/webhook",
-        )
-        issues = cfg.validate_structured()
-        assert not any(i.severity == "warning" and "通知渠道" in i.message for i in issues)
 
-    def test_ntfy_topic_endpoint_counts_as_notification_channel(self):
-        cfg = _make_config(wechat_webhook_url=None, ntfy_url="https://ntfy.sh/dsa-topic")
-        issues = cfg.validate_structured()
 
-        assert not any(i.field == "NTFY_URL" for i in issues)
-        assert not any(i.severity == "warning" and "通知渠道" in i.message for i in issues)
 
-    def test_gotify_url_and_token_count_as_notification_channel(self):
-        cfg = _make_config(
-            wechat_webhook_url=None,
-            gotify_url="https://gotify.example",
-            gotify_token="app-token",
-        )
-        issues = cfg.validate_structured()
 
-        assert not any(i.field == "GOTIFY_URL" for i in issues)
-        assert not any(i.severity == "warning" and "通知渠道" in i.message for i in issues)
-
-    def test_feishu_cloud_doc_credentials_without_webhook_no_mode_warning(self):
-        cfg = _make_config(
-            wechat_webhook_url=None,
-            feishu_app_id="cli_xxx",
-            feishu_app_secret="secret_xxx",
-            feishu_folder_token="folder_xxx",
-            feishu_webhook_url=None,
-            feishu_stream_enabled=False,
-        )
-        issues = cfg.validate_structured()
-        warn = [i for i in issues if i.severity == "warning"]
-        assert not any("FEISHU_APP_ID / FEISHU_APP_SECRET" in i.message for i in warn)
-
-    def test_feishu_app_bot_triad_without_webhook_no_mode_warning(self):
-        cfg = _make_config(
-            wechat_webhook_url=None,
-            feishu_app_id="cli_xxx",
-            feishu_app_secret="secret_xxx",
-            feishu_chat_id="oc_xxx",
-            feishu_webhook_url=None,
-            feishu_stream_enabled=False,
-        )
-        issues = cfg.validate_structured()
-        warn = [i for i in issues if i.severity == "warning"]
-        assert not any("FEISHU_APP_ID / FEISHU_APP_SECRET" in i.message for i in warn)
 
     def test_invalid_notification_noise_config_reports_errors(self):
         cfg = _make_config(
@@ -577,64 +517,6 @@ class TestVisionKeyValidation:
 # Env alias compatibility
 # ---------------------------------------------------------------------------
 
-class TestEnvAliasCompatibility:
-    @patch("ai_stock.config.setup_env")
-    @patch.object(Config, "_parse_litellm_yaml", return_value=[])
-    def test_discord_channel_id_legacy_alias_is_still_loaded(
-        self,
-        _mock_parse_yaml,
-        _mock_setup_env,
-    ):
-        with patch.dict(
-            "os.environ",
-            {
-                "DISCORD_BOT_TOKEN": "token",
-                "DISCORD_CHANNEL_ID": "legacy-channel",
-            },
-            clear=True,
-        ):
-            config = Config._load_from_env()
-
-        assert config.discord_bot_token == "token"
-        assert config.discord_main_channel_id == "legacy-channel"
-
-    @patch("ai_stock.config.setup_env")
-    @patch.object(Config, "_parse_litellm_yaml", return_value=[])
-    def test_discord_main_channel_id_takes_precedence_over_legacy_alias(
-        self,
-        _mock_parse_yaml,
-        _mock_setup_env,
-    ):
-        with patch.dict(
-            "os.environ",
-            {
-                "DISCORD_BOT_TOKEN": "token",
-                "DISCORD_CHANNEL_ID": "legacy-channel",
-                "DISCORD_MAIN_CHANNEL_ID": "main-channel",
-            },
-            clear=True,
-        ):
-            config = Config._load_from_env()
-
-        assert config.discord_main_channel_id == "main-channel"
-
-    @patch("ai_stock.config.setup_env")
-    @patch.object(Config, "_parse_litellm_yaml", return_value=[])
-    def test_discord_interactions_public_key_is_loaded(
-        self,
-        _mock_parse_yaml,
-        _mock_setup_env,
-    ):
-        with patch.dict(
-            "os.environ",
-            {
-                "DISCORD_INTERACTIONS_PUBLIC_KEY": "abcdef123456",
-            },
-            clear=True,
-        ):
-            config = Config._load_from_env()
-
-        assert config.discord_interactions_public_key == "abcdef123456"
 
 
 # ---------------------------------------------------------------------------

@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request
+from pydantic import ValidationError
 
 from tests.unit.llm.litellm_stub import ensure_litellm_stub
 
@@ -606,10 +607,10 @@ class SystemConfigApiTestCase(unittest.TestCase):
                     "latency_ms": 42,
                     "attempts": [
                         {
-                            "channel": "wechat",
+                            "channel": "email",
                             "success": True,
                             "message": "sent",
-                            "target": "https://qyapi.example.com/cgi-bin/webhook/send?key=***",
+                            "target": "r***@example.com",
                             "error_code": None,
                             "stage": "notification_send",
                             "retryable": False,
@@ -621,8 +622,8 @@ class SystemConfigApiTestCase(unittest.TestCase):
         ) as mock_test:
             payload = system_config.test_notification_channel(
                 request=TestNotificationChannelRequest(
-                    channel="wechat",
-                    items=[{"key": "WECHAT_WEBHOOK_URL", "value": "https://example.com/hook"}],
+                    channel="email",
+                    items=[{"key": "EMAIL_SENDER", "value": "sender@example.com"}],
                     title="DSA 通知测试",
                     content="hello",
                     timeout_seconds=5,
@@ -631,33 +632,19 @@ class SystemConfigApiTestCase(unittest.TestCase):
             ).model_dump()
 
         self.assertTrue(payload["success"])
-        self.assertEqual(payload["attempts"][0]["channel"], "wechat")
+        self.assertEqual(payload["attempts"][0]["channel"], "email")
         self.assertEqual(payload["attempts"][0]["latency_ms"], 42)
         mock_test.assert_called_once()
-        self.assertEqual(mock_test.call_args.kwargs["channel"], "wechat")
+        self.assertEqual(mock_test.call_args.kwargs["channel"], "email")
         self.assertEqual(mock_test.call_args.kwargs["timeout_seconds"], 5)
 
-    def test_test_notification_channel_schema_accepts_p6_channels(self) -> None:
-        ntfy_request = TestNotificationChannelRequest(
-            channel="ntfy",
-            items=[{"key": "NTFY_URL", "value": "https://ntfy.sh/dsa-topic"}],
-            title="DSA 通知测试",
-            content="hello",
-            timeout_seconds=5,
-        )
-        gotify_request = TestNotificationChannelRequest(
-            channel="gotify",
-            items=[
-                {"key": "GOTIFY_URL", "value": "https://gotify.example"},
-                {"key": "GOTIFY_TOKEN", "value": "app-token"},
-            ],
-            title="DSA 通知测试",
-            content="hello",
-            timeout_seconds=5,
-        )
-
-        self.assertEqual(ntfy_request.channel, "ntfy")
-        self.assertEqual(gotify_request.channel, "gotify")
+    def test_test_notification_channel_schema_rejects_removed_channels(self) -> None:
+        for channel in (
+            "wechat", "feishu", "telegram", "pushover", "ntfy", "gotify",
+            "pushplus", "serverchan3", "custom", "discord", "slack", "astrbot",
+        ):
+            with self.subTest(channel=channel), self.assertRaises(ValidationError):
+                TestNotificationChannelRequest(channel=channel, items=[])
 
     def test_validate_returns_user_facing_model_message_without_internal_env_key_name(self) -> None:
         validation = self.service.validate(
