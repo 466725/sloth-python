@@ -105,7 +105,7 @@ Appium-Python-Client>=6.0.7
 # Communication Platforms
 # ===================================
 discord.py>=2.0.0
-lark-oapi>=1.0.0
+lark-oapi>=1.7.3
 dingtalk-stream>=0.24.3
 
 # ===================================
