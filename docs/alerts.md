@@ -1,31 +1,33 @@
-# 实时告警中心
+# Alert Center
 
-告警中心仅支持 **涨跌幅（Price change）**。规则使用实时行情中的涨跌幅百分比，
-不是固定价格，也不是相对于上一次轮询的价格变化。
+The alert center currently supports one rule type: **percentage price change**
+(`price_change_percent`). It evaluates the percentage change reported by the
+current real-time quote. It does not compare the current price with the previous
+polling cycle, and it is not a fixed-price alert.
 
-## 创建规则
+## Create a rule
 
-在 Web 的 Alerts 页面填写名称、目标范围、方向、百分比阈值和严重程度。
-规则类型固定为 Price change。
+Create rules from the Web app's **Alerts** page or through the API. The Web form
+supports the following fields:
 
-| 字段 | 支持值与语义 |
+| Field | Supported values and meaning |
 | --- | --- |
-| `alert_type` | 仅 `price_change_percent` |
-| `target_scope` | `single_symbol` 或 `watchlist` |
-| `target` | 单标的股票代码；自选股固定为 `default` |
-| `parameters.direction` | `up` 或 `down` |
-| `parameters.change_pct` | 有限且大于零的百分比数值；例如 `3` 表示 3% |
-| `severity` | `info`、`warning`、`critical` |
-| `enabled` | 是否启用后台评估 |
+| `alert_type` | `price_change_percent` only |
+| `target_scope` | `single_symbol` or `watchlist` |
+| `target` | A stock symbol for `single_symbol`; `default` for `watchlist` |
+| `parameters.direction` | `up` or `down` |
+| `parameters.change_pct` | A finite number greater than zero, in percent; `3` means 3% |
+| `severity` | `info`, `warning`, or `critical` |
+| `enabled` | Whether the background worker evaluates the rule |
 
-上涨规则在实时涨跌幅 **大于等于** 正阈值时触发；下跌规则在实时涨跌幅
-**小于等于** 负阈值时触发。下跌方向的阈值仍填写正数。
-缺少行情或有效涨跌幅时不触发，记录 `skipped`；数据源异常记录 `failed`，
-诊断内容会脱敏。一次规则失败不会阻止其他规则。
+An `up` rule triggers when the quote's change percentage is greater than or equal
+to the positive threshold. A `down` rule triggers when it is less than or equal to
+the negative threshold; enter the threshold as a positive number for either
+direction. If a quote or valid change percentage is unavailable, evaluation is
+skipped. Evaluation errors are recorded as failures with sanitized diagnostics.
+A failed rule does not stop the worker from evaluating other rules.
 
-### API 示例
-
-`POST /api/v1/alerts/rules`：
+Example request for `POST /api/v1/alerts/rules`:
 
 ```json
 {
@@ -39,13 +41,17 @@
 }
 ```
 
-自选股规则使用 `target_scope=watchlist`、`target=default`，评估时读取最新
-`STOCK_LIST`，去重并最多展开 100 个标的。每个标的独立记录触发历史与冷却状态。
-空自选股会记录跳过原因。一次性测试有单标的和总时限，并限制返回的明细数量。
+For a watchlist rule, send `"target_scope": "watchlist"` and
+`"target": "default"`. Each worker cycle refreshes the configured `STOCK_LIST`,
+removes duplicate symbols, and expands the rule to at most 100 symbols. Trigger
+history and cooldowns are tracked per expanded symbol. An empty watchlist is
+recorded as skipped. A dry run has a 10-second per-target timeout and a 30-second
+total timeout; its response includes at most 20 target details.
 
-## 运行与邮件通知
+## Background evaluation and notifications
 
-配置入口：
+The alert worker runs only in schedule mode. Enable it and choose its polling
+interval with:
 
 ```dotenv
 AGENT_EVENT_MONITOR_ENABLED=true
@@ -53,58 +59,81 @@ AGENT_EVENT_MONITOR_INTERVAL_MINUTES=5
 AGENT_EVENT_ALERT_RULES_JSON=
 ```
 
-在 schedule 模式启动应用后，后台 worker 周期性加载已启用的持久化规则。
-无需重启即可评估随后通过 Web/API 创建的规则。
-通知仅使用邮件，遵守 `NOTIFICATION_ALERT_CHANNELS` 路由和通知网关的噪声控制。
-详见 [邮件通知指南](notifications.md)。
+The worker runs immediately when schedule mode starts, then polls at the configured
+interval (default: five minutes). It loads enabled rules from the database and
+legacy rules from `AGENT_EVENT_ALERT_RULES_JSON`. Rules created or changed through
+the Web app or API are picked up on a subsequent poll without restarting the
+application.
 
-数据库规则默认冷却 24 小时；`cooldown_policy.cooldown_seconds` 可覆盖冷却秒数，
-`0` 表示不做规则冷却。只有真实邮件发送成功才开始冷却；
-发送失败、没有可用渠道或网关抑制不会开始新的冷却窗口。
-通知尝试记录渠道、成功状态、错误码与脱敏诊断。
+Triggered alerts use the configured email notification route. Configure
+`NOTIFICATION_ALERT_CHANNELS` and SMTP settings as described in the
+[email notification guide](notifications.md). Notification noise controls also
+apply to alerts.
 
-### Legacy JSON
+Database rules use a 24-hour cooldown by default. Set
+`cooldown_policy.cooldown_seconds` to override it; `0` disables the rule
+cooldown. A new database cooldown starts only after a real notification channel
+succeeds. Failed delivery, no available channel, or gateway suppression does not
+start a new cooldown. Cooldown-suppressed alerts are still recorded as notification
+attempts. Legacy JSON rules use a 24-hour in-process duplicate-suppression
+fingerprint; this state is not persisted across application restarts.
 
-`AGENT_EVENT_ALERT_RULES_JSON` 继续支持单标的涨跌幅规则：
+## Legacy JSON rules
+
+`AGENT_EVENT_ALERT_RULES_JSON` accepts a JSON array of single-symbol percentage
+change rules. It does not support watchlist expansion:
 
 ```dotenv
 AGENT_EVENT_ALERT_RULES_JSON=[{"stock_code":"600519","alert_type":"price_change_percent","direction":"up","change_pct":3}]
 ```
 
-Legacy JSON 不支持自选股展开。Web/System 配置保存会严格校验；
-运行时跳过无效条目并记录警告，剩余有效规则继续运行。
-数据库规则与 legacy JSON 具有相同目标和参数时，数据库规则优先。
-Legacy 规则使用进程内 fingerprint 防止重复通知，不提供跨重启持久化冷却。
-应用不会改写用户已有环境文件。
+The runtime skips invalid legacy entries and logs a warning while continuing with
+valid rules. If a database rule and a legacy rule have the same target, type, and
+parameters, the database rule takes precedence. Existing environment files are
+not rewritten automatically.
 
-## API 与数据记录
+## API and stored records
 
-| 操作 | 接口 |
+| Operation | Endpoint |
 | --- | --- |
-| 创建 / 列出规则 | `POST /api/v1/alerts/rules` / `GET /api/v1/alerts/rules` |
-| 获取 / 更新 / 删除 | `GET` / `PATCH` / `DELETE /api/v1/alerts/rules/{rule_id}` |
-| 启用 / 禁用 | `POST /api/v1/alerts/rules/{rule_id}/enable` 或 `/disable` |
-| 一次性测试 | `POST /api/v1/alerts/rules/{rule_id}/test` |
-| 触发历史 | `GET /api/v1/alerts/triggers` |
-| 通知尝试 | `GET /api/v1/alerts/notifications` |
+| Create / list rules | `POST /api/v1/alerts/rules` / `GET /api/v1/alerts/rules` |
+| Get / update / delete a rule | `GET` / `PATCH` / `DELETE /api/v1/alerts/rules/{rule_id}` |
+| Enable / disable a rule | `POST /api/v1/alerts/rules/{rule_id}/enable` or `/disable` |
+| Dry-run a rule | `POST /api/v1/alerts/rules/{rule_id}/test` |
+| List trigger history | `GET /api/v1/alerts/triggers` |
+| List notification attempts | `GET /api/v1/alerts/notifications` |
 
-测试接口只评估，不发送邮件，不写入真实触发历史或通知尝试。
-规则列表支持状态、目标、来源与分页筛选。
-创建、更新或按其他规则类型/目标范围查询会被拒绝。
+The rule-list endpoint supports filters for `enabled`, `alert_type`,
+`target_scope`, `target`, and `source`. Trigger history can be filtered by
+`rule_id`, `target`, and `status`; notification attempts can be filtered by
+`trigger_id`, `channel`, and `success`. All three list endpoints are paginated.
+Unsupported alert types and target scopes are rejected.
 
-持久化表仍为 `alert_rules`、`alert_triggers`、`alert_notifications`、
-`alert_cooldowns`。触发记录保存观察值、阈值、原因、数据源、数据时间和状态；
-不伪造缺失的数据时间。股票告警保留分析阶段摘要、上下文包概览和 AI 信号关联，
-不提供新的 AI 自动交易行为。
+The dry-run endpoint evaluates the rule without sending email or writing trigger
+history or notification attempts. Background evaluation records triggered,
+skipped, degraded, and failed results.
 
-## 已有数据清理与部署
+Alert data is stored in `alert_rules`, `alert_triggers`, `alert_notifications`,
+and `alert_cooldowns`. Trigger records include the observed value, threshold,
+reason, data source, available quote timestamp, and status. Alert history may
+also include analysis-stage summaries and decision-signal context; alerts do not
+introduce automatic trading behavior.
 
-按照本次移除策略，初始化告警 repository（首次告警 API 访问或创建后台 worker）
-时，会在一个事务内**永久删除所有非涨跌幅规则及其关联触发历史、通知尝试和冷却记录**。
-重复初始化是幂等的。涨跌幅规则及其数据不受影响；没有规则关联的 legacy 历史不做猜测删除。
-私有 `.env` 中的旧规则不会自动删除，但会被拒绝或跳过，应手动清理。
+## Cleanup, deployment, and rollback
 
-部署时重启后端并更新 Web/桌面所用的前端资源。正在运行的旧进程不会自动加载新代码。
-如果需要回滚，请在首次启动新版前备份数据库和私有配置；
-恢复旧代码与前端资源只能恢复功能，**无法恢复已删除的数据**，需要数据库备份。
-本页同时说明中英文 UI 的相同运行契约；仓库没有单独的英文告警指南。
+When the alert repository is initialized (for example, on an alert API request or
+when the background worker starts), it permanently deletes rules whose
+`alert_type` is not `price_change_percent`, together with their associated
+trigger history, notification attempts, and cooldown records. The deletion is
+performed transactionally and is idempotent. Supported percentage-change rules
+and their records are preserved. Unlinked legacy history is not deleted.
+
+Unsupported rules in private environment configuration are not removed from the
+file; invalid entries are skipped at runtime and should be cleaned up manually.
+After deploying, restart the backend and update the Web/Desktop frontend assets.
+An already running process does not load the new application code automatically.
+
+If rollback may be needed, back up the database and private configuration before
+starting the new version. Restoring the previous code and frontend assets restores
+the old behavior, but **cannot recover data already deleted by the new version**.
+Recovery of deleted database records requires a database backup.

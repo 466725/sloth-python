@@ -36,7 +36,7 @@ def test_alert_guide_documents_delivery_cleanup_and_rollback():
         "alert_notifications",
         "alert_cooldowns",
         "/api/v1/alerts/rules/{rule_id}/test",
-        "永久删除",
-        "数据库备份",
+        "permanently deletes rules",
+        "database backup",
     ):
         assert required in text

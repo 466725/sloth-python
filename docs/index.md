@@ -22,7 +22,7 @@ or redeploy the backend to apply this change. To restore the old integrations,
 restore the bot package, its backend hooks, and dependencies together from the
 previous revision.
 
-- [Price change alerts](alerts.md) (Chinese)
+- [Price change alerts](alerts.md) (English)
 - [AnalysisContextPack quality and visibility](analysis-context-pack.md) (Chinese)
 - [Tushare stock-list tool](TUSHARE_STOCK_LIST_GUIDE.md) (Chinese)
 - [API specification](api_spec.json)
