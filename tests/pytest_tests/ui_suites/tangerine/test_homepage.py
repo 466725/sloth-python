@@ -3,8 +3,8 @@ import logging
 import allure
 import pytest
 
-from self_healing.locator_store import get_locator
-from self_healing.self_healing import find_element
+from utils.self_healing.locator_store import get_locator
+from utils.self_healing import find_element
 
 logger = logging.getLogger(__name__)
 

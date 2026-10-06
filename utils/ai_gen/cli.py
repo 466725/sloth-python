@@ -5,10 +5,10 @@ import os
 from pathlib import Path
 from typing import Any
 
-from ai_gen.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
-from ai_gen.generator import TestScriptCreator, ScriptClient
-from ai_gen.mcp_context import ContextCollector
-from ai_gen.paths import resolve_path
+from utils.ai_gen.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
+from utils.ai_gen.generator import TestScriptCreator, ScriptClient
+from utils.ai_gen.mcp_context import ContextCollector
+from utils.ai_gen.paths import resolve_path
 from utils.config.config import settings
 
 POPULAR_PLAYWRIGHT_CLI = """Popular Playwright CLI commands:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ai_gen.mcp_context import BrowserSnapshot
+from utils.ai_gen.mcp_context import BrowserSnapshot
 
 PROMPTS_DIR = Path(__file__).with_name("prompts")
 

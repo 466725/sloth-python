@@ -3,8 +3,8 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from ai_gen.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
-from ai_gen.paths import resolve_path
+from utils.ai_gen.ai_client import OpenAIChatScriptClient, OpenAIClientConfig
+from utils.ai_gen.paths import resolve_path
 from utils.config.config import settings
 
 

@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from self_healing.self_healing import click
+from utils.self_healing import click
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
@@ -16,7 +16,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from robot.libraries.BuiltIn import BuiltIn
 from playwright.sync_api import Browser, BrowserContext, Page, Playwright, sync_playwright
 
-from self_healing.locator_store import get_locator
+from utils.self_healing.locator_store import get_locator
 from utils.config.config import settings
 
 ROBOT_LIBRARY_SCOPE = "GLOBAL"
