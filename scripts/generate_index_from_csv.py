@@ -4,14 +4,14 @@
 Generate Stock Index from CSV File
 
 Input:
-  - Tushare format: data/stock_list_{a,hk,us}.csv
+  - Local catalog: ai_stock/stock_data/stock_list_{a,hk,us}.csv
   - Seed format: scripts/stock_index_seeds/stock_list_{jp,kr}.csv
   - AkShare format: logs/stock_basic_*.csv
 
 Output: apps/dsa-web/public/stocks.index.json
 
 Usage:
-    python3 scripts/generate_index_from_csv.py              # 默认使用 Tushare
+    python3 scripts/generate_index_from_csv.py              # Local CSV catalog
     python3 scripts/generate_index_from_csv.py --source akshare
     python3 scripts/generate_index_from_csv.py --test       # 测试模式
 """
@@ -27,6 +27,9 @@ from typing import List, Dict, Any, Optional
 
 # Add the project root to sys.path.
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+CATALOG_DIR = Path(__file__).parent.parent / "ai_stock" / "stock_data"
+WEB_INDEX_PATH = Path(__file__).parent.parent / "apps" / "dsa-web" / "public" / "stocks.index.json"
 
 try:
     from pypinyin import lazy_pinyin, Style
@@ -83,9 +86,9 @@ def load_csv_data(csv_path: Path) -> List[Dict[str, Any]]:
     return stocks
 
 
-def load_tushare_data(data_dir: Path) -> List[Dict[str, Any]]:
+def load_catalog_data(data_dir: Path) -> List[Dict[str, Any]]:
     """
-    从 Tushare CSV 文件加载多市场股票数据
+    从本地 CSV 文件加载多市场股票数据
 
     Args:
         data_dir: 数据目录路径
@@ -132,7 +135,7 @@ def load_tushare_data(data_dir: Path) -> List[Dict[str, Any]]:
                         continue
 
                     if market_name == 'US':
-                        # Tushare us_basic may include historical rows for a reused ticker.
+                        # Catalog exports may include historical rows for a reused ticker.
                         # Keep one deterministic row per ts_code before generating the index.
                         delist_priority = get_us_delist_priority(row)
                         existing = selected_us_stocks.get(parsed['ts_code'])
@@ -160,7 +163,7 @@ def get_us_delist_priority(row: Dict[str, str]) -> int:
     """
     为复用 ticker 的美股记录生成去重优先级。
 
-    Tushare us_basic 导出的 delist_date 对当前记录并不总是稳定：
+    CSV 导出的 delist_date 对当前记录并不总是稳定：
     - 空字符串通常表示当前仍在使用的 ticker
     - ``NaT`` 多见于历史记录或日期占位值
     - 实际日期表示明确退市
@@ -192,7 +195,7 @@ def load_akshare_data(logs_dir: Path) -> List[Dict[str, Any]]:
 
     说明：
         AkShare 这条输入路径保留其原始 name 字段，不额外套用
-        Tushare A 股那套 XD / XR / DR 状态前缀修正逻辑。这里的目标是
+        A 股的 XD / XR / DR 状态前缀修正逻辑。这里的目标是
         复用 AkShare 已输出的展示名，而不是对其做二次归一化。
     """
     csv_files = list(logs_dir.glob("stock_basic_*.csv"))
@@ -621,9 +624,9 @@ def main():
     parser = argparse.ArgumentParser(description='从 CSV 生成股票自动补全索引')
     parser.add_argument(
         '--source',
-        choices=['tushare', 'akshare'],
-        default='tushare',
-        help='数据源选择（默认: tushare）'
+        choices=['csv', 'akshare'],
+        default='csv',
+        help='数据源选择（默认: csv）'
     )
     parser.add_argument(
         '--test', '-t',
@@ -642,9 +645,19 @@ def main():
 
     # 加载数据
     print("\n[1/5] 读取 CSV 数据...")
-    if args.source == 'tushare':
-        data_dir = Path(__file__).parent.parent / 'ai_stock' / 'stock_data'
-        stocks = load_tushare_data(data_dir)
+    if args.source == 'csv':
+        data_dir = CATALOG_DIR
+        required_files = [data_dir / f"stock_list_{market}.csv" for market in ("a", "hk", "us")]
+        missing_files = [str(path) for path in required_files if not path.is_file()]
+        if missing_files:
+            print(f"[Error] Missing catalog CSV files: {', '.join(missing_files)}")
+            print("[Info] The existing stock index has not been changed.")
+            return 1
+        stocks = load_catalog_data(data_dir)
+        loaded_markets = {stock.get("market") for stock in stocks}
+        if not {"CN", "HK", "US"}.issubset(loaded_markets):
+            print("[Error] Catalog must include valid CN, HK and US rows; existing index unchanged.")
+            return 1
     elif args.source == 'akshare':
         logs_dir = Path(__file__).parent.parent / 'logs'
         stocks = load_akshare_data(logs_dir)
@@ -662,9 +675,7 @@ def main():
     index = build_stock_index(stocks)
 
     # 输出路径
-    output_path = (
-        Path(__file__).parent.parent / "apps" / "dsa-web" / "public" / "stocks.index.json"
-    )
+    output_path = WEB_INDEX_PATH
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     print("\n[3/5] 压缩索引数据...")

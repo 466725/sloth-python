@@ -19,7 +19,7 @@ const events: RunFlowEvent[] = [
     type: 'provider_fallback',
     nodeId: 'daily_data',
     title: '日线降级',
-    message: 'Tushare 失败后切换 AkShare',
+    message: 'Efinance 失败后切换 AkShare',
   },
   {
     id: 'evt-3',

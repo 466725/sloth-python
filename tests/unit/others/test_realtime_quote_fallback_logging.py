@@ -144,12 +144,11 @@ def test_manager_supplement_does_not_mark_fallback_from(mock_get_config):
 def test_manager_fallback_from_records_highest_priority_failed_source(mock_get_config):
     mock_get_config.return_value = SimpleNamespace(
         enable_realtime_quote=True,
-        realtime_source_priority="efinance,tushare,akshare_em",
+        realtime_source_priority="efinance,akshare_sina,akshare_em",
     )
     manager = DataFetcherManager(
         fetchers=[
             _DummyFetcher("EfinanceFetcher", 0, error=RuntimeError("efinance timeout")),
-            _DummyFetcher("TushareFetcher", 1, error=RuntimeError("tushare timeout")),
             _DummyFetcher("AkshareFetcher", 2, result=_make_quote()),
         ]
     )

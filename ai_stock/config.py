@@ -592,7 +592,6 @@ class Config:
 
 
     # === 数据源 API Token ===
-    tushare_token: Optional[str] = None
     tickflow_api_key: Optional[str] = None
     finnhub_api_key: Optional[str] = None
     alphavantage_api_key: Optional[str] = None
@@ -813,11 +812,10 @@ class Config:
     # 东财接口补丁开关
     enable_eastmoney_patch: bool = False
     # 实时行情数据源优先级（逗号分隔）
-    # 推荐顺序：tencent > akshare_sina > efinance > akshare_em > tushare
+    # 推荐顺序：tencent > akshare_sina > efinance > akshare_em
     # - tencent: 腾讯财经，有量比/换手率/市盈率等，单股查询稳定（推荐）
     # - akshare_sina: 新浪财经，基本行情稳定，但无量比
     # - efinance/akshare_em: 东财全量接口，数据最全但容易被封
-    # - tushare: Tushare Pro，需要2000积分，数据全面（付费用户可优先使用）
     realtime_source_priority: str = "tencent,akshare_sina,efinance,akshare_em"
     # 实时行情缓存时间（秒）
     realtime_cache_ttl: int = 600
@@ -843,9 +841,6 @@ class Config:
     # Akshare 请求间隔范围（秒）
     akshare_sleep_min: float = 2.0
     akshare_sleep_max: float = 5.0
-    
-    # Tushare 每分钟最大请求数（免费配额）
-    tushare_rate_limit_per_minute: int = 80
     
     # 重试配置
     max_retries: int = 3
@@ -971,7 +966,6 @@ class Config:
                 'eastmoney.com',   # 东方财富 (Efinance/Akshare)
                 'sina.com.cn',     # 新浪财经 (Akshare)
                 '163.com',         # 网易财经 (Akshare)
-                'tushare.pro',     # Tushare
                 'baostock.com',    # Baostock
                 'sse.com.cn',      # 上交所
                 'szse.cn',         # 深交所
@@ -1295,7 +1289,6 @@ class Config:
 
         return cls(
             stock_list=stock_list,
-            tushare_token=os.getenv('TUSHARE_TOKEN'),
             tickflow_api_key=os.getenv('TICKFLOW_API_KEY'),
             finnhub_api_key=os.getenv('FINNHUB_API_KEY') or None,
             alphavantage_api_key=os.getenv('ALPHAVANTAGE_API_KEY') or None,
@@ -1566,7 +1559,6 @@ class Config:
             # - tencent: 腾讯财经，有量比/换手率/PE/PB等，单股查询稳定（推荐）
             # - akshare_sina: 新浪财经，基本行情稳定，但无量比
             # - efinance/akshare_em: 东财全量接口，数据最全但容易被封
-            # - tushare: Tushare Pro，需要2000积分，数据全面
             realtime_source_priority=cls._resolve_realtime_source_priority(),
             realtime_cache_ttl=parse_env_int(os.getenv('REALTIME_CACHE_TTL'), 600, field_name='REALTIME_CACHE_TTL', minimum=0),
             circuit_breaker_cooldown=parse_env_int(os.getenv('CIRCUIT_BREAKER_COOLDOWN'), 300, field_name='CIRCUIT_BREAKER_COOLDOWN', minimum=0),
@@ -2083,31 +2075,13 @@ class Config:
 
     @classmethod
     def _resolve_realtime_source_priority(cls) -> str:
-        """
-        Resolve realtime source priority with automatic tushare injection.
-
-        When TUSHARE_TOKEN is configured but REALTIME_SOURCE_PRIORITY is not
-        explicitly set, automatically prepend 'tushare' to the default priority
-        so that the paid data source is utilized for realtime quotes as well.
-        """
+        """Resolve realtime source priority from an override or the default providers."""
         explicit = os.getenv('REALTIME_SOURCE_PRIORITY')
         default_priority = 'tencent,akshare_sina,efinance,akshare_em'
 
         if explicit:
             # User explicitly set priority, respect it
             return explicit
-
-        tushare_token = os.getenv('TUSHARE_TOKEN', '').strip()
-        if tushare_token:
-            # Token configured but no explicit priority override
-            # Prepend tushare so the paid source is tried first
-            import logging
-            logger = logging.getLogger(__name__)
-            resolved = f'tushare,{default_priority}'
-            logger.info(
-                f"TUSHARE_TOKEN detected, auto-injecting tushare into realtime priority: {resolved}"
-            )
-            return resolved
 
         return default_priority
 
@@ -2243,14 +2217,6 @@ class Config:
                     ),
                     field="STOCK_GROUP_N",
                 ))
-
-        # --- Data sources (informational only) ---
-        if not self.tushare_token:
-            issues.append(ConfigIssue(
-                severity="info",
-                message="未配置 Tushare Token，将使用其他数据源",
-                field="TUSHARE_TOKEN",
-            ))
 
         # --- LLM availability ---
         # llm_model_list is populated for YAML / channels / managed legacy keys.

@@ -6,7 +6,7 @@ Covers:
 - Config: agent_mode, agent_max_steps, agent_skills fields
 - _analyze_with_agent method
 - _agent_result_to_analysis_result conversion
-- YAML strategy loading (load_builtin_strategies)
+- YAML and Markdown skill loading (load_builtin_strategies)
 """
 
 import json
@@ -25,8 +25,18 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 
 
 def _builtin_strategy_names() -> set[str]:
+    import yaml
+
     strategies_dir = Path(__file__).resolve().parents[3] / "strategies"
-    return {path.stem for path in strategies_dir.glob("*.yaml")}
+    names = {
+        yaml.safe_load(path.read_text(encoding="utf-8"))["name"]
+        for pattern in ("*.yaml", "*.yml")
+        for path in strategies_dir.glob(pattern)
+    }
+    for path in strategies_dir.rglob("skill.md"):
+        metadata = yaml.safe_load(path.read_text(encoding="utf-8").split("---", 2)[1])
+        names.add(metadata.get("name") or path.parent.name)
+    return names
 
 
 # ============================================================
@@ -1073,10 +1083,10 @@ class TestAgentResultConversion(unittest.TestCase):
 # ============================================================
 
 class TestPipelineSkillRegistration(unittest.TestCase):
-    """Test built-in strategies load from YAML via SkillManager."""
+    """Test built-in YAML and Markdown skills load via SkillManager."""
 
     def test_load_builtin_strategies(self):
-        """SkillManager.load_builtin_strategies() should load all YAML strategies."""
+        """SkillManager.load_builtin_strategies() should load all skill definitions."""
         from ai_stock.agent.skills.base import SkillManager
 
         skill_manager = SkillManager()
@@ -2441,7 +2451,7 @@ class TestSkillActivation(unittest.TestCase):
 
         skill_manager = SkillManager()
         count = skill_manager.load_builtin_strategies()
-        self.assertEqual(count, len(_builtin_strategy_names()), "Should load all built-in strategies from YAML")
+        self.assertEqual(count, len(_builtin_strategy_names()), "Should load all built-in YAML and Markdown skills")
 
         default_ids = get_default_active_skill_ids(skill_manager.list_skills())
         self.assertEqual(default_ids, ["bull_trend"])

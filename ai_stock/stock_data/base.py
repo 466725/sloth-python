@@ -607,7 +607,6 @@ class DataFetcherManager:
         "EfinanceFetcher": {"cn"},
         "TencentFetcher": {"cn"},
         "AkshareFetcher": {"cn", "hk"},
-        "TushareFetcher": {"cn", "hk"},
         "YfinanceFetcher": {"cn", "hk", "us"},
         "FinnhubFetcher": {"us"},
         "AlphaVantageFetcher": {"us"},
@@ -1102,7 +1101,6 @@ class DataFetcherManager:
         初始化默认数据源列表
 
         优先级动态调整逻辑：
-        - 如果配置了 TUSHARE_TOKEN：实例化 TushareFetcher，并按其内部逻辑提升优先级
         - 未配置的可选数据源不实例化，避免在批量拉取时反复探测无效源
         - 默认优先级：
           0. EfinanceFetcher (Priority 0) - 最高优先级
@@ -1113,7 +1111,6 @@ class DataFetcherManager:
         from .efinance_fetcher import EfinanceFetcher
         from .tencent_fetcher import TencentFetcher
         from .akshare_fetcher import AkshareFetcher
-        from .tushare_fetcher import TushareFetcher
         from .yfinance_fetcher import YfinanceFetcher
         config = get_config()
         # 创建所有数据源实例（优先级在各 Fetcher 的 __init__ 中确定）
@@ -1122,12 +1119,6 @@ class DataFetcherManager:
         akshare = AkshareFetcher()
         yfinance = YfinanceFetcher()
         optional_fetchers: List[BaseFetcher] = []
-
-        tushare_token = (getattr(config, "tushare_token", None) or "").strip()
-        if tushare_token:
-            optional_fetchers.append(TushareFetcher())  # 会根据 Token 配置自动调整优先级
-        else:
-            logger.debug("[数据源初始化] 跳过未配置的 TushareFetcher")
 
         finnhub_api_key = (getattr(config, "finnhub_api_key", None) or "").strip()
         if finnhub_api_key:
@@ -1154,7 +1145,7 @@ class DataFetcherManager:
                 *optional_fetchers,
             ]
 
-            # 按优先级排序（Tushare 如果配置了 Token 且初始化成功，优先级为 0）
+            # 按优先级排序
             self._fetchers.sort(key=lambda f: f.priority)
             self._refresh_fetcher_indexes_locked()
 
@@ -1461,10 +1452,10 @@ class DataFetcherManager:
             return 0
         
         # 检查优先级中是否包含全量拉取数据源
-        # 注意：新增全量接口（如 tushare_realtime）时需同步更新此列表
+        # 注意：新增全量接口时需同步更新此列表
         # 全量接口特征：一次 API 调用拉取全市场 5000+ 股票数据
         priority = config.realtime_source_priority.lower()
-        bulk_sources = ['efinance', 'akshare_em', 'tushare']  # 全量接口列表
+        bulk_sources = ['efinance', 'akshare_em']  # 全量接口列表
         
         # 如果优先级中前两个都不是全量数据源，跳过预取
         # 因为新浪/腾讯是单股票查询，不需要预取
@@ -1569,7 +1560,6 @@ class DataFetcherManager:
             "FinnhubFetcher": "finnhub",
             "AlphaVantageFetcher": "alphavantage",
             "EfinanceFetcher": "efinance",
-            "TushareFetcher": "tushare",
         }
         return mapping.get(fetcher_name, fetcher_name.replace("Fetcher", "").lower())
 
@@ -1626,7 +1616,6 @@ class DataFetcherManager:
         Returns:
             UnifiedRealtimeQuote 对象，所有数据源都失败则返回 None
         """
-        raw_stock_code = (stock_code or "").strip()
         # Normalize code (strip SH/SZ prefix etc.)
         stock_code = normalize_stock_code(stock_code)
 
@@ -1766,16 +1755,6 @@ class DataFetcherManager:
                         )
                         quote = self._call_fetcher_method(fetcher, 'get_realtime_quote', stock_code, source="tencent")
                 
-                elif source == "tushare":
-                    fetcher = self._get_fetcher_by_name("TushareFetcher", capability="realtime_quote")
-                    if fetcher is not None and hasattr(fetcher, 'get_realtime_quote'):
-                        record_provider_run_started(
-                            data_type="realtime_quote",
-                            provider=fetcher.name,
-                            operation="get_realtime_quote",
-                        )
-                        quote = self._call_fetcher_method(fetcher, 'get_realtime_quote', raw_stock_code or stock_code)
-
                 provider_name = fetcher.name if fetcher is not None else source
                 
                 if quote is not None and quote.has_basic_data():
@@ -2015,7 +1994,7 @@ class DataFetcherManager:
                 continue
 
             fetcher_name = fetcher.name
-            # 动态生成熔断器的 key，例如 "TushareFetcher" -> "tushare_chip"
+            # 动态生成熔断器的 key，例如 "AkshareFetcher" -> "akshare_chip"
             source_key = f"{fetcher_name.replace('Fetcher', '').lower()}_chip"
 
             # 检查熔断器状态
@@ -3412,7 +3391,7 @@ class DataFetcherManager:
 
     def get_sector_rankings(self, n: int = 5) -> Tuple[List[Dict], List[Dict]]:
         """获取板块涨跌榜（自动切换数据源）"""
-        # 按需求固定回退顺序：Akshare(EM) -> Akshare(Sina) -> Tushare -> Efinance
+        # 使用现有数据源的板块排行回退路径
         top, bottom, _, last_error = self._get_sector_rankings_with_meta(n)
         if top or bottom:
             return top, bottom

@@ -196,7 +196,6 @@ class TestFinnhubFetcherRegistration(unittest.TestCase):
         mock_config.return_value = MagicMock(
             finnhub_api_key='sk-test',
             alphavantage_api_key=None,
-            tushare_token=None,
             longbridge_app_key=None,
             longbridge_app_secret=None,
             longbridge_access_token=None,
@@ -212,7 +211,6 @@ class TestFinnhubFetcherRegistration(unittest.TestCase):
         mock_config.return_value = MagicMock(
             finnhub_api_key=None,
             alphavantage_api_key=None,
-            tushare_token=None,
             longbridge_app_key=None,
             longbridge_app_secret=None,
             longbridge_access_token=None,
@@ -233,7 +231,6 @@ class TestUSDailyRoutingFallback(unittest.TestCase):
         mock_config.return_value = MagicMock(
             finnhub_api_key='sk-test',
             alphavantage_api_key='av-test',
-            tushare_token=None,
             longbridge_app_key=None,
             longbridge_app_secret=None,
             longbridge_access_token=None,

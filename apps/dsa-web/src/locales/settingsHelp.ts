@@ -171,14 +171,6 @@ const settingsHelpZhCN: SettingsHelpMap = {
     impact: ['影响 OpenAI-compatible legacy 配置路径下的模型请求。'],
     notes: ['渠道模式下优先维护各渠道自己的 LLM_<NAME>_BASE_URL。'],
   },
-  'settings.data_source.TUSHARE_TOKEN': {
-    title: 'Tushare Token',
-    summary: '用于访问 Tushare Pro 数据接口。',
-    usage: '在 Tushare 账户中获取 token 后填入。',
-    valueNotes: ['不同 Tushare 权限会影响可用接口和数据完整度。'],
-    impact: ['影响部分 A 股基础数据、股票列表和相关增强数据获取。'],
-    notes: ['不要把 token 提交到仓库或公开日志。'],
-  },
   'settings.data_source.TICKFLOW_API_KEY': {
     title: 'TickFlow API Key',
     summary: '用于增强大盘复盘中的指数、市场统计等数据。',
@@ -1016,14 +1008,6 @@ const settingsHelpEnUS: SettingsHelpMap = {
     valueNotes: ['The Base URL must match the API key provider.', 'Gemini or Anthropic official paths usually do not use OPENAI_BASE_URL.'],
     impact: ['Affects legacy OpenAI-compatible model calls.'],
     notes: ['In channel mode, prefer each channel-specific LLM_<NAME>_BASE_URL.'],
-  },
-  'settings.data_source.TUSHARE_TOKEN': {
-    title: 'Tushare Token',
-    summary: 'Token used for Tushare Pro data access.',
-    usage: 'Paste the token from your Tushare account.',
-    valueNotes: ['Available APIs depend on your Tushare permission level.'],
-    impact: ['Affects some A-share base data, stock lists, and enrichment data.'],
-    notes: ['Do not commit the token or print it in public logs.'],
   },
   'settings.data_source.TICKFLOW_API_KEY': {
     title: 'TickFlow API Key',

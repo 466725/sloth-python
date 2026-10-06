@@ -4263,7 +4263,7 @@ class SearchService:
         """
         Enhance search when data sources fail.
         
-        When all data sources (efinance, akshare, tushare, baostock, etc.) fail to get
+        When all data sources (efinance, akshare, yfinance, etc.) fail to get
         stock data, use search engines to find stock trends and price info as supplemental data for AI analysis.
         
         Strategy:

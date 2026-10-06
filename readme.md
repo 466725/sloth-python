@@ -366,7 +366,7 @@ Coverage differs by market. A-shares, Hong Kong, and US stocks have the broadest
 | Type | Supported |
 |---|---|
 | AI models | Anspire, AIHubMix, Gemini, OpenAI-compatible providers, DeepSeek, Qwen, Claude, Ollama |
-| Market data | TickFlow, AkShare, Tushare, Pytdx, Baostock, YFinance, Longbridge |
+| Market data | TickFlow, AkShare, Pytdx, Baostock, YFinance, Longbridge |
 | News search | Anspire, SerpAPI, Tavily, Bocha, Brave, MiniMax, SearXNG |
 | Social sentiment | Stock Sentiment API for Reddit / X / Polymarket (US stocks only) |
 
@@ -493,7 +493,7 @@ Multiple data sources fall back according to availability. A single source timin
 
 #### Watchlist
 
-`STOCK_LIST` is a comma-separated list of codes. Code formats for each market are described in `.env.example` and the market coverage notes above. Tushare stock-list tools and refresh steps are in the Tushare guide.
+`STOCK_LIST` is a comma-separated list of codes. Code formats for each market are described in `.env.example` and the market coverage notes above. See the [stock catalog guide](docs/stock-index.md) for autocomplete index maintenance.
 
 #### Scheduled Tasks
 
@@ -573,7 +573,7 @@ These topic pages are the stable entry points for the settings UI and maintenanc
 - Cloud server Web access
 - AnalysisContextPack data quality and visibility
 - Real-time alert rules
-- Tushare stock-list tool
+- [Stock autocomplete catalog](docs/stock-index.md)
 - Notification channels and delivery diagnostics
 
 ### 9. Troubleshooting

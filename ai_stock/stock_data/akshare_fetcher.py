@@ -1825,7 +1825,7 @@ class AkshareFetcher(BaseFetcher):
         df = df.copy()
         
         # 1. 提取基础比对数据：最新价、昨收
-        # 兼容不同接口返回的列名 sina/em efinance tushare xtdata
+        # 兼容不同接口返回的列名 sina/em efinance xtdata
         code_col = next((c for c in ['代码', '股票代码', 'ts_code','stock_code'] if c in df.columns), None)
         name_col = next((c for c in ['名称', '股票名称','name','name'] if c in df.columns), None)
         close_col = next((c for c in ['最新价', '最新价', 'close','lastPrice'] if c in df.columns), None)

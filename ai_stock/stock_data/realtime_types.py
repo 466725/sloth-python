@@ -97,7 +97,6 @@ class RealtimeSource(Enum):
     AKSHARE_EM = "akshare_em"       # 东方财富（akshare库）
     AKSHARE_SINA = "akshare_sina"   # 新浪财经
     AKSHARE_QQ = "akshare_qq"       # 腾讯财经
-    TUSHARE = "tushare"             # Tushare Pro
     TENCENT = "tencent"             # 腾讯直连
     SINA = "sina"                   # 新浪直连
     STOOQ = "stooq"                 # Stooq 美股兜底

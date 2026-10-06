@@ -60,7 +60,7 @@ const snapshot: RunFlowSnapshot = {
       recordCount: 8,
       message: '主数据源失败后降级成功',
       metadata: {
-        fallbackFrom: 'Tushare',
+        fallbackFrom: 'Efinance',
         fallbackTo: 'AkShare',
       },
     },
@@ -299,7 +299,7 @@ describe('RunFlowPanel', () => {
     fireEvent.click(screen.getByRole('button', { name: '新闻舆情 节点，状态 降级回退' }));
 
     expect(screen.getByTestId('run-flow-node-details')).toHaveTextContent('fallbackFrom');
-    expect(screen.getByTestId('run-flow-node-details')).toHaveTextContent('Tushare');
+    expect(screen.getByTestId('run-flow-node-details')).toHaveTextContent('Efinance');
     expect(screen.getByTestId('run-flow-node-details')).toHaveTextContent('fallbackTo');
     expect(screen.getByTestId('run-flow-node-details')).toHaveTextContent('AkShare');
   });

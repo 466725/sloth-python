@@ -26,7 +26,6 @@ def _make_config(**kwargs) -> Config:
     """
     defaults = dict(
         stock_list=["600519"],
-        tushare_token=None,
         # Populate llm_model_list as the three-tier signal
         llm_model_list=[{"model_name": "gemini/gemini-2.0-flash", "litellm_params": {"model": "gemini/gemini-2.0-flash", "api_key": "sk-test"}}],
         litellm_model="gemini/gemini-2.0-flash",

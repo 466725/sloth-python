@@ -439,7 +439,7 @@ describe('RunFlowGraph', () => {
         kind: 'data_source',
         label: '新闻舆情',
         status: 'success',
-        provider: 'TushareFetcher -> AkshareFetcher -> TushareFetcher -> AkshareFetcher',
+        provider: 'EfinanceFetcher -> AkshareFetcher -> EfinanceFetcher -> AkshareFetcher',
       },
       {
         id: 'save',
@@ -551,11 +551,11 @@ describe('RunFlowGraph', () => {
             metadata: { topologyGroup: 'provider_attempts', data_type: 'realtime_quote', expanded: true },
           },
           {
-            id: 'provider_realtime_tushare_1',
+            id: 'provider_realtime_efinance_1',
             lane: 'data_source',
             kind: 'data_source',
-            label: '实时行情 · TushareFetcher',
-            provider: 'TushareFetcher',
+            label: '实时行情 · EfinanceFetcher',
+            provider: 'EfinanceFetcher',
             status: 'success',
             metadata: { data_type: 'realtime_quote' },
           },
@@ -594,13 +594,13 @@ describe('RunFlowGraph', () => {
           {
             id: 'realtime-first',
             from: 'topology_data_realtime_quote',
-            to: 'provider_realtime_tushare_1',
+            to: 'provider_realtime_efinance_1',
             kind: 'control',
             status: 'success',
           },
           {
             id: 'realtime-fallback',
-            from: 'provider_realtime_tushare_1',
+            from: 'provider_realtime_efinance_1',
             to: 'provider_realtime_akshare_2',
             kind: 'fallback',
             status: 'fallback',
@@ -652,11 +652,11 @@ describe('RunFlowGraph', () => {
             startedAt: '2026-06-08T10:00:01',
           },
           {
-            id: 'provider_realtime_tushare_1',
+            id: 'provider_realtime_efinance_1',
             lane: 'data_source',
             kind: 'data_source',
-            label: '实时行情 · TushareFetcher',
-            provider: 'TushareFetcher',
+            label: '实时行情 · EfinanceFetcher',
+            provider: 'EfinanceFetcher',
             status: 'success',
             startedAt: '2026-06-08T10:00:02',
             metadata: { data_type: 'realtime_quote' },
@@ -678,25 +678,25 @@ describe('RunFlowGraph', () => {
       />,
     );
 
-    expect(layoutRowFor('run-flow-node-provider_realtime_tushare_1')).toBe(
+    expect(layoutRowFor('run-flow-node-provider_realtime_efinance_1')).toBe(
       layoutRowFor('run-flow-node-topology_data_realtime_quote') + 1,
     );
     expect(layoutRowFor('run-flow-node-provider_realtime_akshare_2')).toBe(
-      layoutRowFor('run-flow-node-provider_realtime_tushare_1') + 1,
+      layoutRowFor('run-flow-node-provider_realtime_efinance_1') + 1,
     );
     expect(layoutRowFor('run-flow-node-daily')).toBeGreaterThan(
       layoutRowFor('run-flow-node-provider_realtime_akshare_2'),
     );
     expect(topFor('run-flow-node-topology_data_realtime_quote')).toBeLessThan(
-      topFor('run-flow-node-provider_realtime_tushare_1'),
+      topFor('run-flow-node-provider_realtime_efinance_1'),
     );
     expect(heightFor('run-flow-node-topology_data_realtime_quote')).toBe(112);
-    expect(heightFor('run-flow-node-provider_realtime_tushare_1')).toBe(96);
-    expect(topFor('run-flow-node-provider_realtime_tushare_1')).toBe(
+    expect(heightFor('run-flow-node-provider_realtime_efinance_1')).toBe(96);
+    expect(topFor('run-flow-node-provider_realtime_efinance_1')).toBe(
       topFor('run-flow-node-topology_data_realtime_quote') + 112 + 42,
     );
     expect(topFor('run-flow-node-provider_realtime_akshare_2')).toBe(
-      topFor('run-flow-node-provider_realtime_tushare_1') + 96 + 42,
+      topFor('run-flow-node-provider_realtime_efinance_1') + 96 + 42,
     );
     expect(topFor('run-flow-node-daily')).toBe(
       topFor('run-flow-node-provider_realtime_akshare_2') + 96 + 40,
@@ -710,12 +710,12 @@ describe('RunFlowGraph', () => {
     );
     const canvasMinHeight = parseFloat((groupBackground.parentElement as HTMLElement).style.minHeight);
     expect(canvasMinHeight).toBeGreaterThan(groupBackgroundBottom);
-    expect(screen.getByTestId('run-flow-node-provider_realtime_tushare_1')).toHaveClass(
+    expect(screen.getByTestId('run-flow-node-provider_realtime_efinance_1')).toHaveClass(
       'bg-base/70',
       'shadow-none',
     );
-    expect(nodeStyleFor('run-flow-node-provider_realtime_tushare_1').width).toBe('244px');
-    expect(nodeStyleFor('run-flow-node-provider_realtime_tushare_1').height).toBe('96px');
+    expect(nodeStyleFor('run-flow-node-provider_realtime_efinance_1').width).toBe('244px');
+    expect(nodeStyleFor('run-flow-node-provider_realtime_efinance_1').height).toBe('96px');
     const toggle = screen.getByTestId('run-flow-node-topology_data_realtime_quote-toggle');
     expect(toggle).toHaveClass('h-[18px]', 'gap-0.5', 'px-1', 'text-[9px]', 'leading-none');
     expect(toggle.querySelector('svg')).toHaveClass('h-2', 'w-2');
@@ -763,10 +763,10 @@ describe('RunFlowGraph', () => {
             startedAt: '2026-06-08T10:00:02',
           },
           {
-            id: 'provider_realtime_tushare_1',
+            id: 'provider_realtime_efinance_1',
             lane: 'data_source',
             kind: 'data_source',
-            label: '实时行情 · TushareFetcher',
+            label: '实时行情 · EfinanceFetcher',
             status: 'success',
             startedAt: '2026-06-08T10:00:03',
             metadata: {
@@ -824,11 +824,11 @@ describe('RunFlowGraph', () => {
       />,
     );
 
-    expect(layoutRowFor('run-flow-node-provider_realtime_tushare_1')).toBe(
+    expect(layoutRowFor('run-flow-node-provider_realtime_efinance_1')).toBe(
       layoutRowFor('run-flow-node-topology_data_realtime_quote') + 1,
     );
     expect(layoutRowFor('run-flow-node-provider_realtime_akshare_2')).toBe(
-      layoutRowFor('run-flow-node-provider_realtime_tushare_1') + 1,
+      layoutRowFor('run-flow-node-provider_realtime_efinance_1') + 1,
     );
     expect(layoutRowFor('run-flow-node-topology_data_news_search')).toBeGreaterThan(
       layoutRowFor('run-flow-node-provider_realtime_akshare_2'),

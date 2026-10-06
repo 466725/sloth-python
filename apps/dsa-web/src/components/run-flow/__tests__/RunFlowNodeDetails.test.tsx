@@ -87,7 +87,7 @@ describe('RunFlowNodeDetails', () => {
       lane: 'data_source',
       kind: 'data_source',
       label: '实时行情',
-      provider: 'TushareFetcher -> AkshareFetcher',
+      provider: 'EfinanceFetcher -> AkshareFetcher',
       status: 'fallback',
       durationMs: 750,
       attempts: 2,
@@ -97,7 +97,7 @@ describe('RunFlowNodeDetails', () => {
     render(<RunFlowNodeDetails node={node} />);
 
     expect(screen.getByText('提供方')).toBeInTheDocument();
-    expect(screen.getByText('TushareFetcher -> AkshareFetcher')).toBeInTheDocument();
+    expect(screen.getByText('EfinanceFetcher -> AkshareFetcher')).toBeInTheDocument();
     expect(screen.getByText('耗时')).toBeInTheDocument();
     expect(screen.getByText('750 ms')).toBeInTheDocument();
     expect(screen.getByText('尝试次数')).toBeInTheDocument();

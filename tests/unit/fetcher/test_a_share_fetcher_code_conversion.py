@@ -8,7 +8,6 @@ import unittest
 import pandas as pd
 
 from ai_stock.stock_data.base import DataFetcherManager, normalize_stock_code
-from ai_stock.stock_data.tushare_fetcher import TushareFetcher
 
 
 class _RecordingDailyFetcher:
@@ -33,25 +32,6 @@ class TestDataFetcherManagerAShareCodes(unittest.TestCase):
         self.assertFalse(df.empty)
         self.assertEqual(source, "RecordingDailyFetcher")
         self.assertEqual(fetcher.calls, ["601888"])
-
-class TestTushareAShareCodeConversion(unittest.TestCase):
-    def test_convert_bare_stock_codes_to_tushare_format(self) -> None:
-        fetcher = TushareFetcher()
-
-        self.assertEqual(fetcher._convert_stock_code("605499"), "605499.SH")
-        self.assertEqual(fetcher._convert_stock_code("001979"), "001979.SZ")
-        self.assertEqual(fetcher._convert_stock_code("003816"), "003816.SZ")
-        self.assertEqual(fetcher._convert_stock_code("301012"), "301012.SZ")
-
-    def test_convert_prefix_code_preserves_explicit_exchange_hint(self) -> None:
-        fetcher = TushareFetcher()
-
-        self.assertEqual(fetcher._convert_stock_code("SH000001"), "000001.SH")
-        self.assertEqual(fetcher._convert_stock_code("SH.000001"), "000001.SH")
-        self.assertEqual(fetcher._convert_stock_code("SZ600519"), "600519.SZ")
-        self.assertEqual(fetcher._convert_stock_code("SZ.600519"), "600519.SZ")
-        self.assertEqual(fetcher._convert_stock_code("ss.600519"), "600519.SH")
-
 
 class TestNormalizeStockCode(unittest.TestCase):
     def test_normalize_prefixed_dot_code(self) -> None:

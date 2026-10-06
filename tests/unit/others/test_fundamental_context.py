@@ -121,17 +121,12 @@ class TestFundamentalContext(unittest.TestCase):
 
     def test_sector_rankings_use_ordered_fallback(self) -> None:
         akshare = _DummyFetcher("AkshareFetcher", priority=5, rankings=None)
-        tushare = _DummyFetcher(
-            "TushareFetcher",
-            priority=1,
-            rankings=([{"name": "半导体", "change_pct": 1.0}], [{"name": "消费", "change_pct": -1.0}]),
-        )
         efinance = _DummyFetcher(
             "EfinanceFetcher",
             priority=0,
             rankings=([{"name": "地产", "change_pct": 2.0}], [{"name": "煤炭", "change_pct": -2.0}]),
         )
-        manager = DataFetcherManager(fetchers=[efinance, tushare, akshare])
+        manager = DataFetcherManager(fetchers=[efinance, akshare])
         top, bottom = manager.get_sector_rankings(1)
         self.assertEqual(top[0]["name"], "地产")
         self.assertEqual(bottom[0]["name"], "煤炭")

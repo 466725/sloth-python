@@ -1376,7 +1376,6 @@ class NotificationService(EmailSender):
         "akshare_sina": {"zh": "新浪财经", "en": "Sina Finance"},
         "akshare_qq": {"zh": "腾讯财经", "en": "Tencent Finance"},
         "efinance": {"zh": "东方财富(efinance)", "en": "Eastmoney (efinance)"},
-        "tushare": {"zh": "Tushare Pro", "en": "Tushare Pro"},
         "sina": {"zh": "新浪财经", "en": "Sina Finance"},
         "stooq": {"zh": "Stooq", "en": "Stooq"},
         "longbridge": {"zh": "长桥", "en": "Longbridge"},

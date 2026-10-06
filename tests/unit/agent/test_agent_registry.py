@@ -32,8 +32,18 @@ from ai_stock.agent.skills.base import Skill, SkillManager
 
 
 def _builtin_strategy_names() -> set[str]:
+    import yaml
+
     strategies_dir = Path(__file__).resolve().parents[3] / "strategies"
-    return {path.stem for path in strategies_dir.glob("*.yaml")}
+    names = {
+        yaml.safe_load(path.read_text(encoding="utf-8"))["name"]
+        for pattern in ("*.yaml", "*.yml")
+        for path in strategies_dir.glob(pattern)
+    }
+    for path in strategies_dir.rglob("skill.md"):
+        metadata = yaml.safe_load(path.read_text(encoding="utf-8").split("---", 2)[1])
+        names.add(metadata.get("name") or path.parent.name)
+    return names
 
 
 # ============================================================
@@ -382,7 +392,7 @@ class TestBuiltinSkills(unittest.TestCase):
         from ai_stock.agent.skills.base import SkillManager
 
         manager = SkillManager()
-        expected = _builtin_strategy_names() | {"stock-analyzer"}
+        expected = _builtin_strategy_names()
         count = manager.load_builtin_strategies()
         self.assertEqual(count, len(expected), "Should load all built-in YAML and Markdown skills")
 

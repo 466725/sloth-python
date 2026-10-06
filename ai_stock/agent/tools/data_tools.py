@@ -27,8 +27,8 @@ _DAILY_HISTORY_MAX_DAYS = 365
 def _get_fetcher_manager():
     """Return a module-level singleton DataFetcherManager.
 
-    Re-creating the manager on every tool call causes Tushare re-init overhead
-    (~2 s each) and prevents circuit-breaker cooldown from taking effect across
+    Re-creating the manager on every tool call adds provider initialization
+    overhead and prevents circuit-breaker cooldown from taking effect across
     consecutive tool calls within the same agent run.
     """
     from ai_stock.stock_data import DataFetcherManager

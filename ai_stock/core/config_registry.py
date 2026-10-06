@@ -139,8 +139,8 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
                 "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
             },
             {
-                "label": "Tushare 股票列表指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/TUSHARE_STOCK_LIST_GUIDE.md",
+                "label": "Stock autocomplete catalog",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/stock-index.md",
             },
         ],
         "warning_codes": [],
@@ -521,35 +521,6 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "validation": {"multi_value": True, "delimiter": ","},
         "display_order": 7,
     },
-    "TUSHARE_TOKEN": {
-        "title": "Tushare Token",
-        "description": "Token for Tushare Pro API.",
-        "category": "data_source",
-        "data_type": "string",
-        "ui_control": "password",
-        "is_sensitive": True,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": None,
-        "options": [],
-        "validation": {},
-        "display_order": 10,
-        "help_key": "settings.data_source.TUSHARE_TOKEN",
-        "examples": [
-            "TUSHARE_TOKEN=your_tushare_token",
-        ],
-        "docs": [
-            {
-                "label": "Tushare 股票列表指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/TUSHARE_STOCK_LIST_GUIDE.md",
-            },
-            {
-                "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
-            },
-        ],
-        "warning_codes": ["secret_value"],
-    },
     "TICKFLOW_API_KEY": {
         "title": "TickFlow API Key",
         "description": "API key for TickFlow market review enhancement (A-share indices, plus market stats when universe queries are enabled).",
@@ -584,8 +555,8 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         ],
         "docs": [
             {
-                "label": "Tushare 股票列表指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/TUSHARE_STOCK_LIST_GUIDE.md",
+                "label": "Stock autocomplete catalog",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/stock-index.md",
             },
         ],
         "warning_codes": [],
@@ -3581,7 +3552,6 @@ def _infer_category(key: str) -> str:
         return "ai_model"
     if key.endswith("_PRIORITY") or key.startswith(
         (
-            "TUSHARE",
             "TICKFLOW",
             "AKSHARE",
             "EFINANCE",

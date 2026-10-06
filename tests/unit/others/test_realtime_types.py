@@ -87,7 +87,7 @@ class CircuitBreakerConcurrencyTestCase(unittest.TestCase):
             try:
                 barrier.wait(timeout=1)
                 for _ in range(100):
-                    breaker.record_success("tushare")
+                    breaker.record_success("efinance")
             except Exception as exc:  # pragma: no cover - thread collection
                 errors.append(exc)
 
@@ -95,7 +95,7 @@ class CircuitBreakerConcurrencyTestCase(unittest.TestCase):
             try:
                 barrier.wait(timeout=1)
                 for _ in range(100):
-                    breaker.record_failure("tushare", "network")
+                    breaker.record_failure("efinance", "network")
             except Exception as exc:  # pragma: no cover - thread collection
                 errors.append(exc)
 
@@ -111,7 +111,7 @@ class CircuitBreakerConcurrencyTestCase(unittest.TestCase):
             thread.join(timeout=2)
 
         self.assertEqual(errors, [])
-        state = breaker._states["tushare"]
+        state = breaker._states["efinance"]
         self.assertIn(state["state"], {CircuitBreaker.CLOSED, CircuitBreaker.OPEN, CircuitBreaker.HALF_OPEN})
         self.assertGreaterEqual(state["failures"], 0)
         self.assertGreaterEqual(state["half_open_calls"], 0)

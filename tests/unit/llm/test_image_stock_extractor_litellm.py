@@ -47,7 +47,6 @@ def _cfg(**kwargs) -> Config:
     """Minimal Config for extractor tests."""
     defaults = dict(
         stock_list=["600519"],
-        tushare_token=None,
         llm_model_list=[],
         llm_channels=[],
         litellm_config_path=None,
