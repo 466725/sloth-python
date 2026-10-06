@@ -131,6 +131,8 @@ For Python database helper usage and parameterized query examples, see [utils/da
 ## 🏃 Running Tests
 
 Run commands from the repository root. Choose the narrowest workflow that matches the change you are validating.
+For commands covering pytest, Robot Framework, Vitest, and Cypress, see the
+[testing guide](docs/testing_guide.md).
 
 ### Run all pytest and Robot tests
 
@@ -165,8 +167,8 @@ python -m pytest
 python -m pytest -m "unit or api"
 
 # One file / one test
-python -m pytest tests/pytest_tests/unit/test_csv_reader.py -q
-python -m pytest tests/pytest_tests/unit/test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
+python -m pytest tests/pytest_tests/test_csv_reader.py -q
+python -m pytest tests/pytest_tests/test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
 
 # UI tests
 python -m pytest -m ui
