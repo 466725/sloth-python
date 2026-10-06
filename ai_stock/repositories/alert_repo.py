@@ -6,6 +6,7 @@ Provides DB access helpers for alert-center P1 API tables.
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -19,12 +20,51 @@ from ai_stock.storage import (
     DatabaseManager,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class AlertRepository:
     """DB access layer for alert rules and read-only alert history."""
 
     def __init__(self, db_manager: Optional[DatabaseManager] = None):
         self.db = db_manager or DatabaseManager.get_instance()
+        self.delete_retired_rules()
+
+    def delete_retired_rules(self) -> int:
+        """Permanently remove unsupported rules and their dependent records."""
+        retired_ids = select(AlertRuleRecord.id).where(
+            AlertRuleRecord.alert_type != "price_change_percent"
+        )
+        trigger_ids = select(AlertTriggerRecord.id).where(
+            AlertTriggerRecord.rule_id.in_(retired_ids)
+        )
+        with self.db.get_session() as session:
+            session.execute(
+                delete(AlertNotificationRecord).where(
+                    AlertNotificationRecord.trigger_id.in_(trigger_ids)
+                ),
+                execution_options={"synchronize_session": False},
+            )
+            session.execute(
+                delete(AlertCooldownRecord).where(AlertCooldownRecord.rule_id.in_(retired_ids)),
+                execution_options={"synchronize_session": False},
+            )
+            session.execute(
+                delete(AlertTriggerRecord).where(AlertTriggerRecord.rule_id.in_(retired_ids)),
+                execution_options={"synchronize_session": False},
+            )
+            result = session.execute(
+                delete(AlertRuleRecord).where(AlertRuleRecord.id.in_(retired_ids)),
+                execution_options={"synchronize_session": False},
+            )
+            session.commit()
+            deleted = int(result.rowcount)
+        if deleted:
+            logger.warning(
+                "[AlertRepository] Permanently deleted %d retired alert rules and their history",
+                deleted,
+            )
+        return deleted
 
     def create_rule(self, fields: Dict[str, Any]) -> AlertRuleRecord:
         with self.db.get_session() as session:
@@ -71,7 +111,7 @@ class AlertRepository:
         page: int = 1,
         page_size: int = 20,
     ) -> Tuple[List[AlertRuleRecord], int]:
-        conditions = []
+        conditions = [AlertRuleRecord.alert_type == "price_change_percent"]
         if enabled is not None:
             conditions.append(AlertRuleRecord.enabled.is_(enabled))
         if alert_type:
@@ -103,7 +143,10 @@ class AlertRepository:
         with self.db.get_session() as session:
             rows = session.execute(
                 select(AlertRuleRecord)
-                .where(AlertRuleRecord.enabled.is_(True))
+                .where(
+                    AlertRuleRecord.enabled.is_(True),
+                    AlertRuleRecord.alert_type == "price_change_percent",
+                )
                 .order_by(desc(AlertRuleRecord.updated_at), desc(AlertRuleRecord.id))
                 .limit(safe_limit)
             ).scalars().all()

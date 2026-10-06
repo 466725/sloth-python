@@ -4,10 +4,16 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
+from ai_stock.services.alert_service import (
+    AlertNotFoundError,
+    AlertService,
+    AlertServiceError,
+    UnsupportedAlertTypeError,
+)
 from api.v1.schemas.alerts import (
     AlertDeleteResponse,
     AlertNotificationListResponse,
@@ -17,14 +23,10 @@ from api.v1.schemas.alerts import (
     AlertRuleTestResponse,
     AlertRuleUpdateRequest,
     AlertTriggerListResponse,
+    AlertTypeValue,
+    TargetScopeValue,
 )
 from api.v1.schemas.common import ErrorResponse
-from ai_stock.services.alert_service import (
-    AlertNotFoundError,
-    AlertService,
-    AlertServiceError,
-    UnsupportedAlertTypeError,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -79,8 +81,8 @@ def create_rule(request: AlertRuleCreateRequest) -> AlertRuleItem:
 )
 def list_rules(
     enabled: Optional[bool] = Query(None, description="Optional enabled filter"),
-    alert_type: Optional[str] = Query(None, description="Optional alert type filter"),
-    target_scope: Optional[str] = Query(None, description="Optional target scope filter"),
+    alert_type: Annotated[Optional[AlertTypeValue], Query(description="Optional alert type filter")] = None,
+    target_scope: Annotated[Optional[TargetScopeValue], Query(description="Optional target scope filter")] = None,
     target: Optional[str] = Query(None, description="Optional target filter"),
     source: Optional[str] = Query(None, description="Optional source filter"),
     page: int = Query(1, ge=1),

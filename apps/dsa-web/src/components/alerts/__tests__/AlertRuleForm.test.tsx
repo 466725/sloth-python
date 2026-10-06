@@ -1,6 +1,8 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AlertRuleForm } from '../AlertRuleForm';
+import { UiLanguageProvider } from '../../../contexts/UiLanguageContext';
+import { UI_LANGUAGE_STORAGE_KEY } from '../../../utils/uiLanguage';
 
 describe('AlertRuleForm', () => {
   const onSubmit = vi.fn();
@@ -11,220 +13,112 @@ describe('AlertRuleForm', () => {
     window.localStorage.clear();
   });
 
-  it('submits a price_cross rule payload', async () => {
+  it('offers only a read-only price change type and single symbol/watchlist scopes', () => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
 
-    fireEvent.change(screen.getByLabelText('规则名称'), { target: { value: '茅台价格突破' } });
-    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: '600519' } });
-    fireEvent.change(screen.getByLabelText('价格阈值'), { target: { value: '1800' } });
-    fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
-    await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith({
-        name: '茅台价格突破',
-        targetScope: 'single_symbol',
-        target: '600519',
-        alertType: 'price_cross',
-        parameters: { direction: 'above', price: 1800 },
-        severity: 'warning',
-        enabled: true,
-      });
-    });
+    expect(screen.getByLabelText('规则类型')).toHaveValue('涨跌幅');
+    expect(screen.getByLabelText('规则类型')).toHaveAttribute('readonly');
+    expect(within(screen.getByLabelText('目标范围')).getAllByRole('option').filter((option) => !option.hasAttribute('disabled')).map((option) => option.getAttribute('value')))
+      .toEqual(['single_symbol', 'watchlist']);
+    expect(within(screen.getByLabelText('方向')).getAllByRole('option').filter((option) => !option.hasAttribute('disabled')).map((option) => option.getAttribute('value')))
+      .toEqual(['up', 'down']);
+    expect(screen.getAllByRole('spinbutton')).toHaveLength(1);
   });
 
-  it('submits a price_change_percent rule payload', async () => {
+  it('submits an upward price change rule', async () => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
+    fireEvent.change(screen.getByLabelText('规则名称'), { target: { value: '茅台涨跌幅' } });
+    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: '600519' } });
+    fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '2.5' } });
+    fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
 
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({
+      name: '茅台涨跌幅',
+      targetScope: 'single_symbol',
+      target: '600519',
+      alertType: 'price_change_percent',
+      parameters: { direction: 'up', changePct: 2.5 },
+      severity: 'warning',
+      enabled: true,
+    }));
+    expect(screen.getByLabelText('涨跌幅阈值（%）')).toHaveValue(null);
+  });
+
+  it('shows only price change controls and positive percentage validation in English', () => {
+    window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'en');
+    render(<UiLanguageProvider><AlertRuleForm onSubmit={onSubmit} /></UiLanguageProvider>);
+    expect(screen.getByLabelText('Rule type')).toHaveValue('Price change');
+    expect(screen.getByLabelText('Rule type')).toHaveAttribute('readonly');
+    expect(within(screen.getByLabelText('Target scope')).getAllByRole('option').filter((option) => !option.hasAttribute('disabled')).map((option) => option.textContent))
+      .toEqual(['Single symbol', 'Watchlist']);
+    expect(screen.getAllByRole('spinbutton')).toHaveLength(1);
+    fireEvent.change(screen.getByLabelText('Symbol'), { target: { value: 'AAPL' } });
+    fireEvent.change(screen.getByLabelText('Change threshold (%)'), { target: { value: '-2' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Create rule' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('Change threshold (%) must be a number greater than 0');
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('submits a downward price change with severity and disabled creation', async () => {
+    render(<AlertRuleForm onSubmit={onSubmit} />);
     fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'aapl' } });
-    fireEvent.change(screen.getByLabelText('规则类型'), { target: { value: 'price_change_percent' } });
     fireEvent.change(screen.getByLabelText('方向'), { target: { value: 'down' } });
     fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '3.5' } });
     fireEvent.change(screen.getByLabelText('严重级别'), { target: { value: 'critical' } });
-    fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
-    await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
-        target: 'AAPL',
-        alertType: 'price_change_percent',
-        parameters: { direction: 'down', changePct: 3.5 },
-        severity: 'critical',
-      }));
-    });
-  });
-
-  it('submits a volume_spike rule payload and supports disabled creation', async () => {
-    render(<AlertRuleForm onSubmit={onSubmit} />);
-
-    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'msft' } });
-    fireEvent.change(screen.getByLabelText('规则类型'), { target: { value: 'volume_spike' } });
-    fireEvent.change(screen.getByLabelText('成交量放大倍数'), { target: { value: '2.5' } });
     fireEvent.click(screen.getByLabelText('创建后立即启用'));
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
 
-    await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
-        target: 'MSFT',
-        alertType: 'volume_spike',
-        parameters: { multiplier: 2.5 },
-        enabled: false,
-      }));
-    });
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
+      target: 'AAPL',
+      parameters: { direction: 'down', changePct: 3.5 },
+      severity: 'critical',
+      enabled: false,
+    })));
   });
 
-  it('submits technical indicator rule payloads', async () => {
+  it.each(['', '0', '-3', 'Infinity', 'NaN'])('rejects invalid percentage %j', (value) => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
-
     fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: '600519' } });
-    fireEvent.change(screen.getByLabelText('规则类型'), { target: { value: 'macd_cross' } });
-    fireEvent.change(screen.getByLabelText('交叉方向'), { target: { value: 'bearish_cross' } });
-    fireEvent.change(screen.getByLabelText('快线周期'), { target: { value: '6' } });
-    fireEvent.change(screen.getByLabelText('慢线周期'), { target: { value: '13' } });
-    fireEvent.change(screen.getByLabelText('信号周期'), { target: { value: '5' } });
+    fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
-    await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
-        target: '600519',
-        alertType: 'macd_cross',
-        parameters: {
-          direction: 'bearish_cross',
-          fastPeriod: 6,
-          slowPeriod: 13,
-          signalPeriod: 5,
-        },
-      }));
-    });
-  });
-
-  it('rejects invalid technical indicator boundaries before submit', () => {
-    render(<AlertRuleForm onSubmit={onSubmit} />);
-
-    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: '600519' } });
-    fireEvent.change(screen.getByLabelText('规则类型'), { target: { value: 'rsi_threshold' } });
-    fireEvent.change(screen.getByLabelText('RSI 阈值'), { target: { value: '200' } });
-    fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
-    expect(screen.getByRole('alert')).toHaveTextContent('RSI 阈值必须在 0 到 100 之间');
+    expect(screen.getByRole('alert')).toHaveTextContent('涨跌幅阈值（%）必须是大于 0 的数字');
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it('rejects indicator period combinations that exceed fetchable history', () => {
+  it('rejects invalid stock codes', () => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
-
-    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: '600519' } });
-    fireEvent.change(screen.getByLabelText('规则类型'), { target: { value: 'macd_cross' } });
-    fireEvent.change(screen.getByLabelText('快线周期'), { target: { value: '2' } });
-    fireEvent.change(screen.getByLabelText('慢线周期'), { target: { value: '250' } });
-    fireEvent.change(screen.getByLabelText('信号周期'), { target: { value: '250' } });
-    fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
-    expect(screen.getByRole('alert')).toHaveTextContent('MACD 周期组合需要 501 根日线，最多支持 365 根');
-    expect(onSubmit).not.toHaveBeenCalled();
-  });
-
-  it('rejects empty required technical indicator thresholds before submit', () => {
-    render(<AlertRuleForm onSubmit={onSubmit} />);
-
-    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: '600519' } });
-    fireEvent.change(screen.getByLabelText('规则类型'), { target: { value: 'rsi_threshold' } });
-    fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
-    expect(screen.getByRole('alert')).toHaveTextContent('RSI 阈值不能为空');
-    expect(onSubmit).not.toHaveBeenCalled();
-
-    fireEvent.change(screen.getByLabelText('规则类型'), { target: { value: 'cci_threshold' } });
-    fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
-    expect(screen.getByRole('alert')).toHaveTextContent('CCI 阈值不能为空');
-    expect(onSubmit).not.toHaveBeenCalled();
-  });
-
-  it('rejects invalid numeric thresholds before submit', () => {
-    render(<AlertRuleForm onSubmit={onSubmit} />);
-
-    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: '600519' } });
-    fireEvent.change(screen.getByLabelText('价格阈值'), { target: { value: '0' } });
-    fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
-    expect(screen.getByRole('alert')).toHaveTextContent('价格阈值必须是大于 0 的数字');
-    expect(onSubmit).not.toHaveBeenCalled();
-  });
-
-  it('rejects invalid stock code format before submit', () => {
-    render(<AlertRuleForm onSubmit={onSubmit} />);
-
     fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'aapl-2026' } });
-    fireEvent.change(screen.getByLabelText('价格阈值'), { target: { value: '200' } });
+    fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '3' } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
     expect(screen.getByRole('alert')).toHaveTextContent('股票代码格式不正确');
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it('filters alert types and submits a watchlist rule payload', async () => {
+  it('submits a watchlist rule without requiring a stock code', async () => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
-
     fireEvent.change(screen.getByLabelText('目标范围'), { target: { value: 'watchlist' } });
-    expect(screen.queryByText('组合止损')).not.toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText('价格阈值'), { target: { value: '10' } });
+    expect(screen.queryByLabelText('标的代码')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('目标')).toHaveValue('default');
+    fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '10' } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
-    await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
-        targetScope: 'watchlist',
-        target: 'default',
-        alertType: 'price_cross',
-        parameters: { direction: 'above', price: 10 },
-      }));
-    });
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
+      targetScope: 'watchlist',
+      target: 'default',
+      alertType: 'price_change_percent',
+      parameters: { direction: 'up', changePct: 10 },
+    })));
   });
 
-  it('submits a market light status rule payload', async () => {
-    render(<AlertRuleForm onSubmit={onSubmit} />);
-
-    fireEvent.change(screen.getByLabelText('目标范围'), { target: { value: 'market' } });
-    fireEvent.change(screen.getByLabelText('市场区域'), { target: { value: 'hk' } });
-    fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
-    await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
-        targetScope: 'market',
-        target: 'hk',
-        alertType: 'market_light_status',
-        parameters: { statuses: ['red', 'yellow'] },
-      }));
-    });
-  });
-
-  it('submits a market light score-drop rule payload', async () => {
-    render(<AlertRuleForm onSubmit={onSubmit} />);
-
-    fireEvent.change(screen.getByLabelText('目标范围'), { target: { value: 'market' } });
-    fireEvent.change(screen.getByLabelText('市场区域'), { target: { value: 'us' } });
-    fireEvent.change(screen.getByLabelText('规则类型'), { target: { value: 'market_light_score_drop' } });
-    fireEvent.change(screen.getByLabelText('Score 下降阈值'), { target: { value: '12' } });
-    fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
-    await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
-        targetScope: 'market',
-        target: 'us',
-        alertType: 'market_light_score_drop',
-        parameters: { minDrop: 12 },
-      }));
-    });
-  });
-
-  it('keeps form values when submit reports failure', async () => {
+  it('keeps values when submission fails', async () => {
     onSubmit.mockResolvedValueOnce(false);
     render(<AlertRuleForm onSubmit={onSubmit} />);
-
     fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'aapl' } });
-    fireEvent.change(screen.getByLabelText('价格阈值'), { target: { value: '200' } });
+    fireEvent.change(screen.getByLabelText('方向'), { target: { value: 'down' } });
+    fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '2' } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());
     expect(screen.getByLabelText('标的代码')).toHaveValue('aapl');
-    expect(screen.getByLabelText('价格阈值')).toHaveValue(200);
+    expect(screen.getByLabelText('涨跌幅阈值（%）')).toHaveValue(2);
+    expect(screen.getByLabelText('方向')).toHaveValue('down');
   });
 });

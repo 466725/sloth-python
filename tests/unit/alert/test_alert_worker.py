@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import json
 import os
 import tempfile
 import unittest
@@ -12,215 +11,12 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pandas as pd
-
 from ai_stock.config import Config
 from ai_stock.report.notification import ChannelAttemptResult, NotificationDispatchResult
-from ai_stock.services.alert_indicators import (
-    _calculate_rsi,
-    compute_requested_days,
-    compute_required_bars,
-    evaluate_indicator_alert,
-    normalize_indicator_parameters,
-)
 from ai_stock.services.alert_service import AlertService
 from ai_stock.services.alert_worker import AlertWorker
 from ai_stock.services.decision_signal_service import DecisionSignalService
 from ai_stock.storage import DatabaseManager
-
-
-class AlertIndicatorHelperTestCase(unittest.TestCase):
-    def test_required_bars_and_requested_days_are_stable(self) -> None:
-        cases = {
-            "ma_price_cross": ({"window": 20, "direction": "above"}, 21),
-            "rsi_threshold": ({"period": 12, "threshold": 70, "direction": "above"}, 13),
-            "macd_cross": (
-                {"fast_period": 12, "slow_period": 26, "signal_period": 9, "direction": "bullish_cross"},
-                36,
-            ),
-            "kdj_cross": ({"period": 9, "k_period": 3, "d_period": 3, "direction": "bullish_cross"}, 16),
-            "cci_threshold": ({"period": 14, "threshold": 100, "direction": "above"}, 15),
-        }
-
-        for alert_type, (params, required_bars) in cases.items():
-            normalized = normalize_indicator_parameters(alert_type, params)
-            self.assertEqual(compute_required_bars(alert_type, normalized), required_bars)
-            self.assertEqual(
-                compute_requested_days(alert_type, normalized),
-                min(max(required_bars * 3, required_bars + 30), 365),
-            )
-
-    def test_rejects_indicator_periods_that_exceed_fetchable_history(self) -> None:
-        cases = [
-            ("macd_cross", {"fast_period": 2, "slow_period": 250, "signal_period": 250}),
-            ("kdj_cross", {"period": 250, "k_period": 250, "d_period": 250}),
-        ]
-
-        for alert_type, params in cases:
-            with self.subTest(alert_type=alert_type):
-                with self.assertRaisesRegex(ValueError, "at most 365 days"):
-                    normalize_indicator_parameters(alert_type, params)
-
-    def test_indicator_edge_cross_and_level_only_semantics(self) -> None:
-        ma_params = normalize_indicator_parameters("ma_price_cross", {"window": 2, "direction": "above"})
-        triggered = evaluate_indicator_alert(
-            "ma_price_cross",
-            "TEST",
-            ma_params,
-            pd.DataFrame({
-                "date": pd.date_range("2026-01-01", periods=3),
-                "close": [10, 9, 12],
-            }),
-        )
-        level_only = evaluate_indicator_alert(
-            "ma_price_cross",
-            "TEST",
-            ma_params,
-            pd.DataFrame({
-                "date": pd.date_range("2026-01-01", periods=3),
-                "close": [10, 12, 13],
-            }),
-        )
-
-        self.assertEqual(triggered.status, "triggered")
-        self.assertEqual(level_only.status, "not_triggered")
-
-    def test_rsi_uses_wilder_not_sma(self) -> None:
-        close = pd.Series([10.0, 9.0, 11.0])
-        old_sma_rsi = 66.66666666666666
-        wilder_rsi = _calculate_rsi(close, 2)
-
-        self.assertNotAlmostEqual(float(wilder_rsi.iloc[-1]), old_sma_rsi)
-        self.assertAlmostEqual(float(wilder_rsi.iloc[-1]), 80.0)
-
-    def test_indicator_formulas_cover_rsi_macd_kdj_cci_and_chinese_columns(self) -> None:
-        rsi_params = normalize_indicator_parameters("rsi_threshold", {
-            "period": 2,
-            "threshold": 50,
-            "direction": "above",
-        })
-        rsi = evaluate_indicator_alert(
-            "rsi_threshold",
-            "TEST",
-            rsi_params,
-            pd.DataFrame({"日期": pd.date_range("2026-01-01", periods=3), "收盘": [10, 9, 11]}),
-        )
-
-        macd_params = normalize_indicator_parameters("macd_cross", {
-            "fast_period": 2,
-            "slow_period": 3,
-            "signal_period": 2,
-            "direction": "bullish_cross",
-        })
-        macd = evaluate_indicator_alert(
-            "macd_cross",
-            "TEST",
-            macd_params,
-            pd.DataFrame({
-                "date": pd.date_range("2026-01-01", periods=7),
-                "close": [10, 9, 8, 7, 6, 5, 10],
-            }),
-        )
-
-        kdj_params = normalize_indicator_parameters("kdj_cross", {
-            "period": 3,
-            "k_period": 2,
-            "d_period": 2,
-            "direction": "bullish_cross",
-        })
-        kdj_close = [5, 5, 5, 5, 5, 5, 5, 6]
-        kdj = evaluate_indicator_alert(
-            "kdj_cross",
-            "TEST",
-            kdj_params,
-            pd.DataFrame({
-                "date": pd.date_range("2026-01-01", periods=len(kdj_close)),
-                "high": [value + 1 for value in kdj_close],
-                "low": [value - 1 for value in kdj_close],
-                "close": kdj_close,
-            }),
-        )
-
-        cci_params = normalize_indicator_parameters("cci_threshold", {
-            "period": 3,
-            "threshold": 50,
-            "direction": "above",
-        })
-        cci_close = [5, 5, 6, 5, 7]
-        cci = evaluate_indicator_alert(
-            "cci_threshold",
-            "TEST",
-            cci_params,
-            pd.DataFrame({
-                "date": pd.date_range("2026-01-01", periods=len(cci_close)),
-                "high": [value + 1 for value in cci_close],
-                "low": [value - 1 for value in cci_close],
-                "close": cci_close,
-            }),
-        )
-
-        self.assertEqual(rsi.status, "triggered")
-        self.assertAlmostEqual(rsi.observed_value, 80.0)
-        self.assertEqual(macd.status, "triggered")
-        self.assertAlmostEqual(macd.observed_value, 0.321823559670782)
-        self.assertEqual(kdj.status, "triggered")
-        self.assertAlmostEqual(kdj.observed_value, 4.166666666666664)
-        self.assertEqual(cci.status, "triggered")
-        self.assertAlmostEqual(cci.observed_value, 100.00000000000001)
-
-    def test_indicator_degraded_paths_cover_missing_data_and_partial_bar(self) -> None:
-        missing_columns = evaluate_indicator_alert(
-            "cci_threshold",
-            "TEST",
-            normalize_indicator_parameters("cci_threshold", {"period": 3, "threshold": 100}),
-            pd.DataFrame({"date": pd.date_range("2026-01-01", periods=4), "close": [1, 2, 3, 4]}),
-        )
-        partial = evaluate_indicator_alert(
-            "ma_price_cross",
-            "TEST",
-            normalize_indicator_parameters("ma_price_cross", {"window": 2, "direction": "above"}),
-            pd.DataFrame({
-                "date": [date(2026, 5, 16), date(2026, 5, 17), date(2026, 5, 18), date(2026, 5, 19)],
-                "close": [10, 9, 12, 8],
-            }),
-            now=pd.Timestamp("2026-05-19 15:00:00").to_pydatetime(),
-        )
-
-        self.assertEqual(missing_columns.status, "degraded")
-        self.assertIn("missing high", missing_columns.message)
-        self.assertEqual(partial.status, "triggered")
-        self.assertEqual(partial.data_timestamp, pd.Timestamp("2026-05-18").to_pydatetime())
-
-    def test_indicator_drops_unparseable_last_bar_before_cutoff(self) -> None:
-        result = evaluate_indicator_alert(
-            "ma_price_cross",
-            "TEST",
-            normalize_indicator_parameters("ma_price_cross", {"window": 2, "direction": "above"}),
-            pd.DataFrame({
-                "date": [date(2026, 5, 16), date(2026, 5, 17), date(2026, 5, 18), "not-a-date"],
-                "close": [10, 11, 12, 8],
-            }),
-            now=pd.Timestamp("2026-05-19 15:00:00").to_pydatetime(),
-        )
-
-        self.assertEqual(result.status, "not_triggered")
-        self.assertEqual(result.data_timestamp, pd.Timestamp("2026-05-18").to_pydatetime())
-
-    def test_indicator_requires_two_closed_bars_for_edge_evaluation(self) -> None:
-        result = evaluate_indicator_alert(
-            "ma_price_cross",
-            "TEST",
-            normalize_indicator_parameters("ma_price_cross", {"window": 2, "direction": "above"}),
-            pd.DataFrame({
-                "date": [date(2026, 5, 18), "not-a-date"],
-                "close": [10, 12],
-            }),
-            now=pd.Timestamp("2026-05-19 15:00:00").to_pydatetime(),
-        )
-
-        self.assertEqual(result.status, "degraded")
-        self.assertEqual(result.message, "insufficient closed bars for edge evaluation")
-        self.assertEqual(result.data_timestamp, pd.Timestamp("2026-05-18").to_pydatetime())
 
 
 class AlertWorkerTestCase(unittest.TestCase):
@@ -261,11 +57,11 @@ class AlertWorkerTestCase(unittest.TestCase):
 
     def _create_rule(self, **overrides) -> dict:
         payload = {
-            "name": "Moutai breakout",
+            "name": "Moutai price change",
             "target_scope": "single_symbol",
             "target": "600519",
-            "alert_type": "price_cross",
-            "parameters": {"direction": "above", "price": 1800},
+            "alert_type": "price_change_percent",
+            "parameters": {"direction": "up", "change_pct": 1800},
             "severity": "warning",
             "enabled": True,
         }
@@ -342,7 +138,7 @@ class AlertWorkerTestCase(unittest.TestCase):
 
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0)),
         ):
             stats = worker.run_once()
 
@@ -372,7 +168,7 @@ class AlertWorkerTestCase(unittest.TestCase):
 
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0)),
         ):
             stats = worker.run_once()
 
@@ -388,7 +184,7 @@ class AlertWorkerTestCase(unittest.TestCase):
         self.assertIsNone(item["market_phase"])
         self.assertTrue(str(item["trace_id"]).startswith("alert-rule-"))
         self.assertEqual(item["metadata"]["rule_id"], 1)
-        self.assertEqual(item["metadata"]["alert_type"], "price_cross")
+        self.assertEqual(item["metadata"]["alert_type"], "price_change_percent")
         self.assertEqual(self._triggers(status="triggered")[0]["decision_signal_summary"]["id"], item["id"])
 
     def test_p6_alert_signal_trace_id_is_idempotent_for_same_rule(self) -> None:
@@ -407,7 +203,7 @@ class AlertWorkerTestCase(unittest.TestCase):
 
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0)),
         ):
             worker.run_once()
             worker.run_once()
@@ -470,7 +266,7 @@ class AlertWorkerTestCase(unittest.TestCase):
 
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0)),
         ):
             stats = worker.run_once()
 
@@ -483,49 +279,13 @@ class AlertWorkerTestCase(unittest.TestCase):
         ]
         self.assertEqual(len(signals), 1)
 
-    def test_triggered_diagnostics_merge_visibility_and_market_scope_uses_region(self) -> None:
-        worker = AlertWorker(config_provider=lambda: self._config(), service=self.service)
-        runtime_rule = SimpleNamespace(
-            target_scope="market",
-            target="cn",
-            effective_target="cn",
-        )
-        result = {
-            "status": "triggered",
-            "diagnostics": '{"existing":"keep"}',
-        }
-
-        with patch(
-                "ai_stock.services.alert_worker.build_market_phase_context",
-                return_value={
-                    "phase": "intraday",
-                    "market": "cn",
-                    "trigger_source": "alert",
-                    "is_trading_day": True,
-                    "is_partial_bar": True,
-                },
-        ) as build_context, patch(
-            "ai_stock.services.alert_worker.get_market_for_stock",
-            side_effect=AssertionError("market scope must not infer stock market"),
-        ):
-            diagnostics = worker._diagnostics_for_status("triggered", result, runtime_rule)
-
-        payload = json.loads(diagnostics)
-        self.assertEqual(payload["existing"], "keep")
-        visibility = payload["analysis_visibility"]
-        self.assertEqual(visibility["source"], "alert_trigger_market_context")
-        self.assertEqual(visibility["market_phase_summary"]["phase"], "intraday")
-        self.assertEqual(visibility["market_phase_summary"]["market"], "cn")
-        self.assertTrue(visibility["market_phase_summary"]["is_partial_bar"])
-        build_context.assert_called_once()
-        self.assertEqual(build_context.call_args.kwargs["market"], "cn")
 
     def test_enabled_db_rule_triggers_and_disabled_rule_is_ignored(self) -> None:
         enabled_rule = self._create_rule(target="600519")
         self._create_rule(
             name="Disabled",
             target="000001",
-            parameters={"direction": "above", "price": 10},
+            parameters={"direction": "up", "change_pct": 10},
             enabled=False,
         )
         notifier = self._notifier()
@@ -533,7 +293,7 @@ class AlertWorkerTestCase(unittest.TestCase):
 
         async def _quote(_monitor, stock_code):
             seen_codes.append(stock_code)
-            return SimpleNamespace(price=1810.0)
+            return SimpleNamespace(change_pct=1810.0)
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
         with patch("ai_stock.agent.events.EventMonitor._get_realtime_quote", new=_quote):
@@ -592,14 +352,14 @@ class AlertWorkerTestCase(unittest.TestCase):
     def test_legacy_rules_coexist_with_db_rules_and_db_rule_wins_duplicate_key(self) -> None:
         self._create_rule(target="600519")
         legacy_rules = (
-            '[{"stock_code":"600519","alert_type":"price_cross","direction":"above","price":1800},'
+            '[{"stock_code":"600519","alert_type":"price_change_percent","direction":"up","change_pct":1800},'
             '{"stock_code":"300750","alert_type":"price_change_percent","direction":"down","change_pct":3.5}]'
         )
 
         async def _quote(_monitor, stock_code):
             if stock_code == "300750":
                 return {"pct_chg": "-3.75%"}
-            return SimpleNamespace(price=1810.0)
+            return SimpleNamespace(change_pct=1810.0)
 
         worker = AlertWorker(
             config_provider=lambda: self._config(legacy_rules),
@@ -616,12 +376,12 @@ class AlertWorkerTestCase(unittest.TestCase):
 
     def test_legacy_rules_keep_existing_duplicate_trigger_history(self) -> None:
         legacy_rules = (
-            '[{"stock_code":"600519","alert_type":"price_cross","direction":"above","price":1800}]'
+            '[{"stock_code":"600519","alert_type":"price_change_percent","direction":"up","change_pct":1800}]'
         )
         notifier = self._notifier()
 
         async def _quote(_monitor, _stock_code):
-            return SimpleNamespace(price=1810.0)
+            return SimpleNamespace(change_pct=1810.0)
 
         worker = AlertWorker(
             config_provider=lambda: self._config(legacy_rules),
@@ -650,7 +410,7 @@ class AlertWorkerTestCase(unittest.TestCase):
 
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0)),
         ):
             stats = worker.run_once()
 
@@ -661,7 +421,7 @@ class AlertWorkerTestCase(unittest.TestCase):
 
     def test_all_invalid_legacy_rules_do_not_crash(self) -> None:
         invalid_rules = (
-            '[{"stock_code":"600519","alert_type":"price_cross","direction":"sideways","price":1800},'
+            '[{"stock_code":"600519","alert_type":"price_change_percent","direction":"sideways","change_pct":1800},'
             '{"stock_code":"300750","alert_type":"price_change_percent","direction":"down","change_pct":0}]'
         )
         worker = AlertWorker(config_provider=lambda: self._config(invalid_rules), service=self.service)
@@ -696,14 +456,14 @@ class AlertWorkerTestCase(unittest.TestCase):
         self.assertIn("No realtime quote", triggers[0]["diagnostics"])
         notifier.send_with_results.assert_not_called()
 
-    def test_price_cross_numeric_yyyymmdd_quote_date_writes_correct_timestamp(self) -> None:
+    def test_price_change_percent_numeric_yyyymmdd_quote_date_writes_correct_timestamp(self) -> None:
         rule = self._create_rule(target="600519")
         notifier = self._notifier()
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
 
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0, date=20260517)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0, date=20260517)),
         ):
             stats = worker.run_once()
 
@@ -712,14 +472,14 @@ class AlertWorkerTestCase(unittest.TestCase):
         self.assertEqual(len(triggers), 1)
         self.assertEqual(triggers[0]["data_timestamp"], "2026-05-17T00:00:00")
 
-    def test_price_cross_space_separated_quote_time_writes_timestamp(self) -> None:
+    def test_price_change_percent_space_separated_quote_time_writes_timestamp(self) -> None:
         rule = self._create_rule(target="600519")
         notifier = self._notifier()
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
 
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0, quote_time="2026-05-17 15:00:00")),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0, quote_time="2026-05-17 15:00:00")),
         ):
             stats = worker.run_once()
 
@@ -735,7 +495,7 @@ class AlertWorkerTestCase(unittest.TestCase):
 
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0, timestamp=1700000000)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0, timestamp=1700000000)),
         ):
             stats = worker.run_once()
 
@@ -764,8 +524,8 @@ class AlertWorkerTestCase(unittest.TestCase):
         self._create_rule(
             name="Degraded",
             target="000858",
-            alert_type="volume_spike",
-            parameters={"multiplier": 2.5},
+            alert_type="price_change_percent",
+            parameters={"direction": "up", "change_pct": 2.5},
         )
         self._create_rule(
             name="Failed",
@@ -822,76 +582,7 @@ class AlertWorkerTestCase(unittest.TestCase):
         self.assertEqual(stats["evaluated"], 0)
         self.assertEqual(self._triggers(), [])
 
-    def test_market_light_rule_triggers_with_market_payload_and_deduplicates_trade_date(self) -> None:
-        rule = self._create_rule(
-            name="Market risk-off",
-            target_scope="market",
-            target="cn",
-            alert_type="market_light_status",
-            parameters={"statuses": ["red", "yellow"]},
-        )
-        snapshot = {
-            "region": "cn",
-            "trade_date": "2026-03-07",
-            "status": "red",
-            "score": 35,
-            "label": "偏防守",
-            "temperature_label": "偏弱",
-            "reasons": ["test"],
-            "guidance": "test",
-            "dimensions": {
-                "breadth": {"score": 20, "available": True},
-                "index": {"score": 30, "available": True},
-                "limit": {"score": 10, "available": True},
-            },
-            "data_quality": "ok",
-        }
-        notifier = self._notifier()
-        worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
 
-        with patch("ai_stock.services.market_light_alerts.build_current_snapshot", return_value=snapshot):
-            first = worker.run_once()
-            second = worker.run_once()
-
-        self.assertEqual(first["triggered"], 1)
-        self.assertEqual(first["recorded"], 1)
-        self.assertEqual(second["triggered"], 1)
-        self.assertEqual(second["recorded"], 0)
-        notifier.send_with_results.assert_called_once()
-        self.assertEqual(notifier.send_with_results.call_args.kwargs["route_type"], "alert")
-        triggers = self._triggers(rule_id=rule["id"], status="triggered")
-        self.assertEqual(len(triggers), 1)
-        self.assertEqual(triggers[0]["target"], "cn")
-        self.assertEqual(triggers[0]["observed_value"], 35.0)
-        self.assertEqual(triggers[0]["data_source"], "market_light")
-        self.assertEqual(triggers[0]["data_timestamp"], "2026-03-07T00:00:00")
-
-    def test_market_light_rule_skips_non_trading_day_when_check_enabled(self) -> None:
-        self._create_rule(
-            name="Market risk-off",
-            target_scope="market",
-            target="cn",
-            alert_type="market_light_status",
-            parameters={"statuses": ["red"]},
-        )
-        config = SimpleNamespace(
-            agent_event_monitor_enabled=True,
-            agent_event_alert_rules_json="",
-            trading_day_check_enabled=True,
-        )
-        worker = AlertWorker(config_provider=lambda: config, service=self.service)
-
-        with patch("ai_stock.services.market_light_alerts.get_open_markets_today", return_value=set()), patch(
-                "ai_stock.services.market_light_alerts.build_current_snapshot"
-        ) as build_snapshot:
-            stats = worker.run_once()
-
-        self.assertEqual(stats["skipped"], 1)
-        build_snapshot.assert_not_called()
-        triggers = self._triggers(status="skipped")
-        self.assertEqual(len(triggers), 1)
-        self.assertEqual(triggers[0]["target"], "cn")
-        self.assertEqual(triggers[0]["data_source"], "market_light")
 
     def test_single_rule_failure_does_not_block_other_rules(self) -> None:
         self._create_rule(target="600519")
@@ -932,7 +623,7 @@ class AlertWorkerTestCase(unittest.TestCase):
 
         async def _quote(_monitor, stock_code):
             if stock_code == "600519":
-                return SimpleNamespace(price=1810.0)
+                return SimpleNamespace(change_pct=1810.0)
             return {"pct_chg": "-3.25%"}
 
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=notifier)
@@ -963,7 +654,7 @@ class AlertWorkerTestCase(unittest.TestCase):
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=FakeNotifier())
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0)),
         ):
             stats = worker.run_once()
 
@@ -997,7 +688,7 @@ class AlertWorkerTestCase(unittest.TestCase):
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=FakeNotifier())
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0)),
         ):
             stats = worker.run_once()
 
@@ -1034,7 +725,7 @@ class AlertWorkerTestCase(unittest.TestCase):
         worker = AlertWorker(config_provider=lambda: self._config(), service=self.service, notifier=FakeNotifier())
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0)),
         ):
             first = worker.run_once()
             second = worker.run_once()
@@ -1064,7 +755,7 @@ class AlertWorkerTestCase(unittest.TestCase):
         )
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0)),
         ):
             worker.run_once()
             now["value"] += 30
@@ -1092,7 +783,7 @@ class AlertWorkerTestCase(unittest.TestCase):
         )
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0)),
         ):
             worker.run_once()
             now["value"] += 10
@@ -1103,7 +794,7 @@ class AlertWorkerTestCase(unittest.TestCase):
         self.assertEqual(self._notifications(channel="__cooldown__"), [])
 
     def test_legacy_rule_still_uses_fingerprint_suppression(self) -> None:
-        raw_rules = '[{"stock_code":"600519","alert_type":"price_cross","direction":"above","price":1800}]'
+        raw_rules = '[{"stock_code":"600519","alert_type":"price_change_percent","direction":"up","change_pct":1800}]'
         notifier = self._notifier()
         now = {"value": 1000.0}
 
@@ -1116,7 +807,7 @@ class AlertWorkerTestCase(unittest.TestCase):
         )
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0)),
         ):
             worker.run_once()
             now["value"] += 10
@@ -1145,7 +836,7 @@ class AlertWorkerTestCase(unittest.TestCase):
         )
         with patch(
                 "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-                new=AsyncMock(return_value=SimpleNamespace(price=1810.0)),
+                new=AsyncMock(return_value=SimpleNamespace(change_pct=1810.0)),
         ):
             first = worker.run_once()
             now["value"] += 10
@@ -1167,8 +858,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             name="Watchlist",
             target_scope="watchlist",
             target="default",
-            alert_type="price_cross",
-            parameters={"direction": "above", "price": 10},
+            alert_type="price_change_percent",
+            parameters={"direction": "up", "change_pct": 10},
         )
         config = self._config()
         config.stock_list = []
@@ -1187,8 +878,8 @@ class AlertWorkerTestCase(unittest.TestCase):
             name="Large watchlist",
             target_scope="watchlist",
             target="default",
-            alert_type="price_cross",
-            parameters={"direction": "above", "price": 10},
+            alert_type="price_change_percent",
+            parameters={"direction": "up", "change_pct": 10},
         )
         row = self.service.repo.get_rule(rule["id"])
         config = self._config()

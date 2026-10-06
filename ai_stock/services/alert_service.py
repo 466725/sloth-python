@@ -6,27 +6,23 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
 import re
 from datetime import date, datetime
 from typing import Any, Dict, List, Optional
 
 from ai_stock.agent.events import (
     EventMonitor,
-    PriceAlert,
     PriceChangeAlert,
-    VolumeAlert,
     _read_quote_float,
     validate_event_alert_rule,
 )
-from ai_stock.repositories.alert_repo import AlertRepository
-from ai_stock.services.alert_indicators import (
-    TECHNICAL_ALERT_TYPES,
-    TechnicalIndicatorAlert,
-    compute_requested_days,
-    evaluate_indicator_alert,
-    normalize_indicator_parameters,
-    threshold_for_indicator,
+from ai_stock.analysis_context_pack_overview import (
+    ANALYSIS_CONTEXT_PACK_OVERVIEW_KEY,
+    extract_analysis_context_pack_overview,
 )
+from ai_stock.market_phase_summary import MARKET_PHASE_SUMMARY_KEY, extract_market_phase_summary
+from ai_stock.repositories.alert_repo import AlertRepository
 from ai_stock.services.alert_runtime import (
     DRY_RUN_TARGET_TIMEOUT_SECONDS,
     DRY_RUN_TOTAL_TIMEOUT_SECONDS,
@@ -40,21 +36,7 @@ from ai_stock.services.alert_runtime import (
     normalize_batch_target_scope_target,
     result_to_target_result,
 )
-from ai_stock.services.market_light_alerts import (
-    MARKET_ALERT_TYPES,
-    MARKET_LIGHT_DATA_SOURCE,
-    MarketLightAlert,
-    evaluate_market_light_alert,
-    make_market_light_payload,
-    normalize_market_alert_parameters,
-)
-from ai_stock.services.market_light_service import normalize_market_region
 from ai_stock.services.decision_signal_summary import summarize_decision_signal
-from ai_stock.analysis_context_pack_overview import (
-    ANALYSIS_CONTEXT_PACK_OVERVIEW_KEY,
-    extract_analysis_context_pack_overview,
-)
-from ai_stock.market_phase_summary import MARKET_PHASE_SUMMARY_KEY, extract_market_phase_summary
 from ai_stock.storage import (
     AlertCooldownRecord,
     AlertNotificationRecord,
@@ -64,11 +46,8 @@ from ai_stock.storage import (
 )
 from ai_stock.utils.sanitize import sanitize_diagnostic_text
 
-
-LEGACY_RUNTIME_ALERT_TYPES = frozenset({"price_cross", "price_change_percent", "volume_spike"})
-SYMBOL_ALERT_TYPES = LEGACY_RUNTIME_ALERT_TYPES | TECHNICAL_ALERT_TYPES
-SUPPORTED_ALERT_TYPES = SYMBOL_ALERT_TYPES | MARKET_ALERT_TYPES
-SUPPORTED_TARGET_SCOPES = frozenset({"single_symbol", "watchlist", "market"})
+SUPPORTED_ALERT_TYPES = frozenset({"price_change_percent"})
+SUPPORTED_TARGET_SCOPES = frozenset({"single_symbol", "watchlist"})
 SUPPORTED_SEVERITIES = frozenset({"info", "warning", "critical"})
 NULLABLE_RULE_UPDATE_FIELDS = frozenset({"cooldown_policy", "notification_policy"})
 
@@ -88,7 +67,7 @@ class AlertNotFoundError(AlertServiceError):
 
 
 class UnsupportedAlertTypeError(AlertServiceError):
-    """Raised when the API receives a future/non-runtime alert type."""
+    """Raised when a caller requests an alert type other than price change."""
 
     error_code = "unsupported_alert_type"
 
@@ -202,16 +181,8 @@ class AlertService:
         monitor: EventMonitor,
         daily_cache: Optional[Dict[Any, Any]] = None,
     ) -> Dict[str, Any]:
-        if isinstance(rule, PriceAlert):
-            return await self._evaluate_price(rule, monitor)
         if isinstance(rule, PriceChangeAlert):
             return await self._evaluate_price_change(rule, monitor)
-        if isinstance(rule, VolumeAlert):
-            return await self._evaluate_volume(rule)
-        if isinstance(rule, TechnicalIndicatorAlert):
-            return await self._evaluate_technical_indicator(rule, daily_cache=daily_cache)
-        if isinstance(rule, MarketLightAlert):
-            return await asyncio.to_thread(evaluate_market_light_alert, rule, cache=daily_cache)
         if isinstance(rule, StaticAlertEvaluation):
             return evaluate_static_alert(rule)
         return self._evaluation_error(rule, f"unsupported runtime alert type: {rule.alert_type}")
@@ -299,69 +270,6 @@ class AlertService:
         }
         return response
 
-    async def _evaluate_price(self, rule: PriceAlert, monitor: EventMonitor) -> Dict[str, Any]:
-        threshold = float(rule.price)
-        try:
-            quote = await monitor._get_realtime_quote(rule.stock_code)
-        except Exception as exc:
-            return self._evaluation_error(
-                rule,
-                exc,
-                threshold=threshold,
-                data_source="realtime_quote",
-            )
-        if quote is None:
-            return self._not_triggered(
-                rule,
-                None,
-                "No realtime quote available",
-                record_status="skipped",
-                threshold=threshold,
-                data_source="realtime_quote",
-            )
-
-        try:
-            current_price = float(getattr(quote, "price", 0) or 0)
-        except (TypeError, ValueError) as exc:
-            return self._evaluation_error(
-                rule,
-                exc,
-                threshold=threshold,
-                data_source="realtime_quote",
-                data_timestamp=self._extract_quote_datetime(quote),
-            )
-        if current_price <= 0:
-            return self._not_triggered(
-                rule,
-                None,
-                "No valid realtime price available",
-                record_status="skipped",
-                threshold=threshold,
-                data_source="realtime_quote",
-                data_timestamp=self._extract_quote_datetime(quote),
-            )
-
-        triggered = (
-            (rule.direction == "above" and current_price >= rule.price)
-            or (rule.direction == "below" and current_price <= rule.price)
-        )
-        if triggered:
-            return self._triggered(
-                rule,
-                current_price,
-                f"{rule.stock_code} price {rule.direction} {rule.price}: current = {current_price}",
-                threshold=threshold,
-                data_source="realtime_quote",
-                data_timestamp=self._extract_quote_datetime(quote),
-            )
-        return self._not_triggered(
-            rule,
-            current_price,
-            f"{rule.stock_code} price {current_price} did not cross {rule.direction} {rule.price}",
-            threshold=threshold,
-            data_source="realtime_quote",
-            data_timestamp=self._extract_quote_datetime(quote),
-        )
 
     async def _evaluate_price_change(self, rule: PriceChangeAlert, monitor: EventMonitor) -> Dict[str, Any]:
         threshold = abs(float(rule.change_pct))
@@ -425,182 +333,7 @@ class AlertService:
             data_timestamp=self._extract_quote_datetime(quote),
         )
 
-    async def _evaluate_volume(self, rule: VolumeAlert) -> Dict[str, Any]:
-        def _fetch_daily_data():
-            from ai_stock.stock_data.base import DataFetcherManager
 
-            return DataFetcherManager().get_daily_data(rule.stock_code, days=20)
-
-        try:
-            result = await asyncio.to_thread(_fetch_daily_data)
-        except Exception as exc:
-            return self._evaluation_error(rule, exc, data_source="daily_data")
-        if result is None:
-            return self._not_triggered(
-                rule,
-                None,
-                "No daily volume data available",
-                record_status="degraded",
-                data_source="daily_data",
-            )
-        if not isinstance(result, tuple) or len(result) != 2:
-            return self._not_triggered(
-                rule,
-                None,
-                "Malformed daily volume data response",
-                record_status="degraded",
-                data_source="daily_data",
-            )
-
-        df, _source = result
-        if df is None or df.empty:
-            return self._not_triggered(
-                rule,
-                None,
-                "No daily volume data available",
-                record_status="degraded",
-                data_source="daily_data",
-            )
-        if "volume" not in df:
-            return self._not_triggered(
-                rule,
-                None,
-                "daily data missing volume column",
-                record_status="degraded",
-                data_source="daily_data",
-                data_timestamp=self._extract_daily_timestamp(df),
-            )
-
-        try:
-            avg_vol = float(df["volume"].mean())
-            latest_vol = float(df["volume"].iloc[-1])
-        except (TypeError, ValueError, IndexError) as exc:
-            return self._evaluation_error(
-                rule,
-                exc,
-                data_source="daily_data",
-                data_timestamp=self._extract_daily_timestamp(df),
-            )
-        if avg_vol <= 0:
-            return self._not_triggered(
-                rule,
-                latest_vol,
-                "Average volume is not available",
-                record_status="degraded",
-                data_source="daily_data",
-                data_timestamp=self._extract_daily_timestamp(df),
-            )
-
-        ratio = latest_vol / avg_vol
-        threshold = avg_vol * rule.multiplier
-        data_timestamp = self._extract_daily_timestamp(df)
-        if latest_vol > avg_vol * rule.multiplier:
-            return self._triggered(
-                rule,
-                latest_vol,
-                f"{rule.stock_code} volume spike: {latest_vol:,.0f} ({ratio:.1f}x avg)",
-                threshold=threshold,
-                data_source="daily_data",
-                data_timestamp=data_timestamp,
-            )
-        return self._not_triggered(
-            rule,
-            latest_vol,
-            f"{rule.stock_code} volume ratio {ratio:.1f}x did not exceed {rule.multiplier}x",
-            threshold=threshold,
-            data_source="daily_data",
-            data_timestamp=data_timestamp,
-        )
-
-    async def _evaluate_technical_indicator(
-        self,
-        rule: TechnicalIndicatorAlert,
-        *,
-        daily_cache: Optional[Dict[tuple[str, int], Any]] = None,
-    ) -> Dict[str, Any]:
-        requested_days = compute_requested_days(rule.alert_type, rule.indicator_params)
-        cache_key = (rule.stock_code, requested_days)
-
-        def _fetch_daily_data():
-            from ai_stock.stock_data.base import DataFetcherManager
-
-            return DataFetcherManager().get_daily_data(rule.stock_code, days=requested_days)
-
-        try:
-            if daily_cache is not None and cache_key in daily_cache:
-                result = daily_cache[cache_key]
-            else:
-                result = await asyncio.to_thread(_fetch_daily_data)
-                if daily_cache is not None:
-                    daily_cache[cache_key] = result
-        except Exception as exc:
-            return self._evaluation_error(rule, exc, data_source="daily_data")
-
-        if result is None:
-            return self._not_triggered(
-                rule,
-                None,
-                "No daily indicator data available",
-                record_status="degraded",
-                data_source="daily_data",
-            )
-        if not isinstance(result, tuple) or len(result) != 2:
-            return self._not_triggered(
-                rule,
-                None,
-                "Malformed daily indicator data response",
-                record_status="degraded",
-                data_source="daily_data",
-            )
-
-        df, _source = result
-        if df is None or getattr(df, "empty", True):
-            return self._not_triggered(
-                rule,
-                None,
-                "No daily indicator data available",
-                record_status="degraded",
-                data_source="daily_data",
-            )
-
-        try:
-            evaluation = evaluate_indicator_alert(rule.alert_type, rule.stock_code, rule.indicator_params, df)
-        except ValueError as exc:
-            return self._not_triggered(
-                rule,
-                None,
-                str(exc),
-                record_status="degraded",
-                threshold=threshold_for_indicator(rule.alert_type, rule.indicator_params),
-                data_source="daily_data",
-                data_timestamp=self._extract_daily_timestamp(df),
-            )
-        except Exception as exc:
-            return self._evaluation_error(
-                rule,
-                exc,
-                data_source="daily_data",
-                data_timestamp=self._extract_daily_timestamp(df),
-            )
-
-        if evaluation.status == "triggered":
-            return self._triggered(
-                rule,
-                evaluation.observed_value,
-                evaluation.message,
-                threshold=evaluation.threshold,
-                data_source="daily_data",
-                data_timestamp=evaluation.data_timestamp,
-            )
-        return self._not_triggered(
-            rule,
-            evaluation.observed_value,
-            evaluation.message,
-            record_status="degraded" if evaluation.status == "degraded" else None,
-            threshold=evaluation.threshold,
-            data_source="daily_data",
-            data_timestamp=evaluation.data_timestamp,
-        )
 
     def _triggered(
         self,
@@ -680,28 +413,14 @@ class AlertService:
 
     @staticmethod
     def _threshold_for_rule(rule) -> Optional[float]:
-        if isinstance(rule, PriceAlert):
-            return float(rule.price)
         if isinstance(rule, PriceChangeAlert):
             return abs(float(rule.change_pct))
-        if isinstance(rule, TechnicalIndicatorAlert):
-            return threshold_for_indicator(rule.alert_type, rule.indicator_params)
-        if isinstance(rule, MarketLightAlert):
-            if rule.alert_type == "market_light_score_drop":
-                return float(rule.parameters.get("min_drop", 0) or 0)
-            return None
         return None
 
     @staticmethod
     def _data_source_for_rule(rule) -> Optional[str]:
-        if isinstance(rule, (PriceAlert, PriceChangeAlert)):
+        if isinstance(rule, PriceChangeAlert):
             return "realtime_quote"
-        if isinstance(rule, VolumeAlert):
-            return "daily_data"
-        if isinstance(rule, TechnicalIndicatorAlert):
-            return "daily_data"
-        if isinstance(rule, MarketLightAlert):
-            return MARKET_LIGHT_DATA_SOURCE
         return None
 
     @classmethod
@@ -738,27 +457,6 @@ class AlertService:
                 return None
         return None
 
-    @classmethod
-    def _extract_daily_timestamp(cls, df: Any) -> Optional[datetime]:
-        if df is None or getattr(df, "empty", True):
-            return None
-
-        for field_name in ("date", "trade_date", "datetime", "time"):
-            if field_name in getattr(df, "columns", []):
-                try:
-                    parsed = cls._coerce_datetime(df[field_name].iloc[-1])
-                except Exception:
-                    parsed = None
-                if parsed is not None:
-                    return parsed
-
-        try:
-            index_value = df.index[-1]
-            if isinstance(index_value, (int, float)):
-                return None
-            return cls._coerce_datetime(index_value)
-        except Exception:
-            return None
 
     @staticmethod
     def _coerce_datetime(value: Any) -> Optional[datetime]:
@@ -866,7 +564,6 @@ class AlertService:
         alert_type = str(payload.get("alert_type") or "").strip().lower()
         if alert_type not in SUPPORTED_ALERT_TYPES:
             raise UnsupportedAlertTypeError(f"unsupported alert_type for Alert API: {alert_type or '<empty>'}")
-        self._validate_scope_alert_type(target_scope, alert_type)
 
         severity = str(payload.get("severity") or "warning").strip().lower()
         if severity not in SUPPORTED_SEVERITIES:
@@ -874,7 +571,7 @@ class AlertService:
 
         parameters = self._normalize_parameters(alert_type, payload.get("parameters") or {})
         target = self._normalize_target(target_scope, target)
-        if target_scope == "single_symbol" and alert_type in LEGACY_RUNTIME_ALERT_TYPES:
+        if target_scope == "single_symbol":
             serialized_rule = {"stock_code": target, "alert_type": alert_type, **parameters}
             try:
                 validate_event_alert_rule(serialized_rule)
@@ -903,25 +600,10 @@ class AlertService:
             if value is None and field_name not in NULLABLE_RULE_UPDATE_FIELDS:
                 raise AlertServiceError(f"{field_name} must not be null")
 
-    @staticmethod
-    def _validate_scope_alert_type(target_scope: str, alert_type: str) -> None:
-        if target_scope == "market":
-            if alert_type not in MARKET_ALERT_TYPES:
-                raise AlertServiceError("market target_scope only supports market alert types")
-            return
-        if alert_type in MARKET_ALERT_TYPES:
-            raise AlertServiceError("market alert types require target_scope=market")
-        if target_scope in {"single_symbol", "watchlist"} and alert_type not in SYMBOL_ALERT_TYPES:
-            raise UnsupportedAlertTypeError(f"unsupported alert_type for {target_scope}: {alert_type}")
 
     def _normalize_target(self, target_scope: str, target: str) -> str:
         if target_scope == "single_symbol":
             return target.strip()
-        if target_scope == "market":
-            try:
-                return normalize_market_region(target)
-            except ValueError as exc:
-                raise AlertServiceError(str(exc)) from exc
         try:
             normalized = normalize_batch_target_scope_target(target_scope, target)
             return normalized
@@ -932,12 +614,6 @@ class AlertService:
         if not isinstance(parameters, dict):
             raise AlertServiceError("parameters must be an object")
 
-        if alert_type == "price_cross":
-            direction = str(parameters.get("direction") or "above").strip().lower()
-            if direction not in {"above", "below"}:
-                raise AlertServiceError(f"invalid direction: {direction}")
-            return {"direction": direction, "price": self._positive_float(parameters.get("price"), "price")}
-
         if alert_type == "price_change_percent":
             direction = str(parameters.get("direction") or "up").strip().lower()
             if direction not in {"up", "down"}:
@@ -947,21 +623,6 @@ class AlertService:
                 "change_pct": self._positive_float(parameters.get("change_pct"), "change_pct"),
             }
 
-        if alert_type == "volume_spike":
-            return {"multiplier": self._positive_float(parameters.get("multiplier"), "multiplier")}
-
-        if alert_type in TECHNICAL_ALERT_TYPES:
-            try:
-                return normalize_indicator_parameters(alert_type, parameters)
-            except ValueError as exc:
-                raise AlertServiceError(str(exc)) from exc
-
-        if alert_type in MARKET_ALERT_TYPES:
-            try:
-                return normalize_market_alert_parameters(alert_type, parameters)
-            except ValueError as exc:
-                raise AlertServiceError(str(exc)) from exc
-
         raise UnsupportedAlertTypeError(f"unsupported alert_type for Alert API: {alert_type}")
 
     @staticmethod
@@ -970,8 +631,8 @@ class AlertService:
             number = float(value)
         except (TypeError, ValueError) as exc:
             raise AlertServiceError(f"invalid {field_name}: {value}") from exc
-        if number <= 0:
-            raise AlertServiceError(f"{field_name} must be > 0")
+        if not math.isfinite(number) or number <= 0:
+            raise AlertServiceError(f"{field_name} must be finite and > 0")
         return number
 
     def build_runtime_payloads(
@@ -996,9 +657,6 @@ class AlertService:
             data["alert_type"],
             data["parameters"],
         )
-
-        if data["alert_type"] in MARKET_ALERT_TYPES:
-            return [make_market_light_payload(parent_key=parent_key, data=data, config=config)]
 
         if data["target_scope"] in SYMBOL_BATCH_TARGET_SCOPES:
             if config is None:
@@ -1091,31 +749,11 @@ class AlertService:
             "parent_target": row.target,
             "effective_target": data.get("target"),
         }
-        if data["alert_type"] == "price_cross":
-            return PriceAlert(
-                stock_code=data["target"],
-                direction=str(parameters["direction"]),
-                price=float(parameters["price"]),
-                metadata=metadata,
-            )
         if data["alert_type"] == "price_change_percent":
             return PriceChangeAlert(
                 stock_code=data["target"],
                 direction=str(parameters["direction"]),
                 change_pct=float(parameters["change_pct"]),
-                metadata=metadata,
-            )
-        if data["alert_type"] == "volume_spike":
-            return VolumeAlert(
-                stock_code=data["target"],
-                multiplier=float(parameters["multiplier"]),
-                metadata=metadata,
-            )
-        if data["alert_type"] in TECHNICAL_ALERT_TYPES:
-            return TechnicalIndicatorAlert(
-                stock_code=data["target"],
-                alert_type=data["alert_type"],
-                indicator_params=parameters,
                 metadata=metadata,
             )
         raise UnsupportedAlertTypeError(f"unsupported alert_type for Alert API: {data['alert_type']}")
@@ -1250,27 +888,8 @@ class AlertService:
 
     @staticmethod
     def _default_rule_name(*, target: str, alert_type: str, parameters: Dict[str, Any]) -> str:
-        if alert_type == "price_cross":
-            return f"{target} price {parameters['direction']} {parameters['price']}"
         if alert_type == "price_change_percent":
             return f"{target} change {parameters['direction']} {parameters['change_pct']}%"
-        if alert_type == "volume_spike":
-            return f"{target} volume spike {parameters['multiplier']}x"
-        if alert_type == "ma_price_cross":
-            return f"{target} close {parameters['direction']} MA{parameters['window']}"
-        if alert_type == "rsi_threshold":
-            return f"{target} RSI{parameters['period']} {parameters['direction']} {parameters['threshold']}"
-        if alert_type == "macd_cross":
-            return f"{target} MACD {parameters['direction']}"
-        if alert_type == "kdj_cross":
-            return f"{target} KDJ {parameters['direction']}"
-        if alert_type == "cci_threshold":
-            return f"{target} CCI{parameters['period']} {parameters['direction']} {parameters['threshold']}"
-        if alert_type == "market_light_status":
-            statuses = ",".join(parameters.get("statuses") or ["red", "yellow"])
-            return f"{target} market light status {statuses}"
-        if alert_type == "market_light_score_drop":
-            return f"{target} market light score drop {parameters['min_drop']}"
         return f"{target} {alert_type}"
 
     @staticmethod

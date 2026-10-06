@@ -11,8 +11,8 @@ Covers:
 """
 
 import json
-import sys
 import os
+import sys
 import unittest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -25,7 +25,7 @@ try:
 except ModuleNotFoundError:
     sys.modules["litellm"] = MagicMock()
 
-from ai_stock.agent.orchestrator import _extract_stock_code, _COMMON_WORDS
+from ai_stock.agent.orchestrator import _COMMON_WORDS, _extract_stock_code
 from ai_stock.agent.protocols import (
     AgentContext,
     AgentOpinion,
@@ -37,7 +37,6 @@ from ai_stock.agent.protocols import (
 from ai_stock.agent.stock_scope import StockScope, resolve_stock_scope
 from ai_stock.config import AGENT_MAX_STEPS_DEFAULT, Config
 from ai_stock.storage import DatabaseManager
-
 
 # ============================================================
 # _extract_stock_code
@@ -1381,100 +1380,52 @@ class TestBaseAgentMessageAssembly(unittest.TestCase):
 class TestEventMonitor(unittest.TestCase):
     """Test EventMonitor serialize/deserialize round-trip."""
 
-    def test_round_trip(self):
-        from ai_stock.agent.events import EventMonitor, PriceAlert, PriceChangeAlert, VolumeAlert
-        monitor = EventMonitor()
-        monitor.add_alert(PriceAlert(stock_code="600519", direction="above", price=1800.0))
-        monitor.add_alert(PriceChangeAlert(stock_code="300750", direction="down", change_pct=3.5))
-        monitor.add_alert(VolumeAlert(stock_code="000858", multiplier=3.0))
-
-        data = monitor.to_dict_list()
-        self.assertEqual(len(data), 3)
-        self.assertEqual(data[1]["alert_type"], "price_change_percent")
-        self.assertEqual(data[1]["change_pct"], 3.5)
-
-        restored = EventMonitor.from_dict_list(data)
-        self.assertEqual(len(restored.rules), 3)
-        self.assertEqual(restored.rules[0].stock_code, "600519")
-        self.assertEqual(restored.rules[1].stock_code, "300750")
-        self.assertEqual(restored.rules[2].stock_code, "000858")
-
-    def test_serialization_contract_keeps_supported_rule_keys_stable(self):
-        from ai_stock.agent.events import (
-            AlertStatus,
-            EventMonitor,
-            PriceAlert,
-            PriceChangeAlert,
-            VolumeAlert,
-        )
+    def test_price_change_round_trip_preserves_parameters_and_status(self):
+        from ai_stock.agent.events import AlertStatus, EventMonitor, PriceChangeAlert
 
         monitor = EventMonitor()
-        monitor.add_alert(PriceAlert(stock_code="600519", direction="above", price=1800.0))
+        monitor.add_alert(PriceChangeAlert(stock_code="600519", direction="up", change_pct=3))
         monitor.add_alert(PriceChangeAlert(stock_code="300750", direction="down", change_pct=3.5))
-        monitor.add_alert(VolumeAlert(stock_code="000858", multiplier=3.0))
         monitor.rules[1].status = AlertStatus.TRIGGERED
-        monitor.rules[2].status = AlertStatus.EXPIRED
-
         data = monitor.to_dict_list()
-
-        common_keys = {
-            "stock_code",
-            "alert_type",
-            "description",
-            "status",
-            "created_at",
-            "ttl_hours",
-        }
-        self.assertEqual(set(data[0]), common_keys | {"direction", "price"})
-        self.assertEqual(set(data[1]), common_keys | {"direction", "change_pct"})
-        self.assertEqual(set(data[2]), common_keys | {"multiplier"})
-        known_status_values = {status.value for status in AlertStatus}
         for entry in data:
-            self.assertIn(entry["status"], known_status_values)
-
+            self.assertEqual(entry["alert_type"], "price_change_percent")
+            self.assertEqual(set(entry), {
+                "stock_code", "alert_type", "description", "status", "created_at",
+                "ttl_hours", "direction", "change_pct",
+            })
         restored = EventMonitor.from_dict_list(data)
+        self.assertEqual(len(restored.rules), 2)
+        self.assertEqual(restored.rules[0].direction, "up")
+        self.assertEqual(restored.rules[1].change_pct, 3.5)
+        self.assertEqual(restored.rules[1].status, AlertStatus.TRIGGERED)
 
-        self.assertEqual([rule.status for rule in restored.rules], [
-            AlertStatus.ACTIVE,
-            AlertStatus.TRIGGERED,
-            AlertStatus.EXPIRED,
-        ])
+    def test_retired_rules_are_skipped_with_warnings(self):
+        from ai_stock.agent.events import EventMonitor
+
+        with self.assertLogs("ai_stock.agent.events", level="WARNING"):
+            monitor = EventMonitor.from_dict_list([
+                {"stock_code": "600519", "alert_type": "price_cross", "price": 1800},
+                {"stock_code": "300750", "alert_type": "price_change_percent", "change_pct": 3},
+            ])
+        self.assertEqual(len(monitor.rules), 1)
+        self.assertEqual(monitor.rules[0].stock_code, "300750")
+
+
 
     def test_remove_expired(self):
         import time
-        from ai_stock.agent.events import EventMonitor, PriceAlert
+
+        from ai_stock.agent.events import EventMonitor, PriceChangeAlert
         monitor = EventMonitor()
-        alert = PriceAlert(stock_code="600519", direction="above", price=1800.0, ttl_hours=0.0)
+        alert = PriceChangeAlert(stock_code="600519", direction="up", change_pct=1800.0, ttl_hours=0.0)
         alert.created_at = time.time() - 3600  # 1 hour ago
         monitor.rules.append(alert)
         removed = monitor.remove_expired()
         self.assertEqual(removed, 1)
         self.assertEqual(len(monitor.rules), 0)
 
-    def test_add_alert_rejects_unsupported_rule_type(self):
-        from ai_stock.agent.events import EventMonitor, SentimentAlert
 
-        monitor = EventMonitor()
-
-        with self.assertRaises(ValueError):
-            monitor.add_alert(SentimentAlert(stock_code="600519"))
-
-    def test_from_dict_list_skips_unsupported_placeholder_rule_type(self):
-        from ai_stock.agent.events import EventMonitor
-
-        data = [
-            {"stock_code": "600519", "alert_type": "sentiment_shift"},
-            {
-                "stock_code": "000858",
-                "alert_type": "volume_spike",
-                "multiplier": 2.5,
-            },
-        ]
-
-        monitor = EventMonitor.from_dict_list(data)
-
-        self.assertEqual(len(monitor.rules), 1)
-        self.assertEqual(monitor.rules[0].stock_code, "000858")
 
     def test_from_dict_list_skips_price_change_without_change_pct(self):
         from ai_stock.agent.events import EventMonitor
@@ -1495,19 +1446,6 @@ class TestEventMonitor(unittest.TestCase):
 class TestEventMonitorAsync(unittest.IsolatedAsyncioTestCase):
     """Test async EventMonitor checks offload blocking fetches."""
 
-    async def test_check_price_uses_to_thread_and_triggers(self):
-        from ai_stock.agent.events import EventMonitor, PriceAlert
-
-        monitor = EventMonitor()
-        rule = PriceAlert(stock_code="600519", direction="above", price=1800.0)
-        quote = SimpleNamespace(price=1810.0)
-
-        with patch("ai_stock.agent.events.asyncio.to_thread", new=AsyncMock(return_value=quote)) as to_thread:
-            triggered = await monitor._check_price(rule)
-
-        self.assertIsNotNone(triggered)
-        self.assertEqual(triggered.rule.stock_code, "600519")
-        to_thread.assert_awaited_once()
 
     async def test_check_price_change_uses_to_thread_and_triggers(self):
         from ai_stock.agent.events import EventMonitor, PriceChangeAlert
@@ -1538,14 +1476,14 @@ class TestEventMonitorAsync(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(triggered.current_value, 2.35)
 
     async def test_realtime_rules_create_fetcher_manager_per_quote_check(self):
-        from ai_stock.agent.events import EventMonitor, PriceAlert, PriceChangeAlert
+        from ai_stock.agent.events import EventMonitor, PriceChangeAlert
 
         monitor = EventMonitor()
-        monitor.add_alert(PriceAlert(stock_code="600519", direction="above", price=1800.0))
+        monitor.add_alert(PriceChangeAlert(stock_code="600519", direction="up", change_pct=1800.0))
         monitor.add_alert(PriceChangeAlert(stock_code="600519", direction="up", change_pct=3.0))
         managers = [MagicMock(), MagicMock()]
         for manager in managers:
-            manager.get_realtime_quote.return_value = SimpleNamespace(price=1810.0, change_pct=3.25)
+            manager.get_realtime_quote.return_value = SimpleNamespace(change_pct=1810.0)
 
         async def _run_inline(func, *args, **kwargs):
             return func(*args, **kwargs)
@@ -1560,31 +1498,20 @@ class TestEventMonitorAsync(unittest.IsolatedAsyncioTestCase):
             manager.get_realtime_quote.assert_called_once_with("600519")
         self.assertEqual(len(triggered), 2)
 
-    async def test_check_volume_safe_when_fetch_returns_none(self):
-        """_check_volume must not crash when get_daily_data returns None."""
-        from ai_stock.agent.events import EventMonitor, VolumeAlert
-
-        monitor = EventMonitor()
-        rule = VolumeAlert(stock_code="600519", multiplier=2.0)
-
-        with patch("ai_stock.agent.events.asyncio.to_thread", new=AsyncMock(return_value=None)):
-            result = await monitor._check_volume(rule)
-
-        self.assertIsNone(result)
 
     async def test_check_all_async_callback(self):
         """on_trigger callbacks should be properly awaited if coroutine."""
-        from ai_stock.agent.events import EventMonitor, PriceAlert
+        from ai_stock.agent.events import EventMonitor, PriceChangeAlert
 
         monitor = EventMonitor()
-        rule = PriceAlert(stock_code="600519", direction="above", price=1800.0)
+        rule = PriceChangeAlert(stock_code="600519", direction="up", change_pct=1800.0)
         monitor.add_alert(rule)
 
         callback_values = []
         async_cb = AsyncMock(side_effect=lambda alert: callback_values.append(alert.rule.stock_code))
         monitor.on_trigger(async_cb)
 
-        quote = SimpleNamespace(price=1810.0)
+        quote = SimpleNamespace(change_pct=1810.0)
         with patch("ai_stock.agent.events.asyncio.to_thread", new=AsyncMock(return_value=quote)):
             triggered = await monitor.check_all()
 
@@ -1600,7 +1527,7 @@ class TestEventMonitorConfigIntegration(unittest.TestCase):
 
         config = SimpleNamespace(
             agent_event_monitor_enabled=True,
-            agent_event_alert_rules_json='[{"stock_code":"600519","alert_type":"price_cross","direction":"above","price":1800}]',
+            agent_event_alert_rules_json='[{"stock_code":"600519","alert_type":"price_change_percent","direction":"up","change_pct":1800}]',
         )
 
         with patch("ai_stock.report.notification.NotificationService", return_value=MagicMock()):
@@ -1615,7 +1542,7 @@ class TestEventMonitorConfigIntegration(unittest.TestCase):
 
         config = SimpleNamespace(
             agent_event_monitor_enabled=True,
-            agent_event_alert_rules_json='[{"stock_code":"600519","alert_type":"price_cross","direction":"above","price":1800}]',
+            agent_event_alert_rules_json='[{"stock_code":"600519","alert_type":"price_change_percent","direction":"up","change_pct":1800}]',
         )
         notifier = MagicMock()
         notifier.send.return_value = True
@@ -1664,8 +1591,8 @@ class TestEventMonitorConfigIntegration(unittest.TestCase):
         config = SimpleNamespace(
             agent_event_monitor_enabled=True,
             agent_event_alert_rules_json=(
-                '[{"stock_code":"600519","alert_type":"price_cross","direction":"above","price":1800},'
-                '{"stock_code":"000858","alert_type":"price_cross","status":"bad","direction":"above","price":120}]'
+                '[{"stock_code":"600519","alert_type":"price_change_percent","direction":"up","change_pct":1800},'
+                '{"stock_code":"000858","alert_type":"price_change_percent","status":"bad","direction":"up","change_pct":120}]'
             ),
         )
 
@@ -1683,7 +1610,7 @@ class TestEventMonitorConfigIntegration(unittest.TestCase):
             agent_event_monitor_enabled=True,
             agent_event_alert_rules_json=(
                 '[{"stock_code":"600519","alert_type":"sentiment_shift"},'
-                '{"stock_code":"000858","alert_type":"price_cross","direction":"above","price":120}]'
+                '{"stock_code":"000858","alert_type":"price_change_percent","direction":"up","change_pct":120}]'
             ),
         )
 
@@ -1789,7 +1716,7 @@ class TestBaseAgentMemoryIntegration(unittest.TestCase):
         ctx = AgentContext(query="test", stock_code="600519")
         ctx.meta["market_phase_context"] = {"phase": "intraday"}
         ctx.meta["analysis_context_pack_summary"] = "\n## 分析上下文包摘要\n- 数据块状态：行情 available\n"
-        ctx.set_data("realtime_quote", {"price": 1880.0})
+        ctx.set_data("realtime_quote", {"change_pct": 1880.0})
 
         injected = agent._inject_cached_data(ctx)
 
@@ -2157,6 +2084,7 @@ class TestResearchAgentFilteredRegistry(unittest.TestCase):
 
     def test_research_returns_timeout_result_when_overall_deadline_is_exceeded(self):
         import time as _time
+
         from ai_stock.agent.research import ResearchAgent
 
         agent = ResearchAgent(tool_registry=MagicMock(), llm_adapter=MagicMock())

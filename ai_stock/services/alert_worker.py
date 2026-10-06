@@ -14,14 +14,10 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
 
 from ai_stock.agent.events import (
     EventMonitor,
-    PriceAlert,
     PriceChangeAlert,
-    VolumeAlert,
     parse_event_alert_rules,
     validate_event_alert_rule,
 )
-from ai_stock.stock_data.base import normalize_stock_code
-from ai_stock.stock_data.us_index_mapping import is_us_index_code
 from ai_stock.analysis_context_pack_overview import (
     ANALYSIS_CONTEXT_PACK_OVERVIEW_KEY,
     extract_analysis_context_pack_overview,
@@ -38,7 +34,8 @@ from ai_stock.services.decision_signal_summary import (
     summarize_decision_signal,
 )
 from ai_stock.services.history_service import HistoryService
-from ai_stock.services.market_light_service import normalize_market_region
+from ai_stock.stock_data.base import normalize_stock_code
+from ai_stock.stock_data.us_index_mapping import is_us_index_code
 
 logger = logging.getLogger(__name__)
 
@@ -257,24 +254,11 @@ class AlertWorker:
                 parameters = self.service._normalize_parameters(alert_type, entry)
                 key = self._semantic_key("single_symbol", stock_code, alert_type, parameters)
                 metadata = {"source": "legacy_env", "legacy_rule_index": index}
-                if alert_type == "price_cross":
-                    rule = PriceAlert(
-                        stock_code=stock_code,
-                        direction=str(parameters["direction"]),
-                        price=float(parameters["price"]),
-                        metadata=metadata,
-                    )
-                elif alert_type == "price_change_percent":
+                if alert_type == "price_change_percent":
                     rule = PriceChangeAlert(
                         stock_code=stock_code,
                         direction=str(parameters["direction"]),
                         change_pct=float(parameters["change_pct"]),
-                        metadata=metadata,
-                    )
-                elif alert_type == "volume_spike":
-                    rule = VolumeAlert(
-                        stock_code=stock_code,
-                        multiplier=float(parameters["multiplier"]),
                         metadata=metadata,
                     )
                 else:
@@ -540,12 +524,7 @@ class AlertWorker:
 
     def _alert_market_phase_summary(self, runtime_rule: RuntimeAlertRule) -> Optional[Dict[str, Any]]:
         try:
-            rule = getattr(runtime_rule, "rule", runtime_rule)
-            target_scope = str(getattr(rule, "target_scope", "") or "")
-            if target_scope == "market":
-                market = normalize_market_region(getattr(rule, "target", self._effective_target(runtime_rule)))
-            else:
-                market = get_market_for_stock(normalize_stock_code(self._effective_target(runtime_rule)))
+            market = get_market_for_stock(normalize_stock_code(self._effective_target(runtime_rule)))
             context = build_market_phase_context(
                 market=market,
                 trigger_source="alert",
@@ -660,7 +639,10 @@ class AlertWorker:
         try:
             return self._send_notification(runtime_rule, result)
         except Exception as exc:
-            from ai_stock.report.notification import ChannelAttemptResult, NotificationDispatchResult
+            from ai_stock.report.notification import (
+                ChannelAttemptResult,
+                NotificationDispatchResult,
+            )
 
             sanitized = self.service._sanitize_text(str(exc) or "notification failed")
             logger.warning(

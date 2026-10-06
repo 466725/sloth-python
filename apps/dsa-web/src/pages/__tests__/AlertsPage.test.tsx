@@ -45,11 +45,11 @@ const parsedError = {
 
 const rule = {
   id: 1,
-  name: '茅台价格突破',
+  name: '茅台涨跌幅',
   targetScope: 'single_symbol' as const,
   target: '600519',
-  alertType: 'price_cross' as const,
-  parameters: { direction: 'above' as const, price: 1800 },
+  alertType: 'price_change_percent' as const,
+  parameters: { direction: 'up' as const, changePct: 3 },
   severity: 'warning' as const,
   enabled: true,
   source: 'api',
@@ -74,9 +74,9 @@ beforeEach(() => {
         id: 10,
         ruleId: 1,
         target: '600519',
-        observedValue: 1801,
-        threshold: 1800,
-        reason: '600519 price above 1800',
+        observedValue: 3.1,
+        threshold: 3,
+        reason: '600519 price up 3%',
         dataSource: 'realtime_quote',
         dataTimestamp: '2026-05-18T09:30:00',
         triggeredAt: '2026-05-18T09:30:01',
@@ -92,8 +92,8 @@ beforeEach(() => {
     ruleId: 1,
     status: 'triggered',
     triggered: true,
-    observedValue: 1801,
-    message: '600519 price above 1800',
+    observedValue: 3.1,
+    message: '600519 price up 3%',
   });
   createRule.mockResolvedValue(rule);
   disableRule.mockResolvedValue({ ...rule, enabled: false });
@@ -105,9 +105,9 @@ describe('AlertsPage', () => {
   it('loads rules, trigger history, and notification empty state', async () => {
     render(<AlertsPage />);
 
-    expect(screen.getByText('管理事件告警、日线技术指标、自选股、持仓/账户联动和大盘红绿灯规则，执行一次性测试，并查看后台评估任务记录的触发历史。')).toBeInTheDocument();
-    expect(await screen.findByText('茅台价格突破')).toBeInTheDocument();
-    expect(await screen.findByText('600519 price above 1800')).toBeInTheDocument();
+    expect(screen.getByText('管理单标的和自选股涨跌幅告警，执行一次性测试，并查看后台评估任务记录的触发历史与邮件通知诊断。')).toBeInTheDocument();
+    expect(await screen.findByText('茅台涨跌幅')).toBeInTheDocument();
+    expect(await screen.findByText('600519 price up 3%')).toBeInTheDocument();
     expect(await screen.findByText('暂无通知尝试记录')).toBeInTheDocument();
     expect(listRules).toHaveBeenCalledWith({
       enabled: undefined,
@@ -127,8 +127,8 @@ describe('AlertsPage', () => {
 
     await waitFor(() => expect(testRule).toHaveBeenCalledWith(1));
     expect(await screen.findByText('测试结果')).toBeInTheDocument();
-    expect(screen.getByText(/600519 price above 1800/)).toBeInTheDocument();
-    expect(screen.getByText(/观察值：1801/)).toBeInTheDocument();
+    expect(screen.getByText(/600519 price up 3%/)).toBeInTheDocument();
+    expect(screen.getByText(/观察值：3\.1/)).toBeInTheDocument();
     expect(screen.queryByText(/realtime_quote/)).not.toBeInTheDocument();
   });
 
@@ -177,16 +177,16 @@ describe('AlertsPage', () => {
   it('creates a rule through the page form and reloads rules', async () => {
     render(<AlertsPage />);
 
-    await screen.findByText('茅台价格突破');
+    await screen.findByText('茅台涨跌幅');
     fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'aapl' } });
-    fireEvent.change(screen.getByLabelText('价格阈值'), { target: { value: '200' } });
+    fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '2' } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
 
     await waitFor(() => {
       expect(createRule).toHaveBeenCalledWith(expect.objectContaining({
         target: 'AAPL',
-        alertType: 'price_cross',
-        parameters: { direction: 'above', price: 200 },
+        alertType: 'price_change_percent',
+        parameters: { direction: 'up', changePct: 2 },
       }));
     });
     expect(await screen.findByText(/已创建告警规则/)).toBeInTheDocument();
@@ -196,14 +196,14 @@ describe('AlertsPage', () => {
     createRule.mockRejectedValueOnce({ parsedError });
     render(<AlertsPage />);
 
-    await screen.findByText('茅台价格突破');
+    await screen.findByText('茅台涨跌幅');
     fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'aapl' } });
-    fireEvent.change(screen.getByLabelText('价格阈值'), { target: { value: '200' } });
+    fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '2' } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
 
     expect(await screen.findByText('加载失败')).toBeInTheDocument();
     expect(screen.getByLabelText('标的代码')).toHaveValue('aapl');
-    expect(screen.getByLabelText('价格阈值')).toHaveValue(200);
+    expect(screen.getByLabelText('涨跌幅阈值（%）')).toHaveValue(2);
   });
 
   it('clamps rules pagination when a mutation leaves the current page empty', async () => {
@@ -216,7 +216,7 @@ describe('AlertsPage', () => {
 
     render(<AlertsPage />);
 
-    expect(await screen.findByText('茅台价格突破')).toBeInTheDocument();
+    expect(await screen.findByText('茅台涨跌幅')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: '2' }));
     expect(await screen.findByText('第二页规则')).toBeInTheDocument();
     fireEvent.click(screen.getByLabelText('删除 第二页规则'));
@@ -231,7 +231,7 @@ describe('AlertsPage', () => {
         pageSize: 20,
       });
     });
-    expect(await screen.findByText('茅台价格突破')).toBeInTheDocument();
+    expect(await screen.findByText('茅台涨跌幅')).toBeInTheDocument();
   });
 
   it('keeps the latest rules response when filter requests resolve out of order', async () => {

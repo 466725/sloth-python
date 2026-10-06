@@ -8,14 +8,12 @@ import {
   ALERT_DIRECTION_LABELS,
   ALERT_ENABLED_FILTER_OPTIONS,
   ALERT_LIST_TEXT,
-  ALERT_MARKET_LIGHT_STATUS_LABELS,
-  ALERT_MARKET_REGION_LABELS,
   ALERT_SCOPE_LABELS,
   ALERT_SEVERITY_LABELS,
   ALERT_TYPE_FILTER_OPTIONS,
   ALERT_TYPE_LABELS,
 } from '../../locales/featureText';
-import type { AlertRuleItem, AlertType, MarketRegion } from '../../types/alerts';
+import type { AlertRuleItem, AlertType } from '../../types/alerts';
 import { formatDateTime } from '../../utils/format';
 
 export type AlertRuleEnabledFilter = 'all' | 'enabled' | 'disabled';
@@ -29,49 +27,14 @@ export interface AlertRuleBusyState {
 
 function formatParameters(rule: AlertRuleItem, language: UiLanguage): string {
   const directionLabels = ALERT_DIRECTION_LABELS[language];
-  if (rule.alertType === 'market_light_status') {
-    const statuses = rule.parameters.statuses ?? [];
-    return statuses.length > 0
-      ? statuses.map((status) => ALERT_MARKET_LIGHT_STATUS_LABELS[language][status] ?? status).join(' / ')
-      : '--';
-  }
-  if (rule.alertType === 'market_light_score_drop') {
-    return formatUiText(ALERT_LIST_TEXT[language].scoreDropAtLeast, { value: rule.parameters.minDrop ?? '--' });
-  }
-  if (rule.alertType === 'price_cross') {
-    return `${rule.parameters.direction === 'below' ? directionLabels.belowPrice : directionLabels.abovePrice} ${rule.parameters.price ?? '--'}`;
-  }
-  if (rule.alertType === 'price_change_percent') {
-    return `${rule.parameters.direction === 'down' ? directionLabels.downChange : directionLabels.upChange} ${rule.parameters.changePct ?? '--'}%`;
-  }
-  if (rule.alertType === 'volume_spike') {
-    return `${rule.parameters.multiplier ?? '--'}x`;
-  }
-  if (rule.alertType === 'ma_price_cross') {
-    return `${rule.parameters.direction === 'below' ? directionLabels.belowThreshold : directionLabels.aboveThreshold} MA${rule.parameters.window ?? '--'}`;
-  }
-  if (rule.alertType === 'rsi_threshold') {
-    return `RSI${rule.parameters.period ?? '--'} ${rule.parameters.direction === 'below' ? directionLabels.belowThreshold : directionLabels.aboveThreshold} ${rule.parameters.threshold ?? '--'}`;
-  }
-  if (rule.alertType === 'macd_cross' || rule.alertType === 'kdj_cross') {
-    const direction = rule.parameters.direction === 'bearish_cross' ? directionLabels.bearishCross : directionLabels.bullishCross;
-    if (rule.alertType === 'macd_cross') {
-      return `MACD(${rule.parameters.fastPeriod ?? '--'},${rule.parameters.slowPeriod ?? '--'},${rule.parameters.signalPeriod ?? '--'}) ${direction}`;
-    }
-    return `KDJ(${rule.parameters.period ?? '--'},${rule.parameters.kPeriod ?? '--'},${rule.parameters.dPeriod ?? '--'}) ${direction}`;
-  }
-  if (rule.alertType === 'cci_threshold') {
-    return `CCI${rule.parameters.period ?? '--'} ${rule.parameters.direction === 'below' ? directionLabels.belowThreshold : directionLabels.aboveThreshold} ${rule.parameters.threshold ?? '--'}`;
-  }
-  return '--';
+  return `${rule.parameters.direction === 'down' ? directionLabels.downChange : directionLabels.upChange} ${rule.parameters.changePct ?? '--'}%`;
 }
 
 function isCoolingDown(rule: AlertRuleItem): boolean {
   return rule.cooldownActive === true;
 }
 
-function formatTarget(rule: AlertRuleItem, language: UiLanguage): string {
-  if (rule.targetScope === 'market') return ALERT_MARKET_REGION_LABELS[language][rule.target as MarketRegion] ?? rule.target;
+function formatTarget(rule: AlertRuleItem): string {
   if (rule.targetScope === 'watchlist') return 'default';
   return rule.target;
 }
@@ -146,7 +109,7 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
           value={alertTypeFilter}
           options={ALERT_TYPE_FILTER_OPTIONS[language]}
           onChange={(value) => {
-            onAlertTypeFilterChange(value as AlertTypeFilter);
+            if (value === 'all' || value === 'price_change_percent') onAlertTypeFilterChange(value);
           }}
         />
       </div>
@@ -182,7 +145,7 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
                     <div className="mt-1 text-xs text-muted-text">{formatUiText(text.source, { source: rule.source })}</div>
                   </td>
                   <td className="px-3 py-3 text-secondary-text">
-                    <div className="font-mono">{formatTarget(rule, language)}</div>
+                    <div className="font-mono">{formatTarget(rule)}</div>
                     <div className="mt-1 text-xs">{ALERT_SCOPE_LABELS[language][rule.targetScope] ?? rule.targetScope}</div>
                   </td>
                   <td className="px-3 py-3">

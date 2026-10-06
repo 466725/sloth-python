@@ -9,13 +9,13 @@ import os
 import sys
 import tempfile
 import unittest
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pandas as pd
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
 try:
     import litellm  # noqa: F401
@@ -23,11 +23,18 @@ except ModuleNotFoundError:
     sys.modules["litellm"] = MagicMock()
 
 import ai_stock.auth as auth
-from api.app import create_app
 from ai_stock.config import Config
 from ai_stock.repositories.alert_repo import AlertRepository
 from ai_stock.services.alert_service import AlertService
-from ai_stock.storage import AlertCooldownRecord, AlertNotificationRecord, AlertTriggerRecord, Base, DatabaseManager
+from ai_stock.storage import (
+    AlertCooldownRecord,
+    AlertNotificationRecord,
+    AlertRuleRecord,
+    AlertTriggerRecord,
+    Base,
+    DatabaseManager,
+)
+from api.app import create_app
 
 
 def _reset_auth_globals() -> None:
@@ -53,7 +60,7 @@ class AlertApiTestCase(unittest.TestCase):
                     "STOCK_LIST=600519",
                     "GEMINI_API_KEY=test",
                     "ADMIN_AUTH_ENABLED=false",
-                    'AGENT_EVENT_ALERT_RULES_JSON=[{"stock_code":"000001","alert_type":"price_cross","direction":"above","price":10}]',
+                    'AGENT_EVENT_ALERT_RULES_JSON=[{"stock_code":"000001","alert_type":"price_change_percent","direction":"up","change_pct":10}]',
                     f"DATABASE_PATH={self.db_path}",
                 ]
             )
@@ -79,11 +86,11 @@ class AlertApiTestCase(unittest.TestCase):
 
     def _create_rule(self, payload: dict | None = None) -> dict:
         body = {
-            "name": "Moutai breakout",
+            "name": "Moutai price change",
             "target_scope": "single_symbol",
             "target": "600519",
-            "alert_type": "price_cross",
-            "parameters": {"direction": "above", "price": 1800},
+            "alert_type": "price_change_percent",
+            "parameters": {"direction": "up", "change_pct": 1800},
             "severity": "warning",
             "enabled": True,
         }
@@ -93,12 +100,141 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200, resp.text)
         return resp.json()
 
+    def test_only_price_change_is_accepted_by_create_update_and_filters(self) -> None:
+        rule = self._create_rule()
+        for retired in (
+            "price_cross", "volume_spike", "ma_price_cross", "rsi_threshold",
+            "macd_cross", "kdj_cross", "cci_threshold", "market_light_status",
+            "market_light_score_drop", "sentiment_shift", "risk_flag", "custom",
+        ):
+            with self.subTest(alert_type=retired):
+                body = {
+                    "target": "600519", "alert_type": retired,
+                    "parameters": {"direction": "up", "change_pct": 3},
+                }
+                self.assertEqual(self.client.post("/api/v1/alerts/rules", json=body).status_code, 422)
+                self.assertEqual(self.client.patch(
+                    f"/api/v1/alerts/rules/{rule['id']}", json={"alert_type": retired},
+                ).status_code, 422)
+                self.assertEqual(self.client.get(
+                    "/api/v1/alerts/rules", params={"alert_type": retired},
+                ).status_code, 422)
+        self.assertEqual(self.client.get("/api/v1/alerts/rules").json()["total"], 1)
+        self.assertEqual(self.client.post("/api/v1/alerts/rules", json={
+            "target_scope": "market", "target": "cn", "alert_type": "price_change_percent",
+            "parameters": {"direction": "up", "change_pct": 3},
+        }).status_code, 422)
+
+    def test_retired_rule_cleanup_is_idempotent_and_preserves_price_change_history(self) -> None:
+        retained = self._create_rule()
+        repo = AlertRepository(self.db)
+        retired_types = (
+            "price_cross", "volume_spike", "ma_price_cross", "rsi_threshold",
+            "macd_cross", "kdj_cross", "cci_threshold", "market_light_status",
+            "market_light_score_drop",
+        )
+        retired_ids = []
+        for alert_type in retired_types:
+            row = repo.create_rule({
+                "name": "Retired rule", "target_scope": "single_symbol", "target": "600519",
+                "alert_type": alert_type, "parameters": "{}", "enabled": False,
+            })
+            retired_ids.append(row.id)
+        for rule_id in [retained["id"], *retired_ids]:
+            trigger = repo.create_trigger({
+                "rule_id": rule_id, "target": "600519", "status": "triggered",
+            })
+            repo.record_notification_attempt({
+                "trigger_id": trigger.id, "channel": "email", "success": True,
+            })
+            repo.upsert_cooldown(
+                rule_id=rule_id, rule_key=str(rule_id), target="600519", severity="warning",
+                last_triggered_at=datetime.now(),
+                cooldown_until=datetime.now() + timedelta(hours=1),
+                reason="test",
+            )
+
+        with self.assertLogs("ai_stock.repositories.alert_repo", level="WARNING"):
+            cleaned_repo = AlertRepository(self.db)
+        self.assertEqual(cleaned_repo.delete_retired_rules(), 0)
+        with self.db.get_session() as session:
+            self.assertEqual([row.id for row in session.query(AlertRuleRecord).all()], [retained["id"]])
+            triggers = session.query(AlertTriggerRecord).all()
+            self.assertEqual([row.rule_id for row in triggers], [retained["id"]])
+            self.assertEqual(
+                [row.trigger_id for row in session.query(AlertNotificationRecord).all()],
+                [triggers[0].id],
+            )
+            self.assertEqual(
+                [row.rule_id for row in session.query(AlertCooldownRecord).all()],
+                [retained["id"]],
+            )
+
+    def test_price_change_threshold_rejects_nonfinite_or_nonpositive_values(self) -> None:
+        service = AlertService(self.db)
+        for value in (0, -3, "nan", "inf", "-inf", None):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "change_pct"):
+                service.create_rule({
+                    "target": "600519", "alert_type": "price_change_percent",
+                    "parameters": {"direction": "up", "change_pct": value},
+                })
+
+    def test_retired_cleanup_rolls_back_all_deletions_on_error(self) -> None:
+        repo = AlertRepository(self.db)
+        retired = repo.create_rule({
+            "name": "Retired", "target": "600519", "alert_type": "price_cross",
+            "parameters": "{}", "enabled": True,
+        })
+        trigger = repo.create_trigger({
+            "rule_id": retired.id, "target": "600519", "status": "triggered",
+        })
+        repo.record_notification_attempt({
+            "trigger_id": trigger.id, "channel": "email", "success": True,
+        })
+        repo.upsert_cooldown(
+            rule_id=retired.id, rule_key="retired", target="600519", severity="warning",
+            last_triggered_at=datetime.now(),
+            cooldown_until=datetime.now() + timedelta(hours=1), reason="test",
+        )
+        original_execute = Session.execute
+        calls = 0
+
+        def fail_after_dependent_deletes(session, *args, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls == 3:
+                raise RuntimeError("cleanup interrupted")
+            return original_execute(session, *args, **kwargs)
+
+        with patch.object(Session, "execute", new=fail_after_dependent_deletes):
+            with self.assertRaisesRegex(RuntimeError, "cleanup interrupted"):
+                repo.delete_retired_rules()
+        with self.db.get_session() as session:
+            for model in (AlertRuleRecord, AlertTriggerRecord, AlertNotificationRecord, AlertCooldownRecord):
+                self.assertEqual(session.query(model).count(), 1)
+
+    def test_price_change_up_and_down_threshold_boundaries(self) -> None:
+        for direction, observed, triggered in (
+            ("up", 3.0, True), ("up", 2.99, False), ("up", -3.0, False),
+            ("down", -3.0, True), ("down", -2.99, False), ("down", 3.0, False),
+        ):
+            with self.subTest(direction=direction, observed=observed):
+                rule = self._create_rule({"parameters": {"direction": direction, "change_pct": 3}})
+                with patch(
+                    "ai_stock.agent.events.EventMonitor._get_realtime_quote",
+                    new=AsyncMock(return_value=SimpleNamespace(change_pct=observed)),
+                ):
+                    response = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
+                self.assertEqual(response.status_code, 200, response.text)
+                self.assertEqual(response.json()["triggered"], triggered)
+                self.assertEqual(response.json()["observed_value"], observed)
+
     def test_rule_crud_enable_disable_and_delete(self) -> None:
         created = self._create_rule()
         rule_id = created["id"]
         self.assertEqual(created["target"], "600519")
-        self.assertEqual(created["alert_type"], "price_cross")
-        self.assertEqual(created["parameters"]["price"], 1800.0)
+        self.assertEqual(created["alert_type"], "price_change_percent")
+        self.assertEqual(created["parameters"]["change_pct"], 1800.0)
         self.assertTrue(created["enabled"])
         self.assertEqual(created["source"], "api")
         self.assertIsNone(created["last_triggered_at"])
@@ -119,11 +255,11 @@ class AlertApiTestCase(unittest.TestCase):
 
         patch_resp = self.client.patch(
             f"/api/v1/alerts/rules/{rule_id}",
-            json={"enabled": False, "parameters": {"direction": "below", "price": 1600}},
+            json={"enabled": False, "parameters": {"direction": "down", "change_pct": 1600}},
         )
         self.assertEqual(patch_resp.status_code, 200, patch_resp.text)
         self.assertFalse(patch_resp.json()["enabled"])
-        self.assertEqual(patch_resp.json()["parameters"], {"direction": "below", "price": 1600.0})
+        self.assertEqual(patch_resp.json()["parameters"], {"direction": "down", "change_pct": 1600.0})
 
         enable_resp = self.client.post(f"/api/v1/alerts/rules/{rule_id}/enable")
         self.assertEqual(enable_resp.status_code, 200)
@@ -147,7 +283,7 @@ class AlertApiTestCase(unittest.TestCase):
         cooldown_until = now_dt + timedelta(minutes=5)
         repo.upsert_cooldown(
             rule_id=created["id"],
-            rule_key="single_symbol:600519:price_cross:{}",
+            rule_key="single_symbol:600519:price_change_percent:{}",
             target="600519",
             severity="warning",
             last_triggered_at=now_dt,
@@ -165,7 +301,7 @@ class AlertApiTestCase(unittest.TestCase):
         expired_at = datetime.now() - timedelta(minutes=5)
         repo.upsert_cooldown(
             rule_id=created["id"],
-            rule_key="single_symbol:600519:price_cross:{}",
+            rule_key="single_symbol:600519:price_change_percent:{}",
             target="600519",
             severity="warning",
             last_triggered_at=expired_at,
@@ -198,7 +334,7 @@ class AlertApiTestCase(unittest.TestCase):
         detail = detail_resp.json()
         self.assertTrue(detail["enabled"])
         self.assertEqual(detail["severity"], "warning")
-        self.assertEqual(detail["name"], "Moutai breakout")
+        self.assertEqual(detail["name"], "Moutai price change")
 
     def test_rule_update_allows_null_for_reserved_policy_fields(self) -> None:
         rule = self._create_rule(
@@ -228,14 +364,6 @@ class AlertApiTestCase(unittest.TestCase):
                 "enabled": False,
             }
         )
-        self._create_rule(
-            {
-                "name": "Wuliangye volume",
-                "target": "000858",
-                "alert_type": "volume_spike",
-                "parameters": {"multiplier": 2.5},
-            }
-        )
 
         resp = self.client.get(
             "/api/v1/alerts/rules",
@@ -247,70 +375,8 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(payload["items"][0]["target"], "300750")
         self.assertEqual(payload["items"][0]["parameters"]["change_pct"], 3.5)
 
-    def test_create_p5_technical_indicator_rules(self) -> None:
-        cases = [
-            ("ma_price_cross", {"direction": "above", "window": 20}),
-            ("rsi_threshold", {"direction": "below", "period": 12, "threshold": 30}),
-            (
-                "macd_cross",
-                {"direction": "bullish_cross", "fast_period": 12, "slow_period": 26, "signal_period": 9},
-            ),
-            ("kdj_cross", {"direction": "bearish_cross", "period": 9, "k_period": 3, "d_period": 3}),
-            ("cci_threshold", {"direction": "above", "period": 14, "threshold": 100}),
-        ]
 
-        for alert_type, parameters in cases:
-            created = self._create_rule({
-                "name": f"{alert_type} rule",
-                "alert_type": alert_type,
-                "parameters": parameters,
-            })
-            self.assertEqual(created["alert_type"], alert_type)
-            self.assertEqual(created["parameters"], parameters)
 
-    def test_p5_technical_indicator_rules_skip_legacy_event_validator(self) -> None:
-        with patch("ai_stock.services.alert_service.validate_event_alert_rule") as legacy_validator:
-            created = self._create_rule({
-                "name": "RSI threshold",
-                "alert_type": "rsi_threshold",
-                "parameters": {"direction": "above", "period": 12, "threshold": 70},
-            })
-
-        self.assertEqual(created["alert_type"], "rsi_threshold")
-        legacy_validator.assert_not_called()
-
-        with patch("ai_stock.services.alert_service.validate_event_alert_rule") as legacy_validator:
-            self._create_rule({
-                "name": "Legacy price cross",
-                "alert_type": "price_cross",
-                "parameters": {"direction": "above", "price": 1800},
-            })
-
-        legacy_validator.assert_called_once()
-
-    def test_rejects_invalid_p5_technical_indicator_parameters(self) -> None:
-        cases = [
-            ("ma_price_cross", {"window": 0, "direction": "above"}),
-            ("rsi_threshold", {"period": -1, "threshold": 50, "direction": "above"}),
-            ("rsi_threshold", {"period": 12, "threshold": 200, "direction": "above"}),
-            ("macd_cross", {"fast_period": 26, "slow_period": 12, "signal_period": 9}),
-            ("macd_cross", {"fast_period": 2, "slow_period": 250, "signal_period": 250}),
-            ("kdj_cross", {"period": 250, "k_period": 250, "d_period": 250}),
-            ("kdj_cross", {"period": 9, "k_period": 3, "d_period": 3, "direction": "golden"}),
-        ]
-
-        for alert_type, parameters in cases:
-            resp = self.client.post(
-                "/api/v1/alerts/rules",
-                json={
-                    "target_scope": "single_symbol",
-                    "target": "600519",
-                    "alert_type": alert_type,
-                    "parameters": parameters,
-                },
-            )
-            self.assertEqual(resp.status_code, 400, resp.text)
-            self.assertEqual(resp.json()["error"], "validation_error")
 
     def test_retired_portfolio_alert_scopes_are_rejected(self) -> None:
         for target_scope in ("portfolio_holdings", "portfolio_account"):
@@ -319,8 +385,8 @@ class AlertApiTestCase(unittest.TestCase):
                 json={
                     "target_scope": target_scope,
                     "target": "all",
-                    "alert_type": "price_cross",
-                    "parameters": {"direction": "above", "price": 10},
+                    "alert_type": "price_change_percent",
+                    "parameters": {"direction": "up", "change_pct": 10},
                 },
             )
             self.assertEqual(resp.status_code, 422, resp.text)
@@ -330,12 +396,12 @@ class AlertApiTestCase(unittest.TestCase):
             "name": "Watchlist breakout",
             "target_scope": "watchlist",
             "target": "default",
-            "alert_type": "price_cross",
-            "parameters": {"direction": "above", "price": 10},
+            "alert_type": "price_change_percent",
+            "parameters": {"direction": "up", "change_pct": 10},
         })
 
         async def _quote(_monitor, stock_code):
-            return SimpleNamespace(price=11.0 if stock_code == "600519" else 9.0)
+            return SimpleNamespace(change_pct=11.0 if stock_code == "600519" else 9.0)
 
         with patch("ai_stock.agent.events.EventMonitor._get_realtime_quote", new=_quote):
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
@@ -353,13 +419,13 @@ class AlertApiTestCase(unittest.TestCase):
             "name": "Watchlist slow",
             "target_scope": "watchlist",
             "target": "default",
-            "alert_type": "price_cross",
-            "parameters": {"direction": "above", "price": 10},
+            "alert_type": "price_change_percent",
+            "parameters": {"direction": "up", "change_pct": 10},
         })
 
         async def _slow_quote(_monitor, _stock_code):
             await asyncio.sleep(0.05)
-            return SimpleNamespace(price=11.0)
+            return SimpleNamespace(change_pct=11.0)
 
         with patch("ai_stock.services.alert_service.DRY_RUN_TARGET_TIMEOUT_SECONDS", 0.001), patch(
             "ai_stock.agent.events.EventMonitor._get_realtime_quote",
@@ -386,16 +452,15 @@ class AlertApiTestCase(unittest.TestCase):
                 "parameters": {},
             },
         )
-        self.assertEqual(unsupported.status_code, 400)
-        self.assertEqual(unsupported.json()["error"], "unsupported_alert_type")
+        self.assertEqual(unsupported.status_code, 422)
 
         invalid_price = self.client.post(
             "/api/v1/alerts/rules",
             json={
                 "target_scope": "single_symbol",
                 "target": "600519",
-                "alert_type": "price_cross",
-                "parameters": {"direction": "sideways", "price": 0},
+                "alert_type": "price_change_percent",
+                "parameters": {"direction": "sideways", "change_pct": 0},
             },
         )
         self.assertEqual(invalid_price.status_code, 400)
@@ -403,112 +468,18 @@ class AlertApiTestCase(unittest.TestCase):
 
         missing_target = self.client.post(
             "/api/v1/alerts/rules",
-            json={"target_scope": "single_symbol", "alert_type": "price_cross", "parameters": {"price": 10}},
+            json={"target_scope": "single_symbol", "alert_type": "price_change_percent", "parameters": {"change_pct": 10}},
         )
         self.assertEqual(missing_target.status_code, 422)
 
-    def test_market_alert_scope_type_matrix_and_target_normalization(self) -> None:
-        created = self._create_rule({
-            "name": "Market red/yellow",
-            "target_scope": "market",
-            "target": " CN ",
-            "alert_type": "market_light_status",
-            "parameters": {"statuses": ["red", "yellow"]},
-        })
-        self.assertEqual(created["target"], "cn")
-        self.assertEqual(created["parameters"], {"statuses": ["red", "yellow"]})
 
-        invalid_symbol_rule = self.client.post(
-            "/api/v1/alerts/rules",
-            json={
-                "target_scope": "market",
-                "target": "cn",
-                "alert_type": "price_cross",
-                "parameters": {"direction": "above", "price": 10},
-            },
-        )
-        self.assertEqual(invalid_symbol_rule.status_code, 400, invalid_symbol_rule.text)
-        self.assertEqual(invalid_symbol_rule.json()["error"], "validation_error")
 
-        invalid_market_rule = self.client.post(
-            "/api/v1/alerts/rules",
-            json={
-                "target_scope": "single_symbol",
-                "target": "600519",
-                "alert_type": "market_light_status",
-                "parameters": {"statuses": ["red"]},
-            },
-        )
-        self.assertEqual(invalid_market_rule.status_code, 400, invalid_market_rule.text)
-        self.assertEqual(invalid_market_rule.json()["error"], "validation_error")
-
-        invalid_target = self.client.post(
-            "/api/v1/alerts/rules",
-            json={
-                "target_scope": "market",
-                "target": "eu",
-                "alert_type": "market_light_score_drop",
-                "parameters": {"min_drop": 10},
-            },
-        )
-        self.assertEqual(invalid_target.status_code, 400, invalid_target.text)
-        self.assertEqual(invalid_target.json()["error"], "validation_error")
-
-    def test_dry_run_market_light_rule_uses_snapshot_and_does_not_write_history(self) -> None:
-        rule = self._create_rule({
-            "name": "Market risk-off",
-            "target_scope": "market",
-            "target": "cn",
-            "alert_type": "market_light_status",
-            "parameters": {"statuses": ["red", "yellow"]},
-        })
-        snapshot = {
-            "region": "cn",
-            "trade_date": "2026-03-07",
-            "status": "red",
-            "score": 35,
-            "label": "偏防守",
-            "temperature_label": "偏弱",
-            "reasons": ["test"],
-            "guidance": "test",
-            "dimensions": {
-                "breadth": {"score": 20, "available": True},
-                "index": {"score": 30, "available": True},
-                "limit": {"score": 10, "available": True},
-            },
-            "data_quality": "ok",
-        }
-
-        async def _run_inline(func, *args, **kwargs):
-            return func(*args, **kwargs)
-
-        with patch("ai_stock.services.market_light_alerts.get_open_markets_today", return_value={"cn"}), patch(
-            "ai_stock.services.market_light_alerts.build_current_snapshot", return_value=snapshot
-        ) as build_snapshot, patch("ai_stock.services.alert_service.asyncio.to_thread", new=_run_inline):
-            resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
-
-        self.assertEqual(resp.status_code, 200, resp.text)
-        payload = resp.json()
-        self.assertEqual(payload["target_scope"], "market")
-        self.assertTrue(payload["triggered"])
-        self.assertEqual(payload["status"], "triggered")
-        self.assertEqual(payload["observed_value"], 35.0)
-        self.assertEqual(payload["evaluated_count"], 1)
-        self.assertEqual(payload["triggered_count"], 1)
-        self.assertEqual(payload["target_results"][0]["target"], "cn")
-        self.assertEqual(payload["target_results"][0]["display_target"], "A股大盘")
-        self.assertEqual(payload["target_results"][0]["observed_value"], 35.0)
-        build_snapshot.assert_called_once_with("cn")
-
-        self.assertEqual(self.client.get("/api/v1/alerts/triggers").json()["total"], 0)
-        self.assertEqual(self.client.get("/api/v1/alerts/notifications").json()["total"], 0)
-
-    def test_dry_run_price_cross_uses_mocked_quote_and_does_not_write_history(self) -> None:
+    def test_dry_run_price_change_percent_uses_mocked_quote_and_does_not_write_history(self) -> None:
         rule = self._create_rule()
 
         with patch(
             "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1800.0)),
+            new=AsyncMock(return_value=SimpleNamespace(change_pct=1800.0)),
         ) as quote:
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
@@ -522,12 +493,12 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(self.client.get("/api/v1/alerts/triggers").json()["total"], 0)
         self.assertEqual(self.client.get("/api/v1/alerts/notifications").json()["total"], 0)
 
-    def test_dry_run_price_cross_not_triggered_keeps_observed_value(self) -> None:
+    def test_dry_run_price_change_percent_not_triggered_keeps_observed_value(self) -> None:
         rule = self._create_rule()
 
         with patch(
             "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=AsyncMock(return_value=SimpleNamespace(price=1700.0)),
+            new=AsyncMock(return_value=SimpleNamespace(change_pct=1700.0)),
         ):
             resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
 
@@ -703,7 +674,7 @@ class AlertApiTestCase(unittest.TestCase):
             session.add(
                 AlertCooldownRecord(
                     rule_id=1,
-                    rule_key="single_symbol:600519:price_cross:{}",
+                    rule_key="single_symbol:600519:price_change_percent:{}",
                     target="600519",
                     severity="warning",
                     state="active",
@@ -718,7 +689,7 @@ class AlertApiTestCase(unittest.TestCase):
         repo = AlertRepository(self.db)
         first = repo.upsert_cooldown(
             rule_id=1,
-            rule_key="single_symbol:600519:price_cross:{}",
+            rule_key="single_symbol:600519:price_change_percent:{}",
             target="600519",
             severity="warning",
             last_triggered_at=datetime(2026, 5, 18, 10, 0, 0),
@@ -727,7 +698,7 @@ class AlertApiTestCase(unittest.TestCase):
         )
         second = repo.upsert_cooldown(
             rule_id=1,
-            rule_key="single_symbol:600519:price_cross:{}",
+            rule_key="single_symbol:600519:price_change_percent:{}",
             target="600519",
             severity="warning",
             last_triggered_at=datetime(2026, 5, 18, 10, 30, 0),

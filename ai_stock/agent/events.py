@@ -7,19 +7,13 @@ notifications when conditions are met.  Designed to run as a
 background task (e.g. via ``--schedule`` or a dedicated loop).
 
 Currently supported runtime events:
-- Price crossing threshold (above / below)
 - Price change percentage threshold (up / down)
-- Volume spike (> N× average)
-
-Other alert types remain defined as enum placeholders for future
-extension, but config validation rejects them until the monitor can
-actually evaluate them.
 
 Usage::
 
-    from src.agent.events import EventMonitor, PriceAlert
+    from ai_stock.agent.events import EventMonitor, PriceChangeAlert
     monitor = EventMonitor()
-    monitor.add_alert(PriceAlert(stock_code="600519", direction="above", price=1800.0))
+    monitor.add_alert(PriceChangeAlert(stock_code="600519", direction="up", change_pct=3.0))
     triggered = await monitor.check_all()
 """
 
@@ -28,6 +22,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
 import time
 from dataclasses import dataclass, field
 from enum import Enum
@@ -37,12 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class AlertType(str, Enum):
-    PRICE_CROSS = "price_cross"
     PRICE_CHANGE_PERCENT = "price_change_percent"
-    VOLUME_SPIKE = "volume_spike"
-    SENTIMENT_SHIFT = "sentiment_shift"
-    RISK_FLAG = "risk_flag"
-    CUSTOM = "custom"
 
 
 class AlertStatus(str, Enum):
@@ -53,9 +43,7 @@ class AlertStatus(str, Enum):
 
 
 _RUNTIME_SUPPORTED_ALERT_TYPES = frozenset({
-    AlertType.PRICE_CROSS,
     AlertType.PRICE_CHANGE_PERCENT,
-    AlertType.VOLUME_SPIKE,
 })
 
 
@@ -119,16 +107,6 @@ class AlertRule:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
-@dataclass
-class PriceAlert(AlertRule):
-    """Alert when price crosses a threshold."""
-    alert_type: AlertType = AlertType.PRICE_CROSS
-    direction: str = "above"  # "above" or "below"
-    price: float = 0.0
-
-    def __post_init__(self):
-        if not self.description:
-            self.description = f"{self.stock_code} price {self.direction} {self.price}"
 
 
 @dataclass
@@ -143,27 +121,8 @@ class PriceChangeAlert(AlertRule):
             self.description = f"{self.stock_code} change {self.direction} {self.change_pct}%"
 
 
-@dataclass
-class VolumeAlert(AlertRule):
-    """Alert when volume exceeds N× average."""
-    alert_type: AlertType = AlertType.VOLUME_SPIKE
-    multiplier: float = 2.0  # trigger when volume > multiplier × avg
-
-    def __post_init__(self):
-        if not self.description:
-            self.description = f"{self.stock_code} volume > {self.multiplier}× average"
 
 
-@dataclass
-class SentimentAlert(AlertRule):
-    """Alert on sentiment direction change."""
-    alert_type: AlertType = AlertType.SENTIMENT_SHIFT
-    from_sentiment: str = "positive"  # "positive", "negative", "neutral"
-    to_sentiment: str = "negative"
-
-    def __post_init__(self):
-        if not self.description:
-            self.description = f"{self.stock_code} sentiment shift: {self.from_sentiment} → {self.to_sentiment}"
 
 
 @dataclass
@@ -250,15 +209,9 @@ class EventMonitor:
 
     async def _check_rule(self, rule: AlertRule) -> Optional[TriggeredAlert]:
         """Check a single rule.  Returns TriggeredAlert if condition met."""
-        if isinstance(rule, PriceAlert):
-            return await self._check_price(rule)
-        elif isinstance(rule, PriceChangeAlert):
+        if isinstance(rule, PriceChangeAlert):
             return await self._check_price_change(rule)
-        elif isinstance(rule, VolumeAlert):
-            return await self._check_volume(rule)
-        # SentimentAlert and custom alerts require more context —
-        # implemented as hooks for future extension
-        return None
+        raise ValueError(f"unsupported runtime rule: {type(rule).__name__}")
 
     def _fetch_realtime_quote(self, stock_code: str) -> Any:
         from ai_stock.stock_data import DataFetcherManager
@@ -268,33 +221,6 @@ class EventMonitor:
     async def _get_realtime_quote(self, stock_code: str) -> Any:
         return await asyncio.to_thread(self._fetch_realtime_quote, stock_code)
 
-    async def _check_price(self, rule: PriceAlert) -> Optional[TriggeredAlert]:
-        """Check price alert against realtime quote."""
-        try:
-            quote = await self._get_realtime_quote(rule.stock_code)
-            if quote is None:
-                return None
-
-            current_price = float(getattr(quote, "price", 0) or 0)
-            if current_price <= 0:
-                return None
-
-            triggered = False
-            if rule.direction == "above" and current_price >= rule.price:
-                triggered = True
-            elif rule.direction == "below" and current_price <= rule.price:
-                triggered = True
-
-            if triggered:
-                return TriggeredAlert(
-                    rule=rule,
-                    current_value=current_price,
-                    message=f"🔔 {rule.stock_code} price {rule.direction} {rule.price}: "
-                            f"current = {current_price}",
-                )
-        except Exception as exc:
-            logger.debug("[EventMonitor] _check_price error: %s", exc)
-        return None
 
     async def _check_price_change(self, rule: PriceChangeAlert) -> Optional[TriggeredAlert]:
         """Check price-change percentage alert against realtime quote."""
@@ -332,36 +258,6 @@ class EventMonitor:
             logger.debug("[EventMonitor] _check_price_change error: %s", exc)
         return None
 
-    async def _check_volume(self, rule: VolumeAlert) -> Optional[TriggeredAlert]:
-        """Check volume spike against recent average."""
-        try:
-            def _fetch_daily_data():
-                from ai_stock.stock_data import DataFetcherManager
-
-                fm = DataFetcherManager()
-                return fm.get_daily_data(rule.stock_code, days=20)
-
-            result = await asyncio.to_thread(_fetch_daily_data)
-            # get_daily_data returns (df, source) tuple or None
-            if result is None:
-                return None
-            df, _source = result
-            if df is None or df.empty:
-                return None
-
-            avg_vol = df["volume"].mean()
-            latest_vol = df["volume"].iloc[-1]
-
-            if avg_vol > 0 and latest_vol > avg_vol * rule.multiplier:
-                return TriggeredAlert(
-                    rule=rule,
-                    current_value=latest_vol,
-                    message=f"📊 {rule.stock_code} volume spike: "
-                            f"{latest_vol:,.0f} ({latest_vol / avg_vol:.1f}× avg)",
-                )
-        except Exception as exc:
-            logger.debug("[EventMonitor] _check_volume error: %s", exc)
-        return None
 
     # -----------------------------------------------------------------
     # Persistence helpers
@@ -379,14 +275,9 @@ class EventMonitor:
                 "created_at": rule.created_at,
                 "ttl_hours": rule.ttl_hours,
             }
-            if isinstance(rule, PriceAlert):
-                entry["direction"] = rule.direction
-                entry["price"] = rule.price
-            elif isinstance(rule, PriceChangeAlert):
+            if isinstance(rule, PriceChangeAlert):
                 entry["direction"] = rule.direction
                 entry["change_pct"] = rule.change_pct
-            elif isinstance(rule, VolumeAlert):
-                entry["multiplier"] = rule.multiplier
             results.append(entry)
         return results
 
@@ -400,22 +291,11 @@ class EventMonitor:
 
                 alert_type = entry.get("alert_type", "custom")
                 stock_code = entry.get("stock_code", "")
-                if alert_type == AlertType.PRICE_CROSS.value:
-                    rule = PriceAlert(
-                        stock_code=stock_code,
-                        direction=entry.get("direction", "above").lower(),
-                        price=float(entry.get("price", 0.0)),
-                    )
-                elif alert_type == AlertType.PRICE_CHANGE_PERCENT.value:
+                if alert_type == AlertType.PRICE_CHANGE_PERCENT.value:
                     rule = PriceChangeAlert(
                         stock_code=stock_code,
                         direction=entry.get("direction", "up").lower(),
                         change_pct=float(entry["change_pct"]),
-                    )
-                elif alert_type == AlertType.VOLUME_SPIKE.value:
-                    rule = VolumeAlert(
-                        stock_code=stock_code,
-                        multiplier=float(entry.get("multiplier", 2.0)),
                     )
                 else:
                     raise ValueError(f"unsupported alert_type: {alert_type}")
@@ -491,17 +371,7 @@ def validate_event_alert_rule(rule: Dict[str, Any]) -> None:
         if ttl_value <= 0:
             raise ValueError("ttl_hours must be > 0")
 
-    if alert_type == AlertType.PRICE_CROSS:
-        direction = str(rule.get("direction", "above")).lower()
-        if direction not in {"above", "below"}:
-            raise ValueError(f"invalid direction: {direction}")
-        try:
-            price = float(rule.get("price"))
-        except (TypeError, ValueError) as exc:
-            raise ValueError(f"invalid price: {rule.get('price')}") from exc
-        if price <= 0:
-            raise ValueError("price must be > 0")
-    elif alert_type == AlertType.PRICE_CHANGE_PERCENT:
+    if alert_type == AlertType.PRICE_CHANGE_PERCENT:
         direction = str(rule.get("direction", "up")).lower()
         if direction not in {"up", "down"}:
             raise ValueError(f"invalid direction: {direction}")
@@ -509,15 +379,8 @@ def validate_event_alert_rule(rule: Dict[str, Any]) -> None:
             change_pct = float(rule.get("change_pct"))
         except (TypeError, ValueError) as exc:
             raise ValueError(f"invalid change_pct: {rule.get('change_pct')}") from exc
-        if change_pct <= 0:
-            raise ValueError("change_pct must be > 0")
-    elif alert_type == AlertType.VOLUME_SPIKE:
-        try:
-            multiplier = float(rule.get("multiplier", 2.0))
-        except (TypeError, ValueError) as exc:
-            raise ValueError(f"invalid multiplier: {rule.get('multiplier')}") from exc
-        if multiplier <= 0:
-            raise ValueError("multiplier must be > 0")
+        if not math.isfinite(change_pct) or change_pct <= 0:
+            raise ValueError("change_pct must be finite and > 0")
 
 
 def build_event_monitor_from_config(config=None, notifier=None) -> Optional[EventMonitor]:

@@ -1,40 +1,16 @@
 import type { AnalysisContextPackOverview, MarketPhaseSummary } from './analysis';
 import type { DecisionSignalItem } from './decisionSignals';
 
-export type AlertType =
-  | 'price_cross'
-  | 'price_change_percent'
-  | 'volume_spike'
-  | 'ma_price_cross'
-  | 'rsi_threshold'
-  | 'macd_cross'
-  | 'kdj_cross'
-  | 'cci_threshold'
-  | 'market_light_status'
-  | 'market_light_score_drop';
+export type AlertType = 'price_change_percent';
 export type AlertSeverity = 'info' | 'warning' | 'critical';
-export type AlertTargetScope = 'single_symbol' | 'watchlist' | 'market';
-export type AlertDirection = 'above' | 'below' | 'up' | 'down' | 'bullish_cross' | 'bearish_cross';
-export type MarketRegion = 'cn' | 'hk' | 'us' | 'jp' | 'kr';
-export type MarketLightStatus = 'yellow' | 'red';
+export type AlertTargetScope = 'single_symbol' | 'watchlist';
+export type AlertDirection = 'up' | 'down';
 export type AlertDryRunStatus = 'triggered' | 'not_triggered' | 'evaluation_error';
 export type AlertTriggerStatus = 'triggered' | 'skipped' | 'degraded' | 'failed';
 
 export interface AlertRuleParameters {
   direction?: AlertDirection;
-  price?: number;
   changePct?: number;
-  multiplier?: number;
-  window?: number;
-  period?: number;
-  threshold?: number;
-  fastPeriod?: number;
-  slowPeriod?: number;
-  signalPeriod?: number;
-  kPeriod?: number;
-  dPeriod?: number;
-  statuses?: MarketLightStatus[];
-  minDrop?: number;
 }
 
 export interface AlertRuleItem {

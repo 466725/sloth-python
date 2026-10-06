@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import type React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AlertRuleList } from '../AlertRuleList';
@@ -7,44 +7,16 @@ import type { AlertRuleItem } from '../../../types/alerts';
 const rules: AlertRuleItem[] = [
   {
     id: 1,
-    name: '茅台价格突破',
+    name: '茅台涨跌幅',
     targetScope: 'single_symbol',
     target: '600519',
-    alertType: 'price_cross',
-    parameters: { direction: 'above', price: 1800 },
+    alertType: 'price_change_percent',
+    parameters: { direction: 'up', changePct: 3 },
     severity: 'warning',
     enabled: true,
     source: 'api',
     cooldownUntil: '2099-05-18T10:30:00',
     cooldownActive: true,
-    createdAt: '2026-05-18T09:00:00',
-    updatedAt: '2026-05-18T09:30:00',
-  },
-  {
-    id: 2,
-    name: 'MACD 金叉',
-    targetScope: 'single_symbol',
-    target: '300750',
-    alertType: 'macd_cross',
-    parameters: { direction: 'bullish_cross', fastPeriod: 12, slowPeriod: 26, signalPeriod: 9 },
-    severity: 'info',
-    enabled: true,
-    source: 'api',
-    cooldownActive: false,
-    createdAt: '2026-05-18T09:00:00',
-    updatedAt: '2026-05-18T09:30:00',
-  },
-  {
-    id: 3,
-    name: 'KDJ 死叉',
-    targetScope: 'single_symbol',
-    target: '000001',
-    alertType: 'kdj_cross',
-    parameters: { direction: 'bearish_cross', period: 9, kPeriod: 3, dPeriod: 3 },
-    severity: 'warning',
-    enabled: true,
-    source: 'api',
-    cooldownActive: false,
     createdAt: '2026-05-18T09:00:00',
     updatedAt: '2026-05-18T09:30:00',
   },
@@ -86,21 +58,20 @@ describe('AlertRuleList', () => {
   it('renders rules, filters, and pagination', () => {
     renderList();
 
-    expect(screen.getByText('茅台价格突破')).toBeInTheDocument();
+    expect(screen.getByText('茅台涨跌幅')).toBeInTheDocument();
     expect(screen.getByText('600519')).toBeInTheDocument();
-    expect(screen.getAllByText('价格突破').length).toBeGreaterThan(0);
-    expect(screen.getByText('上破 1800')).toBeInTheDocument();
-    expect(screen.getAllByText('MACD 金叉/死叉').length).toBeGreaterThan(0);
-    expect(screen.getByText('MACD(12,26,9) 金叉')).toBeInTheDocument();
-    expect(screen.getByText('KDJ(9,3,3) 死叉')).toBeInTheDocument();
+    expect(screen.getAllByText('涨跌幅').length).toBeGreaterThan(0);
+    expect(screen.getByText('上涨 3%')).toBeInTheDocument();
     expect(screen.getByText('冷却中')).toBeInTheDocument();
+    expect(within(screen.getByLabelText('规则类型')).getAllByRole('option').filter((option) => !option.hasAttribute('disabled')).map((option) => option.getAttribute('value')))
+      .toEqual(['all', 'price_change_percent']);
 
     fireEvent.change(screen.getByLabelText('启停状态'), { target: { value: 'enabled' } });
-    fireEvent.change(screen.getByLabelText('规则类型'), { target: { value: 'price_cross' } });
+    fireEvent.change(screen.getByLabelText('规则类型'), { target: { value: 'price_change_percent' } });
     fireEvent.click(screen.getByRole('button', { name: '2' }));
 
     expect(onEnabledFilterChange).toHaveBeenCalledWith('enabled');
-    expect(onAlertTypeFilterChange).toHaveBeenCalledWith('price_cross');
+    expect(onAlertTypeFilterChange).toHaveBeenCalledWith('price_change_percent');
     expect(onPageChange).toHaveBeenCalledWith(2);
   });
 
@@ -118,48 +89,6 @@ describe('AlertRuleList', () => {
     expect(screen.getByText('未冷却')).toBeInTheDocument();
   });
 
-  it('renders market scope labels, filters, and parameters', () => {
-    renderList({
-      rules: [
-        {
-          id: 6,
-          name: 'A 股红黄灯',
-          targetScope: 'market',
-          target: 'cn',
-          alertType: 'market_light_status',
-          parameters: { statuses: ['red', 'yellow'] },
-          severity: 'critical',
-          enabled: true,
-          source: 'api',
-          cooldownActive: false,
-        },
-        {
-          id: 7,
-          name: '美股分数下降',
-          targetScope: 'market',
-          target: 'us',
-          alertType: 'market_light_score_drop',
-          parameters: { minDrop: 15 },
-          severity: 'warning',
-          enabled: true,
-          source: 'api',
-          cooldownActive: false,
-        },
-      ],
-    });
-
-    expect(screen.getByText('A 股')).toBeInTheDocument();
-    expect(screen.getByText('美股')).toBeInTheDocument();
-    expect(screen.getAllByText('大盘市场').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('大盘红绿灯状态').length).toBeGreaterThan(0);
-    expect(screen.getByText('红灯 / 黄灯')).toBeInTheDocument();
-    expect(screen.getByText('Score 下降 >= 15')).toBeInTheDocument();
-
-    fireEvent.change(screen.getByLabelText('规则类型'), { target: { value: 'market_light_score_drop' } });
-
-    expect(onAlertTypeFilterChange).toHaveBeenCalledWith('market_light_score_drop');
-  });
-
   it('runs test and toggles enabled state', () => {
     renderList();
 
@@ -168,6 +97,21 @@ describe('AlertRuleList', () => {
 
     expect(onTest).toHaveBeenCalledWith(rules[0]);
     expect(onToggleEnabled).toHaveBeenCalledWith(rules[0]);
+  });
+
+  it('renders watchlist downward percentages and per-target cooldown guidance', () => {
+    renderList({
+      rules: [{
+        ...rules[0],
+        targetScope: 'watchlist',
+        target: 'default',
+        parameters: { direction: 'down', changePct: 2.5 },
+      }],
+    });
+    expect(screen.getByText('default')).toBeInTheDocument();
+    expect(screen.getByText('自选股')).toBeInTheDocument();
+    expect(screen.getByText('下跌 2.5%')).toBeInTheDocument();
+    expect(screen.getByText('子目标见触发历史')).toBeInTheDocument();
   });
 
   it('shows loading text only for the active rule operation', () => {
@@ -181,7 +125,7 @@ describe('AlertRuleList', () => {
   it('confirms deletion before calling onDelete', async () => {
     renderList();
 
-    fireEvent.click(screen.getByLabelText('删除 茅台价格突破'));
+    fireEvent.click(screen.getByLabelText('删除 茅台涨跌幅'));
     expect(await screen.findByRole('heading', { name: '删除告警规则' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: '删除' }));
 

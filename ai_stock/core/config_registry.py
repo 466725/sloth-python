@@ -3200,9 +3200,8 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "title": "Event Alert Rules",
         "description": (
             "JSON array of Event Monitor rules loaded by schedule mode. "
-            "Legacy JSON supports only price_cross, price_change_percent, and volume_spike. "
-            "Technical indicator, watchlist, and market light alert rules "
-            "are available through the Alert API/Web center."
+            "Only price_change_percent rules are supported. "
+            "Watchlist price change rules are available through the Alert API/Web center."
         ),
         "category": "agent",
         "data_type": "json",
@@ -3216,8 +3215,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "display_order": 71,
         "help_key": "settings.agent.EVENT_ALERT_RULES_JSON",
         "examples": [
-            'AGENT_EVENT_ALERT_RULES_JSON=[{"alert_type":"price_cross","stock_code":"600519","direction":"above","price":1800}]',
-            'AGENT_EVENT_ALERT_RULES_JSON=[{"alert_type":"volume_spike","stock_code":"300750","multiplier":2.5}]',
+            'AGENT_EVENT_ALERT_RULES_JSON=[{"alert_type":"price_change_percent","stock_code":"600519","direction":"up","change_pct":3}]',
         ],
         "docs": [
             {

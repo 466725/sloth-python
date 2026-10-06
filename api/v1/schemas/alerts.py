@@ -10,8 +10,8 @@ from pydantic import BaseModel, Field
 from api.v1.schemas.history import AnalysisContextPackOverview
 from api.v1.schemas.market_phase import MarketPhaseSummary
 
-
-TargetScopeValue = Literal["single_symbol", "watchlist", "market"]
+TargetScopeValue = Literal["single_symbol", "watchlist"]
+AlertTypeValue = Literal["price_change_percent"]
 SeverityValue = Literal["info", "warning", "critical"]
 DryRunStatusValue = Literal["triggered", "not_triggered", "evaluation_error"]
 TargetRecordStatusValue = Literal["triggered", "skipped", "degraded", "failed"]
@@ -21,7 +21,7 @@ class AlertRuleCreateRequest(BaseModel):
     name: Optional[str] = Field(None, max_length=64)
     target_scope: TargetScopeValue = "single_symbol"
     target: str = Field(..., min_length=1, max_length=64)
-    alert_type: str = Field(..., min_length=1, max_length=32)
+    alert_type: AlertTypeValue
     parameters: Dict[str, Any] = Field(default_factory=dict)
     severity: SeverityValue = "warning"
     enabled: bool = True
@@ -33,7 +33,7 @@ class AlertRuleUpdateRequest(BaseModel):
     name: Optional[str] = Field(None, max_length=64)
     target_scope: Optional[TargetScopeValue] = None
     target: Optional[str] = Field(None, min_length=1, max_length=64)
-    alert_type: Optional[str] = Field(None, min_length=1, max_length=32)
+    alert_type: Optional[AlertTypeValue] = None
     parameters: Optional[Dict[str, Any]] = None
     severity: Optional[SeverityValue] = None
     enabled: Optional[bool] = None
@@ -44,9 +44,9 @@ class AlertRuleUpdateRequest(BaseModel):
 class AlertRuleItem(BaseModel):
     id: int
     name: str
-    target_scope: str
+    target_scope: TargetScopeValue
     target: str
-    alert_type: str
+    alert_type: AlertTypeValue
     parameters: Dict[str, Any] = Field(default_factory=dict)
     severity: str
     enabled: bool

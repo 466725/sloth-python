@@ -31,8 +31,8 @@ describe('alertsApi', () => {
             name: 'price rule',
             target_scope: 'single_symbol',
             target: '600519',
-            alert_type: 'price_cross',
-            parameters: { direction: 'above', price: 1800 },
+            alert_type: 'price_change_percent',
+            parameters: { direction: 'up', change_pct: 3 },
             severity: 'warning',
             enabled: true,
             source: 'api',
@@ -51,7 +51,7 @@ describe('alertsApi', () => {
 
     const result = await alertsApi.listRules({
       enabled: true,
-      alertType: 'price_cross',
+      alertType: 'price_change_percent',
       targetScope: 'single_symbol',
       page: 1,
       pageSize: 20,
@@ -60,7 +60,7 @@ describe('alertsApi', () => {
     expect(get).toHaveBeenCalledWith('/api/v1/alerts/rules', {
       params: {
         enabled: true,
-        alert_type: 'price_cross',
+        alert_type: 'price_change_percent',
         target_scope: 'single_symbol',
         page: 1,
         page_size: 20,
@@ -68,7 +68,7 @@ describe('alertsApi', () => {
     });
     expect(result.pageSize).toBe(20);
     expect(result.items[0].targetScope).toBe('single_symbol');
-    expect(result.items[0].alertType).toBe('price_cross');
+    expect(result.items[0].alertType).toBe('price_change_percent');
     expect(result.items[0].cooldownUntil).toBe('2026-05-18T10:05:00');
     expect(result.items[0].cooldownActive).toBe(true);
     expect(result.items[0].updatedAt).toBe('2026-05-18T09:10:00');
@@ -110,139 +110,16 @@ describe('alertsApi', () => {
     });
     expect(created.parameters.changePct).toBe(3);
   });
-
-  it('creates technical indicator rules with snake_case parameter fields', async () => {
-    post.mockResolvedValueOnce({
-      data: {
-        id: 4,
-        name: 'macd rule',
-        target_scope: 'single_symbol',
-        target: '600519',
-        alert_type: 'macd_cross',
-        parameters: {
-          direction: 'bullish_cross',
-          fast_period: 12,
-          slow_period: 26,
-          signal_period: 9,
-        },
-        severity: 'warning',
-        enabled: true,
-        source: 'api',
-      },
-    });
-
-    await alertsApi.createRule({
-      name: 'macd rule',
-      targetScope: 'single_symbol',
-      target: '600519',
-      alertType: 'macd_cross',
-      parameters: {
-        direction: 'bullish_cross',
-        fastPeriod: 12,
-        slowPeriod: 26,
-        signalPeriod: 9,
-      },
-      severity: 'warning',
-      enabled: true,
-    });
-
-    expect(post).toHaveBeenCalledWith('/api/v1/alerts/rules', {
-      name: 'macd rule',
-      target_scope: 'single_symbol',
-      target: '600519',
-      alert_type: 'macd_cross',
-      parameters: {
-        direction: 'bullish_cross',
-        fast_period: 12,
-        slow_period: 26,
-        signal_period: 9,
-      },
-      severity: 'warning',
-      enabled: true,
-    });
-  });
-
-  it('creates market light rules with market scope and min_drop parameter fields', async () => {
-    post
-      .mockResolvedValueOnce({
-        data: {
-          id: 6,
-          name: 'market status',
-          target_scope: 'market',
-          target: 'cn',
-          alert_type: 'market_light_status',
-          parameters: { statuses: ['red', 'yellow'] },
-          severity: 'critical',
-          enabled: true,
-          source: 'api',
-        },
-      })
-      .mockResolvedValueOnce({
-        data: {
-          id: 7,
-          name: 'market score drop',
-          target_scope: 'market',
-          target: 'us',
-          alert_type: 'market_light_score_drop',
-          parameters: { min_drop: 12 },
-          severity: 'warning',
-          enabled: true,
-          source: 'api',
-        },
-      });
-
-    const statusRule = await alertsApi.createRule({
-      name: 'market status',
-      targetScope: 'market',
-      target: 'cn',
-      alertType: 'market_light_status',
-      parameters: { statuses: ['red', 'yellow'] },
-      severity: 'critical',
-      enabled: true,
-    });
-    const scoreDropRule = await alertsApi.createRule({
-      name: 'market score drop',
-      targetScope: 'market',
-      target: 'us',
-      alertType: 'market_light_score_drop',
-      parameters: { minDrop: 12 },
-      severity: 'warning',
-      enabled: true,
-    });
-
-    expect(post).toHaveBeenNthCalledWith(1, '/api/v1/alerts/rules', {
-      name: 'market status',
-      target_scope: 'market',
-      target: 'cn',
-      alert_type: 'market_light_status',
-      parameters: { statuses: ['red', 'yellow'] },
-      severity: 'critical',
-      enabled: true,
-    });
-    expect(post).toHaveBeenNthCalledWith(2, '/api/v1/alerts/rules', {
-      name: 'market score drop',
-      target_scope: 'market',
-      target: 'us',
-      alert_type: 'market_light_score_drop',
-      parameters: { min_drop: 12 },
-      severity: 'warning',
-      enabled: true,
-    });
-    expect(statusRule.targetScope).toBe('market');
-    expect(statusRule.parameters.statuses).toEqual(['red', 'yellow']);
-    expect(scoreDropRule.parameters.minDrop).toBe(12);
-  });
-
   it('creates watchlist alert rules and maps batch dry-run fields', async () => {
     post
       .mockResolvedValueOnce({
         data: {
           id: 5,
-          name: 'watchlist RSI',
+          name: 'watchlist price change',
           target_scope: 'watchlist',
           target: 'default',
-          alert_type: 'rsi_threshold',
-          parameters: { direction: 'below', period: 12, threshold: 30 },
+          alert_type: 'price_change_percent',
+          parameters: { direction: 'down', change_pct: 3 },
           severity: 'warning',
           enabled: true,
           source: 'api',
@@ -276,22 +153,22 @@ describe('alertsApi', () => {
       });
 
     const created = await alertsApi.createRule({
-      name: 'watchlist RSI',
+      name: 'watchlist price change',
       targetScope: 'watchlist',
       target: 'default',
-      alertType: 'rsi_threshold',
-      parameters: { direction: 'below', period: 12, threshold: 30 },
+      alertType: 'price_change_percent',
+      parameters: { direction: 'down', changePct: 3 },
       severity: 'warning',
       enabled: true,
     });
     const dryRun = await alertsApi.testRule(5);
 
     expect(post).toHaveBeenNthCalledWith(1, '/api/v1/alerts/rules', {
-      name: 'watchlist RSI',
+      name: 'watchlist price change',
       target_scope: 'watchlist',
       target: 'default',
-      alert_type: 'rsi_threshold',
-      parameters: { direction: 'below', period: 12, threshold: 30 },
+      alert_type: 'price_change_percent',
+      parameters: { direction: 'down', change_pct: 3 },
       severity: 'warning',
       enabled: true,
     });
@@ -304,12 +181,12 @@ describe('alertsApi', () => {
   it('deletes, toggles, tests, and lists history endpoints', async () => {
     deleteRequest.mockResolvedValueOnce({ data: { deleted: 1 } });
     post
-      .mockResolvedValueOnce({ data: { id: 3, name: 'enabled', target_scope: 'single_symbol', target: 'MSFT', alert_type: 'volume_spike', parameters: { multiplier: 2 }, severity: 'warning', enabled: true, source: 'api' } })
-      .mockResolvedValueOnce({ data: { id: 3, name: 'disabled', target_scope: 'single_symbol', target: 'MSFT', alert_type: 'volume_spike', parameters: { multiplier: 2 }, severity: 'warning', enabled: false, source: 'api' } })
+      .mockResolvedValueOnce({ data: { id: 3, name: 'enabled', target_scope: 'single_symbol', target: 'MSFT', alert_type: 'price_change_percent', parameters: { direction: 'up', change_pct: 2 }, severity: 'warning', enabled: true, source: 'api' } })
+      .mockResolvedValueOnce({ data: { id: 3, name: 'disabled', target_scope: 'single_symbol', target: 'MSFT', alert_type: 'price_change_percent', parameters: { direction: 'up', change_pct: 2 }, severity: 'warning', enabled: false, source: 'api' } })
       .mockResolvedValueOnce({ data: { rule_id: 3, status: 'not_triggered', triggered: false, observed_value: 1.2, message: 'not triggered' } });
     get
       .mockResolvedValueOnce({ data: { items: [{ id: 10, rule_id: 3, target: 'MSFT', status: 'skipped', observed_value: null, triggered_at: '2026-05-18T10:00:00' }], total: 1, page: 1, page_size: 20 } })
-      .mockResolvedValueOnce({ data: { items: [{ id: 11, trigger_id: 10, channel: 'wechat', attempt: 1, success: false, retryable: true, error_code: 'timeout', latency_ms: null }], total: 1, page: 1, page_size: 20 } });
+      .mockResolvedValueOnce({ data: { items: [{ id: 11, trigger_id: 10, channel: 'email', attempt: 1, success: false, retryable: true, error_code: 'timeout', latency_ms: null }], total: 1, page: 1, page_size: 20 } });
 
     await expect(alertsApi.deleteRule(3)).resolves.toEqual({ deleted: 1 });
     await alertsApi.enableRule(3);
