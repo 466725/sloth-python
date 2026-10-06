@@ -1,5 +1,10 @@
 # Copilot Instructions for sloth-python
 
+Canonical source: [CLAUDE.md](../CLAUDE.md) contains the shared repository AI
+collaboration rules as a regular Markdown file. Keep these Copilot instructions
+and the scoped instructions consistent with it. Repository collaboration skills
+live in [.claude/skills/](../.claude/skills/).
+
 ## Purpose
 This repository contains Python libraries, pytest suites (API/UI/unit), Robot Framework suites, and load testing assets.
 Keep changes minimal, task-focused, and easy to review.

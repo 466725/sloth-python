@@ -89,13 +89,13 @@ of the related work.
 
 ## 2. AI collaboration assets
 
-- `AGENTS.md` is the canonical source for repository AI collaboration rules.
-- `CLAUDE.md` must be a symbolic link to `AGENTS.md` for compatibility with
-  Claude tooling.
-- `.github/copilot-instructions.md` and
-  `.github/instructions/*.instructions.md` provide GitHub Copilot instructions
-  and scoped additions. If they conflict with `AGENTS.md`, follow
-  `AGENTS.md`.
+- [CLAUDE.md](../CLAUDE.md) is a regular Markdown file containing the shared
+  repository AI collaboration instructions and the entry point for Claude
+  tooling. It does not require a symbolic link or an `AGENTS.md` file.
+- [.github/copilot-instructions.md](../.github/copilot-instructions.md) provides
+  Copilot-specific guidance; `.github/instructions/*.instructions.md` contains
+  scoped additions. Keep their shared rules consistent with `CLAUDE.md` and
+  this guide instead of relying on a missing instruction source.
 - Repository collaboration skills live in `.claude/skills/`. Analysis
   artifacts belong in `.claude/reviews/`; those artifacts are local by
   default, while the skills may be committed.
@@ -262,7 +262,7 @@ remains uncovered.
   - Explicitly describe compatibility impact for changes to login, cookies,
     sessions, polling state, fields, or enums.
 - **Documentation and governance**
-  - Scope: `README.md`, `docs/**`, `AGENTS.md`,
+  - Scope: `readme.md`, `docs/**`, `CLAUDE.md`,
     `.github/copilot-instructions.md`, `.github/instructions/**`, and
     `.claude/skills/**`.
   - Code tests are not required for documentation-only changes.
@@ -326,7 +326,7 @@ remains uncovered.
 - For issue analysis, PR review, or issue fixes, follow the relevant skill
   and save its output under `.claude/reviews/`.
 - Keep skill commands, templates, validation order, and delivery structure
-  aligned with `AGENTS.md`.
+  aligned with `CLAUDE.md`.
 - Skills should inspect CI/workflow evidence before deciding whether
   additional local validation is needed.
 - Do not run operations that change remote or branch state—such as

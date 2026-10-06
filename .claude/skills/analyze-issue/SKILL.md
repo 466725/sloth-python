@@ -12,7 +12,7 @@
 
 ## Instructions
 
-分析时使用简洁中文，优先遵循仓库根目录 `AGENTS.md`。
+分析时使用简洁中文，优先遵循仓库根目录 `CLAUDE.md`。
 
 ### Step 1: 拉取 Issue 信息
 
@@ -98,7 +98,7 @@ gh issue view <issue_number> --repo ZhuLinsen/daily_stock_analysis --comments
 
 <建议修复、澄清或关闭方式>
 
-若建议后续创建 PR，给出的 PR title 建议符合 `AGENTS.md`：使用 `<类型>: <修改内容>`，不添加 `[codex]`、`codex`、`autocode`、`copilot` 或其他工具/agent 来源前缀；该约定仅用于协作一致性提醒，不应单独作为 review process blocker。
+若建议后续创建 PR，给出的 PR title 建议符合 `CLAUDE.md`：使用 `<类型>: <修改内容>`，不添加 `[codex]`、`codex`、`autocode`、`copilot` 或其他工具/agent 来源前缀；该约定仅用于协作一致性提醒，不应单独作为 review process blocker。
 
 ## Risks And Rollback
 

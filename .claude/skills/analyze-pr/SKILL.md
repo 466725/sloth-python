@@ -12,7 +12,7 @@
 
 ## Instructions
 
-分析时使用简洁中文，优先遵循仓库根目录 `AGENTS.md` 和 `.github/PULL_REQUEST_TEMPLATE.md`。
+分析时使用简洁中文，优先遵循仓库根目录 `CLAUDE.md` 和 `.github/PULL_REQUEST_TEMPLATE.md`。
 
 ### Step 1: 拉取 PR 基本信息
 
@@ -31,7 +31,7 @@ gh run view <run_id> --log-failed
 
 ### Step 2: 检查标题与描述完整性
 
-先检查 PR title 是否符合 `AGENTS.md` 的非阻断建议：
+先检查 PR title 是否符合 `CLAUDE.md` 的非阻断建议：
 
 - 格式应为 `<类型>: <修改内容>`，例如 `fix: 修复大盘分析历史记录丢失`
 - 类型优先为 `fix`/`feat`/`refactor`/`docs`/`chore`/`test`/`ci`

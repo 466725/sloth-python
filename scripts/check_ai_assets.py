@@ -6,9 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parent.parent
-AGENTS = ROOT / "AGENTS.md"
 CLAUDE = ROOT / "CLAUDE.md"
 COPILOT = ROOT / ".github" / "copilot-instructions.md"
 INSTRUCTIONS_DIR = ROOT / ".github" / "instructions"
@@ -21,10 +19,10 @@ REQUIRED_INSTRUCTION_FILES = {
 }
 
 REQUIRED_SKILL_FILES = {
-    "readme.md",
-    "analyze-issue/skill.md",
-    "analyze-pr/skill.md",
-    "fix-issue/skill.md",
+    "README.md",
+    "analyze-issue/SKILL.md",
+    "analyze-pr/SKILL.md",
+    "fix-issue/SKILL.md",
 }
 
 REQUIRED_GITIGNORE_SNIPPETS = (
@@ -44,16 +42,13 @@ def ensure_file_exists(path: Path, description: str) -> None:
         fail(f"{description} is missing: {path.relative_to(ROOT)}")
 
 
-def ensure_symlink() -> None:
-    ensure_file_exists(AGENTS, "canonical AGENTS.md")
-    if not CLAUDE.exists():
-        fail("CLAUDE.md is missing")
-    if not CLAUDE.is_symlink():
-        fail("CLAUDE.md must be a symlink to AGENTS.md")
-
-    target = Path(CLAUDE.readlink())
-    if target != Path("AGENTS.md"):
-        fail(f"CLAUDE.md must point to AGENTS.md, found: {target}")
+def ensure_claude_entry() -> None:
+    ensure_file_exists(CLAUDE, "repository collaboration instructions")
+    if CLAUDE.is_symlink() or not CLAUDE.is_file():
+        fail("CLAUDE.md must be a regular Markdown file containing instructions")
+    content = CLAUDE.read_text(encoding="utf-8").strip()
+    if not content.startswith("# ") or "\n## " not in content:
+        fail("CLAUDE.md must contain substantive instructions, not a filename pointer")
 
 
 def ensure_copilot_entry() -> None:
@@ -61,7 +56,6 @@ def ensure_copilot_entry() -> None:
     content = COPILOT.read_text(encoding="utf-8")
     required_fragments = (
         "Canonical source:",
-        "AGENTS.md",
         "CLAUDE.md",
         ".claude/skills/",
     )
@@ -86,8 +80,8 @@ def ensure_skill_files() -> None:
             fail(f"missing repository skill asset: {path.relative_to(ROOT)}")
         if path.is_file():
             content = path.read_text(encoding="utf-8")
-            if relative_path != "readme.md" and "AGENTS.md" not in content:
-                fail(f"{path.relative_to(ROOT)} must reference AGENTS.md as the rule source")
+            if relative_path != "README.md" and "CLAUDE.md" not in content:
+                fail(f"{path.relative_to(ROOT)} must reference CLAUDE.md as the rule source")
 
 
 def ensure_gitignore_rules() -> None:
@@ -114,7 +108,7 @@ def ensure_no_tracked_claude_artifacts() -> None:
 
 
 def main() -> None:
-    ensure_symlink()
+    ensure_claude_entry()
     ensure_copilot_entry()
     ensure_instruction_files()
     ensure_skill_files()

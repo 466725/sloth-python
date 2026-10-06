@@ -67,3 +67,7 @@ load_tests/load_runner/**/*.bak
 load_tests/load_runner/**/*.tmp
 load_tests/load_runner/**/*.lrr
 load_tests/load_runner/**/*.zip
+# Keep local Claude artifacts out of version control; retain collaboration skills.
+.claude/*
+!.claude/skills/
+!.claude/skills/**

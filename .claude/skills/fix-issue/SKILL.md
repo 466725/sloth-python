@@ -39,7 +39,7 @@
 
 ### Step 4: 按改动面验证
 
-按 `AGENTS.md` 的验证矩阵执行最接近的检查：
+按 `CLAUDE.md` 和仓库开发指南的验证规则执行最接近的检查：
 
 - 后端优先：`./scripts/ci_gate.sh`
 - 最低后端要求：`python -m py_compile <changed_python_files>`
@@ -77,7 +77,7 @@
 
 ### Step 6: 需要确认的后续动作
 
-如用户要求创建 PR、生成 PR 标题或整理 PR 描述，PR title 建议遵循 `AGENTS.md`：
+如用户要求创建 PR、生成 PR 标题或整理 PR 描述，PR title 建议遵循 `CLAUDE.md`：
 
 - 使用 `<类型>: <修改内容>` 格式，例如 `fix: 修复大盘分析历史记录丢失`
 - 类型优先使用 `fix`/`feat`/`refactor`/`docs`/`chore`/`test`/`ci`
