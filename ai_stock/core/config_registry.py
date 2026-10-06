@@ -2748,32 +2748,6 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         ],
         "warning_codes": [],
     },
-    "AGENT_NL_ROUTING": {
-        "title": "Agent NL Routing",
-        "description": "Enable natural-language routing in bot dispatcher. When on, high-confidence stock queries in private chat (or @mentions) are routed to the agent even without an explicit command.",
-        "category": "agent",
-        "data_type": "boolean",
-        "ui_control": "switch",
-        "is_sensitive": False,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": "false",
-        "options": [],
-        "validation": {},
-        "display_order": 50,
-        "help_key": "settings.agent.AGENT_NL_ROUTING",
-        "examples": [
-            "AGENT_NL_ROUTING=true",
-            "AGENT_NL_ROUTING=false",
-        ],
-        "docs": [
-            {
-                "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
-            },
-        ],
-        "warning_codes": [],
-    },
     "AGENT_ARCH": {
         "title": "Agent Architecture",
         "description": "Agent execution architecture. 'single' uses the classic ReAct executor; 'multi' uses the orchestrator pipeline with specialised sub-agents.",

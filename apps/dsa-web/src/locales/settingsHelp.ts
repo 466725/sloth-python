@@ -548,14 +548,6 @@ const settingsHelpZhCN: SettingsHelpMap = {
     impact: ['影响 Agent 可发现的策略列表。'],
     notes: ['修改目录后需要确保新目录中包含有效的策略定义文件。'],
   },
-  'settings.agent.AGENT_NL_ROUTING': {
-    title: '自然语言路由',
-    summary: '允许 bot dispatcher 通过自然语言识别将股票查询路由到 Agent。',
-    usage: '开启后，私聊中高置信度的股票相关消息（或群聊 @机器人）会自动路由到 Agent，无需显式命令。',
-    valueNotes: ['仅影响 bot 接入场景（飞书、Telegram 等），不影响 Web API。'],
-    impact: ['影响 bot 交互体验和 Agent 触发方式。'],
-    notes: ['需要同时启用 Agent 模式和对应 bot 渠道。'],
-  },
   'settings.agent.AGENT_ARCH': {
     title: 'Agent 架构',
     summary: '选择 Agent 执行架构。',
@@ -1387,14 +1379,6 @@ const settingsHelpEnUS: SettingsHelpMap = {
     valueNotes: ['The default strategies directory includes built-in strategies.'],
     impact: ['Affects which strategies the Agent can discover.'],
     notes: ['After changing the directory, make sure it contains valid strategy definition files.'],
-  },
-  'settings.agent.AGENT_NL_ROUTING': {
-    title: 'Natural Language Routing',
-    summary: 'Allows the bot dispatcher to route stock queries to the Agent via natural language.',
-    usage: 'When enabled, high-confidence stock messages in private chat (or @mentions in groups) are automatically routed to the Agent without an explicit command.',
-    valueNotes: ['Only affects bot integrations (Feishu, Telegram, etc.), not the Web API.'],
-    impact: ['Affects bot interaction experience and Agent trigger method.'],
-    notes: ['Requires both Agent mode and the corresponding bot channel to be enabled.'],
   },
   'settings.agent.AGENT_ARCH': {
     title: 'Agent Architecture',

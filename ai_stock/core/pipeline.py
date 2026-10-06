@@ -84,7 +84,6 @@ from ai_stock.core.trading_calendar import (
     is_market_open,
 )
 from ai_stock.stock_data.us_index_mapping import is_us_stock_code
-from bot.models import BotMessage
 
 
 logger = logging.getLogger(__name__)
@@ -174,7 +173,6 @@ class StockAnalysisPipeline:
         self,
         config: Optional[Config] = None,
         max_workers: Optional[int] = None,
-        source_message: Optional[BotMessage] = None,
         query_id: Optional[str] = None,
         trace_id: Optional[str] = None,
         query_source: Optional[str] = None,
@@ -194,7 +192,6 @@ class StockAnalysisPipeline:
         """
         self.config = config or get_config()
         self.max_workers = max_workers or self.config.max_workers
-        self.source_message = source_message
         self.query_id = query_id
         self.trace_id = trace_id or query_id
         self.query_source = self._resolve_query_source(query_source)
@@ -217,7 +214,7 @@ class StockAnalysisPipeline:
         # 不再单独创建 akshare_fetcher，统一使用 fetcher_manager 获取增强数据
         self.trend_analyzer = StockTrendAnalyzer()  # 技术分析器
         self.analyzer = GeminiAnalyzer(config=self.config, skills=self.analysis_skills)
-        self.notifier = NotificationService(source_message=source_message)
+        self.notifier = NotificationService()
         self._single_stock_notify_lock = threading.Lock()
         self._daily_market_context_service_lock = threading.Lock()
         
@@ -2594,21 +2591,18 @@ class StockAnalysisPipeline:
         解析请求来源。
 
         优先级（从高到低）：
-        1. 显式传入的 query_source：调用方明确指定时优先使用，便于覆盖推断结果或兼容未来 source_message 来自非 bot 的场景
-        2. 存在 source_message 时推断为 "bot"：当前约定为机器人会话上下文
-        3. 存在 query_id 时推断为 "web"：Web 触发的请求会带上 query_id
-        4. 默认 "system"：定时任务或 CLI 等无上述上下文时
+        1. 显式传入的 query_source：调用方明确指定时优先使用
+        2. 存在 query_id 时推断为 "web"：Web 触发的请求会带上 query_id
+        3. 默认 "system"：定时任务或 CLI 等无上述上下文时
 
         Args:
-            query_source: 调用方显式指定的来源，如 "bot" / "web" / "cli" / "system"
+            query_source: 调用方显式指定的来源，如 "api" / "web" / "cli" / "system"
 
         Returns:
-            归一化后的来源标识字符串，如 "bot" / "web" / "cli" / "system"
+            归一化后的来源标识字符串，如 "api" / "web" / "cli" / "system"
         """
         if query_source:
             return query_source
-        if getattr(self, "source_message", None):
-            return "bot"
         if getattr(self, "query_id", None):
             return "web"
         return "system"
@@ -2623,16 +2617,6 @@ class StockAnalysisPipeline:
             "query_id": effective_query_id,
             "query_source": self.query_source or "",
         }
-
-        if self.source_message:
-            context.update({
-                "requester_platform": self.source_message.platform or "",
-                "requester_user_id": self.source_message.user_id or "",
-                "requester_user_name": self.source_message.user_name or "",
-                "requester_chat_id": self.source_message.chat_id or "",
-                "requester_message_id": self.source_message.message_id or "",
-                "requester_query": self.source_message.content or "",
-            })
 
         return context
     
@@ -3093,28 +3077,6 @@ class StockAnalysisPipeline:
                         notification_run=notification_run,
                     )
 
-                send_context = self.notifier.send_to_context(report)
-                if send_context:
-                    _record_channel_result("__context__", True)
-
-                should_broadcast_static = True
-                should_broadcast_static_func = getattr(
-                    self.notifier,
-                    "should_broadcast_static_channels",
-                    None,
-                )
-                if callable(should_broadcast_static_func):
-                    should_broadcast_static = bool(should_broadcast_static_func())
-                if not should_broadcast_static:
-                    if not send_context:
-                        _record_channel_result("__context__", False)
-                    if send_context:
-                        logger.info("决策仪表盘推送成功")
-                    else:
-                        logger.warning("决策仪表盘推送失败")
-                    logger.info("交互式消息上下文回复模式：已跳过静态通知渠道")
-                    return
-
                 if channels and hasattr(self.notifier, "evaluate_noise_control"):
                     report_type_key = report_type.value if isinstance(report_type, ReportType) else str(report_type)
                     codes_key = ",".join(
@@ -3262,7 +3224,7 @@ class StockAnalysisPipeline:
                                 channel_error,
                             )
                 has_targeted_channels = bool(channels)
-                success = email_success or send_context
+                success = email_success
                 if (
                     email_success
                     and noise_decision is not None
@@ -3280,7 +3242,7 @@ class StockAnalysisPipeline:
                     logger.info("决策仪表盘推送成功")
                 else:
                     logger.warning("决策仪表盘推送失败")
-                if not has_targeted_channels and not send_context:
+                if not has_targeted_channels:
                     channel_label = ",".join(channel.value for channel in channels) or "report"
                     notification_run = self._build_notification_run_snapshot(
                         channel=channel_label,

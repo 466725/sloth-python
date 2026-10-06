@@ -197,7 +197,7 @@ class NewsIntel(Base):
 
     # 入库时间
     fetched_at = Column(DateTime, default=datetime.now, index=True)
-    query_source = Column(String(32), index=True)  # bot/web/cli/system
+    query_source = Column(String(32), index=True)  # web/api/cli/system; historical sources retained
     requester_platform = Column(String(20))
     requester_user_id = Column(String(64))
     requester_user_name = Column(String(64))
@@ -2722,7 +2722,7 @@ class DatabaseManager(metaclass=_DatabaseManagerMeta):
             limit: Maximum number of sessions to return.
             session_prefix: If provided, only return sessions whose session_id
                 starts with this prefix.  Used for per-user isolation (e.g.
-                ``"telegram_12345"``).
+                ``"web_user_12345"``).
             extra_session_ids: Optional exact session ids to include in
                 addition to the scoped prefix.
 

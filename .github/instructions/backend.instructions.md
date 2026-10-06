@@ -1,5 +1,5 @@
 ---
-applyTo: "main.py,server.py,src/**/*.py,data_provider/**/*.py,api/**/*.py,bot/**/*.py,tests/**/*.py"
+applyTo: "main.py,server.py,src/**/*.py,data_provider/**/*.py,api/**/*.py,tests/**/*.py"
 ---
 
 # Backend Instructions

@@ -12,27 +12,8 @@ except ModuleNotFoundError:
 
     ensure_litellm_stub()
 
-from bot.commands.ask import AskCommand
 from ai_stock.agent.skills.aggregator import SkillAggregator
 from ai_stock.agent.skills.router import SkillRouter
-
-
-class AskCommandSkillLoadWarningTests(unittest.TestCase):
-    """AskCommand._load_skills and _get_default_skill_id must log on failure."""
-
-    def test_load_skills_logs_warning_on_exception(self) -> None:
-        with patch("ai_stock.agent.factory.get_skill_manager", side_effect=RuntimeError("factory broken")):
-            with self.assertLogs("bot.commands.ask", level=logging.WARNING) as cm:
-                result = AskCommand._load_skills()
-        self.assertEqual(result, [])
-        self.assertTrue(any("Failed to load skills" in line for line in cm.output))
-
-    def test_get_default_skill_id_logs_warning_on_exception(self) -> None:
-        with patch.object(AskCommand, "_load_skills", side_effect=RuntimeError("boom")):
-            with self.assertLogs("bot.commands.ask", level=logging.WARNING) as cm:
-                result = AskCommand._get_default_skill_id()
-        self.assertEqual(result, "")
-        self.assertTrue(any("Failed to resolve default skill id" in line for line in cm.output))
 
 
 class SkillRouterWarningTests(unittest.TestCase):

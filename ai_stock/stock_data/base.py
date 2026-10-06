@@ -289,7 +289,7 @@ def canonical_stock_code(code: str) -> str:
 
     This is a display/storage layer concern, distinct from normalize_stock_code
     which strips exchange prefixes. Apply at system input boundaries to ensure
-    consistent case across BOT, WEB UI, API, and CLI paths (Issue #355).
+    consistent case across WEB UI, API, and CLI paths (Issue #355).
 
     Examples:
         'aapl'    -> 'AAPL'

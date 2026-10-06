@@ -312,7 +312,7 @@ class ResearchResponse(BaseModel):
 async def agent_research(request: ResearchRequest):
     """Run a deep-research query via the ResearchAgent.
 
-    Similar to the ``/research`` bot command but exposed as a REST endpoint.
+    Available to Web/API clients independently of stock analysis.
     """
     config = get_config()
     if not config.is_agent_available():

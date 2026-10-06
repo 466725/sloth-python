@@ -40,7 +40,7 @@ class Skill:
         core_rules: List of core trading rule numbers this strategy relates to (1-7).
         required_tools: List of tool names this skill depends on.
         allowed_tools: Optional allowlist metadata from skill.md frontmatter.
-        aliases: Optional alias phrases used by NL selectors / bot commands.
+        aliases: Optional alias phrases used by natural-language selectors.
         enabled: Whether this skill is currently active.
         source: Origin of this skill — "builtin" or file path of a custom definition.
         entrypoint: Definition file path (YAML or skill.md).

@@ -65,7 +65,6 @@ def _make_pipeline(*, agent_mode: bool = False, save_context_snapshot: bool = Tr
         report_integrity_enabled=False,
         fundamental_stage_timeout_seconds=1,
     )
-    pipeline.source_message = None
     pipeline.query_id = None
     pipeline.query_source = "system"
     pipeline.save_context_snapshot = save_context_snapshot
@@ -110,6 +109,19 @@ def _make_pipeline(*, agent_mode: bool = False, save_context_snapshot: bool = Tr
 
 
 class PipelineMarketPhaseContextTestCase(unittest.TestCase):
+    def test_web_query_metadata_does_not_require_message_context(self):
+        pipeline = _make_pipeline()
+        pipeline.query_id = "web-task-1"
+        pipeline.query_source = pipeline._resolve_query_source()
+
+        self.assertEqual(
+            pipeline._build_query_context(),
+            {"query_id": "web-task-1", "query_source": "web"},
+        )
+        self.assertEqual(pipeline._resolve_query_source("api"), "api")
+        pipeline.query_id = None
+        self.assertEqual(pipeline._resolve_query_source(), "system")
+
     def test_jp_kr_analysis_context_uses_daily_fetcher_when_db_context_missing(self):
         pipeline = _make_pipeline()
         pipeline.db.get_analysis_context.side_effect = [None, None]

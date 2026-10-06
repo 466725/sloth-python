@@ -335,7 +335,7 @@ DSA reads a watchlist and market data, combines technical indicators, news, and 
 | AI decision reports | Core conclusion, score, trend, entry/exit levels, risk alerts, catalysts, and action checklist |
 | Multi-market data | A-shares, Hong Kong, US, ETFs: quotes, K-lines, technical indicators, capital flow, chips, news, announcements, and fundamentals. Japan/Korea (Yahoo `.T` / `.KS` / `.KQ`): see market coverage below |
 | Web workspace | Manual analysis, task progress, history, full Markdown reports, backtest, settings, and light/dark themes |
-| Agent strategy chat | Multi-turn Q&A with 15 built-in strategies across Web/Bot/API |
+| Agent strategy chat | Multi-turn Q&A with 15 built-in strategies across Web/API |
 | Smart import & autocomplete | Image, CSV/Excel, clipboard import; code/name/pinyin/alias autocomplete |
 | Automation & notifications | GitHub Actions, Docker, local scheduler, FastAPI service, and SMTP email delivery |
 
@@ -487,13 +487,13 @@ Multiple data sources fall back according to availability. A single source timin
 
 The Web workspace supports settings, task monitoring, manual analysis, history, full Markdown reports, Agent strategy chat, backtesting, alerts, decision signals, smart import, and light/dark themes. Authentication, smart import, autocomplete, report copying, and cloud-server access are documented in Local WebUI Management.
 
-- **Analysis report:** submit a symbol from the Web home page, CLI, API, or Bot. Review the conclusion, risks, data sources, and report history. Reports are research aids, not investment advice.
+- **Analysis report:** submit a symbol from the Web home page, CLI, or API. Review the conclusion, risks, data sources, and report history. Reports are research aids, not investment advice.
 - **Market review:** can be triggered from the CLI, Web, or a scheduled task. It uses a different market context from single-stock analysis.
 - **Ask Stock / Agent strategy chat:** see below.
 - **Backtesting:** evaluates historical rules. Results depend on market coverage, trading days, and data quality, and are not guarantees of future performance.
 - **AI decision signals:** organize the action tendency, evidence, risks, and follow-up watch conditions from a report in a structured way. They can be queried, given feedback, and evaluated against subsequent daily bars. Signals are research aids; they do not place orders.
 - **Real-time alerts:** evaluate symbol, watchlist, or market conditions against rules, and record triggered, skipped, and degraded results along with notification attempts. See the alert guide for configuration and operating boundaries.
-- **Notifications and Bots:** see the Notification Guide for channels, routing, and diagnostics, and the Bot Guide for commands and supported messaging transports.
+- **Email notifications:** see the Notification Guide for routing and delivery diagnostics.
 - **Smart import:** supports image, CSV/Excel, and clipboard import, with code/name/pinyin/alias autocomplete. Image import requires a configured vision-capable model. Always verify recognized codes, names, and market suffixes manually, especially for similar-looking codes.
 - **AnalysisContextPack:** summarizes available data blocks and quality states. It improves visibility into missing, stale, or fallback data, but does not make unavailable data reliable.
 
@@ -557,7 +557,6 @@ These topic pages are the stable entry points for the settings UI and maintenanc
 - Real-time alert rules
 - Tushare stock-list tool
 - Notification channels and delivery diagnostics
-- Bot command guide
 
 ### 9. Troubleshooting
 

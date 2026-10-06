@@ -7,7 +7,7 @@
 ## 1. 硬规则
 
 - 遵循现有目录边界：
-  - 后端逻辑优先放在 `../ai_stock`、`stock_data/`、`api/`、`bot/`
+  - 后端逻辑优先放在 `../ai_stock`、`stock_data/`、`api/`
   - Web 前端改动在 `../apps/dsa-web`
   - 部署与流水线改动在 `../scripts`、`.github/workflows/`、`docker/`
 - 未经明确确认，不执行 `git commit`、`git tag`、`git push`。
@@ -71,7 +71,6 @@ python scripts/check_ai_assets.py
   - `src/schemas/`：Schema / 数据结构
   - `data_provider/`：多数据源适配与 fallback
   - `../api`：FastAPI API
-  - `../bot`：机器人接入
   - `../scripts`：本地脚本
   - `../.github/scripts`：GitHub 自动化脚本
   - `../tests`：pytest 测试
@@ -157,7 +156,7 @@ gh run view <run_id> --log-failed
 ### 按改动面执行
 
 - Python 后端改动：
-  - 适用范围：`../main.py`、`src/`、`data_provider/`、`api/`、`bot/`、`tests/`
+  - 适用范围：`../main.py`、`src/`、`data_provider/`、`api/`、`tests/`
   - 优先执行：`../scripts/ci_gate.sh`
   - 最低要求：`python -m py_compile <changed_python_files>`
   - 若影响 API、任务编排、报告生成、通知发送、数据源 fallback、认证、调度，交付说明中要写明是否覆盖了对应路径。
@@ -204,7 +203,7 @@ gh run view <run_id> --log-failed
   - 默认优先追加字段、保留旧字段或提供兼容层，避免无提示破坏现有客户端。
 
 - 报告 / Prompt / 通知：
-  - 修改报告结构、Prompt、提取器、通知模板、机器人链路时，要检查上游输入与下游消费方是否仍兼容。
+  - 修改报告结构、Prompt、提取器、通知模板、Web API 链路时，要检查上游输入与下游消费方是否仍兼容。
   - 单一通知渠道失败不应拖垮整个分析主流程，除非需求明确要求 fail-fast。
   - 修改 `src/services/image_stock_extractor.py` 中 `EXTRACT_PROMPT` 时，要在 PR 描述中附完整最新 prompt。
 

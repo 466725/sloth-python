@@ -1,13 +1,13 @@
 """Reusable market review runtime assembly helpers.
 
-Centralize the analyzer/search/notification construction so API, CLI and Bot
+Centralize the analyzer/search/notification construction so API and CLI
 entrypoints share one initialization path for 大盘复盘.
 """
 
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional, Tuple
+from typing import Any, Tuple
 
 from ai_stock.config import Config
 
@@ -43,7 +43,6 @@ def has_configured_llm_runtime(config: Config) -> bool:
 
 def build_market_review_runtime(
     config: Config,
-    source_message: Optional[Any] = None,
 ) -> Tuple[Any, Any, Any]:
     """
     Build shared NotificationService, GeminiAnalyzer and SearchService instances.
@@ -52,7 +51,7 @@ def build_market_review_runtime(
     from ai_stock.report.notification import NotificationService
     from ai_stock.search_service import SearchService
 
-    notifier = NotificationService(source_message=source_message)
+    notifier = NotificationService()
 
     search_service = None
     has_search_capability = getattr(config, "has_search_capability_enabled", None)

@@ -34,6 +34,7 @@ RETIRED_KEYS = (
     "SLACK_BOT_TOKEN",
     "ASTRBOT_URL",
     "BOT_ENABLED",
+    "AGENT_NL_ROUTING",
 )
 
 
@@ -153,3 +154,14 @@ def test_email_failure_is_reported():
 def test_no_email_credentials_do_not_enable_another_transport():
     assert NotificationService.detect_configured_channels(Config()) == []
     assert {channel.value for channel in NotificationChannel} == {"email", "unknown"}
+
+
+def test_no_credentials_reports_no_channel_without_context_delivery():
+    with patch("ai_stock.report.notification.get_config", return_value=Config()):
+        notifier = NotificationService()
+    result = notifier.send_with_results("report")
+    assert not result.dispatched
+    assert not result.success
+    assert result.status == "no_channel"
+    assert result.channel_results == []
+    assert not hasattr(notifier, "send_to_context")

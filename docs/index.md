@@ -11,10 +11,16 @@ Start with the [project README](README_EN.md) for an overview, or use the [User 
 | Configure notifications or troubleshoot delivery | [Notification guide](notifications.md) |
 | Deploy Web/API to a cloud server | [User Guide](full-guide_EN.md#docker-deployment), [cloud access notes](deploy-webui-cloud.md) |
 | Understand supported markets | [User Guide](full-guide_EN.md#what-dsa-does) |
-| Configure messaging bots | [Bot guide](bot-command_EN.md) |
 | Contribute | [Contributing guide](CONTRIBUTING_EN.md) |
 
 ## Maintained References
+
+The website uses the analysis, Agent chat, and alert APIs directly. External
+messaging bot integrations are not supported; notifications are email-only.
+Historical reports and conversations remain available after removal. Restart
+or redeploy the backend to apply this change. To restore the old integrations,
+restore the bot package, its backend hooks, and dependencies together from the
+previous revision.
 
 - [Price change alerts](alerts.md) (Chinese)
 - [AnalysisContextPack quality and visibility](analysis-context-pack.md) (Chinese)

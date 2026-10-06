@@ -43,7 +43,6 @@ from ai_stock.report.report_language import (
     localize_trend_prediction,
     normalize_report_language,
 )
-from bot.models import BotMessage
 from ai_stock.utils.sanitize import sanitize_diagnostic_text
 from ai_stock.utils.data_processing import normalize_model_used
 from ai_stock.report import EmailSender
@@ -126,13 +125,12 @@ class NotificationService(EmailSender):
     Reports can also be saved locally without sending.
     """
     
-    def __init__(self, source_message: Optional[BotMessage] = None):
+    def __init__(self):
         """
         Initialize the report and email notification service.
         """
         config = get_config()
         self._config = config
-        self._source_message = source_message
 
         # Markdown 转图片（Issue #289）
         self._markdown_to_image_channels = set(
@@ -366,18 +364,6 @@ class NotificationService(EmailSender):
         """Release static-channel in-flight noise reservation after send failure."""
         release_notification_noise(decision)
 
-    def _has_context_channel(self) -> bool:
-        """Context-based report delivery is not supported."""
-        return False
-
-    def should_broadcast_static_channels(self) -> bool:
-        """Always use the configured email channel; no context transport exists."""
-        return True
-
-    def send_to_context(self, content: str) -> bool:
-        """Context sends are disabled; use configured email notifications."""
-        return False
-        
     def generate_daily_report(
         self,
         results: List[AnalysisResult],
@@ -1728,41 +1714,7 @@ class NotificationService(EmailSender):
         Returns:
             Structured dispatch diagnostics.
         """
-        context_success = self.send_to_context(content)
-        if not self.should_broadcast_static_channels():
-            if context_success:
-                logger.info("已通过上下文会话完成推送，跳过静态通知渠道")
-                return NotificationDispatchResult(
-                    dispatched=True,
-                    success=True,
-                    status="sent",
-                    channel_results=[ChannelAttemptResult(channel="__context__", success=True)],
-                )
-            logger.warning("交互式上下文推送失败，已跳过静态通知渠道")
-            return NotificationDispatchResult(
-                dispatched=True,
-                success=False,
-                status="all_failed",
-                channel_results=[
-                    ChannelAttemptResult(
-                        channel="__context__",
-                        success=False,
-                        error_code="send_failed",
-                        retryable=True,
-                    )
-                ],
-                message="interactive context delivery failed; static channels skipped",
-            )
-
         if not self._available_channels:
-            if context_success:
-                logger.info("已通过消息上下文渠道完成推送（无其他通知渠道）")
-                return NotificationDispatchResult(
-                    dispatched=True,
-                    success=True,
-                    status="sent",
-                    channel_results=[ChannelAttemptResult(channel="__context__", success=True)],
-                )
             logger.warning("通知服务不可用，跳过推送")
             return NotificationDispatchResult(
                 dispatched=False,
@@ -1773,14 +1725,6 @@ class NotificationService(EmailSender):
 
         target_channels = self.get_channels_for_route(route_type)
         if not target_channels:
-            if context_success:
-                logger.info("已通过消息上下文渠道完成推送（路由后无其他通知渠道）")
-                return NotificationDispatchResult(
-                    dispatched=True,
-                    success=True,
-                    status="sent",
-                    channel_results=[ChannelAttemptResult(channel="__context__", success=True)],
-                )
             logger.warning("通知路由 %s 未命中任何已配置渠道，跳过静态通知渠道", route_type)
             return NotificationDispatchResult(
                 dispatched=False,
@@ -1798,13 +1742,11 @@ class NotificationService(EmailSender):
         )
         if not noise_decision.should_send:
             logger.info(noise_decision.message)
-            status = "sent" if context_success else "noise_suppressed"
-            results = [ChannelAttemptResult(channel="__context__", success=True)] if context_success else []
             return NotificationDispatchResult(
-                dispatched=bool(context_success),
-                success=bool(context_success),
-                status=status,
-                channel_results=results,
+                dispatched=False,
+                success=False,
+                status="noise_suppressed",
+                channel_results=[],
                 message=noise_decision.message,
             )
 
@@ -1891,15 +1833,13 @@ class NotificationService(EmailSender):
             self.record_noise_control(noise_decision)
         else:
             self.release_noise_control(noise_decision)
-        success = success_count > 0 or context_success
+        success = success_count > 0
         if success_count > 0 and fail_count > 0:
             status = "partial_failed"
-        elif success_count > 0 or context_success:
+        elif success_count > 0:
             status = "sent"
         else:
             status = "all_failed"
-        if context_success:
-            channel_results.insert(0, ChannelAttemptResult(channel="__context__", success=True))
         return NotificationDispatchResult(
             dispatched=True,
             success=success,

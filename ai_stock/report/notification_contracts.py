@@ -26,5 +26,5 @@ def is_retired_notification_key(key: str) -> bool:
     normalized = key.upper()
     return (
         normalized.startswith(RETIRED_NOTIFICATION_KEY_PREFIXES)
-        or normalized == "WEBHOOK_VERIFY_SSL"
+        or normalized in {"WEBHOOK_VERIFY_SSL", "AGENT_NL_ROUTING"}
     )

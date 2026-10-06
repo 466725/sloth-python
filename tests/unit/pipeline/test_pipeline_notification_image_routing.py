@@ -32,7 +32,6 @@ class _FakeNotifier:
                 channels if channels is not None else self.get_available_channels()
             )
         )
-        self.send_to_context = MagicMock(return_value=False)
         self._should_use_image_for_channel = MagicMock(
             side_effect=lambda channel, image_bytes: (
                     channel.value in self._markdown_to_image_channels and image_bytes is not None
