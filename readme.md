@@ -397,7 +397,7 @@ Deploy in about 5 minutes, with no server and no infrastructure cost.
 |---|---|
 | `EMAIL_SENDER` + `EMAIL_PASSWORD` | Email push |
 
-Recipient groups, email testing, and Markdown-to-image settings are in the [Notification Guide](docs/notifications.md).
+Recipient groups, email testing, and Markdown-to-image settings are in the [Notification Guide](docs/email_notifications.md).
 
 **Watchlist (required).**
 
@@ -481,7 +481,7 @@ When a connection test fails, check model access, API key, Base URL, provider pr
 
 #### Notification Channels
 
-Configure SMTP email in `.env` or Web settings. Email is the only notification transport; delivery failures do not invalidate analysis reports. To diagnose delivery, use the email test action on the settings page or run `python main.py --check-notify`. See the [Notification Guide](docs/notifications.md).
+Configure SMTP email in `.env` or Web settings. Email is the only notification transport; delivery failures do not invalidate analysis reports. To diagnose delivery, use the email test action on the settings page or run `python main.py --check-notify`. See the [Notification Guide](docs/email_notifications.md).
 
 #### Search and News
 

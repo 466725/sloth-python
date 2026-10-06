@@ -375,16 +375,16 @@ class TestSkillManager(unittest.TestCase):
 # ============================================================
 
 class TestBuiltinSkills(unittest.TestCase):
-    """Verify all built-in strategies load from YAML and have correct structure."""
+    """Verify built-in strategies load from YAML and Markdown bundles."""
 
     def test_load_all_builtin_strategies(self):
-        """Load strategies from YAML files in strategies/ directory."""
+        """Load strategies from YAML files and nested skill.md bundles."""
         from ai_stock.agent.skills.base import SkillManager
 
         manager = SkillManager()
-        expected = _builtin_strategy_names()
+        expected = _builtin_strategy_names() | {"stock-analyzer"}
         count = manager.load_builtin_strategies()
-        self.assertEqual(count, len(expected), "Should load all built-in strategies from YAML")
+        self.assertEqual(count, len(expected), "Should load all built-in YAML and Markdown skills")
 
         skills = manager.list_skills()
         names = set()
@@ -400,7 +400,7 @@ class TestBuiltinSkills(unittest.TestCase):
         # All names should be unique
         self.assertEqual(len(names), len(expected))
 
-        # Verify all strategy names from YAML are loaded
+        # Verify all built-in YAML and Markdown skill names are loaded
         self.assertEqual(names, expected)
 
 

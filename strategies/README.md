@@ -1,8 +1,12 @@
 # 交易策略目录 / Trading Strategies
 
-本目录存放 **自然语言交易策略文件**（YAML 格式）。系统启动时自动加载此目录下所有 `.yaml` 文件。
+本目录存放 **自然语言交易策略**：YAML 文件可直接放在本目录，Markdown skill bundle 则放在包含 `skill.md` 的子目录中。系统会自动加载这两种格式。
 
 对用户和文档，我们继续把这些能力称为“策略”；在代码、配置和 API 字段里，它们统一命名为 `skill`，你可以把它理解为“可复用的策略能力包”。
+
+This directory contains natural-language trading strategies. YAML definitions can live directly here; Markdown skill bundles belong in subdirectories containing `skill.md`. Both formats are loaded automatically at runtime.
+
+For example, [stock-analyzer/skill.md](stock-analyzer/skill.md) is a built-in, user-invocable skill that appears in the Web app's skill selector. It is not activated by default. Use `AGENT_SKILL_DIR` only when adding a separate custom skill directory; custom definitions load alongside the built-in strategies.
 
 ## 如何编写自定义策略（Strategy Skill）
 

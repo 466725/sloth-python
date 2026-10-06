@@ -177,7 +177,7 @@ returned as empty or optional fields.
   [alert guide](alerts.md).
 - Notification statuses such as `sent`, `no_channel`, and delivery failures
   describe notification outcomes, not input quality. See the
-  [notification guide](notifications.md).
+  [notification guide](email_notifications.md).
 - The separate daily market context feature can add a low-sensitivity summary
   and apply decision guardrails. It is not a pack block and can be disabled
   independently with `DAILY_MARKET_CONTEXT_ENABLED`.

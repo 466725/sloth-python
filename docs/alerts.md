@@ -67,7 +67,7 @@ application.
 
 Triggered alerts use the configured email notification route. Configure
 `NOTIFICATION_ALERT_CHANNELS` and SMTP settings as described in the
-[email notification guide](notifications.md). Notification noise controls also
+[email notification guide](email_notifications.md). Notification noise controls also
 apply to alerts.
 
 Database rules use a 24-hour cooldown by default. Set

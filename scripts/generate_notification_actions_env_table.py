@@ -26,7 +26,7 @@ from ai_stock.services.notification_diagnostics import (  # noqa: E402
 )
 
 WORKFLOW_PATH = ROOT_DIR / ".github/workflows/disabled/00-daily-analysis.yml"
-DOCS_PATH = ROOT_DIR / "docs/notifications.md"
+DOCS_PATH = ROOT_DIR / "docs/email_notifications.md"
 TABLE_START = "<!-- notification-actions-env-table:start -->"
 TABLE_END = "<!-- notification-actions-env-table:end -->"
 ANALYZE_STEP_NAME = "执行股票分析"
@@ -205,8 +205,8 @@ def generate_table() -> str:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--write", action="store_true", help="Update docs/notifications.md in place")
-    parser.add_argument("--check", action="store_true", help="Fail if docs/notifications.md is stale")
+    parser.add_argument("--write", action="store_true", help="Update docs/email_notifications.md in place")
+    parser.add_argument("--check", action="store_true", help="Fail if docs/email_notifications.md is stale")
     args = parser.parse_args(argv)
 
     table = generate_table()
@@ -223,7 +223,7 @@ def main(argv: list[str] | None = None) -> int:
         current = extract_managed_block(markdown)
         if normalize_markdown_block(current) != normalize_markdown_block(table):
             print(
-                "docs/notifications.md notification Actions env table is stale; "
+                "docs/email_notifications.md notification Actions env table is stale; "
                 "run `python scripts/generate_notification_actions_env_table.py --write`.",
                 file=sys.stderr,
             )
