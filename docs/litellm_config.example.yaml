@@ -1,93 +1,63 @@
-# ===================================
-# 高级模型路由 YAML 模板（底层兼容 LiteLLM Router）
-# ===================================
-# 配套文档：docs/LLM_CONFIG_GUIDE.md 第 3.2 节
+# Advanced model-routing example for DSA.
 #
-# 用法：
-# 1. 复制此文件为 litellm_config.yaml
-# 2. 在 .env 中设置 LITELLM_CONFIG=./litellm_config.yaml
-# 3. 按需配置下面的 model_list
+# Setup:
+# 1. Copy this file to the repository root (for example, litellm_config.yaml).
+# 2. Set LITELLM_CONFIG=./litellm_config.yaml in your environment.
+# 3. Set LITELLM_MODEL to one of the model_name aliases declared below.
+# 4. Set the referenced provider API key in the process environment.
 #
-# 密钥引用格式：
-#   api_key: "os.environ/ENV_VAR_NAME"  → 从环境变量读取，避免明文写入文件
-#   api_key: "sk-xxxxxxxx"              → 直接写入（不推荐）
+# DSA reads model_list from this file and builds its own LiteLLM Router.
+# router_settings and other proxy-server settings are not consumed by DSA.
+# This file takes precedence over LLM_CHANNELS and legacy provider keys when
+# it loads successfully and contains at least one model deployment.
 #
-# 更多文档: https://docs.litellm.ai/docs/proxy/configs
-# ===================================
+# Secret references in litellm_params use the form:
+#   api_key: os.environ/PROVIDER_API_KEY
+# DSA resolves this syntax while loading the YAML. If the variable is unset,
+# the resolved key is empty and requests to that deployment will fail.
+# Do not put real API keys in this file or commit them to source control.
+#
+# LiteLLM configuration reference:
+# https://docs.litellm.ai/docs/proxy/configs
 
 model_list:
-  # --- siliconflow (OpenAI 兼容，一个 Key 使用多种模型) ---
-  # 这是一个自定义 OpenAI 兼容模型渠道的示例
-  - model_name: openai/Qwen/Qwen3.5-397B-A17B
+  # OpenAI-compatible gateway. Replace the model ID and URL with values
+  # supported by your account and gateway.
+  - model_name: openai/gpt-5.5
     litellm_params:
-      model: openai/Qwen/Qwen3.5-397B-A17B
-      api_key: "os.environ/LITELLM_API_KEY" # 从环境变量读取 Key，安全防泄漏
-      api_base: https://api.siliconflow.cn/v1
-      # 以下配置是表示如何启用Qwen模型的enable_thinking开关
-      extra_body:
-        chat_template_kwargs:
-          enable_thinking: true
-
-  # --- AIHubmix (OpenAI 兼容，一个 Key 使用多种模型) ---
-  - model_name: openai/gpt-4o-mini
-    litellm_params:
-      model: openai/gpt-4o-mini
-      api_key: "os.environ/AIHUBMIX_KEY"
+      model: openai/gpt-5.5
+      api_key: os.environ/AIHUBMIX_KEY
       api_base: https://aihubmix.com/v1
 
-  - model_name: openai/claude-3-5-sonnet-20241022
+  # DeepSeek official API. The top-level model_name is the routing alias
+  # selected by LITELLM_MODEL; litellm_params.model is the provider model.
+  - model_name: deepseek/deepseek-v4-flash
     litellm_params:
-      model: openai/claude-3-5-sonnet-20241022
-      api_key: "os.environ/AIHUBMIX_KEY"
-      api_base: https://aihubmix.com/v1
+      model: deepseek/deepseek-v4-flash
+      api_key: os.environ/DEEPSEEK_API_KEY
 
-  # --- DeepSeek 官方 API (原生 provider，自动解析 base_url) ---
-  - model_name: deepseek/deepseek-chat
+  # Gemini official API. To load-balance multiple keys for this model, add
+  # another deployment with the same model_name and model, but a different key.
+  - model_name: gemini/gemini-3.1-pro-preview
     litellm_params:
-      model: deepseek/deepseek-chat
-      api_key: "os.environ/DEEPSEEK_API_KEY"
+      model: gemini/gemini-3.1-pro-preview
+      api_key: os.environ/GEMINI_API_KEY
 
-  - model_name: deepseek/deepseek-reasoner
-    litellm_params:
-      model: deepseek/deepseek-reasoner
-      api_key: "os.environ/DEEPSEEK_API_KEY"
-
-  # --- Google Gemini (原生，多 Key 负载均衡) ---
-  - model_name: gemini/gemini-2.5-flash
-    litellm_params:
-      model: gemini/gemini-2.5-flash
-      api_key: "os.environ/GEMINI_API_KEY_1"
-
-  - model_name: gemini/gemini-2.5-flash
-    litellm_params:
-      model: gemini/gemini-2.5-flash
-      api_key: "os.environ/GEMINI_API_KEY_2"
-
-  # --- Anthropic Claude (原生) ---
-  # - model_name: anthropic/claude-3-5-sonnet-20241022
+  # Anthropic official API (optional example).
+  # - model_name: anthropic/claude-sonnet-4-6
   #   litellm_params:
-  #     model: anthropic/claude-3-5-sonnet-20241022
-  #     api_key: "os.environ/ANTHROPIC_API_KEY"
+  #     model: anthropic/claude-sonnet-4-6
+  #     api_key: os.environ/ANTHROPIC_API_KEY
 
-  # --- OpenRouter (聚合平台) ---
-  # - model_name: openai/meta-llama/llama-3-70b-instruct
+  # OpenRouter via its OpenAI-compatible endpoint (optional example).
+  # - model_name: openai/~anthropic/claude-sonnet-latest
   #   litellm_params:
-  #     model: openai/meta-llama/llama-3-70b-instruct
-  #     api_key: "os.environ/OPENROUTER_API_KEY"
+  #     model: openai/~anthropic/claude-sonnet-latest
+  #     api_key: os.environ/OPENROUTER_API_KEY
   #     api_base: https://openrouter.ai/api/v1
 
-  # --- Ollama 本地模型 ---
+  # Local Ollama (optional example; the host must be reachable by the backend).
   # - model_name: ollama/qwen3:8b
   #   litellm_params:
   #     model: ollama/qwen3:8b
-  #     api_base: http://localhost:11434
-
-# ===================================
-# Router 设置（可选）
-# ===================================
-router_settings:
-  routing_strategy: simple-shuffle    # simple-shuffle / least-busy / latency-based
-  num_retries: 2                      # 单个 deployment 失败后重试次数
-  # timeout: 30                       # 请求超时（秒）
-  # allowed_fails: 3                  # deployment 被冷却前允许的失败次数
-  # cooldown_time: 60                 # deployment 冷却时间（秒）
+  #     api_base: http://127.0.0.1:11434
