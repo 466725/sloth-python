@@ -271,7 +271,11 @@ This reduces manual maintenance after small UI changes while keeping recovery de
 
 ### Robot Framework integration
 
-The Robot Tangerine suite uses the same locator store through `robot_tests` and currently supports these keys:
+The Robot Tangerine suite under `tests/robot_tests/ui_suites` uses the same
+repository-relative locator store as pytest. Import shared helpers with
+`from utils.self_healing import click, find_element`. The keyword library
+bootstraps the repository root before importing these helpers, so `-P` is not
+required. The locator store currently supports these keys:
 
 - `tangerine.login`
 - `tangerine.signup`

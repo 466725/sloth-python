@@ -8,7 +8,7 @@ from typing import Any, Mapping
 # Paths & Configuration
 # =========================
 
-BASE_DIR = Path(__file__).resolve().parents[1]
+BASE_DIR = Path(__file__).resolve().parents[2]
 LOCATORS_DIR = BASE_DIR / "tests/pytest_tests/ui_suites/locators"
 
 SIGNINPAGE_LOCATOR_FILE = LOCATORS_DIR / "signinpage.json"

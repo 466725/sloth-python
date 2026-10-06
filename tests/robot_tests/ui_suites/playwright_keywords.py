@@ -1,23 +1,23 @@
+# ruff: noqa: E402 -- Bootstrap the repository path before importing local modules.
 from __future__ import annotations
 
+import os
 import re
 import sys
-import os
 from datetime import datetime
 from pathlib import Path
 
-from utils.self_healing import click
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 if str(PROJECT_ROOT) not in sys.path:
     # Ensure local imports resolve when Robot runs this suite directly.
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from robot.libraries.BuiltIn import BuiltIn
 from playwright.sync_api import Browser, BrowserContext, Page, Playwright, sync_playwright
+from robot.libraries.BuiltIn import BuiltIn
 
-from utils.self_healing.locator_store import get_locator
 from utils.config.config import settings
+from utils.self_healing import click
+from utils.self_healing.locator_store import get_locator
 
 ROBOT_LIBRARY_SCOPE = "GLOBAL"
 
@@ -26,7 +26,7 @@ _browser: Browser | None = None
 _context: BrowserContext | None = None
 _page: Page | None = None
 
-# Keep Robot self-healing read-only by default to avoid silent locator store writes.
+# Allow successful self-healing to update the shared locator store.
 SELF_HEAL_AUTO_UPDATE = True
 
 
