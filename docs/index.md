@@ -23,7 +23,7 @@ restore the bot package, its backend hooks, and dependencies together from the
 previous revision.
 
 - [Price change alerts](alerts.md) (English)
-- [AnalysisContextPack quality and visibility](analysis-context-pack.md) (Chinese)
+- [AnalysisContextPack quality and visibility](analysis-context-pack.md) (English)
 - [Tushare stock-list tool](TUSHARE_STOCK_LIST_GUIDE.md) (Chinese)
 - [API specification](api_spec.json)
 - [Changelog](CHANGELOG.md)
