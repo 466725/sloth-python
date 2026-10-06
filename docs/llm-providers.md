@@ -76,11 +76,11 @@ or `LLM_<CHANNEL>_API_KEYS`. Set `LLM_<CHANNEL>_ENABLED=false` to skip a channel
 The local Ollama endpoint usually needs no API key; the host running DSA must be
 able to reach the configured Ollama URL.
 
-The [`.env.example` file](../.env.example) contains additional provider examples
-for OpenAI, AIHubmix, Anspire Open, Moonshot/Kimi, DashScope, Zhipu, MiniMax,
-MiMo, Volcengine, SiliconFlow, OpenRouter, and Ollama. Treat model IDs and
-regional endpoints in those examples as starting points, and verify them with
-the provider before use.
+The [`.env.example` file](../.env.example) is a compact starter template. The
+provider and channel examples in this guide cover additional options such as
+AIHubmix, Anspire Open, Moonshot/Kimi, DashScope, Zhipu, MiniMax, MiMo,
+Volcengine, SiliconFlow, OpenRouter, and Ollama. Treat model IDs and regional
+endpoints as starting points, and verify them with the provider before use.
 
 ## Provider reference
 
