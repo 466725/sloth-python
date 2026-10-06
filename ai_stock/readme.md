@@ -48,14 +48,14 @@ Open `temps/ai_report_demo.html` in a browser to view the rendered buy/sell/hold
 To exercise the full pipeline (data + news + strategies) instead of the isolated demo, use `AICoordinatorAgent`:
 
 ```powershell
-python -c "from ai_stock.engine.ai_coordinator_agent import AICoordinatorAgent; agent = AICoordinatorAgent(); report = agent.analyze(symbol='AAPL', market='us'); agent.report_agent.save_html_report(report, 'temps/ai_report.html')"
+python -c "from ai_stock.core.ai_coordinator_agent import AICoordinatorAgent; agent = AICoordinatorAgent(); report = agent.analyze(symbol='AAPL', market='us'); agent.report_agent.save_html_report(report, 'temps/ai_report.html')"
 ```
 
 ## Implemented Architecture
 
 ```mermaid
 flowchart TD
-		U[User Request\nSymbol + Market + Optional Strategies] --> C[Coordinator Agent\nengine/ai_coordinator_agent.py]
+		U[User Request\nSymbol + Market + Optional Strategies] --> C[Coordinator Agent\ncore/ai_coordinator_agent.py]
 		C --> D[Stock Data Agent\nstock_data/ai_stock_data_agent.py]
 		C --> N[Stock News Agent\nstock_news/ai_stock_news_agent.py]
 		C --> S[Strategy Loader\nstrategies/*.yaml]
@@ -83,7 +83,7 @@ The intended multi-agent design can be introduced incrementally without changing
 
 | Module | Responsibility | What it should own | What it should not own |
 | --- | --- | --- | --- |
-| `engine/` | Workflow orchestration | request routing, agent invocation, merging intermediate outputs, failure handling | raw data fetching details, report prose templates, hardcoded strategy logic |
+| `core/` | Workflow orchestration | request routing, agent invocation, merging intermediate outputs, failure handling | raw data fetching details, report prose templates, hardcoded strategy logic |
 | `stock_data/` | Market data context assembly | provider integration, normalization, freshness metadata, fallback behavior | final trading recommendation |
 | `stock_news/` | News context assembly | news retrieval, deduplication, sentiment inputs, event extraction | final trading recommendation |
 | `strategies/` | Strategy knowledge base | declarative instructions, priority, activation defaults, regime hints | imperative Python routing logic where YAML is enough |
