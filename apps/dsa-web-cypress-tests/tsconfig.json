@@ -13,7 +13,6 @@
     "resolveJsonModule": true,
     "types": [
       "cypress",
-      "@shelex/cypress-allure-plugin",
       "node"
     ],
     "outDir": "dist"

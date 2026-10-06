@@ -12,7 +12,7 @@
   ],
   "license": "MIT",
   "engines": {
-    "node": ">=18",
+    "node": "^22.0.0 || ^24.0.0 || >=26.0.0",
     "npm": ">=9"
   },
   "scripts": {
@@ -24,9 +24,10 @@
   },
   "devDependencies": {
     "@bahmutov/cy-grep": "^3.0.5",
-    "@shelex/cypress-allure-plugin": "^2.41.2",
     "@types/node": "^26.6.4",
     "allure-commandline": "^2.46.1",
+    "allure-cypress": "^3.13.0",
+    "allure-js-commons": "^3.13.0",
     "cypress": "^16.1.1",
     "cypress-multi-reporters": "^2.0.5",
     "typescript": "^7.0.2"

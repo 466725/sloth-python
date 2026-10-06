@@ -105,6 +105,7 @@ Appium-Python-Client>=6.0.7
 # Testing & QA
 # ===================================
 pytest
+pytest-playwright>=0.7.0,<1.0.0
 pytest-html
 pytest-rerunfailures
 pytest-result-log

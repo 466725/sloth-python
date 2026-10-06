@@ -316,6 +316,20 @@ python -m ai_gen.cli `
 python -m pytest -q temps/ai/generated_playwright/test_tangerine_signin.py
 ```
 
+Generated tests that accept `page: Page` use the `page` fixture from
+`pytest-playwright`, included in `requirements.txt`. If pytest reports
+`fixture 'page' not found`, install the project dependencies in the same Python
+environment used to run pytest:
+
+```powershell
+python -m pip install -r requirements.txt
+python -m playwright install chromium
+python -m pytest -q temps/ai/generated_playwright --browser chromium
+```
+
+The plugin runs headlessly by default; add `--headed` to watch the browser.
+Existing Tangerine pytest suites keep their separate `tangerine_homepage` fixture.
+
 Review generated code before committing. DOM input is limited by `AI_GEN_MAX_DOM_CHARS`, and generated tests are plain pytest files; self-healing must be added explicitly when needed.
 
 Validate the generator with:

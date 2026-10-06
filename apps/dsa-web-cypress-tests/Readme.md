@@ -4,11 +4,11 @@ Frontend UI test automation package for the [`apps/dsa-web`](../dsa-web) applica
 
 ## Tech Stack
 
-- Node.js 18+
+- Node.js 22, 24, or 26+
 - npm 9+
-- TypeScript 5
-- Cypress 15
-- Allure via `@shelex/cypress-allure-plugin` and `allure-commandline`
+- TypeScript 7
+- Cypress 16
+- Allure via `allure-cypress`, `allure-js-commons`, and `allure-commandline`
 
 ## Project Structure
 
@@ -41,7 +41,7 @@ sloth-python/temps/cypress_dsa_web/
 
 ### Prerequisites
 
-- Node.js 20 LTS (minimum supported: Node.js 18)
+- Node.js 24 LTS recommended (supported: Node.js 22, 24, or 26+)
 - npm 9+
 - Java Runtime (required to generate/open Allure HTML reports)
 
@@ -138,6 +138,12 @@ Results: `temps/cypress_dsa_web/allure-results`; report: `temps/cypress_dsa_web/
 
 - `allure: command not found`: run `npm install` and confirm Java is installed (`java -version`).
 - Cypress fails on first page load: confirm `BASE_URL` points at a reachable target and the DSA backend (or Vite dev server) is running.
+- `Cannot read properties of undefined (reading 'state')` from the old
+  `@shelex/cypress-allure-plugin`: run `npm install` to use the current
+  `allure-cypress` integration. Reporting is initialized in `setupNodeEvents`
+  and the support file; test metadata uses `allure-js-commons`, not `cy.allure()`.
+- Cypress 16 warns that Electron is deprecated. Use an installed Chrome browser
+  with `npm run cypress:run -- --browser chrome`.
 
 ## Next Steps
 

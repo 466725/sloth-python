@@ -1,6 +1,6 @@
 import { defineConfig } from "cypress";
 import path from "node:path";
-import allureWriter from "@shelex/cypress-allure-plugin/writer";
+import { allureCypress } from "allure-cypress/reporter";
 
 const baseUrl = process.env.BASE_URL || "http://localhost:8000";
 // Shared test-output root used across the repo (gitignored at the project root).
@@ -25,10 +25,7 @@ export default defineConfig({
   },
 
   env: {
-    environment: "prod",
-    allure: true,
-    // cypress-allure-plugin joins this with process.cwd() internally, so it must stay relative.
-    allureResultsPath: path.relative(__dirname, path.join(reportsRoot, "allure-results"))
+    environment: "prod"
   },
 
   e2e: {
@@ -36,7 +33,9 @@ export default defineConfig({
     specPattern: "cypress/tests/**/*.cy.ts",
 
     setupNodeEvents(on, config) {
-      allureWriter(on, config);
+      allureCypress(on, config, {
+        resultsDir: path.join(reportsRoot, "allure-results")
+      });
       return config;
     }
   },

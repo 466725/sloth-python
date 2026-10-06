@@ -1,4 +1,4 @@
-import '@shelex/cypress-allure-plugin';
+import "allure-cypress";
 
 // Prevent Cypress from failing tests due to application errors
 Cypress.on("uncaught:exception", () => {
