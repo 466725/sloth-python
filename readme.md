@@ -1,5 +1,9 @@
 ﻿# Sloth Python
 
+## Documentation
+
+Browse the [documentation index](docs/documentation_index.md) for project,
+feature, development, and testing guides.
 
 ## 🛠️ Installation
 
