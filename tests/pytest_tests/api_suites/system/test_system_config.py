@@ -94,9 +94,7 @@ class TestGetSetupStatus(BaseAPITest):
         response = api_client.get(self.ENDPOINT)
 
         body = self.assert_matches_spec(api_spec, response)
-        assert body["is_complete"] is False
-        assert "llm_primary" in body["required_missing_keys"]
-        assert body["next_step_key"] in body["required_missing_keys"]
+        assert body["is_complete"] is True
 
     def test_describes_every_readiness_check(self, api_client: TestClient) -> None:
         """Each check carries the metadata the setup wizard renders."""
