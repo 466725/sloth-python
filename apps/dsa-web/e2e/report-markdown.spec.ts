@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+declare const process: { env: Record<string, string | undefined> };
+
 const smokePassword = process.env.DSA_WEB_SMOKE_PASSWORD;
 
 if (!smokePassword) {
