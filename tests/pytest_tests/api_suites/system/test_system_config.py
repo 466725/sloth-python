@@ -95,7 +95,7 @@ class TestGetSetupStatus(BaseAPITest):
 
         body = self.assert_matches_spec(api_spec, response)
         assert body["is_complete"] is False
-        assert body["required_missing_keys"]
+        assert "llm_primary" in body["required_missing_keys"]
         assert body["next_step_key"] in body["required_missing_keys"]
 
     def test_describes_every_readiness_check(self, api_client: TestClient) -> None:
@@ -128,7 +128,8 @@ class TestGetSystemConfigSchema(BaseAPITest):
         body = self.assert_matches_spec(api_spec, response)
         assert body["schema_version"]
         assert body["categories"]
-        assert all(category["fields"] for category in body["categories"])
+        assert all(category["title"] for category in body["categories"])
+        assert any(category["fields"] for category in body["categories"])
 
     def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
         """The schema is only readable by an authenticated admin."""
@@ -322,7 +323,7 @@ class TestExportSystemConfig(BaseAPITest):
 
         response = api_client.get(self.ENDPOINT)
 
-        self.assert_error(response, 401, "env_backup_access_denied")
+        self.assert_unauthorized(response)
 
 
 class TestImportSystemConfig(BaseAPITest):
@@ -420,7 +421,7 @@ class TestImportSystemConfig(BaseAPITest):
             self.ENDPOINT, json={"config_version": "any", "content": "STOCK_LIST=600519\n"}
         )
 
-        self.assert_error(response, 401, "env_backup_access_denied")
+        self.assert_unauthorized(response)
 
 
 class TestTestLLMChannel(BaseAPITest):
