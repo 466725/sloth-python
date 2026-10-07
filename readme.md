@@ -71,7 +71,7 @@ Runtime settings are read from environment variables. Shared test and AI-generat
 | `AI_GEN_MODEL` | `gpt-4.1` | LLM model identifier |
 | `AI_GEN_BASE_URL` | `OPENAI_URL` | API endpoint used by the generator |
 | `AI_GEN_MAX_DOM_CHARS` | `12000` | Maximum DOM characters sent to the model |
-| `AI_GEN_OUTPUT_DIR` | `temps/ai/generated_playwright` | Directory for generated tests |
+| `AI_GEN_OUTPUT_DIR` | `temps/ai/ai_gen` | Directory for generated tests |
 
 Set the required provider key, such as `OPENAI_API_KEY`, through the environment before using AI features. Never commit credentials to the repository.
 
@@ -295,12 +295,15 @@ Generate runnable pytest + Playwright scripts from a natural-language goal and l
 ### Generation pipeline
 
 1. Playwright opens the target URL and captures DOM, screenshot, and network context.
-2. `ai_gen/mcp_context.py` packages the browser state into a structured snapshot.
-3. `ai_gen/prompt_builder.py` creates the generation prompt.
+2. `utils/ai_gen/mcp_context.py` packages the browser state into a structured snapshot.
+3. `utils/ai_gen/prompt_builder.py` creates the generation prompt.
 4. An OpenAI-compatible model returns Python test code.
-5. `ai_gen/generator.py` normalizes and writes the script to the requested output path.
+5. `utils/ai_gen/generator.py` normalizes and writes the script to the requested output path.
 
-The command-line entry point is `ai_gen/cli.py`.
+The command-line entry point is `utils/ai_gen/cli.py`; the original
+`python -m ai_gen.cli` command remains supported for compatibility.
+Relative `--output` paths are resolved from the repository root, not `utils/`
+or the current working directory. Absolute paths are preserved.
 
 ### CLI options
 
@@ -322,6 +325,17 @@ python -m ai_gen.cli `
 python -m pytest -q temps/ai/generated_playwright/test_tangerine_signin.py
 ```
 
+For Google search, use single quotes around the goal in PowerShell so the
+double quotes around `"Amazon"` are preserved:
+
+```powershell
+python -m ai_gen.cli `
+   --url "https://www.google.com" `
+   --goal 'Verify Google search by searching for "Amazon" and pressing Enter' `
+   --test-name "test_google_search_for_amazon" `
+   --output "temps\ai\generated_playwright\test_google_search_for_amazon.py"
+```
+
 Generated tests that accept `page: Page` use the `page` fixture from
 `pytest-playwright`, included in `requirements.txt`. If pytest reports
 `fixture 'page' not found`, install the project dependencies in the same Python
@@ -341,7 +355,7 @@ Review generated code before committing. DOM input is limited by `AI_GEN_MAX_DOM
 Validate the generator with:
 
 ```powershell
-python -m pytest -q tests/pytest_tests/ai_gen/test_ai_generation.py
+python -m pytest -q tests\unit\test_ai_generation.py
 ```
 
 ## 📈 Daily Stock Analysis (DSA) User Guide
