@@ -447,9 +447,7 @@ class TestTestLLMChannel(BaseAPITest):
 
     def test_rejects_a_non_numeric_timeout(self, api_client: TestClient) -> None:
         """``timeout_seconds`` must be a number."""
-        response = api_client.post(
-            self.ENDPOINT, json={"name": "suite", "timeout_seconds": "soon"}
-        )
+        response = api_client.post(self.ENDPOINT, json={"name": "suite", "timeout_seconds": "soon"})
 
         self.assert_validation_error(response, field="timeout_seconds")
 
@@ -489,9 +487,7 @@ class TestTestNotificationChannel(BaseAPITest):
 
     def test_rejects_a_timeout_below_the_minimum(self, api_client: TestClient) -> None:
         """``timeout_seconds`` is bounded to a sensible range."""
-        response = api_client.post(
-            self.ENDPOINT, json={"channel": "email", "timeout_seconds": 0.1}
-        )
+        response = api_client.post(self.ENDPOINT, json={"channel": "email", "timeout_seconds": 0.1})
 
         self.assert_validation_error(response, field="timeout_seconds")
 
@@ -525,9 +521,7 @@ class TestDiscoverLLMChannelModels(BaseAPITest):
 
     def test_rejects_a_non_numeric_timeout(self, api_client: TestClient) -> None:
         """``timeout_seconds`` must be a number."""
-        response = api_client.post(
-            self.ENDPOINT, json={"name": "suite", "timeout_seconds": "soon"}
-        )
+        response = api_client.post(self.ENDPOINT, json={"name": "suite", "timeout_seconds": "soon"})
 
         self.assert_validation_error(response, field="timeout_seconds")
 
