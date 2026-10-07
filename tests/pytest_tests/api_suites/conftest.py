@@ -42,6 +42,7 @@ REPO_ENV_PATH = REPO_ROOT / ".env"
 #: and the remote stock index refresh is switched off to keep runs network-free.
 BASE_ENV = {
     "ADMIN_AUTH_ENABLED": "false",
+    "AGENT_MODE": "false",
     "STOCK_LIST": "600519,000858",
     "ENABLE_NOTIFICATION": "false",
     "REPORT_LANGUAGE": "zh",
@@ -123,6 +124,7 @@ def api_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[ApiEnvi
     _strip_developer_env(monkeypatch)
     monkeypatch.setenv("ENV_FILE", str(env_file))
     monkeypatch.setenv("DATABASE_PATH", str(database))
+    monkeypatch.setenv("AGENT_MODE", "false")
     monkeypatch.setenv("STOCK_INDEX_REMOTE_UPDATE_ENABLED", "false")
     monkeypatch.delenv("DSA_DESKTOP_MODE", raising=False)
     monkeypatch.delenv("CORS_ALLOW_ALL", raising=False)
