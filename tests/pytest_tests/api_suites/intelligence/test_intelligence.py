@@ -17,7 +17,7 @@ def valid_source_payload(**overrides: Any) -> dict[str, Any]:
     """Return a schema-valid intelligence source payload."""
     payload: dict[str, Any] = {
         "name": "财联社电报",
-        "url": "https://example.invalid/feed.xml",
+        "url": "https://feeds.example.test/feed.xml",
         "source_type": "rss",
         "enabled": True,
         "scope_type": "market",
@@ -62,7 +62,7 @@ class TestCreateIntelligenceSource(BaseAPITest):
         """Omitted optional fields fall back to the documented defaults."""
         body = self.assert_ok(
             api_client.post(
-                self.ENDPOINT, json={"name": "默认源", "url": "https://example.invalid/a.xml"}
+                self.ENDPOINT, json={"name": "默认源", "url": "https://feeds.example.test/a.xml"}
             )
         )
 
@@ -98,6 +98,24 @@ class TestCreateIntelligenceSource(BaseAPITest):
 
         self.assert_validation_error(response, field=field)
 
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "ftp://feeds.example.test/feed.xml",
+            "not-a-url",
+            "https://user:pass@feeds.example.test/feed.xml",
+            "http://127.0.0.1/feed.xml",
+            "http://localhost/feed.xml",
+            "http://192.168.1.10/feed.xml",
+            "http://internal.local/feed.xml",
+        ],
+    )
+    def test_rejects_unsafe_source_urls(self, api_client: TestClient, url: str) -> None:
+        """The SSRF guard rejects non-http(s), credentialed and private-network URLs."""
+        response = api_client.post(self.ENDPOINT, json=valid_source_payload(url=url))
+
+        self.assert_error(response, 400, "validation_error")
+
 
 class TestListIntelligenceSources(BaseAPITest):
     """``GET /api/v1/intelligence/sources``."""
@@ -132,8 +150,8 @@ class TestListIntelligenceSources(BaseAPITest):
         self, api_client: TestClient, create_source: Callable[..., dict[str, Any]]
     ) -> None:
         """``enabled`` selects only sources in the requested state."""
-        create_source(name="启用源", url="https://example.invalid/on.xml")
-        create_source(name="停用源", url="https://example.invalid/off.xml", enabled=False)
+        create_source(name="启用源", url="https://feeds.example.test/on.xml")
+        create_source(name="停用源", url="https://feeds.example.test/off.xml", enabled=False)
 
         enabled = self.assert_ok(api_client.get(self.ENDPOINT, params={"enabled": "true"}))
         disabled = self.assert_ok(api_client.get(self.ENDPOINT, params={"enabled": "false"}))
@@ -146,14 +164,16 @@ class TestListIntelligenceSources(BaseAPITest):
     ) -> None:
         """``market`` narrows the listing."""
         create_source(market="cn")
-        create_source(name="US feed", url="https://example.invalid/us.xml", market="us")
+        create_source(name="US feed", url="https://feeds.example.test/us.xml", market="us")
 
         body = self.assert_ok(api_client.get(self.ENDPOINT, params={"market": "us"}))
 
         assert body["total"] == 1
         assert body["items"][0]["market"] == "us"
 
-    @pytest.mark.parametrize(("field", "value"), [("page", 0), ("page_size", 0), ("page_size", 101)])
+    @pytest.mark.parametrize(
+        ("field", "value"), [("page", 0), ("page_size", 0), ("page_size", 101)]
+    )
     def test_rejects_invalid_pagination(
         self, api_client: TestClient, field: str, value: int
     ) -> None:
@@ -189,7 +209,9 @@ class TestIntelligenceSourceTemplates(BaseAPITest):
 
     def test_unknown_filter_returns_empty_catalogue(self, api_client: TestClient) -> None:
         """A filter without matches returns an empty list rather than an error."""
-        body = self.assert_ok(api_client.get(self.ENDPOINT, params={"source_type": "carrier-pigeon"}))
+        body = self.assert_ok(
+            api_client.get(self.ENDPOINT, params={"source_type": "carrier-pigeon"})
+        )
 
         assert body == {"items": [], "total": 0}
 
@@ -204,7 +226,9 @@ class TestCreateSourceFromTemplate(BaseAPITest):
         self, api_client: TestClient, api_spec: dict[str, Any]
     ) -> None:
         """A catalogue entry can be materialized into a stored source."""
-        template = self.assert_ok(api_client.get("/api/v1/intelligence/sources/templates"))["items"][0]
+        template = self.assert_ok(api_client.get("/api/v1/intelligence/sources/templates"))[
+            "items"
+        ][0]
 
         response = api_client.post(
             f"/api/v1/intelligence/sources/templates/{template['template_id']}", json={}
@@ -216,7 +240,9 @@ class TestCreateSourceFromTemplate(BaseAPITest):
 
     def test_overrides_template_fields(self, api_client: TestClient) -> None:
         """Supplied overrides win over the template defaults."""
-        template = self.assert_ok(api_client.get("/api/v1/intelligence/sources/templates"))["items"][0]
+        template = self.assert_ok(api_client.get("/api/v1/intelligence/sources/templates"))[
+            "items"
+        ][0]
 
         body = self.assert_ok(
             api_client.post(
@@ -232,7 +258,9 @@ class TestCreateSourceFromTemplate(BaseAPITest):
         self, api_client: TestClient, api_spec: dict[str, Any]
     ) -> None:
         """An unknown template id reports a documented ``404``."""
-        response = api_client.post("/api/v1/intelligence/sources/templates/no-such-template", json={})
+        response = api_client.post(
+            "/api/v1/intelligence/sources/templates/no-such-template", json={}
+        )
 
         self.assert_not_found(response)
         self.assert_documented_status(api_spec, response)
