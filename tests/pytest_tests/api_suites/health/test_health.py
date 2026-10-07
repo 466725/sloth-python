@@ -20,6 +20,7 @@ class TestHealthCheck(BaseAPITest):
 
     ENDPOINT = "/api/v1/health"
     METHOD = "get"
+    EXTRA_ENDPOINTS = (("/health", "get"), ("/api/health", "get"))
 
     @pytest.mark.parametrize("endpoint", HEALTH_ENDPOINTS)
     def test_returns_healthy_response(self, api_client: TestClient, endpoint: str) -> None:
