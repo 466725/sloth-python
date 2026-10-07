@@ -10,9 +10,10 @@ from __future__ import annotations
 
 import json
 import sys
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
@@ -28,11 +29,13 @@ if "litellm" not in sys.modules:
 
 import ai_stock.auth as auth
 from ai_stock.config import Config
+from ai_stock.core import market_review_lock
 from ai_stock.storage import DatabaseManager
 from api.app import create_app
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 API_SPEC_PATH = REPO_ROOT / "docs" / "api_spec.json"
+REPO_ENV_PATH = REPO_ROOT / ".env"
 
 #: Minimal offline configuration. No provider credentials are supplied so that
 #: optional integrations stay disabled unless a test explicitly enables them,
@@ -74,8 +77,27 @@ def _reset_runtime_state() -> None:
     auth._password_hash_salt = None
     auth._password_hash_stored = None
     auth._rate_limit = {}
+    market_review_lock._market_review_running = False
     Config.reset_instance()
     DatabaseManager.reset_instance()
+
+
+def _strip_developer_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Unset any variable the developer's own ``.env`` injected into the process.
+
+    Importing the application loads the repository ``.env`` into ``os.environ``
+    before any fixture runs, which would otherwise let local credentials reach
+    the suites and make outbound calls possible. ``monkeypatch`` restores the
+    original values once the test finishes.
+    """
+    if not REPO_ENV_PATH.exists():
+        return
+
+    for line in REPO_ENV_PATH.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        monkeypatch.delenv(line.partition("=")[0].strip(), raising=False)
 
 
 @pytest.fixture(scope="session")
@@ -98,6 +120,7 @@ def api_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[ApiEnvi
         encoding="utf-8",
     )
 
+    _strip_developer_env(monkeypatch)
     monkeypatch.setenv("ENV_FILE", str(env_file))
     monkeypatch.setenv("DATABASE_PATH", str(database))
     monkeypatch.setenv("STOCK_INDEX_REMOTE_UPDATE_ENABLED", "false")
@@ -128,9 +151,7 @@ def api_client(api_env: ApiEnvironment) -> TestClient:
 
 
 @pytest.fixture
-def auth_enabled_client(
-    api_env: ApiEnvironment, monkeypatch: pytest.MonkeyPatch
-) -> TestClient:
+def auth_enabled_client(api_env: ApiEnvironment, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     """Provide an unauthenticated client against an auth-protected application."""
     monkeypatch.setattr("api.middlewares.auth.is_auth_enabled", lambda: True)
     return TestClient(create_app(static_dir=api_env.static_dir))
