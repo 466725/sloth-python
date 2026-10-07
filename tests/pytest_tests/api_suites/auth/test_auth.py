@@ -196,7 +196,10 @@ class TestAuthChangePassword(BaseAPITest):
 
         assert response.status_code == 204, response.text
         api_client.cookies.clear()
-        assert api_client.post("/api/v1/auth/login", json={"password": NEW_PASSWORD}).status_code == 200
+        assert (
+            api_client.post("/api/v1/auth/login", json={"password": NEW_PASSWORD}).status_code
+            == 200
+        )
 
     def test_rejects_missing_current_password(self, api_client: TestClient) -> None:
         """``currentPassword`` must be supplied."""
