@@ -37,6 +37,9 @@ class BaseAPITest:
     ENDPOINT: ClassVar[str] = ""
     #: Lowercase HTTP method documented for :attr:`ENDPOINT`.
     METHOD: ClassVar[str] = "get"
+    #: Further ``(path, method)`` operations this class also covers, declared so
+    #: the spec-coverage contract test can account for them.
+    EXTRA_ENDPOINTS: ClassVar[tuple[tuple[str, str], ...]] = ()
 
     # ------------------------------------------------------------------
     # Generic response assertions
@@ -77,7 +80,9 @@ class BaseAPITest:
         return body
 
     @classmethod
-    def assert_validation_error(cls, response: Response, field: str | None = None) -> dict[str, Any]:
+    def assert_validation_error(
+        cls, response: Response, field: str | None = None
+    ) -> dict[str, Any]:
         """Assert a ``422`` request-validation response, optionally naming a field."""
         body = cls.assert_json(response, 422)
         assert body["error"] == "validation_error"
