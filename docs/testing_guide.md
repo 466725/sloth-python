@@ -21,8 +21,9 @@ the repository's normal Python setup instructions before running tests.
 With the Python environment active, npm dependencies installed in both Web
 packages, and the DSA application available at `http://localhost:8000` for
 Cypress, run this block from the repository root in PowerShell. It runs pytest,
-Robot Framework, Cypress, and Vitest in order, continues after failures, and
-returns a failing exit code if any framework fails:
+Robot Framework, Cypress, Vitest, and Playwright in order, continues after
+failures, and returns a failing exit code if any framework fails. Playwright's
+authenticated tests are skipped unless `DSA_WEB_SMOKE_PASSWORD` is set:
 
 ```powershell
 $failedSuites = @()
@@ -46,6 +47,9 @@ Push-Location apps\dsa-web
 try {
     npm run test
     if ($LASTEXITCODE -ne 0) { $failedSuites += "Vitest" }
+
+    npm run test:smoke
+    if ($LASTEXITCODE -ne 0) { $failedSuites += "Playwright" }
 }
 finally {
     Pop-Location
@@ -106,8 +110,10 @@ directory. The UI suites may require a browser and a reachable application.
 ## TypeScript unit tests (Vitest)
 
 The DSA Web unit/component tests use Vitest and are located under
-`apps/dsa-web/src/`. Install the locked npm dependencies once, then run tests
-from that package directory:
+`apps/dsa-web/src/` and `apps/dsa-web/tests/`. From the `apps/dsa-web` package
+directory, `npm test` (equivalently, `npm run test`) runs only Vitest; it does
+not run the Playwright or Cypress suites. Install the locked npm dependencies
+once, then run:
 
 ```powershell
 Set-Location apps\dsa-web
@@ -124,10 +130,34 @@ npm run test -- src/pages/__tests__/HomePage.test.tsx -t "loads markdown"
 Vitest uses the jsdom environment configured in `vitest.config.ts`; these tests
 do not normally require a separately running backend.
 
+## Browser smoke tests (Playwright)
+
+The DSA Web Playwright tests are under `apps/dsa-web/e2e/`. Run them from the
+`apps/dsa-web` package directory:
+
+```powershell
+Set-Location apps\dsa-web
+
+# Run the Playwright suite
+npm run test:smoke
+
+# Run the Cypress suite in the sibling package without changing directories
+npm --prefix ..\dsa-web-cypress-tests test
+```
+
+These tests require `DSA_WEB_SMOKE_PASSWORD` to run; otherwise, they are
+reported as skipped. When the variable is set, `playwright.config.ts` starts
+the backend and Vite dev server on ports 8000 and 4173, respectively, unless
+matching servers can be reused. Set `DSA_WEB_SMOKE_BACKEND_CMD` to override the
+backend start command. Playwright runs Chromium; install its browser if needed
+with `npx playwright install chromium`.
+
 ## Cypress end-to-end tests
 
 Cypress specs are under `apps/dsa-web-cypress-tests/cypress/tests/`. Install
-dependencies and run commands from the Cypress package directory:
+dependencies and run commands from the Cypress package directory. If your
+current directory is `apps/dsa-web`, you can run the full Cypress suite with
+`npm --prefix ..\dsa-web-cypress-tests test`.
 
 ```powershell
 Set-Location apps\dsa-web-cypress-tests
