@@ -46,7 +46,7 @@ of the related work.
   `feature`, `improvement`, `fix`, `docs`, `test`, and `chore`. Do not add
   category headings under `[Unreleased]`; maintainers can organize entries
   into headings when preparing a release.
-- Keep the root `README.md` focused on the project overview, high-level
+- Keep the root `readme.md` focused on the project overview, high-level
   capabilities, quick start, main entry points, and sponsorship or
   collaboration information. Put detailed behavior, configuration,
   troubleshooting, field contracts, implementation semantics, and edge cases

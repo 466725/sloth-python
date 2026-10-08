@@ -19,7 +19,7 @@ REQUIRED_INSTRUCTION_FILES = {
 }
 
 REQUIRED_SKILL_FILES = {
-    "README.md",
+    "readme.md",
     "analyze-issue/SKILL.md",
     "analyze-pr/SKILL.md",
     "fix-issue/SKILL.md",
@@ -80,7 +80,7 @@ def ensure_skill_files() -> None:
             fail(f"missing repository skill asset: {path.relative_to(ROOT)}")
         if path.is_file():
             content = path.read_text(encoding="utf-8")
-            if relative_path != "README.md" and "CLAUDE.md" not in content:
+            if relative_path != "readme.md" and "CLAUDE.md" not in content:
                 fail(f"{path.relative_to(ROOT)} must reference CLAUDE.md as the rule source")
 
 
