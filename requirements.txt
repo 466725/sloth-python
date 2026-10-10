@@ -70,7 +70,7 @@ openpyxl>=3.1.5
 # Scheduling & Time
 # ===================================
 schedule>=1.2.0
-exchange-calendars>=4.13.0
+exchange-calendars>=4.13.2
 
 # ===================================
 # Retry & Resilience
