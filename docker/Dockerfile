@@ -13,8 +13,8 @@ RUN npm ci
 COPY apps/dsa-web/ ./
 RUN npm run build
 
-# Pin to bookworm: wkhtmltopdf was removed from Debian testing (2025)
-FROM python:3.11-slim-bookworm
+# Use Trixie (glibc 2.41) to support longbridge 5.x manylinux_2_39 wheels
+FROM python:3.11-slim
 
 # 设置工作目录
 WORKDIR /app
@@ -24,17 +24,23 @@ ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # 安装系统依赖（wkhtmltopdf 含 wkhtmltoimage，用于 Markdown 转图片 Issue #289）
+# wkhtmltopdf 已从 Debian 仓库移除，从 GitHub 下载 .deb 包安装
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     curl \
     git \
     gosu \
-    wkhtmltopdf \
     fontconfig \
     libjpeg62-turbo \
     libxrender1 \
     libxext6 \
-    && rm -rf /var/lib/apt/lists/*
+    xfonts-75dpi \
+    xfonts-base \
+    wget \
+    && wget -q https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_arm64.deb \
+    && dpkg -i wkhtmltox_0.12.6.1-3.bookworm_arm64.deb \
+    && rm wkhtmltox_0.12.6.1-3.bookworm_arm64.deb \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # 创建非 root 用户 (UID 1000)
 RUN groupadd -g 1000 dsa && \
