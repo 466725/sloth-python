@@ -49,7 +49,7 @@ fake-useragent>=2.2.0
 # ===================================
 # Data & Information Sources
 # ===================================
-akshare>=1.12.0
+akshare>=1.18.88
 efinance>=0.5.9
 pytdx>=1.72
 baostock>=0.8.0
