@@ -18,7 +18,7 @@ voyageai
 # Data Processing & Analysis
 # ===================================
 numpy>=2.4.4,<3
-pandas>=2.0.0
+pandas>=2.3.3
 scikit-learn
 scipy
 
