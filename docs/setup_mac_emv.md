@@ -171,6 +171,16 @@ Bash
 tsc test.ts
 node test.js
 
+
+6. Install JMeter
+brew install jmeter
+
+open /opt/homebrew/bin/jmeter
+
+jmeter --version
+
+
+
 To verify: 
 weipeng@Weipengs-MacBook-Pro ~ % 
 weipeng@Weipengs-MacBook-Pro ~ % node -v
