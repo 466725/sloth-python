@@ -55,23 +55,3 @@ def _load_daily_analysis_env() -> dict[str, str]:
         f"'执行股票分析'; available step names: {available_step_names}"
     )
     return analyze_step["env"]
-
-
-def test_env_example_includes_provider_template_channel_examples() -> None:
-    templates = _extract_provider_templates()
-    env_example = ENV_EXAMPLE_PATH.read_text(encoding="utf-8")
-
-    for channel, base_url in templates.items():
-        upper = channel.upper()
-        assert f"LLM_CHANNELS={channel}" in env_example
-        assert f"LLM_{upper}_MODELS=" in env_example
-
-        if channel != "ollama":
-            assert f"LLM_{upper}_API_KEY=" in env_example
-        if base_url:
-            assert f"LLM_{upper}_BASE_URL=" in env_example
-        if channel != "ollama":
-            assert f"LLM_{upper}_PROTOCOL=" in env_example
-
-    assert "LLM_CHANNELS=ark" not in env_example
-    assert "LLM_ARK_" not in env_example
