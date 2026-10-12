@@ -1,120 +1,186 @@
-Setup Software Development Environment on macOS
-This guide provides step-by-step instructions for configuring a complete development environment for Java, Python, and TypeScript on macOS, including verification steps after each component installation.
+# macOS Development Environment Setup
 
-1. Package Manager (Homebrew)
-Install Homebrew, the standard package manager for macOS:
+A complete guide for setting up **Java**, **Python**, and **TypeScript** development on macOS.
 
-Bash
+---
+
+## Table of Contents
+
+1. [Package Manager (Homebrew)](#1-package-manager-homebrew)
+2. [Version Control (Git)](#2-version-control-git)
+3. [Programming Languages & Runtimes](#3-programming-languages--runtimes)
+   - [3.1 Java (JDK)](#31-java-jdk)
+   - [3.2 Python](#32-python)
+   - [3.3 Node.js & TypeScript](#33-nodejs--typescript)
+4. [Integrated Development Environments](#4-integrated-development-environments)
+   - [4.1 Visual Studio Code](#41-visual-studio-code)
+   - [4.2 JetBrains IDEs (Optional)](#42-jetbrains-ides-optional)
+5. [Environment Smoke Tests](#5-environment-smoke-tests)
+6. [Additional Tools](#6-additional-tools)
+   - [6.1 JMeter](#61-jmeter)
+
+---
+
+## 1. Package Manager (Homebrew)
+
+Homebrew is the standard package manager for macOS. Install it first, as all subsequent tools depend on it.
+
+### Install
+
+```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-Configure PATH (Apple Silicon)
-On Apple Silicon Macs (M1/M2/M3/M4), Homebrew installs to /opt/homebrew. Add it to your shell profile if it is not already in your PATH:
+```
 
-Bash
+### Configure PATH (Apple Silicon)
+
+On Apple Silicon Macs (M1/M2/M3/M4), Homebrew installs to `/opt/homebrew`. Add it to your shell profile:
+
+```bash
 echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
 eval "$(/opt/homebrew/bin/brew shellenv)"
-Verification
-Verify Homebrew is installed and functioning properly:
+```
 
-Bash
+### Verify
+
+```bash
 brew --version
 brew doctor
+```
 
+---
 
+## 2. Version Control (Git)
 
-2. Version Control (Git)
-Install Git:
+### Install
 
-Bash
+```bash
 brew install git
-Configure your global Git identity:
+```
 
-Bash
+### Configure
+
+Set your global Git identity:
+
+```bash
 git config --global user.name "Your Name"
 git config --global user.email "your.email@example.com"
-Verification
-Verify Git installation and current global configuration:
+```
 
-Bash
+### Verify
+
+```bash
 git --version
 git config --list --global
+```
 
+---
 
+## 3. Programming Languages & Runtimes
 
-3. Programming Languages & Runtimes
-3.1 Java (JDK)
+### 3.1 Java (JDK)
+
+#### Install
+
 Install OpenJDK via Homebrew:
 
-Bash
+```bash
 brew install openjdk
+```
+
 Symlink OpenJDK so the system Java wrappers can find it:
 
-Bash
+```bash
 sudo ln -sfn $(brew --prefix)/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
-Configure JAVA_HOME and update PATH in ~/.zshrc:
+```
 
-Bash
+#### Configure
+
+Add `JAVA_HOME` and update `PATH` in `~/.zshrc`:
+
+```bash
 echo 'export JAVA_HOME=$(/usr/libexec/java_home)' >> ~/.zshrc
 echo 'export PATH="$JAVA_HOME/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
-Verification
-Verify Java compiler and runtime installation along with JAVA_HOME configuration:
+```
 
-Bash
+#### Verify
+
+```bash
 java -version
 javac -version
 echo $JAVA_HOME
+```
 
+---
 
+### 3.2 Python
 
+#### Install
 
-3.2 Python
-Install Python 3:
-
-Bash
+```bash
 brew install python
-Add Homebrew's Python binary directory to your PATH in ~/.zshrc:
+```
 
-Bash
+#### Configure
+
+Add Homebrew's Python binary directory to your PATH in `~/.zshrc`:
+
+```bash
 echo 'export PATH="$(brew --prefix)/opt/python/libexec/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
-Verification
-Verify Python 3 and pip installation:
+```
 
-Bash
+#### Verify
+
+```bash
 python3 --version
 pip3 --version
 which python3
+```
 
+---
 
+### 3.3 Node.js & TypeScript
 
+#### Install
 
+Install Node.js (includes `npm`):
 
-3.3 Node.js & TypeScript
-Install Node.js (includes npm):
-
-Bash
+```bash
 brew install node
+```
+
 Install TypeScript globally:
 
-Bash
+```bash
 npm install -g typescript
-Verification
-Verify Node.js, npm, and TypeScript installations:
+```
 
-Bash
+#### Verify
+
+```bash
 node -v
 npm -v
 tsc -v
-4. Integrated Development Environments (IDEs)
-4.1 Visual Studio Code
-Install VS Code via Homebrew Cask:
+```
 
-Bash
+---
+
+## 4. Integrated Development Environments
+
+### 4.1 Visual Studio Code
+
+#### Install
+
+```bash
 brew install --cask visual-studio-code
-Recommended Extensions
+```
+
+#### Recommended Extensions
+
 Install common language extensions via the terminal:
 
-Bash
+```bash
 # Java Extension Pack
 code --install-extension vscjava.vscode-java-pack
 
@@ -123,85 +189,102 @@ code --install-extension ms-python.python
 
 # ESLint for TypeScript/JavaScript
 code --install-extension dbaeumer.vscode-eslint
-Verification
-Verify VS Code CLI tool installation:
+```
 
-Bash
+#### Verify
+
+```bash
 code --version
-4.2 JetBrains IDEs (Optional)
+```
+
+---
+
+### 4.2 JetBrains IDEs (Optional)
+
 Install dedicated IDEs for Java and Python development:
 
-Bash
+```bash
 # IntelliJ IDEA (Java)
 brew install --cask intellij-idea
 
 # PyCharm (Python)
 brew install --cask pycharm
-5. Environment Smoke Test
-Create and execute a quick test script for each language environment to confirm compilation and execution works as expected.
+```
 
-5.1 Java Test
-Create a file named HelloWorld.java:
+---
 
-Java
+## 5. Environment Smoke Tests
+
+After installation, verify each language environment by compiling and running a simple program.
+
+### 5.1 Java
+
+Create `HelloWorld.java`:
+
+```java
 public class HelloWorld {
     public static void main(String[] args) {
         System.out.println("Java environment is working!");
     }
 }
+```
+
 Compile and run:
 
-Bash
+```bash
 javac HelloWorld.java
 java HelloWorld
-5.2 Python Test
-Run a quick inline Python script:
+```
 
-Bash
+---
+
+### 5.2 Python
+
+Run an inline script:
+
+```bash
 python3 -c 'print("Python environment is working!")'
-5.3 TypeScript Test
-Create a file named test.ts:
+```
 
-TypeScript
+---
+
+### 5.3 TypeScript
+
+Create `test.ts`:
+
+```typescript
 const message: string = "TypeScript environment is working!";
 console.log(message);
-Compile to JavaScript and execute with Node.js:
+```
 
-Bash
+Compile and run:
+
+```bash
 tsc test.ts
 node test.js
+```
 
+---
 
-6. Install JMeter
+## 6. Additional Tools
+
+### 6.1 JMeter
+
+Install and launch Apache JMeter for performance testing:
+
+```bash
 brew install jmeter
+```
 
+Open the JMeter GUI:
+
+```bash
 open /opt/homebrew/bin/jmeter
+```
 
+Verify the installation:
+
+```bash
 jmeter --version
-
-
-
-To verify: 
-weipeng@Weipengs-MacBook-Pro ~ % 
-weipeng@Weipengs-MacBook-Pro ~ % node -v
-v24.21.0
-weipeng@Weipengs-MacBook-Pro ~ % npm -v
-11.19.0
-weipeng@Weipengs-MacBook-Pro ~ % tsc -v
-Version 7.0.2
-weipeng@Weipengs-MacBook-Pro ~ % java -version
-java version "27" 2026-09-15
-Java(TM) SE Runtime Environment (build 27+35-2325)
-Java HotSpot(TM) 64-Bit Server VM (build 27+35-2325, mixed mode, sharing)
-weipeng@Weipengs-MacBook-Pro ~ % brew --version
-Homebrew 7.0.9
-weipeng@Weipengs-MacBook-Pro ~ % git --version
-git version 2.56.0
-weipeng@Weipengs-MacBook-Pro ~ % python3 --version
-Python 3.14.8
-weipeng@Weipengs-MacBook-Pro ~ % pip3 --version
-pip 26.2.1 from /Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/site-packages/pip (python 3.14)
-weipeng@Weipengs-MacBook-Pro ~ % npx playwright --version
-Version 1.64.0
-weipeng@Weipengs-MacBook-Pro ~ % 
+```
 
