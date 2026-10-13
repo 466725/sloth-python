@@ -110,9 +110,10 @@ def test_cli_writes_requested_output(monkeypatch, tmp_path, capsys):
 
 def test_missing_api_key_fails_before_browser_launch(monkeypatch, capsys):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("ANSPIRE_API_KEYS", raising=False)
 
     with pytest.raises(SystemExit) as exc:
         cli.main(["--url", "https://www.google.com", "--goal", "Search for Amazon"])
 
     assert exc.value.code == 2
-    assert "OPENAI_API_KEY is required" in capsys.readouterr().err
+    assert "OPENAI_API_KEY" in capsys.readouterr().err
