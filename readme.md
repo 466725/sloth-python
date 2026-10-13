@@ -315,12 +315,24 @@ or the current working directory. Absolute paths are preserved.
 
 ### Additional examples
 
+**Windows (PowerShell):**
 ```powershell
 python -m ai_gen.cli `
    --url "https://www.tangerine.ca/app/#/login" `
    --goal "Verify username, password, and submit controls are present" `
    --test-name "test_tangerine_signin" `
    --output "temps/ai/generated_playwright/test_tangerine_signin.py"
+
+python -m pytest -q temps/ai/generated_playwright/test_tangerine_signin.py
+```
+
+**Linux/macOS (bash/zsh):**
+```bash
+python -m ai_gen.cli \
+  --url "https://www.tangerine.ca/app/#/login" \
+  --goal "Verify username, password, and submit controls are present" \
+  --test-name "test_tangerine_signin" \
+  --output "temps/ai/generated_playwright/test_tangerine_signin.py"
 
 python -m pytest -q temps/ai/generated_playwright/test_tangerine_signin.py
 ```
