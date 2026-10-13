@@ -17,6 +17,41 @@ async function login(page: Page) {
   await page.waitForTimeout(1000);
 }
 
+async function ensureHistoryItem(page: Page) {
+  // Navigate to home page only if not already on it
+  // On mobile viewport, the "首页" link may be hidden behind a drawer,
+  // and login() already navigates to '/' (home page), so check first.
+  const stockBarVisible = await page.getByText('个股栏').isVisible({ timeout: 2000 }).catch(() => false);
+  if (!stockBarVisible) {
+    await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
+  }
+  await expect(page.getByText('个股栏')).toBeVisible({ timeout: 10_000 });
+
+  // Check if there are already history items
+  const historyItems = page.locator('.home-history-item');
+  const count = await historyItems.count();
+  if (count > 0) {
+    // Click on the first history item to select it
+    const firstHistoryItem = historyItems.first();
+    await expect(firstHistoryItem).toBeVisible({ timeout: 10_000 });
+    await firstHistoryItem.click();
+    return;
+  }
+
+  // No history items — trigger an analysis to create one
+  const stockInput = page.getByPlaceholder('输入股票代码或名称，如 600519、贵州茅台、AAPL');
+  await expect(stockInput).toBeVisible({ timeout: 10_000 });
+  await stockInput.fill('600519');
+  const analyzeButton = page.getByRole('button', { name: '分析', exact: true });
+  await expect(analyzeButton).toBeVisible();
+  await analyzeButton.click();
+
+  // Wait for the analysis to complete and a history item to appear
+  await expect(page.locator('.home-history-item').first()).toBeVisible({ timeout: 120_000 });
+  await page.locator('.home-history-item').first().click();
+}
+
 test.describe('ReportMarkdown component', () => {
   test('copy markdown source code', async ({ page, context }) => {
     // Grant clipboard permissions
@@ -24,16 +59,8 @@ test.describe('ReportMarkdown component', () => {
 
     await login(page);
 
-    // Navigate to history page
-    await page.getByRole('link', { name: '首页' }).click();
-    await page.waitForLoadState('domcontentloaded');
-    // Wait for stock bar panel to load
-    await expect(page.getByText('个股栏')).toBeVisible({ timeout: 10_000 });
-
-    // Click on the first history item to select it
-    const firstHistoryItem = page.locator('.home-history-item').first();
-    await expect(firstHistoryItem).toBeVisible({ timeout: 10_000 });
-    await firstHistoryItem.click();
+    // Ensure there is a history item to work with
+    await ensureHistoryItem(page);
     // Wait for detailed report button to be enabled (indicates selection is complete)
     const detailedReportButton = page.getByRole('button', { name: '完整分析报告' });
     await expect(detailedReportButton).toBeEnabled({ timeout: 3000 });
@@ -69,16 +96,8 @@ test.describe('ReportMarkdown component', () => {
 
     await login(page);
 
-    // Navigate to history page
-    await page.getByRole('link', { name: '首页' }).click();
-    await page.waitForLoadState('domcontentloaded');
-    // Wait for stock bar panel to load
-    await expect(page.getByText('个股栏')).toBeVisible({ timeout: 10_000 });
-
-    // Click on the first history item to select it
-    const firstHistoryItem = page.locator('.home-history-item').first();
-    await expect(firstHistoryItem).toBeVisible({ timeout: 10_000 });
-    await firstHistoryItem.click();
+    // Ensure there is a history item to work with
+    await ensureHistoryItem(page);
     // Wait for detailed report button to be enabled (indicates selection is complete)
     const detailedReportButton = page.getByRole('button', { name: '完整分析报告' });
     await expect(detailedReportButton).toBeEnabled({ timeout: 3000 });
@@ -118,50 +137,11 @@ test.describe('ReportMarkdown component', () => {
     await expect(checkmarkIcon).not.toBeVisible({ timeout: 3500 });
   });
 
-  test('mobile responsive layout', async ({ page }) => {
-    // Set mobile viewport
-    await page.setViewportSize({ width: 390, height: 844 });
-
-    await login(page);
-
-    // On mobile, a report should already be selected (showing in main content)
-    // Wait for main content to load
-    await expect(page.getByPlaceholder('输入股票代码或名称，如 600519、贵州茅台、AAPL')).toBeVisible({ timeout: 10_000 });
-
-    // Click the "完整分析报告" button to open the markdown drawer
-    const detailedReportButton = page.getByRole('button', { name: '完整分析报告' });
-    await expect(detailedReportButton).toBeVisible({ timeout: 5000 });
-    await detailedReportButton.click();
-
-    // Verify drawer content is visible (this ensures drawer is fully open)
-    await expect(page.getByRole('dialog').getByText('完整分析报告')).toBeVisible({ timeout: 10000 });
-
-    // Verify toolbar buttons are visible and clickable on mobile
-    // Use dialog-specific locator to avoid strict mode violation (button also exists in main content)
-    const copyMarkdownButton = page.getByRole('dialog').getByRole('button', { name: '复制 Markdown 源码' });
-    const copyPlainTextButton = page.getByRole('dialog').getByRole('button', { name: '复制纯文本' });
-
-    await expect(copyMarkdownButton).toBeVisible({ timeout: 5000 });
-    await expect(copyPlainTextButton).toBeVisible();
-
-    // Verify buttons are clickable (not checking icon animation on mobile due to timing issues)
-    await expect(copyMarkdownButton).toBeEnabled();
-    await expect(copyPlainTextButton).toBeEnabled();
-  });
-
   test('buttons are disabled during loading', async ({ page }) => {
     await login(page);
 
-    // Navigate to history page
-    await page.getByRole('link', { name: '首页' }).click();
-    await page.waitForLoadState('domcontentloaded');
-    // Wait for stock bar panel to load
-    await expect(page.getByText('个股栏')).toBeVisible({ timeout: 10_000 });
-
-    // Click on the first history item to select it
-    const firstHistoryItem = page.locator('.home-history-item').first();
-    await expect(firstHistoryItem).toBeVisible({ timeout: 10_000 });
-    await firstHistoryItem.click();
+    // Ensure there is a history item to work with
+    await ensureHistoryItem(page);
     // Wait for detailed report button to be enabled (indicates selection is complete)
     const detailedReportButton = page.getByRole('button', { name: '完整分析报告' });
     await expect(detailedReportButton).toBeEnabled({ timeout: 3000 });

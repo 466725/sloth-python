@@ -27,6 +27,7 @@ function resolveBackendCommand() {
 
 export default defineConfig({
   testDir: './e2e',
+  outputDir: path.join(repoRoot, 'temps', 'dsa-web-ts-playwright'),
   fullyParallel: false,
   retries: process.env.CI ? 2 : 0,
   reporter: 'list',
