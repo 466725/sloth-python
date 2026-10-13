@@ -72,21 +72,28 @@ def main(argv: list[str] | None = None) -> int:
 
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
     base_url = args.base_url
-    if not api_key:
-        anspire_keys_str = os.getenv("ANSPIRE_API_KEYS", "")
-        anspire_keys = [k.strip() for k in anspire_keys_str.split(",") if k.strip()]
+    
+    # Skip invalid-looking OpenAI keys (e.g., OpenRouter sk-or-v1 keys rejected by OpenAI)
+    # and fall back to ANSPIRE_API_KEYS if available
+    ai_config: Any = settings.ai_generation
+    model = args.model
+    anspire_keys_str = os.getenv("ANSPIRE_API_KEYS", "")
+    anspire_keys = [k.strip() for k in anspire_keys_str.split(",") if k.strip()]
+    
+    if not api_key or api_key.startswith("sk-or-v1"):
         if anspire_keys:
             api_key = anspire_keys[0]
-            if not base_url:
-                base_url = "https://open-gateway.anspire.cn/v6"
-        else:
+            # Always use Anspire gateway when using Anspire key, regardless of default base_url
+            base_url = "https://open-gateway.anspire.cn/v6"
+            # Use Anspire-supported model by default; gpt-4.1 is not available on Anspire
+            if model == ai_config.model:
+                model = "Doubao-Seed-2.0-lite"
+        elif not api_key:
             parser.error(
                 "OPENAI_API_KEY or ANSPIRE_API_KEYS is required for ai generation."
             )
 
     from playwright.sync_api import sync_playwright
-
-    ai_config: Any = settings.ai_generation
     collector = ContextCollector(max_dom_chars=ai_config.max_dom_chars)
 
     with sync_playwright() as pw:
@@ -104,7 +111,7 @@ def main(argv: list[str] | None = None) -> int:
     client: ScriptClient = OpenAIChatScriptClient(
         OpenAIClientConfig(
             api_key=api_key,
-            model=args.model,
+            model=model,
             base_url=(base_url or None),
         )
     )
