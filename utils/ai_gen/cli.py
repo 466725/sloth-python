@@ -71,8 +71,18 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    base_url = args.base_url
     if not api_key:
-        parser.error("OPENAI_API_KEY is required for ai generation.")
+        anspire_keys_str = os.getenv("ANSPIRE_API_KEYS", "")
+        anspire_keys = [k.strip() for k in anspire_keys_str.split(",") if k.strip()]
+        if anspire_keys:
+            api_key = anspire_keys[0]
+            if not base_url:
+                base_url = "https://open-gateway.anspire.cn/v6"
+        else:
+            parser.error(
+                "OPENAI_API_KEY or ANSPIRE_API_KEYS is required for ai generation."
+            )
 
     from playwright.sync_api import sync_playwright
 
@@ -95,7 +105,7 @@ def main(argv: list[str] | None = None) -> int:
         OpenAIClientConfig(
             api_key=api_key,
             model=args.model,
-            base_url=(args.base_url or None),
+            base_url=(base_url or None),
         )
     )
     creator = TestScriptCreator(client)
