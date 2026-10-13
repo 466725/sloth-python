@@ -180,7 +180,7 @@ if ($pytestExit -ne 0 -or $robotExit -ne 0) {
 }
 ```
 
-Pytest results use the configured Allure output directory; Robot reports are written to `temps/test-results-robot/`.
+Pytest results are written to `temps/test-results-pytest/`; Robot reports are written to `temps/test-results-robot/`.
 
 ### Pytest suites
 
@@ -255,8 +255,8 @@ For Robot failures:
 Generate and serve an Allure report after a pytest run:
 
 ```powershell
-python -m pytest --alluredir=temps/allure-results --clean-alluredir
-allure serve temps/allure-results
+python -m pytest --alluredir=temps/test-results-pytest --clean-alluredir
+allure serve temps/test-results-pytest
 ```
 
 For pytest UI runs, Playwright records per-test video and keeps/attaches it only for failed tests. Videos are written under `temps/playwright-videos/tangerine_playwright/`.

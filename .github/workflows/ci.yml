@@ -46,7 +46,7 @@ jobs:
         with:
           name: smoke-results-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            temps/allure-results/
+            temps/test-results-pytest/
             temps/test-results-robot/
           if-no-files-found: warn
           retention-days: 14
@@ -87,7 +87,7 @@ jobs:
       - name: Generate Allure report
         if: always()
         continue-on-error: true
-        run: allure generate temps/allure-results -o allure-report --clean
+        run: allure generate temps/test-results-pytest -o allure-report --clean
 
       - name: Upload regression artifacts
         if: always()
@@ -95,7 +95,7 @@ jobs:
         with:
           name: regression-results-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            temps/allure-results/
+            temps/test-results-pytest/
             temps/artifacts/playwright/
             allure-report/
             temps/test-results-robot/log.html

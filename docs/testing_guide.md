@@ -90,7 +90,7 @@ python -m pytest -m ui
 python -m pytest tests/pytest_tests/ui_suites/tangerine -q
 ```
 
-The root pytest configuration writes Allure results to `temps/allure-results/`.
+The root pytest configuration writes Allure results to `temps/test-results-pytest/`.
 UI tests may need browser dependencies or an accessible test application; see
 the suite fixtures and setup when running a specific UI suite.
 

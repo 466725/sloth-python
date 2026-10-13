@@ -37,7 +37,7 @@ line-ending = "auto"
 # -----------------------------
 [tool.pytest.ini_options]
 addopts = [
-  "--alluredir=temps/allure-results",
+  "--alluredir=temps/test-results-pytest",
   "--clean-alluredir",
   "--strict-markers",
   "--import-mode=importlib",
@@ -77,7 +77,7 @@ markers = [
   "integration: service-level integration tests without external network dependency"
 ]
 
-log_file = "temps/allure-results/log/pytest.log"
+log_file = "temps/test-results-pytest/log/pytest.log"
 log_file_level = "info"
 log_file_format = "%(asctime)s %(levelname)s %(name)s: %(message)s"
 log_file_date_format = "%Y-%m-%d %H:%M:%S"
