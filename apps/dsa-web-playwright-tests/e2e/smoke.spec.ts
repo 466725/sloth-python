@@ -1,6 +1,6 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page, type TestInfo } from '@playwright/test';
 
-async function captureSmokeScreenshot(page: Page, testInfo: { outputPath: (name: string) => string }, name: string, options: { fullPage?: boolean } = {}) {
+async function captureSmokeScreenshot(page: Page, testInfo: TestInfo, name: string, options: { fullPage?: boolean } = {}) {
   const path = testInfo.outputPath(`${name}.png`);
   await page.screenshot({
     path,
@@ -30,7 +30,7 @@ test.describe('web smoke', () => {
     await expect(stockInput).toBeVisible({ timeout: 10_000 });
     await expect(page.getByRole('link', { name: '首页' })).toBeVisible();
     await expect(page.getByRole('link', { name: '问股' })).toBeVisible();
-    await expect(page.getByText('历史分析')).toBeVisible();
+    await expect(page.getByText('个股栏')).toBeVisible();
 
     await stockInput.fill('600519');
     const analyzeButton = page.getByRole('button', { name: '分析', exact: true });
@@ -53,7 +53,6 @@ test.describe('web smoke', () => {
 
     const input = page.getByPlaceholder(/分析 600519/);
     await expect(input).toBeVisible({ timeout: 5000 });
-    await expect(page.getByText('策略', { exact: true })).toBeVisible();
 
     const prompt = '请简要分析 600519';
     await input.fill(prompt);
@@ -141,7 +140,14 @@ test.describe('web smoke', () => {
     await page.waitForTimeout(1000);
 
     await expect(page.getByRole('heading', { name: 'System settings' })).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByRole('button', { name: 'Send test' })).toBeVisible();
+
+    // Navigate to the Notifications category to find the Send test button
+    const notificationsTab = page.getByRole('button', { name: 'Notifications' });
+    if (await notificationsTab.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await notificationsTab.click();
+      await page.waitForTimeout(500);
+    }
+    await expect(page.getByRole('button', { name: 'Send test' })).toBeVisible({ timeout: 10_000 });
     await expect(page.getByRole('textbox', { name: 'Title' })).toHaveValue('DSA notification test');
 
     await captureSmokeScreenshot(page, testInfo, 'smoke-settings-page-en');

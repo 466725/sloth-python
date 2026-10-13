@@ -27,8 +27,8 @@ test.describe('ReportMarkdown component', () => {
     // Navigate to history page
     await page.getByRole('link', { name: '首页' }).click();
     await page.waitForLoadState('domcontentloaded');
-    // Wait for history panel to load
-    await expect(page.getByText('历史分析')).toBeVisible({ timeout: 10_000 });
+    // Wait for stock bar panel to load
+    await expect(page.getByText('个股栏')).toBeVisible({ timeout: 10_000 });
 
     // Click on the first history item to select it
     const firstHistoryItem = page.locator('.home-history-item').first();
@@ -45,8 +45,8 @@ test.describe('ReportMarkdown component', () => {
     // Verify drawer content is visible
     await expect(page.getByRole('dialog').getByText('完整分析报告')).toBeVisible();
 
-    // Click copy markdown button
-    const copyMarkdownButton = page.getByRole('button', { name: '复制 Markdown 源码' });
+    // Click copy markdown button - use dialog-specific locator to avoid strict mode violation
+    const copyMarkdownButton = page.getByRole('dialog').getByRole('button', { name: '复制 Markdown 源码' });
     await expect(copyMarkdownButton).toBeVisible({ timeout: 5000 });
     await copyMarkdownButton.click();
 
@@ -72,8 +72,8 @@ test.describe('ReportMarkdown component', () => {
     // Navigate to history page
     await page.getByRole('link', { name: '首页' }).click();
     await page.waitForLoadState('domcontentloaded');
-    // Wait for history panel to load
-    await expect(page.getByText('历史分析')).toBeVisible({ timeout: 10_000 });
+    // Wait for stock bar panel to load
+    await expect(page.getByText('个股栏')).toBeVisible({ timeout: 10_000 });
 
     // Click on the first history item to select it
     const firstHistoryItem = page.locator('.home-history-item').first();
@@ -90,8 +90,8 @@ test.describe('ReportMarkdown component', () => {
     // Verify drawer content is visible
     await expect(page.getByRole('dialog').getByText('完整分析报告')).toBeVisible();
 
-    // Click copy plain text button
-    const copyPlainTextButton = page.getByRole('button', { name: '复制纯文本' });
+    // Click copy plain text button - use dialog-specific locator
+    const copyPlainTextButton = page.getByRole('dialog').getByRole('button', { name: '复制纯文本' });
     await expect(copyPlainTextButton).toBeVisible({ timeout: 5000 });
     await copyPlainTextButton.click();
 
@@ -137,8 +137,9 @@ test.describe('ReportMarkdown component', () => {
     await expect(page.getByRole('dialog').getByText('完整分析报告')).toBeVisible({ timeout: 10000 });
 
     // Verify toolbar buttons are visible and clickable on mobile
-    const copyMarkdownButton = page.getByRole('button', { name: '复制 Markdown 源码' });
-    const copyPlainTextButton = page.getByRole('button', { name: '复制纯文本' });
+    // Use dialog-specific locator to avoid strict mode violation (button also exists in main content)
+    const copyMarkdownButton = page.getByRole('dialog').getByRole('button', { name: '复制 Markdown 源码' });
+    const copyPlainTextButton = page.getByRole('dialog').getByRole('button', { name: '复制纯文本' });
 
     await expect(copyMarkdownButton).toBeVisible({ timeout: 5000 });
     await expect(copyPlainTextButton).toBeVisible();
@@ -154,8 +155,8 @@ test.describe('ReportMarkdown component', () => {
     // Navigate to history page
     await page.getByRole('link', { name: '首页' }).click();
     await page.waitForLoadState('domcontentloaded');
-    // Wait for history panel to load
-    await expect(page.getByText('历史分析')).toBeVisible({ timeout: 10_000 });
+    // Wait for stock bar panel to load
+    await expect(page.getByText('个股栏')).toBeVisible({ timeout: 10_000 });
 
     // Click on the first history item to select it
     const firstHistoryItem = page.locator('.home-history-item').first();
@@ -170,8 +171,9 @@ test.describe('ReportMarkdown component', () => {
     await detailedReportButton.click();
 
     // Immediately check if buttons are disabled (right after drawer opens)
-    const copyMarkdownButton = page.getByRole('button', { name: '复制 Markdown 源码' });
-    const copyPlainTextButton = page.getByRole('button', { name: '复制纯文本' });
+    // Use dialog-specific locator to avoid strict mode violation
+    const copyMarkdownButton = page.getByRole('dialog').getByRole('button', { name: '复制 Markdown 源码' });
+    const copyPlainTextButton = page.getByRole('dialog').getByRole('button', { name: '复制纯文本' });
 
     // Wait for drawer to open and buttons to appear
     await expect(copyMarkdownButton).toBeVisible({ timeout: 5000 });
