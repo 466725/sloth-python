@@ -33,7 +33,7 @@ jobs:
 
       - name: Run Robot Framework smoke tests
         run: >
-          python -m robot --outputdir temps/robot_smoke
+          python -m robot --outputdir temps/test-results-robot
           tests/robot_tests/api_suites
           tests/robot_tests/test_basics.robot
           tests/robot_tests/test_data_driven.robot
@@ -47,7 +47,7 @@ jobs:
           name: smoke-results-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             temps/allure-results/
-            temps/robot_smoke/
+            temps/test-results-robot/
           if-no-files-found: warn
           retention-days: 14
 
@@ -76,7 +76,7 @@ jobs:
         run: python -m pytest -m "not ai" --tb=short --maxfail=5
 
       - name: Run Robot Framework regression tests
-        run: python -m robot --outputdir temps tests/robot_tests/
+        run: python -m robot --outputdir temps/test-results-robot tests/robot_tests/
 
       - name: Install Allure CLI
         run: |
@@ -98,8 +98,8 @@ jobs:
             temps/allure-results/
             temps/artifacts/playwright/
             allure-report/
-            temps/log.html
-            temps/report.html
-            temps/output.xml
+            temps/test-results-robot/log.html
+            temps/test-results-robot/report.html
+            temps/test-results-robot/output.xml
           if-no-files-found: warn
           retention-days: 21

@@ -172,7 +172,7 @@ $robotExit = 0
 python -m pytest
 $pytestExit = $LASTEXITCODE
 
-python -m robot --outputdir temps/robot_all tests/robot_tests/ui_suites/
+python -m robot --outputdir temps/test-results-robot tests/robot_tests/ui_suites/
 $robotExit = $LASTEXITCODE
 
 if ($pytestExit -ne 0 -or $robotExit -ne 0) {
@@ -180,7 +180,7 @@ if ($pytestExit -ne 0 -or $robotExit -ne 0) {
 }
 ```
 
-Pytest results use the configured Allure output directory; Robot reports are written to `temps/robot_all/`.
+Pytest results use the configured Allure output directory; Robot reports are written to `temps/test-results-robot/`.
 
 ### Pytest suites
 
@@ -231,13 +231,13 @@ Robot demos live under `tests/robot_tests/ui_suites/`.
 
 ```powershell
 # All Robot suites
-python -m robot --outputdir temps/robot_all tests/robot_tests/ui_suites/
+python -m robot --outputdir temps/test-results-robot tests/robot_tests/ui_suites/
 
 # Tangerine Playwright suite
-python -m robot --outputdir temps/robot_tangerine_playwright tests/robot_tests/ui_suites/
+python -m robot --outputdir temps/test-results-robot tests/robot_tests/ui_suites/
 
 # Dry run (syntax and keyword wiring only)
-python -m robot --dryrun --outputdir temps/robot_tangerine_playwright_dryrun tests/robot_tests/ui_suites/
+python -m robot --dryrun --outputdir temps/test-results-robot tests/robot_tests/ui_suites/
 ```
 
 Robot writes `output.xml`, `log.html`, and `report.html` to the selected directory under `temps/`.
@@ -246,7 +246,7 @@ For Robot failures:
 
 - failure screenshots are saved under `<outputdir>/artifacts/playwright/screenshots/`
 - failure videos are saved under `<outputdir>/artifacts/playwright/videos/`
-- for example, `--outputdir temps/robot_all` produces `temps/robot_all/artifacts/playwright/`
+- for example, `--outputdir temps/test-results-robot` produces `temps/test-results-robot/artifacts/playwright/`
 - screenshot/video links appear in Robot `log.html` and `report.html`
 - passed-test videos are deleted to keep artifacts small
 

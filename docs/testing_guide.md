@@ -31,7 +31,7 @@ $failedSuites = @()
 python -m pytest
 if ($LASTEXITCODE -ne 0) { $failedSuites += "pytest" }
 
-python -m robot --outputdir temps/robot_all tests/robot_tests/
+python -m robot --outputdir temps/test-results-robot tests/robot_tests/
 if ($LASTEXITCODE -ne 0) { $failedSuites += "Robot Framework" }
 
 Push-Location apps\dsa-web-cypress-tests
@@ -101,13 +101,13 @@ repository root and write reports to the selected directory under `temps/`.
 
 ```powershell
 # Run the UI suites
-python -m robot --outputdir temps/robot_all tests/robot_tests/ui_suites/
+python -m robot --outputdir temps/test-results-robot tests/robot_tests/ui_suites/
 
 # Check syntax and keyword wiring without executing the suite
-python -m robot --dryrun --outputdir temps/robot_dryrun tests/robot_tests/ui_suites/
+python -m robot --dryrun --outputdir temps/test-results-robot tests/robot_tests/ui_suites/
 
 # Run one test by name while retaining the parent suite setup
-python -m robot --test "Test Name" --outputdir temps/robot_single tests/robot_tests/
+python -m robot --test "Test Name" --outputdir temps/test-results-robot tests/robot_tests/
 ```
 
 Robot creates `output.xml`, `log.html`, and `report.html` in the output
@@ -203,7 +203,7 @@ npm run dev
 
 Then set `BASE_URL` to `http://localhost:5173` in the Cypress terminal.
 Cypress screenshots, downloads, and Allure results are written under
-`temps/cypress_dsa_web/`.
+`temps/dsa-web-ts-cypress/`.
 
 ## Choosing what to run
 
