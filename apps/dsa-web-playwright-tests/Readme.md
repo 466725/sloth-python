@@ -8,7 +8,7 @@ Playwright + TypeScript E2E test automation for the [`apps/dsa-web`](../dsa-web)
 - npm 9+
 - TypeScript 5.8
 - Playwright 1.58
-- Auto-starts backend and frontend servers when `DSA_WEB_SMOKE_PASSWORD` is set
+- Auto-starts backend and frontend servers
 
 ## Project Structure
 
@@ -61,31 +61,12 @@ npx playwright install chromium
 | `npm run test:headed` | Run tests in a visible browser |
 | `npm run test:report` | Open the HTML report |
 
-### Authenticated Smoke Tests
-
-Tests require the `DSA_WEB_SMOKE_PASSWORD` environment variable to run authenticated flows. When set, the config auto-starts both the backend and the Vite dev server:
-
-**PowerShell:**
-
-```powershell
-$env:DSA_WEB_SMOKE_PASSWORD="your_password"
-npm test
-```
-
-**bash:**
-
-```bash
-DSA_WEB_SMOKE_PASSWORD="your_password" npm test
-```
-
-Without the password, tests are skipped automatically.
-
 ### Custom Backend Command
 
 Override the backend startup command with `DSA_WEB_SMOKE_BACKEND_CMD`:
 
 ```bash
-DSA_WEB_SMOKE_PASSWORD="your_password" DSA_WEB_SMOKE_BACKEND_CMD="python main.py --serve-only" npm test
+DSA_WEB_SMOKE_BACKEND_CMD="python main.py --serve-only" npm test
 ```
 
 ### Run a Single Spec
@@ -103,7 +84,7 @@ All tests run with Chinese locale (`zh-CN`) and use Chromium browser.
 
 ## Configuration
 
-`playwright.config.ts` auto-starts two servers when `DSA_WEB_SMOKE_PASSWORD` is set:
+`playwright.config.ts` auto-starts two servers:
 
 1. **Backend**: `python main.py --webui-only --host 127.0.0.1 --port 8000` (from repo root)
 2. **Frontend**: `npm run dev -- --host 127.0.0.1 --port 4173` (from `apps/dsa-web`)
@@ -119,7 +100,7 @@ This package and [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.
 | Feature | Playwright (this package) | Cypress |
 |---|---|---|
 | Test runner | `@playwright/test` | Cypress 16 |
-| Auth | Backend login via `DSA_WEB_SMOKE_PASSWORD` | None |
+| Auth | None | None |
 | Server startup | Auto-starts backend + frontend | Manual `BASE_URL` |
 | Locale | Chinese `zh-CN` | Default |
 | Reporting | Built-in HTML report, screenshots/video on failure | Allure reporting |
@@ -128,7 +109,6 @@ This package and [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.
 
 ## Troubleshooting
 
-- **Tests are skipped**: Set `DSA_WEB_SMOKE_PASSWORD` environment variable.
 - **Backend fails to start**: Ensure Python dependencies are installed and the `.venv` exists, or set `DSA_WEB_SMOKE_BACKEND_CMD` manually.
 - **Frontend fails to start**: Ensure `apps/dsa-web` dependencies are installed (`cd apps/dsa-web && npm install`).
 - **Browser not found**: Run `npx playwright install chromium`.

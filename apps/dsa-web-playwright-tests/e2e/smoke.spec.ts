@@ -1,12 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
 
-const smokePassword = process.env.DSA_WEB_SMOKE_PASSWORD;
-
-if (!smokePassword) {
-  test.skip(true, 'Set DSA_WEB_SMOKE_PASSWORD to run authenticated smoke tests.');
-}
-
-
 async function captureSmokeScreenshot(page: Page, testInfo: { outputPath: (name: string) => string }, name: string, options: { fullPage?: boolean } = {}) {
   const path = testInfo.outputPath(`${name}.png`);
   await page.screenshot({
@@ -20,37 +13,8 @@ async function captureSmokeScreenshot(page: Page, testInfo: { outputPath: (name:
 }
 
 async function login(page: Page) {
-  test.skip(!smokePassword, 'Set DSA_WEB_SMOKE_PASSWORD to run authenticated smoke tests.');
-
-  await page.goto('/login');
-  await page.waitForLoadState('domcontentloaded');
-
-  const passwordInput = page.locator('#password');
-  const submitButton = page.getByRole('button', { name: /授权进入工作台|完成设置并登录/ });
-  const homeLink = page.getByRole('link', { name: '首页' });
-
-  const isAlreadyAuthenticated =
-    page.url().endsWith('/') ||
-    await homeLink.isVisible({ timeout: 2_000 }).catch(() => false);
-
-  if (isAlreadyAuthenticated) {
-    await page.waitForLoadState('domcontentloaded');
-    return;
-  }
-
-  await expect(passwordInput).toBeVisible({ timeout: 10_000 });
-  await passwordInput.fill(smokePassword!);
-  await expect(submitButton).toBeVisible();
-
-  await Promise.all([
-    page.waitForResponse(
-      (response) => response.url().includes('/api/v1/auth/login') && response.status() === 200,
-      { timeout: 15_000 }
-    ),
-    submitButton.click(),
-  ]);
-
-  await page.waitForURL('/', { timeout: 15_000 });
+  // Login is no longer required; navigate to home page directly
+  await page.goto('/');
   await page.waitForLoadState('domcontentloaded');
   await page.waitForTimeout(1000);
 }
@@ -58,22 +22,6 @@ async function login(page: Page) {
 test.describe('web smoke', () => {
   test.use({ locale: 'zh-CN' });
 
-  test('login page renders password form', async ({ page }, testInfo) => {
-    await page.goto('/login');
-    await page.waitForLoadState('domcontentloaded');
-
-    // Check for branding
-    await expect(page.getByText('DAILY STOCK').first()).toBeVisible();
-    await expect(page.getByText('Analysis Engine')).toBeVisible();
-
-    // Check for password input
-    await expect(page.locator('#password')).toBeVisible();
-
-    // Check for submit button
-    await expect(page.getByRole('button', { name: /授权进入工作台|完成设置并登录/ })).toBeVisible();
-
-    await captureSmokeScreenshot(page, testInfo, 'smoke-login-page-zh');
-  });
 
   test('home page shows analysis entry and history panel after login', async ({ page }, testInfo) => {
     await login(page);

@@ -2,51 +2,19 @@ import { expect, test, type Page } from '@playwright/test';
 
 declare const process: { env: Record<string, string | undefined> };
 
-const smokePassword = process.env.DSA_WEB_SMOKE_PASSWORD;
-
-if (!smokePassword) {
-  test.skip(true, 'Set DSA_WEB_SMOKE_PASSWORD to run report markdown smoke tests.');
-}
-
 test.use({ locale: 'zh-CN' });
 
 const UI_LANGUAGE_STORAGE_KEY = 'dsa.uiLanguage';
 
 async function login(page: Page) {
-  test.skip(!smokePassword, 'Set DSA_WEB_SMOKE_PASSWORD to run report markdown tests.');
-
+  // Login is no longer required; navigate to home page directly
   await page.addInitScript((storageKey) => {
     window.localStorage.setItem(storageKey, 'zh');
   }, UI_LANGUAGE_STORAGE_KEY);
 
-  // Navigate to login page
-  await page.goto('/login');
+  await page.goto('/');
   await page.waitForLoadState('domcontentloaded');
-
-  // Wait for password input to be visible
-  await expect(page.locator('#password')).toBeVisible({ timeout: 10_000 });
-
-  // Fill password and submit
-  await page.locator('#password').fill(smokePassword!);
-
-  // Wait for and click the submit button
-  const submitButton = page.getByRole('button', { name: /授权进入工作台|完成设置并登录/ });
-  await expect(submitButton).toBeVisible();
-
-  await Promise.all([
-    page.waitForResponse(
-      (response) => response.url().includes('/api/v1/auth/login') && response.status() === 200,
-      { timeout: 15_000 }
-    ),
-    submitButton.click(),
-  ]);
-
-  // Wait for navigation to home page after login
-  await page.waitForURL('/', { timeout: 15_000 });
-  await page.waitForLoadState('domcontentloaded');
-  // Wait for page to stabilize by checking for stock input
-  const stockInput = page.getByPlaceholder('输入股票代码或名称，如 600519、贵州茅台、AAPL');
-  await expect(stockInput).toBeVisible({ timeout: 10_000 });
+  await page.waitForTimeout(1000);
 }
 
 test.describe('ReportMarkdown component', () => {
