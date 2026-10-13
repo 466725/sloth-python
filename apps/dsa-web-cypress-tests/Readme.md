@@ -14,8 +14,8 @@ Frontend UI test automation package for the [`apps/dsa-web`](../dsa-web) applica
 
 ```text
 dsa-web-cypress-tests/
-|-- cypress/
-|   |-- tests/             # *.cy.ts specs
+|-- e2e/
+|   |-- *.cy.ts             # test specs
 |   `-- support/
 |       |-- config.ts
 |       |-- e2e.ts
@@ -104,7 +104,7 @@ To instead test against the Vite dev server (`npm run dev` under `apps/dsa-web`,
 
 ### Test Config Helpers
 
-`cypress/support/config.ts` exposes `getBaseUrl()` for specs/page objects that need the resolved base URL at runtime.
+`e2e` exposes `getBaseUrl()` for specs/page objects that need the resolved base URL at runtime.
 
 ## Running Cypress Tests
 
@@ -117,13 +117,13 @@ To instead test against the Vite dev server (`npm run dev` under `apps/dsa-web`,
 
 ```bash
 # Run a single spec
-npx cypress run --spec "cypress/tests/home.cy.ts"
+npx cypress run --spec "e2e/home.cy.ts"
 ```
 
 ## Current Test Coverage
 
-- `cypress/tests/home.cy.ts` + `cypress/support/pages/DsaHomePage.ts`: home page loads and the "Analyze" button is visible.
-- `cypress/tests/dsa_web_smoke.cy.ts`: backend-independent sanity check that the app shell renders and the page title is correct; useful for verifying the Cypress setup itself without requiring the backend or auth to be configured.
+- `e2e/home.cy.ts`: home page loads and the "Analyze" button is visible.
+- `e2e/dsa_web_smoke.cy.ts`: backend-independent sanity check that the app shell renders and the page title is correct; useful for verifying the Cypress setup itself without requiring the backend or auth to be configured.
 
 ## Allure Reporting
 

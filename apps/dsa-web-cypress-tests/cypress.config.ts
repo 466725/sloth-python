@@ -30,7 +30,8 @@ export default defineConfig({
 
   e2e: {
     baseUrl,
-    specPattern: "cypress/tests/**/*.cy.ts",
+    specPattern: "e2e/**/*.cy.ts",
+    supportFile: "e2e/support/e2e.ts",
 
     setupNodeEvents(on, config) {
       allureCypress(on, config, {

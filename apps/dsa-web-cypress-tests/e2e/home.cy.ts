@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { DsaHomePage } from "../support/pages/DsaHomePage";
+import { DsaHomePage } from "./support/pages/DsaHomePage";
 
 describe("DSA Home Page", () => {
   const home = new DsaHomePage();

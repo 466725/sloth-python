@@ -165,7 +165,7 @@ with `npx playwright install chromium`.
 
 ## Cypress end-to-end tests
 
-Cypress specs are under `apps/dsa-web-cypress-tests/cypress/tests/`. Install
+Cypress specs are under `../apps/dsa-web-cypress-tests/e2e`. Install
 dependencies and run commands from the Cypress package directory. If your
 current directory is `apps/dsa-web`, you can run the full Cypress suite with
 `npm --prefix ..\dsa-web-cypress-tests test`.

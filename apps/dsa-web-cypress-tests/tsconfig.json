@@ -19,7 +19,7 @@
   },
   "include": [
     "*.config.ts",
-    "cypress/**/*.ts",
+    "e2e/**/*.ts",
     "src/**/*.ts"
   ],
   "exclude": [
