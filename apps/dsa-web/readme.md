@@ -23,8 +23,7 @@ Cross-cutting features available from the shell: smart import (image/CSV/Excel/c
 - Vite 7 (dev server and build), Tailwind CSS 4
 - Zustand for state, Axios for API calls, Recharts for charts
 - Vitest + Testing Library for unit/component tests
-- Playwright for backend-authenticated smoke tests (`e2e/`)
-- A separate Cypress package, [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.md), owns the broader UI end-to-end suite
+- E2E tests live in separate packages: [`apps/dsa-web-playwright-tests`](../dsa-web-playwright-tests/Readme.md) (Playwright, authenticated flows) and [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.md) (Cypress, Page Object Model)
 
 ## Running Locally
 
@@ -67,24 +66,17 @@ npm test                 # vitest run
 - Uses `jsdom` + Testing Library; setup file is `src/setupTests.ts` (see `vitest.config.ts`).
 - Add new tests next to the component/module they cover, following the existing `*.test.ts(x)` naming.
 
-### Backend-Authenticated Smoke Tests (Playwright)
+### E2E Tests
 
-```bash
-npm run test:smoke       # playwright test
-```
+E2E tests live in separate sibling packages, not in this folder:
 
-- Specs live in `e2e/` (`smoke.spec.ts`, `report-markdown.spec.ts`).
-- Skipped automatically unless `DSA_WEB_SMOKE_PASSWORD` is set, since they log in against a real backend.
-- `playwright.config.ts` auto-starts the backend (`main.py --webui-only`) and the Vite dev server (port 4173) when `DSA_WEB_SMOKE_PASSWORD` is present; override the backend start command with `DSA_WEB_SMOKE_BACKEND_CMD` if needed.
-- Use these for flows that require a logged-in session end-to-end (login, home dashboard, report rendering).
+- **Playwright** ([`apps/dsa-web-playwright-tests`](../dsa-web-playwright-tests/Readme.md)): Authenticated smoke tests covering login, home dashboard, chat, and report flows. Auto-starts backend and frontend servers.
+- **Cypress** ([`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.md)): Page Object Model tests with Allure reporting.
 
-### Cypress UI Tests
-
-Broader click-through UI coverage (page objects, Allure reporting) lives in the sibling package [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.md), not in this folder. Run the backend and/or `npm run dev` here first, then follow that package's README to run or add specs.
+Start the backend and/or `npm run dev` here first, then follow the respective package's README to run or add specs.
 
 ### Adding New Tests
 
 - Prefer Vitest + Testing Library for component/unit behavior that doesn't need a real backend.
-- Prefer the Cypress package for new user-facing flows and page objects.
-- Reserve Playwright `e2e/` specs for scenarios that specifically need an authenticated session against the real backend.
-- Keep assertions on stable text/roles/ids rather than styling classes, and avoid hardcoding secrets — use environment variables (`DSA_WEB_SMOKE_PASSWORD`, etc.).
+- For E2E tests, choose the appropriate package: Playwright for authenticated backend flows, Cypress for page-object-based UI coverage.
+- Keep assertions on stable text/roles/ids rather than styling classes, and avoid hardcoding secrets — use environment variables.

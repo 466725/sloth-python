@@ -12,7 +12,6 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:smoke": "playwright test",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -35,7 +34,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@playwright/test": "^1.58.2",
     "@tailwindcss/vite": "^4.1.18",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",

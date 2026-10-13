@@ -1,10 +1,30 @@
-﻿# Sloth Python
+# Sloth Python
 
+<!-- Table of Contents -->
+<a id="table-of-contents"></a>
+## 📑 Table of Contents
+
+- [Documentation](#documentation)
+- [🛠️ Installation](#installation)
+- [⚙️ Configuration](#configuration)
+- [🐳 Docker and Database](#docker-and-database)
+- [🏃 Running Tests](#running-tests)
+- [🤖 Self-Healing Framework (Playwright)](#self-healing-framework-playwright)
+- [🤖 AI-Generated UI Test Scripts (Python + Playwright + MCP)](#ai-generated-ui-test-scripts-python-playwright-mcp)
+- [📈 Daily Stock Analysis (DSA) User Guide](#daily-stock-analysis-dsa-user-guide)
+- [🌱 Skill Spring Learning Lab](#skill-spring-learning-lab)
+- [📂 Project Structure](#project-structure)
+- [🎓 Best Practices & Patterns](#best-practices-patterns)
+- [❤️ Support & Feedback](#support-feedback)
+- [📝 License](#license)
+
+<a id="documentation"></a>
 ## Documentation
 
 Browse the [documentation index](docs/documentation_index.md) for project,
 feature, development, and testing guides.
 
+<a id="installation"></a>
 ## 🛠️ Installation
 
 ### 1. Create and activate a virtual environment
@@ -43,6 +63,7 @@ This installs the packages used by Robot Framework, pytest, Playwright, and the 
 playwright install
 ```
 
+<a id="configuration"></a>
 ## ⚙️ Configuration
 
 Runtime settings are read from environment variables. Shared test and AI-generation settings are centralized in `utils/config`; provider-specific `ai_stock` settings are documented in [ai_stock/readme.md](ai_stock/readme.md).
@@ -89,6 +110,7 @@ Quick local check for shared settings:
 python -m utils.config.config
 ```
 
+<a id="docker-and-database"></a>
 ## 🐳 Docker and Database
 
 The local MySQL service is defined in `docker/docker-compose.yml`. It stores data in the named `mysql-data` Docker volume, so stopping or recreating the container does not remove the database.
@@ -132,6 +154,7 @@ Override these local defaults with `SLOTH_MYSQL_DB`, `SLOTH_MYSQL_USER`, `SLOTH_
 
 For Python database helper usage and parameterized query examples, see [utils/data_base/README.md](utils/data_base/README.md).
 
+<a id="running-tests"></a>
 ## 🏃 Running Tests
 
 Run commands from the repository root. Choose the narrowest workflow that matches the change you are validating.
@@ -240,6 +263,7 @@ For pytest UI runs, Playwright records per-test video and keeps/attaches it only
 
 The Tangerine Robot keyword libraries also bootstrap the project root import path automatically, so `-P` is typically not needed.
 
+<a id="self-healing-framework-playwright"></a>
 ## 🤖 Self-Healing Framework (Playwright)
 
 The Playwright UI tests use fallback locators and DOM similarity matching to recover from selector changes.
@@ -288,6 +312,7 @@ required. The locator store currently supports these keys:
 
 Robot integration enables locator updates through `SELF_HEAL_AUTO_UPDATE`. Set that constant to `False` when a run must recover without rewriting locator files.
 
+<a id="ai-generated-ui-test-scripts-python-playwright-mcp"></a>
 ## 🤖 AI-Generated UI Test Scripts (Python + Playwright + MCP)
 
 Generate runnable pytest + Playwright scripts from a natural-language goal and live page context.
@@ -370,6 +395,7 @@ Validate the generator with:
 python -m pytest -q tests\unit\test_ai_generation.py
 ```
 
+<a id="daily-stock-analysis-dsa-user-guide"></a>
 ## 📈 Daily Stock Analysis (DSA) User Guide
 
 This is the main guide for Daily Stock Analysis (DSA), implemented under `ai_stock/`. It covers features, quick start, installation, configuration, run modes, deployment, and feature boundaries. The root `.env.example` and the fields currently visible in the Web settings page define the supported configuration keys; `/docs` and `architecture/api_spec.json` are the API references.
@@ -628,6 +654,7 @@ DSA focuses on daily analysis reports. [AlphaEvo](https://github.com/) explores 
 
 See the changelog for release and migration notes. API fields are defined by the server's OpenAPI schema (`/docs`, `architecture/api_spec.json`); do not rely on old screenshots or parameters from earlier versions.
 
+<a id="skill-spring-learning-lab"></a>
 ## 🌱 Skill Spring Learning Lab
 
 `skill_spring` is the repository's learning and research area: a collection of study tracks, experiments, notebooks, and reusable examples spanning software engineering, AI, and exploratory programming.
@@ -655,13 +682,14 @@ See the changelog for release and migration notes. API fields are defined by the
 
 Each runnable subproject carries its own setup instructions. For the Claude/MCP index and notebook guide, see [Skill Spring Learning Notes](skill_spring/claude_code/claude_code_learning.md).
 
+<a id="project-structure"></a>
 ## 📂 Project Structure
 
 ```text
 sloth-python/
 ├── ai_gen/                     # AI + MCP prompt-to-test generation
 ├── ai_stock/                   # AI-assisted stock analysis and reporting (storage, templates, cache under ai_stock/stock_data)
-├── apps/                       # dsa-web (React/Vite frontend) and dsa-web-cypress-tests
+├── apps/                       # dsa-web (React/Vite frontend), dsa-web-playwright-tests, and dsa-web-cypress-tests
 ├── load_tests/                 # JMeter, load-runner, and Postman assets
 ├── pytest_tests/               # Pytest unit, API, UI, DDT, and AI tests
 ├── robot_tests/                # Robot Framework API, calculator, UI, DDT, and unit suites
@@ -678,19 +706,7 @@ sloth-python/
 └── uv.lock                     # uv dependency lock file
 ```
 
-<a id="feature-guides"></a>
-## Feature Guides
-
-| Area | Guide |
-|---|---|
-| Self-healing locators | [Self-Healing Framework](#-self-healing-framework-playwright) |
-| AI-assisted test generation | [AI-Generated UI Test Scripts](#-ai-generated-ui-test-scripts-python--playwright--mcp) |
-| Stock analysis | [AI Stock Architecture](ai_stock/readme.md), [DSA User Guide](#-daily-stock-analysis-dsa-user-guide) |
-| DSA Web frontend | [dsa-web Readme](apps/dsa-web/readme.md) |
-| DSA Web Cypress tests | [dsa-web-cypress-tests Readme](apps/dsa-web-cypress-tests/Readme.md) |
-| Database utilities | [Database Utilities](utils/data_base/README.md) |
-| Learning material | [Skill Spring Learning Notes](skill_spring/claude_code/claude_code_learning.md) |
-
+<a id="best-practices-patterns"></a>
 ## 🎓 Best Practices & Patterns
 
 Keep changes focused, reusable, and easy to validate.
@@ -750,6 +766,7 @@ For issues and questions, include:
 
 Report security vulnerabilities through the [Security Policy](docs/security.md), not a public issue. Never include API keys, tokens, credentials, or other sensitive values in reports.
 
+<a id="license"></a>
 ## 📝 License
 
 Sloth Python is distributed under the **MIT License**.

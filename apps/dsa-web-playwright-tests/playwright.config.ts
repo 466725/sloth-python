@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(currentDir, '../..');
+const dsaWebDir = path.resolve(currentDir, '../dsa-web');
 const shouldRunWebSmoke = !!process.env.DSA_WEB_SMOKE_PASSWORD;
 
 function resolveBackendCommand() {
@@ -48,7 +49,7 @@ export default defineConfig({
         },
         {
           command: 'npm run dev -- --host 127.0.0.1 --port 4173',
-          cwd: currentDir,
+          cwd: dsaWebDir,
           url: 'http://127.0.0.1:4173',
           reuseExistingServer: !process.env.CI,
           timeout: 120_000,

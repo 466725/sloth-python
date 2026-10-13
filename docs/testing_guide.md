@@ -47,8 +47,14 @@ Push-Location apps\dsa-web
 try {
     npm run test
     if ($LASTEXITCODE -ne 0) { $failedSuites += "Vitest" }
+}
+finally {
+    Pop-Location
+}
 
-    npm run test:smoke
+Push-Location apps\dsa-web-playwright-tests
+try {
+    npm test
     if ($LASTEXITCODE -ne 0) { $failedSuites += "Playwright" }
 }
 finally {
@@ -130,16 +136,21 @@ npm run test -- src/pages/__tests__/HomePage.test.tsx -t "loads markdown"
 Vitest uses the jsdom environment configured in `vitest.config.ts`; these tests
 do not normally require a separately running backend.
 
-## Browser smoke tests (Playwright)
+## Browser E2E tests (Playwright & Cypress)
 
-The DSA Web Playwright tests are under `apps/dsa-web/e2e/`. Run them from the
-`apps/dsa-web` package directory:
+### Playwright
+
+The DSA Web Playwright tests are under `apps/dsa-web-playwright-tests/`. Run them from that package directory:
 
 ```powershell
-Set-Location apps\dsa-web
+Set-Location apps\dsa-web-playwright-tests
+npm ci
 
 # Run the Playwright suite
-npm run test:smoke
+npm test
+
+# Run in UI mode for debugging
+npm run test:ui
 
 # Run the Cypress suite in the sibling package without changing directories
 npm --prefix ..\dsa-web-cypress-tests test
@@ -205,5 +216,7 @@ Cypress screenshots, downloads, and Allure results are written under
   spec against the intended app URL.
 
 The root [README](../readme.md#-running-tests) also has the existing pytest and
-Robot examples. Cypress-specific configuration and coverage details are in
+Robot examples. Playwright-specific configuration and coverage details are in
+[the Playwright package README](../apps/dsa-web-playwright-tests/Readme.md).
+Cypress-specific configuration and coverage details are in
 [the Cypress package README](../apps/dsa-web-cypress-tests/Readme.md).
