@@ -2449,7 +2449,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "AnalysisContextPack P6 文档、迁移与回滚",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/analysis-context-pack.md#p6-文档迁移与回滚",
+                "href": "https://github.com/466725/sloth-python/blob/main/apps/dsa-web/readme.md#analysis-context-pack",
             },
             {
                 "label": "完整指南：其他配置",

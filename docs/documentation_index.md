@@ -22,7 +22,7 @@ and learning material across the repository.
 - [Email notifications](email_notifications.md) — SMTP configuration and
   delivery diagnostics.
 - [Stock autocomplete catalog](../apps/dsa-web/readme.md#stock-autocomplete-catalog) — autocomplete behavior, remote updates, and bundled catalog maintenance.
-- [Analysis context pack](analysis-context-pack.md) — analysis input context,
+- [Analysis context pack](../apps/dsa-web/readme.md#analysis-context-pack) — analysis input context,
   quality metadata, and data flow.
 - [Product skills guide](skill.md) — DSA runtime skills and their usage.
 
