@@ -17,6 +17,59 @@ React + TypeScript frontend for Daily Stock Analysis (DSA). It is the Web worksp
 
 Cross-cutting features available from the shell: smart import (image/CSV/Excel/clipboard), code/name/pinyin/alias autocomplete, light/dark theme, and English/Chinese UI language toggle.
 
+## Web Workflows
+
+### Analysis and reports
+
+From the home page, select a symbol to start an analysis and follow its task
+progress. Reports include the conclusion, risks, data-source context, and any
+available quality details; completed reports are available in history. Reports
+are research aids and do not guarantee future results.
+
+Market review is a separate workflow from single-stock analysis. It can be
+started from the Web app or CLI and uses market-wide context where supported.
+
+### Ask Stock chat
+
+The `/chat` page supports multi-turn questions using configured models and the
+application's existing stock-data, analysis, and strategy tools. Built-in
+strategies can be selected explicitly; custom strategies and experimental
+multi-agent modes depend on the backend configuration. Provider setup is covered
+in the [LLM provider guide](../../ai_stock/llm/llm-providers.md).
+
+### Backtesting and decision signals
+
+Backtesting evaluates historical rules against available market data. Results
+depend on market coverage, trading calendars, and data quality; they are not
+guarantees of future performance.
+
+Decision signals organize an analysis into an action tendency, evidence, risks,
+and follow-up watch conditions. Signals can be queried and evaluated against
+subsequent daily bars. They do not place orders.
+
+### Alerts and notifications
+
+The [Alert Center](#alert-center) supports percentage price-change rules for a
+single symbol or the configured watchlist. Alert evaluation and email delivery
+are described in that guide and the [email notification guide](#email-notifications).
+
+### Import and symbol lookup
+
+Smart import accepts images, CSV/Excel files, and clipboard content. Image
+recognition requires a configured vision-capable model. Review recognized names,
+codes, and market suffixes before submitting. Autocomplete searches the local
+catalog by symbol, name, alias, full pinyin, or pinyin initials; see the
+[stock autocomplete catalog guide](#stock-autocomplete-catalog).
+
+### Access and troubleshooting
+
+When running the frontend separately, start the FastAPI backend and use the
+configured Vite proxy. If a page loads but API calls fail, check `/health` or
+`/api/health`, confirm `/docs` is available, and inspect backend logs. For
+remote access, enable administrator authentication and protect the service with
+firewall rules and an HTTPS reverse proxy; do not expose an unprotected settings
+or API service to the public Internet.
+
 ## Stock Analyzer Skill
 
 The runtime skill bundle is
