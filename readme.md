@@ -11,7 +11,7 @@ application documentation that owns them.
 
 - [Project README](readme.md) — overview, setup, configuration, and primary
   workflows.
-- [Repository development guide](CONTRIBUTING.md) — contribution conventions,
+- [Repository development guide](contributing.md) — contribution conventions,
   validation guidance, review workflows, and release practices.
 - [AI Stock package guide](ai_stock/readme.md) — analysis flow and backend
   package responsibilities.
@@ -576,7 +576,7 @@ sloth-python/
 ├── pyproject.toml              # Python tooling and pytest configuration
 ├── readme.md                   # Project overview and quick-start guide
 ├── requirements.txt            # Python dependencies
-├── CONTRIBUTING.md            # Repository development conventions and workflows
+├── contributing.md            # Repository development conventions and workflows
 └── uv.lock                     # uv dependency lock file
 ```
 
@@ -621,7 +621,7 @@ affected areas. The detailed guidance covers collaboration assets, project
 architecture, common commands, validation by change type, stability guardrails,
 review workflows, and delivery practices.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the complete guide.
+See [contributing.md](contributing.md) for the complete guide.
 
 <a id="support-feedback"></a>
 ## ❤️ Support & Feedback
