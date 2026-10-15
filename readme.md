@@ -1,7 +1,7 @@
 # Sloth Python
 
 <a id="documentation-index"></a>
-## Documentation Index
+## 📚 Documentation Index
 
 Find project guides, feature documentation, development references, and
 learning material by topic. Several feature guides now live beside the
@@ -82,7 +82,7 @@ and [plugins](skill_spring/claude_code/claude_agent_sdk/examples/plugins/demo-pl
 <a id="table-of-contents"></a>
 ## 📑 Table of Contents
 
-- [Documentation Index](#documentation-index)
+- [📚 Documentation Index](#documentation-index)
 - [🛠️ Installation](#installation)
 - [⚙️ Configuration](#configuration)
 - [🐳 Docker and Database](#docker-and-database)
