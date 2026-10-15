@@ -567,7 +567,7 @@ The Web workspace supports settings, task monitoring, manual analysis, history, 
 - **Ask Stock / Agent strategy chat:** see below.
 - **Backtesting:** evaluates historical rules. Results depend on market coverage, trading days, and data quality, and are not guarantees of future performance.
 - **AI decision signals:** organize the action tendency, evidence, risks, and follow-up watch conditions from a report in a structured way. They can be queried, given feedback, and evaluated against subsequent daily bars. Signals are research aids; they do not place orders.
-- **Real-time alerts:** evaluate symbol, watchlist, or market conditions against rules, and record triggered, skipped, and degraded results along with notification attempts. See the alert guide for configuration and operating boundaries.
+- **Real-time alerts:** evaluate symbol, watchlist, or market conditions against rules, and record triggered, skipped, and degraded results along with notification attempts. See the [Alert Center guide](apps/dsa-web/readme.md#alert-center) for configuration and operating boundaries.
 - **Email notifications:** see the Notification Guide for routing and delivery diagnostics.
 - **Smart import:** supports image, CSV/Excel, and clipboard import, with code/name/pinyin/alias autocomplete. Image import requires a configured vision-capable model. Always verify recognized codes, names, and market suffixes manually, especially for similar-looking codes.
 - **AnalysisContextPack:** summarizes available data blocks and quality states. It improves visibility into missing, stale, or fallback data, but does not make unavailable data reliable.
@@ -629,7 +629,7 @@ These topic pages are the stable entry points for the settings UI and maintenanc
 - Notification channels and GitHub Actions environment variables
 - Cloud server Web access
 - AnalysisContextPack data quality and visibility
-- Real-time alert rules
+- [Real-time alert rules](apps/dsa-web/readme.md#alert-center)
 - [Stock autocomplete catalog](apps/dsa-web/readme.md#stock-autocomplete-catalog)
 - Notification channels and delivery diagnostics
 

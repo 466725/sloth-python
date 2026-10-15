@@ -18,7 +18,7 @@ and learning material across the repository.
 
 - [LLM provider configuration](llm-providers.md) — provider setup, channels,
   and connection troubleshooting.
-- [Alert center](alerts.md) — alert rules, evaluation, and notifications.
+- [Alert center](../apps/dsa-web/readme.md#alert-center) — alert rules, evaluation, and notifications.
 - [Email notifications](email_notifications.md) — SMTP configuration and
   delivery diagnostics.
 - [Stock autocomplete catalog](../apps/dsa-web/readme.md#stock-autocomplete-catalog) — autocomplete behavior, remote updates, and bundled catalog maintenance.

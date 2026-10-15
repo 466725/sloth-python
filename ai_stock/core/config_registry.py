@@ -3110,7 +3110,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "告警中心文档",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/alerts.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/apps/dsa-web/readme.md#alert-center",
             },
         ],
         "warning_codes": [],
@@ -3136,7 +3136,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "告警中心文档",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/alerts.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/apps/dsa-web/readme.md#alert-center",
             },
         ],
         "warning_codes": [],
@@ -3165,7 +3165,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "告警中心文档",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/alerts.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/apps/dsa-web/readme.md#alert-center",
             },
         ],
         "warning_codes": ["legacy_json_only_basic_rules"],

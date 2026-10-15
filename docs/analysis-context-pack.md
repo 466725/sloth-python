@@ -174,7 +174,7 @@ returned as empty or optional fields.
   location unless a migration updates its readers.
 - Alert evaluation statuses such as `triggered`, `skipped`, `degraded`, and
   `failed` describe rule evaluation/recording, not input quality. See the
-  [alert guide](alerts.md).
+  [alert guide](../apps/dsa-web/readme.md#alert-center).
 - Notification statuses such as `sent`, `no_channel`, and delivery failures
   describe notification outcomes, not input quality. See the
   [notification guide](email_notifications.md).

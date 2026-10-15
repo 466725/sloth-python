@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-DOC = Path(__file__).resolve().parents[3] / "docs" / "alerts.md"
+DOC = Path(__file__).resolve().parents[3] / "apps" / "dsa-web" / "readme.md"
 
 
 def test_alert_guide_only_documents_price_change_rules():
