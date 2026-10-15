@@ -13,10 +13,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 pytestmark = pytest.mark.unit
 
 
-@pytest.mark.parametrize("module", ["ai_gen.cli", "utils.ai_gen.cli"])
-def test_cli_module_help(module):
+def test_cli_module_help():
     result = subprocess.run(
-        [sys.executable, "-m", module, "--help"],
+        [sys.executable, "-m", "utils.ai_gen.cli", "--help"],
         cwd=PROJECT_ROOT,
         capture_output=True,
         text=True,

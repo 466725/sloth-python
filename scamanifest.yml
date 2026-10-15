@@ -16,7 +16,6 @@ scan:
   include_dev_dependencies: true
   include_transitive_dependencies: true
   dependency_paths:
-    - ai_gen
     - ai_stock
     - config
     - performance

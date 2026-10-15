@@ -325,8 +325,7 @@ Generate runnable pytest + Playwright scripts from a natural-language goal and l
 4. An OpenAI-compatible model returns Python test code.
 5. `utils/ai_gen/generator.py` normalizes and writes the script to the requested output path.
 
-The command-line entry point is `utils/ai_gen/cli.py`; the original
-`python -m ai_gen.cli` command remains supported for compatibility.
+Run the command-line entry point with `python -m utils.ai_gen.cli`.
 Relative `--output` paths are resolved from the repository root, not `utils/`
 or the current working directory. Absolute paths are preserved.
 
@@ -342,7 +341,7 @@ or the current working directory. Absolute paths are preserved.
 
 **Windows (PowerShell):**
 ```powershell
-python -m ai_gen.cli `
+python -m utils.ai_gen.cli `
    --url "https://www.tangerine.ca/app/#/login" `
    --goal "Verify username, password, and submit controls are present" `
    --test-name "test_tangerine_signin" `
@@ -353,7 +352,7 @@ python -m pytest -q temps/ai/generated_playwright/test_tangerine_signin.py
 
 **Linux/macOS (bash/zsh):**
 ```bash
-python -m ai_gen.cli \
+python -m utils.ai_gen.cli \
   --url "https://www.tangerine.ca/app/#/login" \
   --goal "Verify username, password, and submit controls are present" \
   --test-name "test_tangerine_signin" \
@@ -366,7 +365,7 @@ For Google search, use single quotes around the goal in PowerShell so the
 double quotes around `"Amazon"` are preserved:
 
 ```powershell
-python -m ai_gen.cli `
+python -m utils.ai_gen.cli `
    --url "https://www.google.com" `
    --goal 'Verify Google search by searching for "Amazon" and pressing Enter' `
    --test-name "test_google_search_for_amazon" `
@@ -687,7 +686,7 @@ Each runnable subproject carries its own setup instructions. For the Claude/MCP 
 
 ```text
 sloth-python/
-├── ai_gen/                     # AI + MCP prompt-to-test generation
+├── utils/ai_gen/               # AI + MCP prompt-to-test generation
 ├── ai_stock/                   # AI-assisted stock analysis and reporting (storage, templates, cache under ai_stock/stock_data)
 ├── apps/                       # dsa-web (React/Vite frontend), dsa-web-playwright-tests, and dsa-web-cypress-tests
 ├── load_tests/                 # JMeter, load-runner, and Postman assets
@@ -728,7 +727,7 @@ Keep changes focused, reusable, and easy to validate.
 
 ### AI and Learning Workflows
 
-- **Review generated code:** Treat `ai_gen/` output as a starting point and validate it with focused pytest runs before committing.
+- **Review generated code:** Treat `utils/ai_gen/` output as a starting point and validate it with focused pytest runs before committing.
 - **Keep research reproducible:** Follow the project README and notebook instructions under `skill_spring/` for learning experiments.
 - **Prefer explainable analysis:** Keep stock-analysis conclusions traceable to market data, news, and strategy inputs.
 
