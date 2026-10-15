@@ -93,7 +93,7 @@ and [plugins](skill_spring/claude_code/claude_agent_sdk/examples/plugins/demo-pl
 - [🌱 Skill Spring Learning Lab](#skill-spring-learning-lab)
 - [📂 Project Structure](#project-structure)
 - [🎓 Best Practices & Patterns](#best-practices-patterns)
-- [Repository Development Guide](#repository-development-guide)
+- [🧭 Repository Development Guide](#repository-development-guide)
 - [❤️ Support & Feedback](#support-feedback)
 - [📝 License](#license)
 
@@ -609,7 +609,8 @@ Keep changes focused, reusable, and easy to validate.
 - **Keep CI headless:** Install Playwright browsers and use `PW_HEADLESS=1` in automated UI runs.
 - **Preserve diagnostics:** Use Allure, Robot HTML reports, screenshots, videos, and uploaded artifacts to investigate failures.
 
-## Repository Development Guide
+<a id="repository-development-guide"></a>
+## 🧭 Repository Development Guide
 
 This guide describes the repository's default development workflow. Its goals
 are to reduce repeated coordination and rework, and to keep changes aligned
