@@ -73,8 +73,9 @@ the collaboration entry points and scoped instructions for consistency.
 
 ## Documentation and collaboration
 
-- Keep `readme.md` focused on the overview and quick start; put detailed behavior,
-  configuration, troubleshooting, and contracts in `docs/`.
+- Keep `readme.md` navigable, with the overview and quick start easy to find.
+  Place detailed guides beside the code or tests they describe, such as
+  `apps/dsa-web/readme.md`, `ai_stock/llm/llm-providers.md`, and `tests/*.md`.
 - Keep related translations consistent; explain when no counterpart is updated.
 - Repository collaboration skills live in `.claude/skills/`; local review
   artifacts belong in `.claude/reviews/`, not in the shared instruction files.

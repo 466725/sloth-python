@@ -1,10 +1,90 @@
 # Sloth Python
 
+<a id="documentation-index"></a>
+## Documentation Index
+
+Find project guides, feature documentation, development references, and
+learning material by topic. Several feature guides now live beside the
+application documentation that owns them.
+
+## Project guides
+
+- [Project README](readme.md) — overview, setup, configuration, and primary
+  workflows.
+- [AI Stock package guide](ai_stock/readme.md) — analysis flow and backend
+  package responsibilities.
+- [LLM provider configuration](ai_stock/llm/llm-providers.md) — provider
+  setup, channels, YAML routing, and connection troubleshooting.
+- [OpenAPI schema snapshot](api/api_spec.json) — checked-in API schema used
+  by contract tests; the running service also exposes `/openapi.json`.
+- [DSA Web guide](apps/dsa-web/readme.md) — Web routes, development, and
+  product guides for Web-facing features.
+
+## Product and feature guides
+
+- [Alert Center](apps/dsa-web/readme.md#alert-center) — alert rules,
+  evaluation, notifications, and rollback behavior.
+- [Email notifications](apps/dsa-web/readme.md#email-notifications) — SMTP
+  setup, recipient groups, routing, and delivery diagnostics.
+- [Stock autocomplete catalog](apps/dsa-web/readme.md#stock-autocomplete-catalog)
+  — local search, remote refresh, and bundled catalog maintenance.
+- [Analysis Context Pack](apps/dsa-web/readme.md#analysis-context-pack) —
+  analysis inputs, data-quality metadata, prompt summaries, and public overview.
+- [Stock Analyzer skill](apps/dsa-web/readme.md#stock-analyzer-skill) —
+  built-in skill behavior and custom skill directories.
+
+## Development and testing
+
+- [Testing guide](tests/testing_guide.md) — commands and guidance for pytest,
+  Robot Framework, Vitest, Cypress, and Playwright.
+- [macOS development environment setup](tests/setup_mac_dev_env.md) —
+  Java, Python, Node.js, IDE, and JMeter setup on macOS.
+- [Repository development guide](#repository-development-guide) —
+  project structure, collaboration practices, and development conventions.
+- [Playwright test package guide](apps/dsa-web-playwright-tests/Readme.md) —
+  browser test setup and coverage.
+- [Cypress test package guide](apps/dsa-web-cypress-tests/Readme.md) —
+  browser test setup and coverage.
+- [Database utilities guide](utils/data_base/readme.md) — database helper
+  usage and query examples.
+- [Load runner best practices](tests/performance/load_runner/load_runner_best_practices.md)
+  — performance test asset guidance.
+- [Playwright locator strategy](tests/pytest_tests/ui_suites/tangerine/Playwright%20Locator%20Strategy%20Guide.md)
+  — locator selection guidance for UI automation.
+- [JSON locator tradeoffs](tests/pytest_tests/ui_suites/locators/Json_locator_pros_and_cons.md)
+  — pros and cons of JSON-based locator storage.
+
+## Repository collaboration and security
+
+These documents guide contributors and coding assistants; they are not product
+documentation.
+
+- [Shared repository instructions](CLAUDE.md)
+- [Copilot instructions](.github/copilot-instructions.md)
+- [Backend-specific instructions](.github/instructions/backend.instructions.md)
+- [Web client instructions](.github/instructions/client.instructions.md)
+- [Governance instructions](.github/instructions/governance.instructions.md)
+- [Security instructions](.github/instructions/security.instructions.md)
+- [Claude skills index](.claude/skills/README.md)
+
+## Learning material
+
+- [Skill Spring overview](skill_spring/readme.md)
+- [Claude Code learning notes](skill_spring/claude_code/claude_code_learning.md)
+- [Sorting algorithms: normal-distribution quicksort](skill_spring/algorithms/sorts/normal_distribution_quick_sort.md)
+- [Claude Agent SDK guide](skill_spring/claude_code/claude_agent_sdk/README.md)
+- [Claude Agent SDK release guide](skill_spring/claude_code/claude_agent_sdk/RELEASING.md)
+- [Claude Agent SDK end-to-end tests](skill_spring/claude_code/claude_agent_sdk/e2e-tests/README.md)
+
+The Claude Agent SDK folder also contains individual feature examples, such as
+[session stores](skill_spring/claude_code/claude_agent_sdk/examples/session_stores/README.md)
+and [plugins](skill_spring/claude_code/claude_agent_sdk/examples/plugins/demo-plugin/commands/greet.md).
+
 <!-- Table of Contents -->
 <a id="table-of-contents"></a>
 ## 📑 Table of Contents
 
-- [Documentation](#documentation)
+- [Documentation Index](#documentation-index)
 - [🛠️ Installation](#installation)
 - [⚙️ Configuration](#configuration)
 - [🐳 Docker and Database](#docker-and-database)
@@ -17,12 +97,6 @@
 - [🎓 Best Practices & Patterns](#best-practices-patterns)
 - [❤️ Support & Feedback](#support-feedback)
 - [📝 License](#license)
-
-<a id="documentation"></a>
-## Documentation
-
-Browse the [documentation index](docs/documentation_index.md) for project,
-feature, development, and testing guides.
 
 <a id="installation"></a>
 ## 🛠️ Installation
@@ -698,9 +772,8 @@ sloth-python/
 ├── temps/                      # Generated reports, logs, videos, static build output, and temporary results
 ├── .github/workflows/          # GitHub Actions CI/CD definitions
 ├── .vscode/                    # Workspace settings
-├── docs/                       # Guides, including the security policy
 ├── pyproject.toml              # Python tooling and pytest configuration
-├── readme.md                   # Project documentation
+├── readme.md                   # Project guide and repository-wide development guidance
 ├── requirements.txt            # Python dependencies
 └── uv.lock                     # uv dependency lock file
 ```
@@ -867,7 +940,8 @@ work.
   - `api/`: FastAPI routes and request/response models.
   - `.github/scripts/`: GitHub automation scripts.
   - `tests/`: pytest suites.
-  - `docs/`: project and feature documentation.
+  - Documentation is kept with its owning package or test area, with
+    repository-wide guidance in `readme.md`.
 
 #### 3.1 Agent paths used by the DSA application
 
@@ -994,7 +1068,7 @@ remains uncovered.
   - Explicitly describe compatibility impact for changes to login, cookies,
     sessions, polling state, fields, or enums.
 - **Documentation and governance**
-  - Scope: `readme.md`, `docs/**`, `CLAUDE.md`,
+  - Scope: `readme.md`, package and test guides, `CLAUDE.md`,
     `.github/copilot-instructions.md`, `.github/instructions/**`, and
     `.claude/skills/**`.
   - Code tests are not required for documentation-only changes.
@@ -1164,7 +1238,7 @@ For issues and questions, include:
 - Relevant command output or a redacted traceback
 - The affected area, such as `pytest`, `robot`, `ai_gen`, `ai_stock`, or `skill_spring`
 
-Report security vulnerabilities through the [Security Policy](docs/security.md), not a public issue. Never include API keys, tokens, credentials, or other sensitive values in reports.
+Report security vulnerabilities privately to the project maintainers, not through a public issue. Never include API keys, tokens, credentials, or other sensitive values in reports.
 
 <a id="license"></a>
 ## 📝 License
