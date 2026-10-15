@@ -454,7 +454,7 @@ Deploy in about 5 minutes, with no server and no infrastructure cost.
 |---|---|
 | `EMAIL_SENDER` + `EMAIL_PASSWORD` | Email push |
 
-Recipient groups, email testing, and Markdown-to-image settings are in the [Notification Guide](docs/email_notifications.md).
+Recipient groups, email testing, and Markdown-to-image settings are in the [Notification Guide](apps/dsa-web/readme.md#email-notifications).
 
 **Watchlist (required).**
 
@@ -538,7 +538,7 @@ When a connection test fails, check model access, API key, Base URL, provider pr
 
 #### Notification Channels
 
-Configure SMTP email in `.env` or Web settings. Email is the only notification transport; delivery failures do not invalidate analysis reports. To diagnose delivery, use the email test action on the settings page or run `python main.py --check-notify`. See the [Notification Guide](docs/email_notifications.md).
+Configure SMTP email in `.env` or Web settings. Email is the only notification transport; delivery failures do not invalidate analysis reports. To diagnose delivery, use the email test action on the settings page or run `python main.py --check-notify`. See the [Notification Guide](apps/dsa-web/readme.md#email-notifications).
 
 #### Search and News
 
@@ -568,7 +568,7 @@ The Web workspace supports settings, task monitoring, manual analysis, history, 
 - **Backtesting:** evaluates historical rules. Results depend on market coverage, trading days, and data quality, and are not guarantees of future performance.
 - **AI decision signals:** organize the action tendency, evidence, risks, and follow-up watch conditions from a report in a structured way. They can be queried, given feedback, and evaluated against subsequent daily bars. Signals are research aids; they do not place orders.
 - **Real-time alerts:** evaluate symbol, watchlist, or market conditions against rules, and record triggered, skipped, and degraded results along with notification attempts. See the [Alert Center guide](apps/dsa-web/readme.md#alert-center) for configuration and operating boundaries.
-- **Email notifications:** see the Notification Guide for routing and delivery diagnostics.
+- **Email notifications:** see the [Notification Guide](apps/dsa-web/readme.md#email-notifications) for routing and delivery diagnostics.
 - **Smart import:** supports image, CSV/Excel, and clipboard import, with code/name/pinyin/alias autocomplete. Image import requires a configured vision-capable model. Always verify recognized codes, names, and market suffixes manually, especially for similar-looking codes.
 - **AnalysisContextPack:** summarizes available data blocks and quality states. It improves visibility into missing, stale, or fallback data, but does not make unavailable data reliable.
 
