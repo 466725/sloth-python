@@ -7,7 +7,7 @@ regional access can change; confirm current details in the provider console.
 The provider presets in the Web settings UI are configuration references, not a
 guarantee that a model is enabled for a particular account or endpoint.
 
-For the exact dependency constraints, see [`requirements.txt`](../requirements.txt).
+For the exact dependency constraints, see [`requirements.txt`](../../requirements.txt).
 The repository currently pins LiteLLM below major version 2 and OpenAI SDK below
 major version 3. Review and install dependencies as a compatible set rather
 than upgrading either package independently.
@@ -76,7 +76,7 @@ or `LLM_<CHANNEL>_API_KEYS`. Set `LLM_<CHANNEL>_ENABLED=false` to skip a channel
 The local Ollama endpoint usually needs no API key; the host running DSA must be
 able to reach the configured Ollama URL.
 
-The [`.env.example` file](../.env.example) is a compact starter template. The
+The [`.env.example` file](../../.env.example) is a compact starter template. The
 provider and channel examples in this guide cover additional options such as
 AIHubmix, Anspire Open, Moonshot/Kimi, DashScope, Zhipu, MiniMax, MiMo,
 Volcengine, SiliconFlow, OpenRouter, and Ollama. Treat model IDs and regional
@@ -136,7 +136,7 @@ read from the file.
 ## GitHub Actions
 
 The repository's daily-analysis workflow is under
-[`00-daily-analysis.yml`](../.github/workflows/disabled/00-daily-analysis.yml)
+[`00-daily-analysis.yml`](../../.github/workflows/disabled/00-daily-analysis.yml)
 and is disabled; it is not an active scheduled deployment. It can be used as a
 reference for environment mapping if you maintain a workflow of your own.
 Workflows receive only variables explicitly mapped in their YAML. When using
@@ -170,7 +170,7 @@ Diagnostic names are application classifications, not provider-standard error
 codes. `model_access_denied` and `provider_blocked` use best-effort matching of
 provider error text; inspect the test result and provider console before
 concluding the cause. For the current implementation, see
-[`ai_stock/services/system_config_service.py`](../ai_stock/services/system_config_service.py).
+[`ai_stock/services/system_config_service.py`](../services/system_config_service.py).
 
 ## Roll back configuration changes
 

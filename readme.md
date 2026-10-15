@@ -534,7 +534,7 @@ Start simple with one model and one API key. Choose the simplest configuration t
 
 The effective priority is: YAML (`LITELLM_CONFIG` / `LITELLM_CONFIG_YAML`) → `LLM_CHANNELS` → legacy provider keys. Switching modes does not silently migrate or delete old values.
 
-When a connection test fails, check model access, API key, Base URL, provider protocol, quota, and network. Test one provider before adding fallbacks. For multi-channel setups, use the connectivity test on the Web settings page first. See the LLM provider configuration summary for provider-specific notes.
+When a connection test fails, check model access, API key, Base URL, provider protocol, quota, and network. Test one provider before adding fallbacks. For multi-channel setups, use the connectivity test on the Web settings page first. See the [LLM provider configuration guide](ai_stock/llm/llm-providers.md) for provider-specific notes.
 
 #### Notification Channels
 

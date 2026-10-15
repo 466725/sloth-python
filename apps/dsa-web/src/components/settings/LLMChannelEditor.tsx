@@ -138,7 +138,7 @@ const LLM_CHANNEL_HELP_DOCS = [
   },
   {
     label: 'LLM 服务商配置速查',
-    href: 'https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/llm-providers.md',
+    href: 'https://github.com/466725/sloth-python/blob/main/ai_stock/llm/llm-providers.md',
   },
 ];
 

@@ -318,7 +318,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
             {
                 "label": "LLM 服务商配置速查",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/llm-providers.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/ai_stock/llm/llm-providers.md",
             },
             {
                 "label": "LiteLLM OpenAI-compatible（官方）",
@@ -427,7 +427,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
             {
                 "label": "LLM 服务商配置速查",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/llm-providers.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/ai_stock/llm/llm-providers.md",
             },
         ],
         "warning_codes": ["secret_value"],
@@ -502,7 +502,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
             {
                 "label": "LLM 服务商配置速查",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/llm-providers.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/ai_stock/llm/llm-providers.md",
             },
         ],
         "warning_codes": ["secret_value"],
@@ -949,7 +949,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
             {
                 "label": "LLM 服务商配置速查",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/llm-providers.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/ai_stock/llm/llm-providers.md",
             },
         ],
         "warning_codes": ["secret_value"],
@@ -1036,7 +1036,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
             {
                 "label": "LLM 服务商配置速查",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/llm-providers.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/ai_stock/llm/llm-providers.md",
             },
         ],
         "warning_codes": ["secret_value"],
@@ -1080,7 +1080,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
             {
                 "label": "LLM 服务商配置速查",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/llm-providers.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/ai_stock/llm/llm-providers.md",
             },
         ],
         "warning_codes": ["base_url_must_match_provider"],
@@ -1152,7 +1152,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
             {
                 "label": "LLM 服务商配置速查",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/llm-providers.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/ai_stock/llm/llm-providers.md",
             },
         ],
         "warning_codes": ["secret_value"],
@@ -3207,7 +3207,7 @@ _DOC_LLM_CONFIG = [
     },
     {
         "label": "LLM 服务商配置速查",
-        "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/llm-providers.md",
+        "href": "https://github.com/466725/sloth-python/blob/main/ai_stock/llm/llm-providers.md",
     },
 ]
 

@@ -16,7 +16,7 @@ and learning material across the repository.
 
 ## User and feature guides
 
-- [LLM provider configuration](llm-providers.md) — provider setup, channels,
+- [LLM provider configuration](../ai_stock/llm/llm-providers.md) — provider setup, channels,
   and connection troubleshooting.
 - [Alert center](../apps/dsa-web/readme.md#alert-center) — alert rules, evaluation, and notifications.
 - [Email notifications](../apps/dsa-web/readme.md#email-notifications) — SMTP configuration and

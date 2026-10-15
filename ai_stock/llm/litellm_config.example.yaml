@@ -1,7 +1,7 @@
 # Advanced model-routing example for DSA.
 #
 # Setup:
-# 1. Copy this file to the repository root (for example, litellm_config.yaml).
+# 1. Copy ai_stock/llm/litellm_config.example.yaml to the repository root (for example, litellm_config.yaml).
 # 2. Set LITELLM_CONFIG=./litellm_config.yaml in your environment.
 # 3. Set LITELLM_MODEL to one of the model_name aliases declared below.
 # 4. Set the referenced provider API key in the process environment.
