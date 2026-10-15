@@ -140,7 +140,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
             {
                 "label": "Stock autocomplete catalog",
-                "href": "https://github.com/466725/sloth-python/blob/main/docs/stock-index.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/apps/dsa-web/readme.md#stock-autocomplete-catalog",
             },
         ],
         "warning_codes": [],
@@ -556,7 +556,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "Stock autocomplete catalog",
-                "href": "https://github.com/466725/sloth-python/blob/main/docs/stock-index.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/apps/dsa-web/readme.md#stock-autocomplete-catalog",
             },
         ],
         "warning_codes": [],

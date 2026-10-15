@@ -1019,11 +1019,11 @@ const settingsHelpEnUS: SettingsHelpMap = {
   },
   'settings.data_source.stock_index_remote': {
     title: 'Remote Stock Index',
-    summary: 'Fetches the latest stock autocomplete index from GitHub main and caches it locally.',
-    usage: 'Enabled by default. If GitHub raw is unreachable, disable it. The URL, check frequency, and timeout are built-in system values.',
+    summary: 'Best-effort refresh of the stock autocomplete index from the built-in GitHub main source, cached locally.',
+    usage: 'Enabled by default. Disable it to use only the existing local cache or bundled index. The URL, check frequency, and timeout are built-in system values. See the DSA Web guide for catalog behavior and maintenance.',
     valueNotes: ['The system checks for updates every 48 hours to avoid frequent GitHub access.', 'Remote check failures do not block WebUI or analysis.'],
     impact: ['Affects stock-name freshness for Web autocomplete and backend stock-name resolution.'],
-    notes: ['When remote download fails, the app keeps using an existing cache or the bundled index.'],
+    notes: ['When remote download fails, the app keeps using an existing cache or the bundled index.', 'Autocomplete searches the local catalog and does not call a market-data provider.'],
   },
   'settings.data_source.REALTIME_SOURCE_PRIORITY': {
     title: 'Realtime Source Priority',

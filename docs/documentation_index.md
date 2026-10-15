@@ -21,7 +21,7 @@ and learning material across the repository.
 - [Alert center](alerts.md) — alert rules, evaluation, and notifications.
 - [Email notifications](email_notifications.md) — SMTP configuration and
   delivery diagnostics.
-- [Stock autocomplete catalog](stock-index.md) — catalog updates and rebuilds.
+- [Stock autocomplete catalog](../apps/dsa-web/readme.md#stock-autocomplete-catalog) — autocomplete behavior, remote updates, and bundled catalog maintenance.
 - [Analysis context pack](analysis-context-pack.md) — analysis input context,
   quality metadata, and data flow.
 - [Product skills guide](skill.md) — DSA runtime skills and their usage.

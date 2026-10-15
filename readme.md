@@ -550,7 +550,7 @@ Multiple data sources fall back according to availability. A single source timin
 
 #### Watchlist
 
-`STOCK_LIST` is a comma-separated list of codes. Code formats for each market are described in `.env.example` and the market coverage notes above. See the [stock catalog guide](docs/stock-index.md) for autocomplete index maintenance.
+`STOCK_LIST` is a comma-separated list of codes. Code formats for each market are described in `.env.example` and the market coverage notes above. See the [DSA Web guide](apps/dsa-web/readme.md#stock-autocomplete-catalog) for stock autocomplete catalog details and maintenance.
 
 #### Scheduled Tasks
 
@@ -630,7 +630,7 @@ These topic pages are the stable entry points for the settings UI and maintenanc
 - Cloud server Web access
 - AnalysisContextPack data quality and visibility
 - Real-time alert rules
-- [Stock autocomplete catalog](docs/stock-index.md)
+- [Stock autocomplete catalog](apps/dsa-web/readme.md#stock-autocomplete-catalog)
 - Notification channels and delivery diagnostics
 
 ### 9. Troubleshooting

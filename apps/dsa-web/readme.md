@@ -17,6 +17,34 @@ React + TypeScript frontend for Daily Stock Analysis (DSA). It is the Web worksp
 
 Cross-cutting features available from the shell: smart import (image/CSV/Excel/clipboard), code/name/pinyin/alias autocomplete, light/dark theme, and English/Chinese UI language toggle.
 
+## Stock Autocomplete Catalog
+
+The Web app searches a local catalog served at `/stocks.index.json`. The bundled
+[`stocks.index.json`](public/stocks.index.json) supports stock codes, names,
+aliases, full pinyin, and pinyin initials. Searching this catalog does not call
+a market-data provider or require a provider token.
+
+### Remote updates
+
+Set `STOCK_INDEX_REMOTE_UPDATE_ENABLED=true` (the default) to enable best-effort
+updates from the built-in GitHub main source. The backend caches the downloaded
+catalog locally. If an update fails, it keeps using the existing cache or the
+bundled index. Remote updates are separate from quote retrieval and stock
+analysis; disabling them does not disable autocomplete.
+
+### Updating the bundled catalog
+
+The generated index is checked in at
+[`public/stocks.index.json`](public/stocks.index.json) and served by the Web app.
+The repository no longer includes a catalog generation script. To change the
+bundled catalog, update the JSON asset through the project's chosen
+data-maintenance process and review the change before deploying it.
+
+If a rebuild is incorrect, restore the previous bundled index from version
+control and redeploy the Web assets. Disable remote updates while investigating
+if needed. Market-data provider routing and analysis configuration are unchanged
+by an index rebuild.
+
 ## Tech Stack
 
 - React 19 + TypeScript, React Router
