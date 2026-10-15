@@ -28,7 +28,7 @@ and learning material across the repository.
 
 ## Development and testing
 
-- [Testing guide](testing_guide.md) — commands for pytest, Robot Framework,
+- [Testing guide](../tests/testing_guide.md) — commands for pytest, Robot Framework,
   Vitest, Cypress, and running all four.
 - [Repository development guide](../readme.md#repository-development-guide) — repository
   structure, collaboration practices, and development conventions.

@@ -159,7 +159,7 @@ For Python database helper usage and parameterized query examples, see [utils/da
 
 Run commands from the repository root. Choose the narrowest workflow that matches the change you are validating.
 For commands covering pytest, Robot Framework, Vitest, and Cypress, see the
-[testing guide](docs/testing_guide.md).
+[testing guide](tests/testing_guide.md).
 
 ### Run all pytest and Robot tests
 
