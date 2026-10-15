@@ -1,5 +1,5 @@
 {
-  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv311/Scripts/python.exe",
   "python.analysis.extraPaths": [
     "./claude_code/claude_agent_sdk/src",
     "./claude_code/claude_agent_sdk",
