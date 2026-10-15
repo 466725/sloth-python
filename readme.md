@@ -39,8 +39,6 @@ application documentation that owns them.
   Robot Framework, Vitest, Cypress, and Playwright.
 - [macOS development environment setup](tests/setup_mac_dev_env.md) —
   Java, Python, Node.js, IDE, and JMeter setup on macOS.
-- [Repository development guide](#repository-development-guide) —
-  project structure, collaboration practices, and development conventions.
 - [Playwright test package guide](apps/dsa-web-playwright-tests/Readme.md) —
   browser test setup and coverage.
 - [Cypress test package guide](apps/dsa-web-cypress-tests/Readme.md) —
@@ -95,6 +93,7 @@ and [plugins](skill_spring/claude_code/claude_agent_sdk/examples/plugins/demo-pl
 - [🌱 Skill Spring Learning Lab](#skill-spring-learning-lab)
 - [📂 Project Structure](#project-structure)
 - [🎓 Best Practices & Patterns](#best-practices-patterns)
+- [Repository Development Guide](#repository-development-guide)
 - [❤️ Support & Feedback](#support-feedback)
 - [📝 License](#license)
 
