@@ -180,7 +180,6 @@ uvicorn server:app --reload --host 0.0.0.0 --port 8000
 pip install -r requirements.txt
 python -m ruff check .
 python -m ruff format .
-./scripts/ci_gate.sh
 python -m pytest -m "not network"
 python -m py_compile <changed_python_files>
 ```
@@ -244,7 +243,6 @@ remains uncovered.
 
 - **Python backend**
   - Scope: `main.py`, `ai_stock/`, `api/`, and `tests/`.
-  - Prefer `scripts/ci_gate.sh`.
   - Minimum syntax check: `python -m py_compile <changed_python_files>`.
   - For API, task orchestration, report generation, notifications,
     data-source fallback, authentication, or scheduling changes, state
