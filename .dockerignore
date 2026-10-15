@@ -21,6 +21,12 @@ htmlcov/
 .coverage.*
 
 # ==========================================
+# Node dependencies (install from package-lock.json in the image)
+# ==========================================
+node_modules/
+**/node_modules/
+
+# ==========================================
 # 虚拟环境
 # ==========================================
 venv/

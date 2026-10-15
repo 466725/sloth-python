@@ -37,9 +37,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xfonts-75dpi \
     xfonts-base \
     wget \
-    && wget -q https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_arm64.deb \
-    && dpkg -i wkhtmltox_0.12.6.1-3.bookworm_arm64.deb \
-    && rm wkhtmltox_0.12.6.1-3.bookworm_arm64.deb \
+    && DEB_ARCH="$(dpkg --print-architecture)" \
+    && case "$DEB_ARCH" in amd64|arm64) ;; *) echo "Unsupported architecture for wkhtmltopdf: $DEB_ARCH" >&2; exit 1 ;; esac \
+    && wget -q -O /tmp/wkhtmltox.deb "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_${DEB_ARCH}.deb" \
+    && dpkg -i /tmp/wkhtmltox.deb \
+    && rm /tmp/wkhtmltox.deb \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # 创建非 root 用户 (UID 1000)
