@@ -2,7 +2,7 @@
 
 基于 issue 分析结果实现修复，并按仓库规则补齐验证、风险与回滚说明。
 
-**Repository**: https://github.com/ZhuLinsen/daily_stock_analysis
+**Repository**: https://github.com/466725/sloth-python
 
 ## Usage
 

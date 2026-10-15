@@ -637,7 +637,7 @@ This table describes the disabled daily-analysis workflow, not an active schedul
 | `EMAIL_SENDER` | minimal | email | Variable or Secret | - |
 | `EMAIL_PASSWORD` | minimal | email | Secret | - |
 | `EMAIL_RECEIVERS` | advanced | email | Variable or Secret | - |
-| `EMAIL_SENDER_NAME` | advanced | email | Variable or Secret | `daily_stock_analysis股票分析助手` |
+| `EMAIL_SENDER_NAME` | advanced | email | Variable or Secret | `sloth-python股票分析助手` |
 | `NOTIFICATION_REPORT_CHANNELS` | advanced | routing | Variable or Secret | - |
 | `NOTIFICATION_ALERT_CHANNELS` | advanced | routing | Variable or Secret | - |
 | `NOTIFICATION_SYSTEM_ERROR_CHANNELS` | advanced | routing | Variable or Secret | - |

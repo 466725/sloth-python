@@ -136,7 +136,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
             {
                 "label": "Stock autocomplete catalog",
@@ -170,11 +170,11 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
             },
             {
                 "label": "完整指南：AI 模型配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#ai-模型配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#ai-模型配置",
             },
             {
                 "label": "LiteLLM Providers（官方）",
@@ -212,11 +212,11 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
             },
             {
                 "label": "完整指南：AI 模型配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#ai-模型配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#ai-模型配置",
             },
         ],
         "warning_codes": ["inherits_primary_when_empty"],
@@ -242,11 +242,11 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
             },
             {
                 "label": "完整指南：AI 模型配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#ai-模型配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#ai-模型配置",
             },
             {
                 "label": "LiteLLM Providers（官方）",
@@ -282,7 +282,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南：YAML 模式",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md#方式三litellm-原生-yaml-配置适合专家或复杂路由",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md#方式三litellm-原生-yaml-配置适合专家或复杂路由",
             },
             {
                 "label": "LiteLLM proxy config（官方）",
@@ -314,7 +314,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南：渠道模式",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md#方式二渠道channels模式配置适合进阶多模型",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md#方式二渠道channels模式配置适合进阶多模型",
             },
             {
                 "label": "LLM 服务商配置速查",
@@ -348,7 +348,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：AI 模型配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#ai-模型配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#ai-模型配置",
             },
         ],
         "warning_codes": [],
@@ -373,7 +373,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
             },
         ],
         "warning_codes": ["secret_value"],
@@ -398,7 +398,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
             },
         ],
         "warning_codes": [],
@@ -423,7 +423,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
             },
             {
                 "label": "LLM 服务商配置速查",
@@ -498,7 +498,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
             },
             {
                 "label": "LLM 服务商配置速查",
@@ -581,7 +581,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：数据源配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#数据源配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#数据源配置",
             },
         ],
         "warning_codes": ["provider_priority_order"],
@@ -607,7 +607,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：数据源配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#数据源配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#数据源配置",
             },
         ],
         "warning_codes": [],
@@ -632,7 +632,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：搜索服务配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#搜索服务配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#搜索服务配置",
             },
         ],
         "warning_codes": ["secret_value", "comma_separated_keys"],
@@ -658,7 +658,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：搜索服务配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#搜索服务配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#搜索服务配置",
             },
         ],
         "warning_codes": ["secret_value", "comma_separated_keys"],
@@ -745,7 +745,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：搜索服务配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#搜索服务配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#搜索服务配置",
             },
         ],
         "warning_codes": ["requires_json_format"],
@@ -785,7 +785,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：数据源配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#数据源配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#数据源配置",
             },
         ],
         "warning_codes": [],
@@ -811,7 +811,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：数据源配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#数据源配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#数据源配置",
             },
         ],
         "warning_codes": ["cloud_deployments_may_disable"],
@@ -837,7 +837,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -863,7 +863,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -945,7 +945,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
             },
             {
                 "label": "LLM 服务商配置速查",
@@ -1032,7 +1032,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
             },
             {
                 "label": "LLM 服务商配置速查",
@@ -1076,7 +1076,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
             },
             {
                 "label": "LLM 服务商配置速查",
@@ -1148,7 +1148,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
             },
             {
                 "label": "LLM 服务商配置速查",
@@ -1234,7 +1234,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -1260,7 +1260,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -1290,7 +1290,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：邮件",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#邮件",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#邮件",
             },
         ],
         "warning_codes": [],
@@ -1315,7 +1315,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：邮件",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#邮件",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#邮件",
             },
         ],
         "warning_codes": ["secret_value", "smtp_authorization_code"],
@@ -1329,7 +1329,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "is_sensitive": False,
         "is_required": False,
         "is_editable": True,
-        "default_value": "daily_stock_analysis股票分析助手",
+        "default_value": "sloth-python股票分析助手",
         "options": [],
         "validation": {},
         "display_order": 28,
@@ -1399,7 +1399,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：邮件",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#邮件",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#邮件",
             },
         ],
         "warning_codes": ["comma_separated_values"],
@@ -1425,7 +1425,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -1452,7 +1452,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -1481,7 +1481,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -1507,7 +1507,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -1533,7 +1533,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -1559,7 +1559,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -1585,7 +1585,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -1611,7 +1611,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -1637,7 +1637,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -1663,7 +1663,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "通知渠道与路由",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/notifications.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/notifications.md",
             },
         ],
         "warning_codes": [],
@@ -1689,7 +1689,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "通知渠道与路由",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/notifications.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/notifications.md",
             },
         ],
         "warning_codes": [],
@@ -1715,7 +1715,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "通知渠道与路由",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/notifications.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/notifications.md",
             },
         ],
         "warning_codes": [],
@@ -1741,7 +1741,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "通知渠道与路由",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/notifications.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/notifications.md",
             },
         ],
         "warning_codes": [],
@@ -1767,7 +1767,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "通知渠道与路由",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/notifications.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/notifications.md",
             },
         ],
         "warning_codes": [],
@@ -1793,7 +1793,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "通知渠道与路由",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/notifications.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/notifications.md",
             },
         ],
         "warning_codes": [],
@@ -1819,7 +1819,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "通知渠道与路由",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/notifications.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/notifications.md",
             },
         ],
         "warning_codes": [],
@@ -1848,7 +1848,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "通知渠道与路由",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/notifications.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/notifications.md",
             },
         ],
         "warning_codes": [],
@@ -1873,7 +1873,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "通知渠道与路由",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/notifications.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/notifications.md",
             },
         ],
         "warning_codes": ["reserved_flag"],
@@ -1900,7 +1900,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：其他配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#其他配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#其他配置",
             },
         ],
         "warning_codes": ["local_timezone"],
@@ -1926,7 +1926,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": ["network_scope"],
@@ -1952,7 +1952,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": ["restart_required"],
@@ -1978,7 +1978,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": ["restart_required", "path_must_be_writable"],
@@ -2004,11 +2004,11 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：WebUI 与 API",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#webui-与-api-服务",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#webui-与-api-服务",
             },
             {
                 "label": "云服务器访问 WebUI",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/deploy-webui-cloud.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/deploy-webui-cloud.md",
             },
         ],
         "warning_codes": ["restart_required"],
@@ -2034,11 +2034,11 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：WebUI 与 API",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#webui-与-api-服务",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#webui-与-api-服务",
             },
             {
                 "label": "云服务器访问 WebUI",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/deploy-webui-cloud.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/deploy-webui-cloud.md",
             },
         ],
         "warning_codes": ["restart_required", "requires_built_web_assets"],
@@ -2064,11 +2064,11 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "云服务器访问 WebUI",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/deploy-webui-cloud.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/deploy-webui-cloud.md",
             },
             {
                 "label": "完整指南：WebUI 与 API",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#webui-与-api-服务",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#webui-与-api-服务",
             },
         ],
         "warning_codes": ["public_bind_requires_auth", "restart_required"],
@@ -2094,11 +2094,11 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "云服务器访问 WebUI",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/deploy-webui-cloud.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/deploy-webui-cloud.md",
             },
             {
                 "label": "完整指南：WebUI 与 API",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#webui-与-api-服务",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#webui-与-api-服务",
             },
         ],
         "warning_codes": ["port_mapping_required", "restart_required"],
@@ -2124,7 +2124,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：其他配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#其他配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#其他配置",
             },
         ],
         "warning_codes": ["restart_required"],
@@ -2151,7 +2151,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：其他配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#其他配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#其他配置",
             },
         ],
         "warning_codes": ["restart_required"],
@@ -2177,11 +2177,11 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：其他配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#其他配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#其他配置",
             },
             {
                 "label": "云服务器访问 WebUI",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/deploy-webui-cloud.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/deploy-webui-cloud.md",
             },
         ],
         "warning_codes": ["public_webui_requires_auth", "auth_settings_endpoint_required"],
@@ -2207,11 +2207,11 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：其他配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#其他配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#其他配置",
             },
             {
                 "label": "云服务器访问 WebUI",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/deploy-webui-cloud.md",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/deploy-webui-cloud.md",
             },
         ],
         "warning_codes": ["trusted_proxy_only"],
@@ -2237,7 +2237,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：其他配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#其他配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#其他配置",
             },
         ],
         "warning_codes": ["restart_required"],
@@ -2263,7 +2263,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：其他配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#其他配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#其他配置",
             },
         ],
         "warning_codes": ["force_run_override"],
@@ -2289,7 +2289,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2315,7 +2315,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2341,7 +2341,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2370,7 +2370,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2396,7 +2396,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2422,7 +2422,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2453,7 +2453,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
             {
                 "label": "完整指南：其他配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#其他配置",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#其他配置",
             },
         ],
         "warning_codes": [],
@@ -2479,7 +2479,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2505,7 +2505,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：回测配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#回测功能",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#回测功能",
             },
         ],
         "warning_codes": [],
@@ -2532,7 +2532,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：回测配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#回测功能",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#回测功能",
             },
         ],
         "warning_codes": [],
@@ -2558,7 +2558,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：回测配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#回测功能",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#回测功能",
             },
         ],
         "warning_codes": [],
@@ -2583,7 +2583,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：回测配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#回测功能",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#回测功能",
             },
         ],
         "warning_codes": [],
@@ -2609,7 +2609,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：回测配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#回测功能",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#回测功能",
             },
         ],
         "warning_codes": [],
@@ -2635,7 +2635,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2661,7 +2661,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2688,7 +2688,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2714,7 +2714,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2743,7 +2743,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2774,7 +2774,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2800,7 +2800,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2826,7 +2826,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2852,7 +2852,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2878,7 +2878,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2904,7 +2904,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2930,7 +2930,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2959,7 +2959,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "完整指南：Agent 配置",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -2985,11 +2985,11 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南：问股可见对话上下文压缩",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md#问股可见对话上下文压缩",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md#问股可见对话上下文压缩",
             },
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -3020,11 +3020,11 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南：问股可见对话上下文压缩",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md#问股可见对话上下文压缩",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md#问股可见对话上下文压缩",
             },
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -3050,11 +3050,11 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南：问股可见对话上下文压缩",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md#问股可见对话上下文压缩",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md#问股可见对话上下文压缩",
             },
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -3080,11 +3080,11 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "docs": [
             {
                 "label": "LLM 配置指南：问股可见对话上下文压缩",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md#问股可见对话上下文压缩",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md#问股可见对话上下文压缩",
             },
             {
                 "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
             },
         ],
         "warning_codes": [],
@@ -3175,35 +3175,35 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
 _DOC_FULL_GUIDE_ENV = [
     {
         "label": "完整指南：环境变量完整列表",
-        "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#环境变量完整列表",
+        "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
     },
 ]
 
 _DOC_FULL_GUIDE_SEARCH = [
     {
         "label": "完整指南：搜索服务配置",
-        "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#搜索服务配置",
+        "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#搜索服务配置",
     },
 ]
 
 _DOC_FULL_GUIDE_DATA_SOURCE = [
     {
         "label": "完整指南：数据源配置",
-        "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#数据源配置",
+        "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#数据源配置",
     },
 ]
 
 _DOC_FULL_GUIDE_NOTIFICATION = [
     {
         "label": "完整指南：通知渠道配置",
-        "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/full-guide.md#通知渠道详细配置",
+        "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#通知渠道详细配置",
     },
 ]
 
 _DOC_LLM_CONFIG = [
     {
         "label": "LLM 配置指南",
-        "href": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/docs/LLM_CONFIG_GUIDE.md",
+        "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
     },
     {
         "label": "LLM 服务商配置速查",
