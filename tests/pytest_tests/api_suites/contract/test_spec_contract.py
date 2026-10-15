@@ -161,7 +161,7 @@ class TestSpecMatchesApplication:
     def test_the_served_schema_matches_the_published_document(
         self, api_client: TestClient, api_spec: dict[str, Any]
     ) -> None:
-        """``docs/api_spec.json`` must be regenerated when routes change."""
+        """``api/api_spec.json`` must be regenerated when routes change."""
         served = api_client.get("/openapi.json").json()
 
         assert sorted(served["paths"]) == sorted(api_spec["paths"])

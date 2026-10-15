@@ -34,7 +34,7 @@ from ai_stock.storage import DatabaseManager
 from api.app import create_app
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-API_SPEC_PATH = REPO_ROOT / "docs" / "api_spec.json"
+API_SPEC_PATH = REPO_ROOT / "api" / "api_spec.json"
 REPO_ENV_PATH = REPO_ROOT / ".env"
 
 #: Minimal offline configuration. No provider credentials are supplied so that

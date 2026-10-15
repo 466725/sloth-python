@@ -2,7 +2,7 @@
 
 Every endpoint suite extends :class:`BaseAPITest` so that each test can assert
 both the observable behavior of an endpoint and the contract published in
-``docs/api_spec.json``. Keeping the assertions here avoids repeating response
+``api/api_spec.json``. Keeping the assertions here avoids repeating response
 envelope knowledge in each of the twelve API domains.
 """
 

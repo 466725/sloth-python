@@ -397,7 +397,7 @@ python -m pytest -q tests\unit\test_ai_generation.py
 <a id="daily-stock-analysis-dsa-user-guide"></a>
 ## 📈 Daily Stock Analysis (DSA) User Guide
 
-This is the main guide for Daily Stock Analysis (DSA), implemented under `ai_stock/`. It covers features, quick start, installation, configuration, run modes, deployment, and feature boundaries. The root `.env.example` and the fields currently visible in the Web settings page define the supported configuration keys; `/docs` and `architecture/api_spec.json` are the API references.
+This is the main guide for Daily Stock Analysis (DSA), implemented under `ai_stock/`. It covers features, quick start, installation, configuration, run modes, deployment, and feature boundaries. The root `.env.example` and the fields currently visible in the Web settings page define the supported configuration keys; `/docs` and `api/api_spec.json` are the API references.
 
 ### 1. Overview
 
@@ -651,7 +651,7 @@ DSA focuses on daily analysis reports. [AlphaEvo](https://github.com/) explores 
 
 ### 11. Release Notes and API Reference
 
-See the changelog for release and migration notes. API fields are defined by the server's OpenAPI schema (`/docs`, `architecture/api_spec.json`); do not rely on old screenshots or parameters from earlier versions.
+See the changelog for release and migration notes. API fields are defined by the server's OpenAPI schema (`/docs`, `api/api_spec.json`); do not rely on old screenshots or parameters from earlier versions.
 
 <a id="skill-spring-learning-lab"></a>
 ## 🌱 Skill Spring Learning Lab
