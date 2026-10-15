@@ -78,7 +78,8 @@ the collaboration entry points and scoped instructions for consistency.
 - Keep related translations consistent; explain when no counterpart is updated.
 - Repository collaboration skills live in `.claude/skills/`; local review
   artifacts belong in `.claude/reviews/`, not in the shared instruction files.
-- `docs/skill.md` and `strategies/` describe DSA runtime skills, not repository
+- [Stock Analyzer Skill](apps/dsa-web/readme.md#stock-analyzer-skill) and `strategies/`
+  describe DSA runtime skills, not repository
   collaboration instructions.
 - Prefer PR titles in `<type>: <change summary>` form without tool-name prefixes.
 - Preserve opt-in version tagging through `#patch`, `#minor`, and `#major`.

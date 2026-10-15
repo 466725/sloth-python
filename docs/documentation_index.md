@@ -24,7 +24,7 @@ and learning material across the repository.
 - [Stock autocomplete catalog](../apps/dsa-web/readme.md#stock-autocomplete-catalog) — autocomplete behavior, remote updates, and bundled catalog maintenance.
 - [Analysis context pack](../apps/dsa-web/readme.md#analysis-context-pack) — analysis input context,
   quality metadata, and data flow.
-- [Product skills guide](skill.md) — DSA runtime skills and their usage.
+- [Product skills guide](../apps/dsa-web/readme.md#stock-analyzer-skill) — DSA runtime skills and their usage.
 
 ## Development and testing
 
