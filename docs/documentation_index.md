@@ -30,7 +30,7 @@ and learning material across the repository.
 
 - [Testing guide](testing_guide.md) — commands for pytest, Robot Framework,
   Vitest, Cypress, and running all four.
-- [Repository development guide](repository_development_guide.md) — repository
+- [Repository development guide](../readme.md#repository-development-guide) — repository
   structure, collaboration practices, and development conventions.
 - [Database utilities guide](../utils/data_base/readme.md) — database helper
   usage and query examples.

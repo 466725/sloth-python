@@ -4,7 +4,7 @@ This is a regular Markdown file, not a symlink. It contains the shared repositor
 collaboration rules and is the entry point for Claude tooling. Copilot-specific
 instructions live in [.github/copilot-instructions.md](.github/copilot-instructions.md).
 Keep these entry points consistent with the
-[repository development guide](docs/repository_development_guide.md) and scoped
+[repository development guide](readme.md#repository-development-guide) and scoped
 instructions under [.github/instructions/](.github/instructions/).
 
 ## Scope and structure
