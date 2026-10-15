@@ -12,48 +12,14 @@ built-in GitHub main source. The backend caches the downloaded catalog locally.
 On failure it retains the existing cache or uses the bundled index. Remote
 updates are separate from quote retrieval and stock analysis.
 
-## Rebuild from local CSV files
+## Updating the bundled catalog
 
-Supply UTF-8 CSV exports under `ai_stock/stock_data/`:
-
-| File | Required identity fields |
-| --- | --- |
-| `stock_list_a.csv` | `ts_code`, `name` (for example, `600519.SH`) |
-| `stock_list_hk.csv` | `ts_code`, `name` (for example, `00700.HK`) |
-| `stock_list_us.csv` | `ts_code`, `enname`; optional localized `name` (for example, `AAPL`) |
-
-`ts_code` is the catalog's instrument identifier column, not an API dependency.
-Additional fields such as `delist_date` and aliases are used when present.
-JP/KR seed files under [scripts/stock_index_seeds/](../scripts/stock_index_seeds/)
-supplement the catalog. The generator requires all three catalog files and
-valid rows for each market before replacing the index, so a missing local
-export cannot reduce the bundled catalog to just the seeds.
-
-Install the existing project dependencies, including `pypinyin`, then validate:
-
-```powershell
-python scripts\refresh_stock_index.py --test
-```
-
-To rebuild and synchronize the local static index:
-
-```powershell
-python scripts\refresh_stock_index.py
-```
-
-This command reads local files only; it does not download fresh listings.
-Maintain those CSV exports separately. Missing catalog files or missing
-dependencies produce an error and leave the existing index untouched.
-
-An existing AkShare export under `logs/stock_basic_*.csv` can also be used:
-
-```powershell
-python scripts\generate_index_from_csv.py --source akshare --test
-```
-
-This path uses the latest matching export and only covers its contents; it is
-not a substitute for the full multi-market catalog. Remove `--test` only if that
-coverage is intentional.
+The generated index is checked in at
+[`apps/dsa-web/public/stocks.index.json`](../apps/dsa-web/public/stocks.index.json)
+and is served by the Web app. The repository no longer includes a catalog
+generation script. To change the bundled catalog, update the JSON asset through
+the project's chosen data-maintenance process and review the change before
+deploying it.
 
 ## Rollback
 

@@ -36,12 +36,6 @@ jobs:
           set -o pipefail
           python -m pytest -m network -q | tee pytest-network.log
 
-      - name: 🚀 Run quick smoke (non-blocking)
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          ./scripts/test.sh quick --no-notify | tee quick-smoke.log
-
       - name: 📤 Upload smoke logs
         if: always()
         uses: actions/upload-artifact@v6
@@ -49,5 +43,4 @@ jobs:
           name: network-smoke-logs-${{ github.run_number }}
           path: |
             pytest-network.log
-            quick-smoke.log
           if-no-files-found: ignore

@@ -4,9 +4,9 @@ This guide describes the repository's default development workflow. Its goals
 are to reduce repeated coordination and rework, and to keep changes aligned
 with the current project structure.
 
-When this guide differs from executable scripts, workflows, or the code, follow
-the executable repository state and update the relevant documentation as part
-of the related work.
+When this guide differs from workflows or code, follow the executable
+repository state and update the relevant documentation as part of the related
+work.
 
 ## 1. Core rules
 
@@ -15,13 +15,12 @@ of the related work.
     tests.
   - Stock-data providers and adapters live under `ai_stock/stock_data/`.
   - Web frontend changes belong in `apps/dsa-web/`.
-  - Deployment and pipeline changes belong in `scripts/`,
-    `.github/workflows/`, or `docker/`.
+  - Deployment and pipeline changes belong in `.github/workflows/` or `docker/`.
 - Do not run `git commit`, `git tag`, or `git push` without explicit approval.
 - Write commit messages in English. Do not add a `Co-Authored-By` trailer.
 - Never hardcode secrets, credentials, machine-specific paths, model names,
   ports, or environment-specific behavior.
-- Prefer existing modules, configuration entry points, scripts, and tests
+- Prefer existing modules, configuration entry points, and tests
   over parallel implementations.
 - Prefer stability over opportunistic optimization. Keep refactors,
   abstractions, and infrastructure migrations out of a task unless they are
@@ -104,11 +103,8 @@ of the related work.
 - If adding `.agents/skills/` or another agent-specific directory, first
   define one source of truth and synchronize other copies with a script or
   equivalent. Do not maintain duplicate content manually over time.
-- When changing AI collaboration governance assets, run:
-
-  ```bash
-  python scripts/check_ai_assets.py
-  ```
+- When changing AI collaboration governance assets, review the collaboration
+  entry points and scoped instructions for consistency.
 
 ## 3. Project overview
 
@@ -130,7 +126,6 @@ of the related work.
   - `ai_stock/agent/`: LLM agent execution, tool calling, specialist
     orchestration, trading skills, chat context, and deep research.
   - `api/`: FastAPI routes and request/response models.
-  - `scripts/`: local and CI scripts.
   - `.github/scripts/`: GitHub automation scripts.
   - `tests/`: pytest suites.
   - `docs/`: project and feature documentation.
@@ -266,10 +261,8 @@ remains uncovered.
   - Code tests are not required for documentation-only changes.
   - Confirm that commands, configuration keys, filenames, and workflow names
     match the repository.
-  - When AI collaboration governance assets change, run
-    `python scripts/check_ai_assets.py`.
-- **Workflows, scripts, and Docker**
-  - Scope: `.github/**`, `scripts/**`, and `docker/**`.
+- **Workflows and Docker**
+  - Scope: `.github/**` and `docker/**`.
   - Run the closest local validation.
   - State which pipeline, release path, or deployment path is affected.
   - If Docker or GitHub Actions validation was not run, explain why and note

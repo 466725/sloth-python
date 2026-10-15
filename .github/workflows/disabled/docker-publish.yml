@@ -54,15 +54,6 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install backend gate dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install flake8 pytest
-
-      - name: Run backend gate before publish
-        run: ./scripts/ci_gate.sh
-
       - name: Validate release docs
         run: |
           test -f README.md

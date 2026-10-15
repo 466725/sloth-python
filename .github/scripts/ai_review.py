@@ -95,7 +95,7 @@ def _build_ci_context():
     else:
         lines.append("- Python 文件: 无变更，语法检查已跳过")
     lines.append("")
-    lines.append("> 以上 CI 仅覆盖语法正确性（py_compile）和致命 lint 错误（flake8 E9/F63/F7/F82）。`./scripts/ci_gate.sh` **未包含在 CI 中**：对 Python 后端改动，若 PR 描述未说明该 gate 是否执行（或给出跳过原因），应在建议项中注明，但不构成阻断。语法/flake8 已通过则无需重复贴对应本地输出。")
+    lines.append("> 以上 CI 仅覆盖语法正确性（py_compile）和致命 lint 错误（flake8 E9/F63/F7/F82）。CI 未覆盖完整本地回归套件：对 Python 后端改动，若 PR 描述未说明相关测试是否执行（或给出跳过原因），应在建议项中注明，但不构成阻断。语法/flake8 已通过则无需重复贴对应本地输出。")
     lines.append("")
     return '\n'.join(lines)
 
@@ -134,7 +134,7 @@ def build_prompt(diff_content, files, truncated, pr_title, pr_body):
 1. 必要性（Necessity）：是否有明确问题/业务价值，避免无效重构。
 2. 关联性（Traceability）：是否有关联 Issue（Fixes/Refs）；自然语言关联（如"关联 issue 为 #xxx"）也可接受，不因格式问题判定不通过。无 Issue 时是否给出动机与验收标准。
 3. 类型判定（Type）：fix/feat/refactor/docs/chore/test 是否匹配。
-4. 描述完整性（Description Completeness）：是否包含背景、范围、验证命令与结果、兼容性风险、回滚方案。判断验证是否充分时，必须参考上方"CI 检查状态"段落：（a）若 py_compile 和 flake8 已通过，PR 描述中可引用 CI 结果而不必贴对应本地输出；（b）`./scripts/ci_gate.sh` 不在 CI 覆盖范围，对 Python 后端改动需检查 PR 描述是否说明了该 gate 的执行情况，若未说明应列为建议项；（c）若未提供 CI 结果，则不得假设 CI 已通过，验证充分性应标注为"无法确认"。
+4. 描述完整性（Description Completeness）：是否包含背景、范围、验证命令与结果、兼容性风险、回滚方案。判断验证是否充分时，必须参考上方"CI 检查状态"段落：（a）若 py_compile 和 flake8 已通过，PR 描述中可引用 CI 结果而不必贴对应本地输出；（b）对 Python 后端改动，需检查 PR 描述是否说明了相关本地测试是否执行，若未说明应列为建议项；（c）若未提供 CI 结果，则不得假设 CI 已通过，验证充分性应标注为"无法确认"。
 5. 合入判定（Merge Readiness）：给出 Ready / Not Ready，并列出阻断项。
 6. 若涉及用户可见能力，检查 readme.md 与 docs/CHANGELOG.md 是否同步。
 
@@ -148,7 +148,7 @@ def build_prompt(diff_content, files, truncated, pr_title, pr_body):
 以下问题仅放入建议项，不影响合入判定：
 - issue 关联格式不规范
 - 语法/flake8 验证证据缺失但上方"CI 检查状态"显示 py_compile 和 flake8 均通过
-- Python 后端改动的 PR 描述未说明 `./scripts/ci_gate.sh` 是否执行或给出跳过原因
+- Python 后端改动的 PR 描述未说明相关本地测试是否执行或给出跳过原因
 - 描述中非关键性措辞或格式问题
 - 注释语言风格、无关锁文件变更等
 

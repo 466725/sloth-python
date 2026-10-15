@@ -13,7 +13,7 @@ instructions under [.github/instructions/](.github/instructions/).
   `ai_stock/stock_data/`.
 - The React/Vite application lives in `apps/dsa-web/`.
 - Tests live under `tests/` and the project's other configured test directories.
-- Deployment assets belong in `scripts/`, `.github/workflows/`, and `docker/`.
+- Deployment assets belong in `.github/workflows/` and `docker/`.
 - Read the applicable scoped instructions before changing backend, client, or
   governance files.
 
@@ -68,11 +68,8 @@ project's configured environment. Do not require live services or credentials
 for tests that are intended to be offline.
 
 Documentation-only changes do not require application tests. Verify referenced
-paths and commands, run `git diff --check`, and validate governance changes with:
-
-```powershell
-python scripts\check_ai_assets.py
-```
+paths and commands, and run `git diff --check`. For governance changes, review
+the collaboration entry points and scoped instructions for consistency.
 
 ## Documentation and collaboration
 
