@@ -10,7 +10,9 @@ describe("DSA Web smoke", () => {
     allure.story("Cypress is correctly configured against dsa-web");
 
     cy.visit("/");
+    cy.wait("@authStatus");
     cy.title().should("eq", "dsa-web");
-    cy.get("#root").should("exist");
+    cy.get("#root").should("not.be.empty");
+    cy.get("nav").should("be.visible");
   });
 });

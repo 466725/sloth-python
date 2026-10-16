@@ -2,7 +2,7 @@ import { defineConfig } from "cypress";
 import path from "node:path";
 import { allureCypress } from "allure-cypress/reporter";
 
-const baseUrl = process.env.BASE_URL || "http://localhost:8000";
+const baseUrl = process.env.BASE_URL || "http://127.0.0.1:4174";
 // Shared test-output root used across the repo (gitignore at the project root).
 const reportsRoot = path.resolve(__dirname, "../../temps/dsa-web-ts-cypress");
 

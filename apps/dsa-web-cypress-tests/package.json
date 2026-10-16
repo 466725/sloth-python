@@ -18,7 +18,8 @@
   "scripts": {
     "cypress:open": "npx cypress open",
     "cypress:run": "npx cypress run",
-    "test": "npm run cypress:run",
+    "test": "start-server-and-test test:serve http-get://127.0.0.1:4174 cypress:run",
+    "test:serve": "npm --prefix ../dsa-web run dev -- --host 127.0.0.1 --port 4174 --strictPort",
     "allure:generate": "allure generate ../../temps/cypress_dsa_web/allure-results --clean -o ../../temps/cypress_dsa_web/allure-report",
     "allure:open": "allure open ../../temps/cypress_dsa_web/allure-report"
   },
@@ -30,6 +31,7 @@
     "allure-js-commons": "^3.13.0",
     "cypress": "^16.1.1",
     "cypress-multi-reporters": "^2.0.5",
+    "start-server-and-test": "^3.0.13",
     "typescript": "^7.0.2"
   }
 }

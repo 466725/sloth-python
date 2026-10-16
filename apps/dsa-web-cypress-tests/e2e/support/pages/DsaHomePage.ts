@@ -2,13 +2,16 @@
 
 export class DsaHomePage {
   private readonly homePath = "/";
-  private readonly analyzeButtonSelector = 'button:contains("Analyze")';
-
   visit() {
-    cy.visit(this.homePath);
+    cy.visit(this.homePath, {
+      onBeforeLoad(window) {
+        window.localStorage.setItem("dsa.uiLanguage", "en");
+      },
+    });
+    cy.wait("@authStatus");
   }
 
   getAnalyzeButton() {
-    return cy.get(this.analyzeButtonSelector);
+    return cy.contains("button", /^Analyze$/);
   }
 }

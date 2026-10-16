@@ -76,8 +76,9 @@ cd apps\dsa-web-cypress-tests
 npm install
 ```
 
-Then run `npm test` against a running app with the appropriate `BASE_URL` (see
-below). This package does not yet
+Then run `npm test` (it starts an isolated frontend automatically). To test an
+already-running app, set `BASE_URL` and run `npm run cypress:run` (see below).
+This package does not yet
 have a dedicated CI workflow. To stop these scheduled npm updates, remove this
 package's npm entry from the Dependabot configuration; leave the pip entry intact.
 
@@ -85,19 +86,31 @@ package's npm entry from the Dependabot configuration; leave the pip entry intac
 
 ### Base URL
 
-`cypress.config.ts` reads `BASE_URL`, defaulting to the local DSA backend (`http://localhost:8000`). The backend serves the built `dsa-web` app; start it before running tests (see the root [readme.md](../../readme.md) run modes, e.g. `python main.py --serve-only`).
+`npm test` starts Vite on `http://127.0.0.1:4174`, waits until it responds,
+runs Cypress, and stops Vite even if tests fail. Install the frontend dependencies
+under `apps/dsa-web` first. The small `start-server-and-test` development dependency
+handles readiness and process cleanup across Windows, macOS, and Linux.
+
+No backend, Python environment, or Docker service is required for these two UI
+specs: the support file intercepts their auth, history, task, watchlist, skills,
+and setup-status API requests. Application exceptions still fail tests.
+
+`cypress.config.ts` reads `BASE_URL`, defaulting to `http://127.0.0.1:4174`.
+For an already-running app, use `cypress:run` or `cypress:open` rather than
+`npm test` to skip automatic startup:
 
 PowerShell:
 
 ```powershell
 $env:BASE_URL="http://localhost:8000"
-npm test
+npm run cypress:run
+Remove-Item Env:BASE_URL
 ```
 
 bash:
 
 ```bash
-BASE_URL="http://localhost:8000" npm test
+BASE_URL="http://localhost:8000" npm run cypress:run
 ```
 
 To instead test against the Vite dev server (`npm run dev` under `apps/dsa-web`, no backend required for static/UI-only checks), set `BASE_URL=http://localhost:5173`.
@@ -110,7 +123,8 @@ To instead test against the Vite dev server (`npm run dev` under `apps/dsa-web`,
 
 | Script | Purpose |
 |---|---|
-| `npm test` / `npm run cypress:run` | Run all Cypress specs headlessly |
+| `npm test` | Start isolated Vite, run all specs headlessly, stop Vite |
+| `npm run cypress:run` | Run all specs against an already-running app |
 | `npm run cypress:open` | Open the Cypress UI |
 | `npm run allure:generate` | Build the Allure report from `../../temps/cypress_dsa_web/allure-results` |
 | `npm run allure:open` | Open the generated Allure report |
@@ -137,7 +151,7 @@ Results: `temps/cypress_dsa_web/allure-results`; report: `temps/cypress_dsa_web/
 ## Troubleshooting
 
 - `allure: command not found`: run `npm install` and confirm Java is installed (`java -version`).
-- Cypress fails on first page load: confirm `BASE_URL` points at a reachable target and the DSA backend (or Vite dev server) is running.
+- Cypress fails on first page load: for `npm test`, ensure port 4174 is free and frontend dependencies are installed (`npm install` under `apps/dsa-web`). For `cypress:run`, confirm `BASE_URL` points at a responsive app. A Docker/WSL service on port 8000 may accept connections without serving HTTP; use `curl.exe --max-time 5 http://localhost:8000/` to check before targeting it.
 - `Cannot read properties of undefined (reading 'state')` from the old
   `@shelex/cypress-allure-plugin`: run `npm install` to use the current
   `allure-cypress` integration. Reporting is initialized in `setupNodeEvents`
