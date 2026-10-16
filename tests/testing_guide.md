@@ -1,222 +1,226 @@
-# Running Tests
+# Sloth Python Testing Guide
 
-This guide collects the commands for the repository's Python, Robot Framework,
-and Web tests. Run commands from the repository root unless a step changes
-directories. Start with the smallest suite that covers your change.
+This guide explains how to run the Sloth Python project’s automated tests on
+Windows from PowerShell. Run commands from the repository root unless a step
+explicitly changes directories. Start with the smallest suite that covers your
+change; browser and integration suites may need additional services or
+configuration.
 
-## Python environment
+## Test suites
 
-The Python commands below assume the project environment is active. On Windows,
-activate the repository's Python 3.11 environment in PowerShell with:
+| Suite | Location | What it covers |
+| --- | --- | --- |
+| pytest | `pytest_tests/`, `tests/`, and other Python test modules | Python unit, API, integration, UI, AI, and data-driven tests |
+| Robot Framework | `robot_tests/` and `tests/robot_tests/` | Keyword-driven API, UI, and behavior tests |
+| Vitest | `apps/dsa-web/src/` and `apps/dsa-web/tests/` | DSA Web unit and component tests |
+| Playwright | `apps/dsa-web-playwright-tests/e2e/` | DSA Web browser end-to-end tests; starts the backend and Vite server |
+| Cypress | `apps/dsa-web-cypress-tests/e2e/` | DSA Web browser end-to-end tests against a running app |
+| Performance assets | `tests/performance/` | JMeter, Postman, and LoadRunner scenarios; these require their respective tools and environment setup |
+
+## One-time setup
+
+### Python tests
+
+Use Python 3.11 and install the repository requirements into a virtual
+environment. From the repository root:
 
 ```powershell
-.\.venv311\Scripts\Activate.ps1
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-If the environment has not been set up, install the project dependencies using
-the repository's normal Python setup instructions before running tests.
-
-## Run all test frameworks
-
-With the Python environment active, npm dependencies installed in both Web
-packages, and the DSA application available at `http://localhost:8000` for
-Cypress, run this block from the repository root in PowerShell. It runs pytest,
-Robot Framework, Cypress, Vitest, and Playwright in order, continues after
-failures, and returns a failing exit code if any framework fails. Playwright's
-authenticated tests are skipped unless `DSA_WEB_SMOKE_PASSWORD` is set:
+If PowerShell blocks activation, use the environment's interpreter directly:
 
 ```powershell
-$failedSuites = @()
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pytest
+```
 
-python -m pytest
-if ($LASTEXITCODE -ne 0) { $failedSuites += "pytest" }
+Install Playwright's Python browser when running Python UI tests:
 
-python -m robot --outputdir temps/test-results-robot tests/robot_tests/
-if ($LASTEXITCODE -ne 0) { $failedSuites += "Robot Framework" }
+```powershell
+python -m playwright install chromium
+```
 
-Push-Location apps\dsa-web-cypress-tests
-try {
-    npm test
-    if ($LASTEXITCODE -ne 0) { $failedSuites += "Cypress" }
-}
-finally {
-    Pop-Location
-}
+### DSA Web tests
 
+Use Node.js 22 or 24 and npm. Install each package’s locked dependencies once
+from the repository root:
+
+```powershell
 Push-Location apps\dsa-web
-try {
-    npm run test
-    if ($LASTEXITCODE -ne 0) { $failedSuites += "Vitest" }
-}
-finally {
-    Pop-Location
-}
+npm ci
+Pop-Location
 
 Push-Location apps\dsa-web-playwright-tests
-try {
-    npm test
-    if ($LASTEXITCODE -ne 0) { $failedSuites += "Playwright" }
-}
-finally {
-    Pop-Location
-}
+npm ci
+npx playwright install chromium
+Pop-Location
 
-if ($failedSuites.Count -gt 0) {
-    Write-Error "Failed test suites: $($failedSuites -join ', ')"
-    exit 1
-}
-
-Write-Output "All test frameworks passed."
+Push-Location apps\dsa-web-cypress-tests
+npm ci
+Pop-Location
 ```
 
-## Pytest
+## pytest
 
-Pytest suites are under `tests/pytest_tests/` and `tests/`. Pytest and its
-markers are configured in the root `pyproject.toml`.
+Pytest settings and markers are configured in the root `pyproject.toml`. The
+configuration writes Allure results and logs under `temps/test-results-pytest/`.
 
 ```powershell
-# Run all pytest tests
+# Run all discovered Python tests
 python -m pytest
 
-# Fast unit and API checks
-python -m pytest -m "unit or api"
+# Run the unit and API smoke selection used by CI
+python -m pytest -m "unit or api" --tb=short
 
-# Run one file or one test
-python -m pytest tests/pytest_tests/test_csv_reader.py -q
-python -m pytest tests/pytest_tests/test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
+# Run the broader CI regression selection (excludes AI-marked tests)
+python -m pytest -m "not ai" --tb=short --maxfail=5
 
-# Run UI tests
+# Run one test file or one test case
+python -m pytest tests\unit\test_calculator.py -q
+python -m pytest tests\pytest_tests\test_csv_reader.py::test_read_csv_to_list_converts_numeric_cells_to_int -q
+
+# Run UI-marked tests or the Tangerine browser suite
 python -m pytest -m ui
-python -m pytest tests/pytest_tests/ui_suites/tangerine -q
+python -m pytest tests\pytest_tests\ui_suites\tangerine -q
 ```
 
-The root pytest configuration writes Allure results to `temps/test-results-pytest/`.
-UI tests may need browser dependencies or an accessible test application; see
-the suite fixtures and setup when running a specific UI suite.
+AI and network tests may require provider credentials, network access, or
+external services. Run them separately when their prerequisites are available.
 
 ## Robot Framework
 
-Robot suites are under `tests/robot_tests/`. These commands run from the
-repository root and write reports to the selected directory under `temps/`.
+Robot suites are under `robot_tests/` and `tests/robot_tests/`. Reports are
+written to the directory passed to `--outputdir`.
 
 ```powershell
-# Run the UI suites
-python -m robot --outputdir temps/test-results-robot tests/robot_tests/ui_suites/
+# Run the API and keyword-driven smoke suites used by CI
+python -m robot --outputdir temps\test-results-robot `
+  tests\robot_tests\api_suites `
+  tests\robot_tests\test_basics.robot `
+  tests\robot_tests\test_data_driven.robot `
+  tests\robot_tests\test_data_driven_with_csv.robot `
+  tests\robot_tests\test_keyword_driven.robot
 
-# Check syntax and keyword wiring without executing the suite
-python -m robot --dryrun --outputdir temps/test-results-robot tests/robot_tests/ui_suites/
+# Run all Robot suites
+python -m robot --outputdir temps\test-results-robot tests\robot_tests
 
-# Run one test by name while retaining the parent suite setup
-python -m robot --test "Test Name" --outputdir temps/test-results-robot tests/robot_tests/
+# Check suite syntax and keyword wiring without running the tests
+python -m robot --dryrun --outputdir temps\test-results-robot tests\robot_tests
+
+# Select a test by its Robot test-case name
+python -m robot --test "Test Name" --outputdir temps\test-results-robot tests\robot_tests
 ```
 
-Robot creates `output.xml`, `log.html`, and `report.html` in the output
-directory. The UI suites may require a browser and a reachable application.
+Robot writes `output.xml`, `log.html`, and `report.html` to the output
+directory. Some API suites need service credentials or network access; check
+the selected suite before running it.
 
-## TypeScript unit tests (Vitest)
+## DSA Web unit and component tests (Vitest)
 
-The DSA Web unit/component tests use Vitest and are located under
-`apps/dsa-web/src/` and `apps/dsa-web/tests/`. From the `apps/dsa-web` package
-directory, `npm test` (equivalently, `npm run test`) runs only Vitest; it does
-not run the Playwright or Cypress suites. Install the locked npm dependencies
-once, then run:
+Vitest runs from the `apps/dsa-web` package. These tests use the configured
+jsdom environment and normally do not need a running backend.
 
 ```powershell
-Set-Location apps\dsa-web
-npm ci
+Push-Location apps\dsa-web
 
 # Run the full Vitest suite
 npm run test
 
-# Run one test file or a matching test name
+# Run a single test file or matching test name
 npm run test -- src/pages/__tests__/HomePage.test.tsx
 npm run test -- src/pages/__tests__/HomePage.test.tsx -t "loads markdown"
+
+Pop-Location
 ```
 
-Vitest uses the jsdom environment configured in `vitest.config.ts`; these tests
-do not normally require a separately running backend.
-
-## Browser E2E tests (Playwright & Cypress)
+## DSA Web browser tests
 
 ### Playwright
 
-The DSA Web Playwright tests are under `apps/dsa-web-playwright-tests/`. Run them from that package directory:
+The Playwright configuration starts the backend and Vite dev server at
+`http://127.0.0.1:8000` and `http://127.0.0.1:4173`. Activate the Python
+virtual environment first so the auto-started backend uses the project’s
+installed dependencies.
 
 ```powershell
-Set-Location apps\dsa-web-playwright-tests
-npm ci
+Push-Location apps\dsa-web-playwright-tests
 
-# Run the Playwright suite
+# Run the full Playwright suite
 npm test
 
-# Run in UI mode for debugging
+# Run one spec or open the interactive runner
+npx playwright test e2e\smoke.spec.ts
 npm run test:ui
 
-# Run the Cypress suite in the sibling package without changing directories
-npm --prefix ..\dsa-web-cypress-tests test
+Pop-Location
 ```
 
-These tests require `DSA_WEB_SMOKE_PASSWORD` to run; otherwise, they are
-reported as skipped. When the variable is set, `playwright.config.ts` starts
-the backend and Vite dev server on ports 8000 and 4173, respectively, unless
-matching servers can be reused. Set `DSA_WEB_SMOKE_BACKEND_CMD` to override the
-backend start command. Playwright runs Chromium; install its browser if needed
-with `npx playwright install chromium`.
-
-## Cypress end-to-end tests
-
-Cypress specs are under `../apps/dsa-web-cypress-tests/e2e`. Install
-dependencies and run commands from the Cypress package directory. If your
-current directory is `apps/dsa-web`, you can run the full Cypress suite with
-`npm --prefix ..\dsa-web-cypress-tests test`.
+Results, screenshots, and videos are written under `temps/` at the repository
+root. To override the backend startup command for the current PowerShell
+session, set `DSA_WEB_SMOKE_BACKEND_CMD` before running Playwright:
 
 ```powershell
-Set-Location apps\dsa-web-cypress-tests
-npm ci
+$env:DSA_WEB_SMOKE_BACKEND_CMD = 'python main.py --serve-only'
+```
 
-# Run all Cypress specs headlessly
+### Cypress
+
+Cypress uses `BASE_URL`, which defaults to `http://localhost:8000`. Start the
+DSA Web/API service before running the suite, for example in a separate
+PowerShell window from the repository root:
+
+```powershell
+python main.py --serve-only
+```
+
+Then, in another PowerShell window:
+
+```powershell
+Push-Location apps\dsa-web-cypress-tests
+
+# Run all Cypress specs
 npm test
 
-# Run one spec
-npm run cypress:run -- --spec "cypress/tests/home.cy.ts"
-
-# Open the Cypress interactive runner
+# Run one spec or open the interactive runner
+npm run cypress:run -- --spec "e2e/home.cy.ts"
 npm run cypress:open
+
+Pop-Location
 ```
 
-By default, Cypress visits `http://localhost:8000`; start the DSA application
-before running specs that use the backend. To use another URL, set `BASE_URL`
-in the same PowerShell session:
+To test against another running URL, set `BASE_URL` in the Cypress window
+before running the suite:
 
 ```powershell
-$env:BASE_URL = "http://localhost:5173"
+$env:BASE_URL = 'http://localhost:5173'
 npm test
 ```
 
-The Vite development server can be used for the backend-independent app-shell
-smoke spec. In another terminal, start it with:
+Cypress output is written under `temps/dsa-web-ts-cypress/` at the repository
+root. See the [Cypress package guide](../apps/dsa-web-cypress-tests/Readme.md)
+for package-specific details.
 
-```powershell
-Set-Location apps\dsa-web
-npm run dev
-```
+## Test results and CI
 
-Then set `BASE_URL` to `http://localhost:5173` in the Cypress terminal.
-Cypress screenshots, downloads, and Allure results are written under
-`temps/dsa-web-ts-cypress/`.
+Python test output and Robot reports are stored under `temps/`. DSA Web browser
+test output is also stored under `temps/`; these generated results should not
+be committed.
 
-## Choosing what to run
+The GitHub Actions smoke job runs pytest with `unit or api` markers and a
+selected set of Robot suites. The scheduled/manual regression job runs pytest
+with `not ai` and all suites under `tests/robot_tests/`. Use those selections
+when reproducing CI locally. The browser suites described above are run
+separately from those CI jobs.
 
-- Backend or Python behavior: run the related pytest file, then the relevant
-  marker group if needed.
-- Robot keyword or suite behavior: run the affected suite directory; use
-  `--dryrun` for a quick syntax and keyword-wiring check.
-- DSA Web component behavior: run the affected Vitest file.
-- Full browser flow through the DSA Web application: run the relevant Cypress
-  spec against the intended app URL.
+Performance test assets live in `tests/performance/`. They are not part of the
+pytest, Robot, Vitest, Playwright, or Cypress commands above; follow the setup
+and environment requirements of JMeter, Postman, or LoadRunner before running
+them. See the [load runner guide](performance/load_runner/load_runner_best_practices.md)
+for scenario-design practices.
 
-The root [README](../readme.md#-running-tests) also has the existing pytest and
-Robot examples. Playwright-specific configuration and coverage details are in
-[the Playwright package README](../apps/dsa-web-playwright-tests/Readme.md).
-Cypress-specific configuration and coverage details are in
-[the Cypress package README](../apps/dsa-web-cypress-tests/Readme.md).
+For framework-specific details, see the [Playwright package guide](../apps/dsa-web-playwright-tests/Readme.md)
+and [Cypress package guide](../apps/dsa-web-cypress-tests/Readme.md).
