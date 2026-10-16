@@ -277,6 +277,12 @@ The dev server proxies `/api` to a backend (see `vite.config.ts`). Start the bac
 python main.py --serve-only --host 127.0.0.1 --port 8000
 ```
 
+The proxy defaults to `http://127.0.0.1:8000`. To use a different backend,
+export `DSA_WEB_API_PROXY_TARGET` in the shell running `npm run dev`.
+The [Playwright package](../dsa-web-playwright-tests/Readme.md) sets this to
+`http://127.0.0.1:18000` for its isolated test backend; normal development
+is unchanged.
+
 Other scripts (run from `apps/dsa-web`):
 
 ```bash

@@ -1,34 +1,17 @@
 import { defineConfig, devices } from '@playwright/test';
-import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { BACKEND_URL, resolveBackendCommand } from './backend-command';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(currentDir, '../..');
 const dsaWebDir = path.resolve(currentDir, '../dsa-web');
 
-function resolveBackendCommand() {
-  if (process.env.DSA_WEB_SMOKE_BACKEND_CMD) {
-    return process.env.DSA_WEB_SMOKE_BACKEND_CMD;
-  }
-
-  const unixVenvPython = path.join(repoRoot, '.venv', 'bin', 'python');
-  if (fs.existsSync(unixVenvPython)) {
-    return `${unixVenvPython} main.py --webui-only --host 127.0.0.1 --port 8000`;
-  }
-
-  const windowsVenvPython = path.join(repoRoot, '.venv', 'Scripts', 'python.exe');
-  if (fs.existsSync(windowsVenvPython)) {
-    return `"${windowsVenvPython}" main.py --webui-only --host 127.0.0.1 --port 8000`;
-  }
-
-  return 'python main.py --webui-only --host 127.0.0.1 --port 8000';
-}
-
 export default defineConfig({
   testDir: './e2e',
   outputDir: path.join(repoRoot, 'temps', 'dsa-web-ts-playwright'),
   fullyParallel: false,
+  workers: 1,
   retries: process.env.CI ? 2 : 0,
   reporter: 'list',
   use: {
@@ -40,18 +23,22 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: resolveBackendCommand(),
+      command: resolveBackendCommand(repoRoot),
       cwd: repoRoot,
-      url: 'http://127.0.0.1:8000/api/v1/auth/status',
+      env: { PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1' },
+      url: `${BACKEND_URL}/api/v1/auth/status`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
+      stdout: 'pipe',
     },
     {
-      command: 'npm run dev -- --host 127.0.0.1 --port 4173',
+      command: 'npm run dev -- --host 127.0.0.1 --port 4173 --strictPort',
       cwd: dsaWebDir,
       url: 'http://127.0.0.1:4173',
-      reuseExistingServer: !process.env.CI,
+      env: { DSA_WEB_API_PROXY_TARGET: BACKEND_URL },
+      reuseExistingServer: false,
       timeout: 120_000,
+      stdout: 'pipe',
     },
   ],
   projects: [

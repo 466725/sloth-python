@@ -13,10 +13,13 @@ async function captureSmokeScreenshot(page: Page, testInfo: TestInfo, name: stri
 }
 
 async function login(page: Page) {
-  // Login is no longer required; navigate to home page directly
+  await page.addInitScript(() => {
+    if (window.localStorage.getItem('dsa.uiLanguage') === null) {
+      window.localStorage.setItem('dsa.uiLanguage', 'zh');
+    }
+  });
   await page.goto('/');
-  await page.waitForLoadState('domcontentloaded');
-  await page.waitForTimeout(1000);
+  await expect(page.getByPlaceholder('输入股票代码或名称，如 600519、贵州茅台、AAPL')).toBeVisible({ timeout: 20_000 });
 }
 
 test.describe('web smoke', () => {
@@ -142,11 +145,9 @@ test.describe('web smoke', () => {
     await expect(page.getByRole('heading', { name: 'System settings' })).toBeVisible({ timeout: 10_000 });
 
     // Navigate to the Notifications category to find the Send test button
-    const notificationsTab = page.getByRole('button', { name: 'Notifications' });
-    if (await notificationsTab.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await notificationsTab.click();
-      await page.waitForTimeout(500);
-    }
+    const notificationsTab = page.getByRole('button', { name: /^Notifications\b/ });
+    await expect(notificationsTab).toBeVisible({ timeout: 10_000 });
+    await notificationsTab.click();
     await expect(page.getByRole('button', { name: 'Send test' })).toBeVisible({ timeout: 10_000 });
     await expect(page.getByRole('textbox', { name: 'Title' })).toHaveValue('DSA notification test');
 

@@ -15,6 +15,7 @@ Playwright + TypeScript E2E test automation for the [`apps/dsa-web`](../dsa-web)
 ```text
 dsa-web-playwright-tests/
 |-- e2e/
+|   |-- backend-command.spec.ts # Cross-platform backend startup regression tests
 |   |-- smoke.spec.ts           # Login, home page, chat flows
 |   `-- report-markdown.spec.ts # Report copy and clipboard tests
 |-- playwright.config.ts        # Playwright config with auto server startup
@@ -26,9 +27,7 @@ dsa-web-playwright-tests/
 Test results, screenshots, and videos are written to the repo-root `temps/` folder (already gitignored):
 
 ```text
-sloth-python/temps/playwright_dsa_web/
-|-- test-results/
-`-- playwright-report/
+sloth-python/temps/dsa-web-ts-playwright/
 ```
 
 ## Setup
@@ -66,8 +65,18 @@ npx playwright install chromium
 Override the backend startup command with `DSA_WEB_SMOKE_BACKEND_CMD`:
 
 ```bash
-DSA_WEB_SMOKE_BACKEND_CMD="python main.py --serve-only" npm test
+DSA_WEB_SMOKE_BACKEND_CMD="python main.py --webui-only --host 127.0.0.1 --port 18000" npm test
 ```
+
+In PowerShell:
+
+```powershell
+$env:DSA_WEB_SMOKE_BACKEND_CMD = 'python main.py --webui-only --host 127.0.0.1 --port 18000'
+npm test
+Remove-Item Env:DSA_WEB_SMOKE_BACKEND_CMD
+```
+
+Custom commands must serve the backend on `127.0.0.1:18000`.
 
 ### Run a Single Spec
 
@@ -78,16 +87,29 @@ npx playwright test e2e/smoke.spec.ts
 ## Current Test Coverage
 
 - `e2e/smoke.spec.ts`: Login page renders, home page shows analysis entry and history after login, chat page allows entering a question.
-- `e2e/report-markdown.spec.ts`: Copy Markdown source code to clipboard, copy plain text to clipboard.
+- `e2e/report-markdown.spec.ts`: Copy exact Markdown/plain-text content to the clipboard and verify both copy buttons are disabled while the report loads. History and report API responses are intercepted with fixed test data, so these UI tests need no existing reports, live analysis, or LLM credentials.
 
 All tests run with Chinese locale (`zh-CN`) and use Chromium browser.
+Tests use one worker to avoid contention on the shared Vite dev server and
+system clipboard, including when repeating the suite.
 
 ## Configuration
 
 `playwright.config.ts` auto-starts two servers:
 
-1. **Backend**: `python main.py --webui-only --host 127.0.0.1 --port 8000` (from repo root)
-2. **Frontend**: `npm run dev -- --host 127.0.0.1 --port 4173` (from `apps/dsa-web`)
+1. **Backend**: `python main.py --webui-only --host 127.0.0.1 --port 18000` (from repo root).
+   Python is selected from the activated `VIRTUAL_ENV`, then the repository's `.venv`,
+   then `.venv311`, then `python` on PATH. Executable paths are quoted on all platforms.
+2. **Frontend**: `npm run dev -- --host 127.0.0.1 --port 4173 --strictPort` (from `apps/dsa-web`).
+   Playwright sets `DSA_WEB_API_PROXY_TARGET=http://127.0.0.1:18000` for this server.
+   Normal Vite development still proxies to port 8000.
+
+The dedicated backend port avoids conflicts with Docker/WSL or a normal development
+server on port 8000. A healthy backend on port 18000 can be reused outside CI.
+The frontend is always started by Playwright so it cannot reuse a Vite server
+that proxies to a different backend. Stop any other server on port 4173 first.
+Server startup output is shown in the terminal. The backend uses UTF-8,
+unbuffered output so Chinese log messages work in Windows subprocess pipes.
 
 The base URL for tests is `http://127.0.0.1:4173` (the Vite dev server).
 
@@ -109,7 +131,9 @@ This package and [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.
 
 ## Troubleshooting
 
-- **Backend fails to start**: Ensure Python dependencies are installed and the `.venv` exists, or set `DSA_WEB_SMOKE_BACKEND_CMD` manually.
+- **Backend fails to start**: Activate your Python environment (for example, `.venv311\Scripts\Activate.ps1` on Windows), ensure project dependencies are installed, or set `DSA_WEB_SMOKE_BACKEND_CMD` manually.
+- **Stuck before tests are listed**: Check `http://127.0.0.1:18000/api/v1/auth/status` with `curl.exe --max-time 5` on Windows. An occupied port that accepts connections but never responds can stall Playwright's initial health check before its startup timeout applies. Inspect the port owner and stop or repair that service; do not terminate unrelated Docker/WSL processes blindly. For startup diagnostics in PowerShell, set `$env:DEBUG = 'pw:webserver'` before `npm test` and remove it afterward with `Remove-Item Env:DEBUG`.
+- **Frontend port already in use**: Stop the existing server on port 4173; Playwright deliberately does not reuse it.
 - **Frontend fails to start**: Ensure `apps/dsa-web` dependencies are installed (`cd apps/dsa-web && npm install`).
 - **Browser not found**: Run `npx playwright install chromium`.
 

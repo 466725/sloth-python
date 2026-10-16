@@ -109,7 +109,7 @@ export default defineConfig({
     port: 5173,       // 默认端口
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8000',
+        target: process.env.DSA_WEB_API_PROXY_TARGET || 'http://127.0.0.1:8000',
         changeOrigin: true,
       },
     },
