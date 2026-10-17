@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import os
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from api.deps import get_system_config_service
 from api.v1.schemas.common import ErrorResponse
@@ -28,7 +28,6 @@ from api.v1.schemas.system_config import (
     ValidateSystemConfigRequest,
     ValidateSystemConfigResponse,
 )
-from ai_stock.auth import COOKIE_NAME, is_auth_enabled, refresh_auth_state, verify_session
 from ai_stock.services.system_config_service import (
     ConfigConflictError,
     ConfigImportError,
@@ -50,29 +49,14 @@ class EnvBackupAccessDenied(Exception):
         self.message = message
 
 
-def _allow_env_backup_access(request: Request) -> None:
-    """Gate raw .env backup/restore to explicit secure modes.
-
-    - Desktop runtime keeps existing local behavior via DSA_DESKTOP_MODE.
-    - Non-desktop runtime must have admin auth enabled and a valid session.
-    """
+def _allow_env_backup_access() -> None:
+    """Keep raw .env backup/restore limited to the desktop runtime."""
     if os.getenv("DSA_DESKTOP_MODE") == "true":
         return
 
-    refresh_auth_state()
-    if not is_auth_enabled():
-        raise EnvBackupAccessDenied(
-            status_code=403,
-            message="System config backup is disabled; enable admin authentication first",
-        )
-
-    cookie_val = request.cookies.get(COOKIE_NAME)
-    if cookie_val and verify_session(cookie_val):
-        return
-
     raise EnvBackupAccessDenied(
-        status_code=401,
-        message="System config backup requires a valid admin session",
+        status_code=403,
+        message="System config backup is available only in desktop mode",
     )
 
 
@@ -91,7 +75,6 @@ def _raise_env_backup_access_error(exc: EnvBackupAccessDenied) -> None:
     response_model=SystemConfigResponse,
     responses={
         200: {"description": "Configuration loaded"},
-        401: {"description": "Unauthorized", "model": ErrorResponse},
         500: {"description": "Internal server error", "model": ErrorResponse},
     },
     summary="Get system configuration",
@@ -125,7 +108,6 @@ def get_system_config(
     response_model=SetupStatusResponse,
     responses={
         200: {"description": "Setup status loaded"},
-        401: {"description": "Unauthorized", "model": ErrorResponse},
         500: {"description": "Internal server error", "model": ErrorResponse},
     },
     summary="Get first-run setup status",
@@ -208,20 +190,18 @@ def update_system_config(
     response_model=ExportSystemConfigResponse,
     responses={
         200: {"description": "Env exported"},
-        401: {"description": "Unauthorized", "model": ErrorResponse},
-        403: {"description": "Env backup disabled", "model": ErrorResponse},
+        403: {"description": "Desktop mode required", "model": ErrorResponse},
         500: {"description": "Internal server error", "model": ErrorResponse},
     },
     summary="Export env backup",
     description="Return the raw saved .env content for configuration backup.",
 )
 def export_system_config(
-    request: Request,
     service: SystemConfigService = Depends(get_system_config_service),
 ) -> ExportSystemConfigResponse:
     """Export the active `.env` file for config backup."""
     try:
-        _allow_env_backup_access(request)
+        _allow_env_backup_access()
     except EnvBackupAccessDenied as exc:
         logger.warning("System config export blocked: %s", exc)
         _raise_env_backup_access_error(exc)
@@ -258,8 +238,7 @@ def export_system_config(
                 }
             },
         },
-        401: {"description": "Unauthorized", "model": ErrorResponse},
-        403: {"description": "Env backup disabled", "model": ErrorResponse},
+        403: {"description": "Desktop mode required", "model": ErrorResponse},
         409: {"description": "Version conflict", "model": SystemConfigConflictResponse},
         500: {"description": "Internal server error", "model": ErrorResponse},
     },
@@ -268,12 +247,11 @@ def export_system_config(
 )
 def import_system_config(
     request: ImportSystemConfigRequest,
-    request_obj: Request,
     service: SystemConfigService = Depends(get_system_config_service),
 ) -> UpdateSystemConfigResponse:
     """Import a `.env` backup into the active config."""
     try:
-        _allow_env_backup_access(request_obj)
+        _allow_env_backup_access()
     except EnvBackupAccessDenied as exc:
         logger.warning("System config import blocked: %s", exc)
         _raise_env_backup_access_error(exc)

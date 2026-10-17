@@ -45,7 +45,6 @@ from ai_stock.storage import (
 from ai_stock.analyzer import AnalysisResult
 from ai_stock.daily_market_context_guardrail import apply_daily_market_context_guardrail
 from ai_stock.services.history_service import HistoryService
-import ai_stock.auth as auth
 
 
 def _analysis_context_pack_overview() -> dict:
@@ -121,7 +120,6 @@ class AnalysisHistoryTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
         """为每个用例初始化独立数据库"""
-        auth._auth_enabled = False
         self._temp_dir = tempfile.TemporaryDirectory()
         self._db_path = os.path.join(self._temp_dir.name, "test_analysis_history.db")
         os.environ["DATABASE_PATH"] = self._db_path
@@ -970,8 +968,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertEqual(report.meta.current_price, 200.0)
         self.assertEqual(report.meta.change_pct, 1.23)
 
-    @patch("ai_stock.auth.is_auth_enabled", return_value=False)
-    def test_history_detail_ignores_non_dict_realtime_quote_raw(self, mock_auth) -> None:
+    def test_history_detail_ignores_non_dict_realtime_quote_raw(self) -> None:
         """GET /api/v1/history/{id} should tolerate truthy non-dict realtime_quote_raw."""
         if TestClient is None or create_app is None:
             self.skipTest("fastapi is not installed in this test environment")
@@ -1964,8 +1961,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
                 1,
             )
 
-    @patch("ai_stock.auth.is_auth_enabled", return_value=False)
-    def test_delete_history_api_deletes_selected_records(self, mock_auth) -> None:
+    def test_delete_history_api_deletes_selected_records(self) -> None:
         """DELETE /api/v1/history should remove only the requested records."""
         if TestClient is None or create_app is None:
             self.skipTest("fastapi is not installed in this test environment")

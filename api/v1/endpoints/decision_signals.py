@@ -6,8 +6,7 @@ from __future__ import annotations
 import logging
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException, Query, Security
-from fastapi.security import APIKeyCookie
+from fastapi import APIRouter, HTTPException, Query
 
 from api.v1.schemas.common import ErrorResponse
 from api.v1.schemas.decision_signals import (
@@ -23,7 +22,6 @@ from api.v1.schemas.decision_signals import (
     DecisionSignalOutcomeStatsResponse,
     DecisionSignalStatusUpdateRequest,
 )
-from ai_stock.auth import COOKIE_NAME
 from ai_stock.services.decision_signal_service import (
     DecisionSignalNotFoundError,
     DecisionSignalService,
@@ -34,19 +32,7 @@ from ai_stock.services.decision_signal_outcome_service import DecisionSignalOutc
 
 logger = logging.getLogger(__name__)
 
-admin_session_cookie = APIKeyCookie(
-    name=COOKIE_NAME,
-    scheme_name="AdminSessionCookie",
-    auto_error=False,
-)
-router = APIRouter(dependencies=[Security(admin_session_cookie)])
-
-AUTH_RESPONSE = {
-    401: {
-        "model": ErrorResponse,
-        "description": "未登录或管理员会话无效（ADMIN_AUTH_ENABLED=true 时）",
-    },
-}
+router = APIRouter()
 
 
 def _bad_request(exc: Exception, *, error: str = "validation_error") -> HTTPException:
@@ -75,7 +61,6 @@ def _internal_error(message: str, exc: Exception) -> HTTPException:
     "",
     response_model=DecisionSignalMutationResponse,
     responses={
-        **AUTH_RESPONSE,
         400: {"model": ErrorResponse, "description": "请求字段非法"},
         422: {"model": ErrorResponse, "description": "请求体或路径参数校验失败"},
         500: {"model": ErrorResponse, "description": "创建失败"},
@@ -107,7 +92,6 @@ def create_signal(request: DecisionSignalCreateRequest) -> DecisionSignalMutatio
     "",
     response_model=DecisionSignalListResponse,
     responses={
-        **AUTH_RESPONSE,
         400: {"model": ErrorResponse, "description": "查询参数非法"},
         422: {"model": ErrorResponse, "description": "查询参数校验失败"},
         500: {"model": ErrorResponse, "description": "查询失败"},
@@ -171,7 +155,6 @@ def list_signals(
     "/outcomes/run",
     response_model=DecisionSignalOutcomeRunResponse,
     responses={
-        **AUTH_RESPONSE,
         400: {"model": ErrorResponse, "description": "请求字段非法"},
         404: {"model": ErrorResponse, "description": "信号不存在"},
         422: {"model": ErrorResponse, "description": "请求体校验失败"},
@@ -213,7 +196,6 @@ def run_outcomes(request: DecisionSignalOutcomeRunRequest) -> DecisionSignalOutc
     "/outcomes",
     response_model=DecisionSignalOutcomeListResponse,
     responses={
-        **AUTH_RESPONSE,
         400: {"model": ErrorResponse, "description": "查询参数非法"},
         422: {"model": ErrorResponse, "description": "查询参数校验失败"},
         500: {"model": ErrorResponse, "description": "查询失败"},
@@ -254,7 +236,6 @@ def list_outcomes(
     "/outcomes/stats",
     response_model=DecisionSignalOutcomeStatsResponse,
     responses={
-        **AUTH_RESPONSE,
         400: {"model": ErrorResponse, "description": "查询参数非法"},
         422: {"model": ErrorResponse, "description": "查询参数校验失败"},
         500: {"model": ErrorResponse, "description": "统计失败"},
@@ -287,7 +268,6 @@ def get_outcome_stats(
     "/latest/{stock_code}",
     response_model=DecisionSignalListResponse,
     responses={
-        **AUTH_RESPONSE,
         400: {"model": ErrorResponse, "description": "请求参数非法"},
         422: {"model": ErrorResponse, "description": "路径或查询参数校验失败"},
         500: {"model": ErrorResponse, "description": "查询失败"},
@@ -322,7 +302,6 @@ def get_latest_active(
     "/{signal_id}",
     response_model=DecisionSignalItem,
     responses={
-        **AUTH_RESPONSE,
         404: {"model": ErrorResponse, "description": "信号不存在"},
         422: {"model": ErrorResponse, "description": "路径参数校验失败"},
         500: {"model": ErrorResponse, "description": "查询失败"},
@@ -347,7 +326,6 @@ def get_signal(signal_id: int) -> DecisionSignalItem:
     "/{signal_id}/outcomes",
     response_model=DecisionSignalOutcomeListResponse,
     responses={
-        **AUTH_RESPONSE,
         404: {"model": ErrorResponse, "description": "信号不存在"},
         422: {"model": ErrorResponse, "description": "路径参数校验失败"},
         500: {"model": ErrorResponse, "description": "查询失败"},
@@ -370,7 +348,6 @@ def list_signal_outcomes(signal_id: int) -> DecisionSignalOutcomeListResponse:
     "/{signal_id}/feedback",
     response_model=DecisionSignalFeedbackItem,
     responses={
-        **AUTH_RESPONSE,
         404: {"model": ErrorResponse, "description": "信号不存在"},
         422: {"model": ErrorResponse, "description": "路径参数校验失败"},
         500: {"model": ErrorResponse, "description": "查询失败"},
@@ -393,7 +370,6 @@ def get_feedback(signal_id: int) -> DecisionSignalFeedbackItem:
     "/{signal_id}/feedback",
     response_model=DecisionSignalFeedbackItem,
     responses={
-        **AUTH_RESPONSE,
         400: {"model": ErrorResponse, "description": "请求字段非法"},
         404: {"model": ErrorResponse, "description": "信号不存在"},
         422: {"model": ErrorResponse, "description": "请求体或路径参数校验失败"},
@@ -427,7 +403,6 @@ def put_feedback(signal_id: int, request: DecisionSignalFeedbackRequest) -> Deci
     "/{signal_id}/status",
     response_model=DecisionSignalItem,
     responses={
-        **AUTH_RESPONSE,
         400: {"model": ErrorResponse, "description": "状态非法"},
         404: {"model": ErrorResponse, "description": "信号不存在"},
         422: {"model": ErrorResponse, "description": "请求体或路径参数校验失败"},

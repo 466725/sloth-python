@@ -1,7 +1,7 @@
 {
   "name": "dsa-web-playwright-tests",
   "version": "0.1.0",
-  "description": "Playwright + TypeScript E2E test automation for the dsa-web application, with backend-authenticated smoke tests.",
+  "description": "Playwright + TypeScript E2E test automation for the dsa-web application.",
   "keywords": [
     "playwright",
     "typescript",

@@ -19,7 +19,6 @@ try:
 except ModuleNotFoundError:
     sys.modules["litellm"] = MagicMock()
 
-import ai_stock.auth as auth
 from api.app import create_app
 from ai_stock.config import Config
 from ai_stock.storage import DatabaseManager, DecisionSignalRecord, utc_naive_now
@@ -42,14 +41,6 @@ def _temporary_tz(tz_name: str):
             time.tzset()
 
 
-def _reset_auth_globals() -> None:
-    auth._auth_enabled = None
-    auth._session_secret = None
-    auth._password_hash_salt = None
-    auth._password_hash_stored = None
-    auth._rate_limit = {}
-
-
 @pytest.fixture()
 def client_and_db(tmp_path):
     old_env_file = os.environ.get("ENV_FILE")
@@ -63,7 +54,6 @@ def client_and_db(tmp_path):
             [
                 "STOCK_LIST=600519",
                 "GEMINI_API_KEY=test",
-                "ADMIN_AUTH_ENABLED=false",
                 f"DATABASE_PATH={db_path}",
             ]
         )
@@ -72,7 +62,6 @@ def client_and_db(tmp_path):
     )
     os.environ["ENV_FILE"] = str(env_path)
     os.environ["DATABASE_PATH"] = str(db_path)
-    _reset_auth_globals()
     Config.reset_instance()
     DatabaseManager.reset_instance()
     app = create_app(static_dir=Path(static_dir))
@@ -83,7 +72,6 @@ def client_and_db(tmp_path):
     finally:
         DatabaseManager.reset_instance()
         Config.reset_instance()
-        _reset_auth_globals()
         if old_env_file is None:
             os.environ.pop("ENV_FILE", None)
         else:
@@ -117,50 +105,6 @@ def _payload(**overrides):
     }
     payload.update(overrides)
     return payload
-
-
-def test_decision_signal_api_requires_session_when_admin_auth_enabled(tmp_path) -> None:
-    old_env_file = os.environ.get("ENV_FILE")
-    old_database_path = os.environ.get("DATABASE_PATH")
-    env_path = tmp_path / ".env"
-    db_path = tmp_path / "decision_signal_auth.db"
-    static_dir = tmp_path / "empty-static"
-    static_dir.mkdir()
-    env_path.write_text(
-        "\n".join(
-            [
-                "STOCK_LIST=600519",
-                "GEMINI_API_KEY=test",
-                "ADMIN_AUTH_ENABLED=true",
-                f"DATABASE_PATH={db_path}",
-            ]
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-    os.environ["ENV_FILE"] = str(env_path)
-    os.environ["DATABASE_PATH"] = str(db_path)
-    _reset_auth_globals()
-    Config.reset_instance()
-    DatabaseManager.reset_instance()
-
-    try:
-        client = TestClient(create_app(static_dir=Path(static_dir)))
-        resp = client.get("/api/v1/decision-signals")
-        assert resp.status_code == 401
-        assert resp.json()["error"] == "unauthorized"
-    finally:
-        DatabaseManager.reset_instance()
-        Config.reset_instance()
-        _reset_auth_globals()
-        if old_env_file is None:
-            os.environ.pop("ENV_FILE", None)
-        else:
-            os.environ["ENV_FILE"] = old_env_file
-        if old_database_path is None:
-            os.environ.pop("DATABASE_PATH", None)
-        else:
-            os.environ["DATABASE_PATH"] = old_database_path
 
 
 def test_create_duplicate_list_detail_latest_and_status_update(client_and_db) -> None:

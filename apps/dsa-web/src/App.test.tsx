@@ -1,11 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
-import * as AuthContext from './contexts/AuthContext';
 import { UI_LANGUAGE_STORAGE_KEY } from './utils/uiLanguage';
-
-type AuthState = ReturnType<typeof AuthContext.useAuth>;
 
 const { chatPageShouldThrow, setCurrentRoute, useAgentChatStoreMock } = vi.hoisted(() => {
   const setCurrentRoute = vi.fn();
@@ -17,11 +13,6 @@ const { chatPageShouldThrow, setCurrentRoute, useAgentChatStoreMock } = vi.hoist
   );
   return { chatPageShouldThrow, setCurrentRoute, useAgentChatStoreMock };
 });
-
-vi.mock('./contexts/AuthContext', () => ({
-  AuthProvider: ({ children }: { children: ReactNode }) => children,
-  useAuth: vi.fn(),
-}));
 
 vi.mock('./stores/agentChatStore', () => ({
   useAgentChatStore: useAgentChatStoreMock,
@@ -64,59 +55,14 @@ vi.mock('./pages/NotFoundPage', () => ({
   default: () => <div data-testid="not-found-page">Not Found</div>,
 }));
 
-vi.mock('./pages/LoginPage', () => ({
-  default: () => <div data-testid="login-page">Login</div>,
-}));
-
-function makeAuthState(overrides: Partial<AuthState> = {}): AuthState {
-  return {
-    authEnabled: false,
-    loggedIn: false,
-    passwordSet: false,
-    passwordChangeable: false,
-    setupState: 'no_password',
-    isLoading: false,
-    loadError: null,
-    login: vi.fn().mockResolvedValue({ success: true }),
-    changePassword: vi.fn().mockResolvedValue({ success: true }),
-    logout: vi.fn().mockResolvedValue(undefined),
-    refreshStatus: vi.fn().mockResolvedValue(undefined),
-    ...overrides,
-  };
-}
-
 beforeEach(() => {
   vi.clearAllMocks();
   chatPageShouldThrow.value = false;
   window.history.pushState({}, '', '/');
   localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'zh');
-  vi.mocked(AuthContext.useAuth).mockReturnValue(makeAuthState());
 });
 
 describe('App routing behavior', () => {
-  it('shows loading fallback while auth status is initializing', () => {
-    vi.mocked(AuthContext.useAuth).mockReturnValue(makeAuthState({ isLoading: true }));
-
-    const { container } = render(<App />);
-
-    expect(container.querySelector('.border-t-cyan')).toBeInTheDocument();
-  });
-
-  it('redirects protected routes to login when auth is enabled but user is not logged in', async () => {
-    vi.mocked(AuthContext.useAuth).mockReturnValue(makeAuthState({
-      authEnabled: true,
-      loggedIn: false,
-      setupState: 'enabled',
-    }));
-    window.history.pushState({}, '', '/settings');
-
-    render(<App />);
-
-    expect(await screen.findByTestId('login-page')).toBeInTheDocument();
-    expect(window.location.pathname).toBe('/login');
-    expect(window.location.search).toBe('?redirect=%2Fsettings');
-  });
-
   it('routes the retired portfolio URL to the not-found page', async () => {
     window.history.pushState({}, '', '/portfolio');
 
@@ -125,18 +71,17 @@ describe('App routing behavior', () => {
     expect(await screen.findByTestId('not-found-page')).toBeInTheDocument();
   });
 
-  it('renders the current route page after auth is ready', async () => {
+  it('renders the current route page', async () => {
     window.history.pushState({}, '', '/chat');
 
     render(<App />);
 
     expect(await screen.findByTestId('chat-page')).toBeInTheDocument();
     expect(setCurrentRoute).toHaveBeenCalledWith('/chat');
-    expect(screen.queryByTestId('login-page')).not.toBeInTheDocument();
     expect(screen.queryByTestId('home-page')).not.toBeInTheDocument();
   });
 
-  it('routes /usage to the token usage page after auth is ready', async () => {
+  it('routes /usage to the token usage page', async () => {
     window.history.pushState({}, '', '/usage');
 
     render(<App />);
@@ -146,7 +91,7 @@ describe('App routing behavior', () => {
     expect(screen.queryByTestId('home-page')).not.toBeInTheDocument();
   });
 
-  it('routes /decision-signals to the AI signals page after auth is ready', async () => {
+  it('routes /decision-signals to the AI signals page', async () => {
     window.history.pushState({}, '', '/decision-signals');
 
     render(<App />);
@@ -154,20 +99,6 @@ describe('App routing behavior', () => {
     expect(await screen.findByTestId('decision-signals-page')).toBeInTheDocument();
     expect(setCurrentRoute).toHaveBeenCalledWith('/decision-signals');
     expect(screen.queryByTestId('home-page')).not.toBeInTheDocument();
-  });
-
-  it('redirects authenticated login visits back to the home page', async () => {
-    vi.mocked(AuthContext.useAuth).mockReturnValue(makeAuthState({
-      authEnabled: true,
-      loggedIn: true,
-      setupState: 'enabled',
-    }));
-    window.history.pushState({}, '', '/login');
-
-    render(<App />);
-
-    expect(await screen.findByTestId('home-page')).toBeInTheDocument();
-    expect(screen.queryByTestId('login-page')).not.toBeInTheDocument();
   });
 
   it('keeps the shell mounted and resets the route boundary after page render errors', async () => {

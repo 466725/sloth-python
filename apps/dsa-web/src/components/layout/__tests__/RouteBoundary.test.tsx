@@ -6,13 +6,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { RouteOutletBoundary } from '../RouteBoundary';
 import { Shell } from '../Shell';
 
-vi.mock('../../../contexts/AuthContext', () => ({
-  useAuth: () => ({
-    authEnabled: false,
-    logout: vi.fn().mockResolvedValue(undefined),
-  }),
-}));
-
 vi.mock('../../../stores/agentChatStore', () => {
   const state = { completionBadge: false };
 

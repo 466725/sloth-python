@@ -261,44 +261,6 @@
   --backtest-spinner-head: hsl(var(--primary));
   --backtest-table-bg: hsl(var(--card) / 0.72);
 
-  /* Login Page Tokens (Light) */
-  --login-bg-main: hsl(214 34% 96%);
-  --login-bg-card: hsl(210 43% 92% / 0.78);
-  --login-border-card: hsl(221 28% 28% / 0.58);
-  --login-border-input: hsl(201 56% 46% / 0.7);
-  --login-border-focus: hsl(var(--primary) / 0.48);
-  --login-error-text: hsl(var(--destructive));
-  --login-error-bg: hsl(var(--destructive) / 0.1);
-  --login-error-border: hsl(var(--destructive) / 0.2);
-  --login-text-primary: hsl(223 36% 12%);
-  --login-text-secondary: hsl(220 17% 28%);
-  --login-text-muted: hsl(221 18% 32% / 0.72);
-  --login-accent-soft: hsl(var(--primary) / 0.08);
-  --login-accent-border: hsl(220 22% 32% / 0.72);
-  --login-accent-text: hsl(223 36% 18%);
-  --login-accent-glow: hsl(var(--primary) / 0.18);
-  --login-brand-start: hsl(222 36% 16%);
-  --login-brand-end: hsl(205 88% 48%);
-  --login-brand-button-start: hsl(194 78% 56%);
-  --login-brand-button-end: hsl(213 88% 56%);
-  --login-brand-button-start-hover: hsl(194 82% 52%);
-  --login-brand-button-end-hover: hsl(213 90% 52%);
-  --login-button-text: hsl(210 40% 98%);
-  --login-label-text: hsl(223 36% 14%);
-  --login-hint-text: hsl(220 14% 34% / 0.9);
-  --login-input-icon: hsl(205 66% 38% / 0.86);
-  --login-input-toggle-bg: hsl(210 44% 96% / 0.92);
-  --login-input-toggle-border: hsl(208 42% 46% / 0.32);
-  --login-input-toggle-text: hsl(220 24% 22% / 0.82);
-  --login-input-toggle-border-hover: hsl(205 82% 46% / 0.42);
-  --login-input-toggle-bg-hover: hsl(205 100% 92% / 0.98);
-  --login-input-toggle-text-hover: hsl(205 88% 34%);
-  --login-input-toggle-ring: hsl(var(--primary) / 0.22);
-  --login-input-toggle-active-bg: hsl(var(--primary) / 0.14);
-  --login-input-toggle-active-border: hsl(var(--primary) / 0.34);
-  --login-input-toggle-active-text: hsl(205 88% 28%);
-  --login-grid-line: hsl(214 20% 55% / 0.08);
-  --login-grid-mask: radial-gradient(ellipse 80% 50% at 50% 50%, #000 70%, transparent 100%);
 }
 
 .dark {
@@ -524,44 +486,6 @@
   --backtest-spinner-head: hsl(var(--primary));
   --backtest-table-bg: hsl(var(--card) / 0.82);
 
-  /* Login Page Tokens (Dark - Preserved Cyber Style) */
-  --login-bg-main: hsl(222 84% 5%);
-  --login-bg-card: hsl(222 34% 8%);
-  --login-border-card: hsl(0 0% 100% / 0.05);
-  --login-border-input: hsl(0 0% 100% / 0.1);
-  --login-border-focus: hsl(var(--primary) / 0.5);
-  --login-error-text: hsl(var(--destructive));
-  --login-error-bg: hsl(var(--destructive) / 0.1);
-  --login-error-border: hsl(var(--destructive) / 0.2);
-  --login-text-primary: hsl(0 0% 100%);
-  --login-text-secondary: hsl(215 20% 65%);
-  --login-text-muted: hsl(215 16% 45%);
-  --login-accent-soft: hsl(var(--primary) / 0.08);
-  --login-accent-border: hsl(var(--primary) / 0.28);
-  --login-accent-text: hsl(var(--primary) / 0.92);
-  --login-accent-glow: hsl(var(--primary) / 0.2);
-  --login-brand-start: hsl(var(--primary));
-  --login-brand-end: hsl(214 100% 62%);
-  --login-brand-button-start: hsl(194 96% 45%);
-  --login-brand-button-end: hsl(214 100% 56%);
-  --login-brand-button-start-hover: hsl(194 96% 50%);
-  --login-brand-button-end-hover: hsl(214 100% 62%);
-  --login-button-text: hsl(210 33% 98%);
-  --login-label-text: hsl(0 0% 100%);
-  --login-hint-text: hsl(215 20% 65%);
-  --login-input-icon: hsl(var(--primary) / 0.88);
-  --login-input-toggle-bg: hsl(223 28% 14% / 0.92);
-  --login-input-toggle-border: hsl(0 0% 100% / 0.10);
-  --login-input-toggle-text: hsl(var(--primary) / 0.82);
-  --login-input-toggle-border-hover: hsl(var(--primary) / 0.34);
-  --login-input-toggle-bg-hover: hsl(var(--primary) / 0.12);
-  --login-input-toggle-text-hover: hsl(var(--primary) / 0.92);
-  --login-input-toggle-ring: hsl(var(--primary) / 0.24);
-  --login-input-toggle-active-bg: hsl(var(--primary) / 0.18);
-  --login-input-toggle-active-border: hsl(var(--primary) / 0.46);
-  --login-input-toggle-active-text: hsl(var(--primary) / 0.96);
-  --login-grid-line: hsl(0 0% 50% / 0.04);
-  --login-grid-mask: radial-gradient(ellipse 80% 50% at 50% 50%, #000 70%, transparent 100%);
 }
 
 /* =========================================
@@ -761,19 +685,6 @@
 .input-focus-glow:focus-within {
   border-color: var(--input-surface-border-focus);
   box-shadow: var(--input-surface-shadow, var(--shadow-soft-card)), var(--input-surface-focus-ring);
-}
-
-.input-appearance-login {
-  --input-surface-bg: var(--login-input-surface);
-  --input-surface-border: var(--login-input-border);
-  --input-surface-border-hover: var(--login-input-border-hover);
-  --input-surface-border-focus: var(--login-input-border-focus);
-  --input-surface-focus-ring: var(--login-input-focus-ring);
-  --input-surface-text: var(--login-input-text);
-  --input-surface-placeholder: var(--login-input-placeholder);
-  --input-surface-caret: var(--login-input-caret);
-  --input-surface-fill: var(--login-input-fill);
-  --input-surface-shadow: var(--login-input-shadow, var(--shadow-soft-card));
 }
 
 /* ============ Badge Styles ============ */

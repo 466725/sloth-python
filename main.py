@@ -73,18 +73,14 @@ def _is_public_bind_host(host: str) -> bool:
     return (host or "").strip().lower() in _PUBLIC_BIND_HOSTS
 
 
-def _warn_if_public_webui_without_auth(host: str) -> None:
+def _warn_if_public_webui(host: str) -> None:
     if not _is_public_bind_host(host):
         return
 
-    from ai_stock.auth import is_auth_enabled
-
-    if is_auth_enabled():
-        return
     logger.warning(
-        "WEBUI_HOST=%s binds the Web UI to a public interface while "
-        "ADMIN_AUTH_ENABLED=false. Keep this service behind a trusted network "
-        "boundary or enable admin authentication before exposing it.",
+        "WEBUI_HOST=%s binds the Web UI to a public interface, but this service "
+        "has no built-in authentication. Keep it behind a trusted network "
+        "boundary or an authenticated reverse proxy.",
         host,
     )
 
@@ -1084,7 +1080,7 @@ def main() -> int:
             args.host = os.getenv('WEBUI_HOST')
         if args.port == 8000 and os.getenv('WEBUI_PORT'):
             args.port = int(os.getenv('WEBUI_PORT'))
-        _warn_if_public_webui_without_auth(args.host)
+        _warn_if_public_webui(args.host)
 
     if start_serve:
         if not prepare_webui_frontend_assets():

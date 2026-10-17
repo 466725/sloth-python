@@ -129,13 +129,6 @@ class TestTriggerAnalysis(BaseAPITest):
         assert body["stock_code"] == "600519"
         assert body["existing_task_id"] == "existing-task"
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Analysis submission is only available to an authenticated admin."""
-        response = auth_enabled_client.post(self.ENDPOINT, json={"stock_code": "600519"})
-
-        self.assert_unauthorized(response)
-
-
 class TestTriggerMarketReview(BaseAPITest):
     """``POST /api/v1/analysis/market-review``."""
 
@@ -178,11 +171,6 @@ class TestTriggerMarketReview(BaseAPITest):
 
         self.assert_validation_error(response, field="send_notification")
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Market review submission requires an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.post(self.ENDPOINT))
-
-
 class TestGetTaskList(BaseAPITest):
     """``GET /api/v1/analysis/tasks``."""
 
@@ -220,11 +208,6 @@ class TestGetTaskList(BaseAPITest):
 
         self.assert_validation_error(response, field="limit")
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """The task list is only readable by an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.get(self.ENDPOINT))
-
-
 class TestTaskStream(BaseAPITest):
     """``GET /api/v1/analysis/tasks/stream``."""
 
@@ -260,11 +243,6 @@ class TestTaskStream(BaseAPITest):
 
         assert "text/event-stream" in operation["responses"]["200"]["content"]
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """The event stream is only available to an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.get(self.ENDPOINT))
-
-
 class TestGetAnalysisStatus(BaseAPITest):
     """``GET /api/v1/analysis/status/{task_id}``."""
 
@@ -280,11 +258,6 @@ class TestGetAnalysisStatus(BaseAPITest):
         self.assert_not_found(response)
         self.assert_documented_status(api_spec, response)
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Task status is only readable by an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.get("/api/v1/analysis/status/missing-task"))
-
-
 class TestGetTaskRunFlow(BaseAPITest):
     """``GET /api/v1/analysis/tasks/{task_id}/flow``."""
 
@@ -299,9 +272,3 @@ class TestGetTaskRunFlow(BaseAPITest):
 
         self.assert_not_found(response)
         self.assert_documented_status(api_spec, response)
-
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Run flows are only readable by an authenticated admin."""
-        self.assert_unauthorized(
-            auth_enabled_client.get("/api/v1/analysis/tasks/missing-task/flow")
-        )

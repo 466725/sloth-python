@@ -26,7 +26,7 @@ export default defineConfig({
       command: resolveBackendCommand(repoRoot),
       cwd: repoRoot,
       env: { PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1' },
-      url: `${BACKEND_URL}/api/v1/auth/status`,
+      url: `${BACKEND_URL}/api/v1/health`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
       stdout: 'pipe',

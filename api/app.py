@@ -123,20 +123,16 @@ def _missing_asset_media_type(asset_path: str) -> str:
     return "text/plain"
 
 
-def _warn_if_open_cors_without_auth() -> None:
-    if is_auth_enabled():
-        return
+def _warn_if_open_cors() -> None:
     logger.warning(
-        "CORS_ALLOW_ALL=true is enabled while ADMIN_AUTH_ENABLED is false. "
-        "The API will accept browser requests from any origin; only use this "
-        "on trusted local networks or enable admin authentication."
+        "CORS_ALLOW_ALL=true is enabled. The API accepts browser requests from "
+        "any origin and has no built-in authentication; only use this on trusted "
+        "networks or behind an authenticated reverse proxy."
     )
 
 from api.v1 import api_v1_router
-from api.middlewares.auth import add_auth_middleware
 from api.middlewares.error_handler import add_error_handlers
 from api.v1.schemas.common import HealthResponse
-from ai_stock.auth import is_auth_enabled
 from ai_stock.stock_data.stock_index_loader import find_existing_stock_index_path
 from ai_stock.services.system_config_service import SystemConfigService
 from ai_stock.services.stock_index_remote_service import (
@@ -220,9 +216,9 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
             "- 股票分析：触发 AI 智能分析\n"
             "- 历史记录：查询历史分析报告\n"
             "- 股票数据：获取行情数据\n\n"
-            "## 认证方式\n"
-            "支持可选管理员认证：ADMIN_AUTH_ENABLED=true 时，除登录、状态、健康检查和 "
-            "OpenAPI 文档外，/api/v1/* 需要有效管理员会话 Cookie；关闭时不强制认证。"
+            "## Access\n"
+            "This API has no built-in authentication. Expose it only on trusted "
+            "networks or behind an authenticated reverse proxy."
         ),
         version="1.0.0",
         lifespan=app_lifespan,
@@ -248,7 +244,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
     allow_all_origins = os.environ.get("CORS_ALLOW_ALL", "").lower() == "true"
     allow_credentials = not allow_all_origins
     if allow_all_origins:
-        _warn_if_open_cors_without_auth()
+        _warn_if_open_cors()
         allowed_origins = ["*"]
     
     app.add_middleware(
@@ -259,8 +255,6 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-    add_auth_middleware(app)
-    
     # ============================================================
     # 注册路由
     # ============================================================

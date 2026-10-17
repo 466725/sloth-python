@@ -34,11 +34,6 @@ class TestGetAgentModels(BaseAPITest):
 
         self.assert_matches_spec(api_spec, response)
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Agent metadata is only readable by an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.get(self.ENDPOINT))
-
-
 class TestGetAgentSkills(BaseAPITest):
     """``GET /api/v1/agent/skills``."""
 
@@ -63,11 +58,6 @@ class TestGetAgentSkills(BaseAPITest):
         body = self.assert_ok(api_client.get(self.ENDPOINT))
 
         assert body["default_skill_id"] in {skill["id"] for skill in body["skills"]}
-
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """The skill catalogue is only readable by an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.get(self.ENDPOINT))
-
 
 class TestAgentChat(BaseAPITest):
     """``POST /api/v1/agent/chat``."""
@@ -94,11 +84,6 @@ class TestAgentChat(BaseAPITest):
 
         self.assert_validation_error(response, field="message")
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Chat is only available to an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.post(self.ENDPOINT, json={"message": "hi"}))
-
-
 class TestAgentChatStream(BaseAPITest):
     """``POST /api/v1/agent/chat/stream``."""
 
@@ -118,11 +103,6 @@ class TestAgentChatStream(BaseAPITest):
 
         self.assert_validation_error(response, field="message")
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Streaming chat is only available to an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.post(self.ENDPOINT, json={"message": "hi"}))
-
-
 class TestAgentResearch(BaseAPITest):
     """``POST /api/v1/agent/research``."""
 
@@ -141,13 +121,6 @@ class TestAgentResearch(BaseAPITest):
         response = api_client.post(self.ENDPOINT, json={"stock_code": "600519"})
 
         self.assert_validation_error(response, field="question")
-
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Deep research is only available to an authenticated admin."""
-        response = auth_enabled_client.post(self.ENDPOINT, json={"question": "hi"})
-
-        self.assert_unauthorized(response)
-
 
 class TestListChatSessions(BaseAPITest):
     """``GET /api/v1/agent/chat/sessions``."""
@@ -178,11 +151,6 @@ class TestListChatSessions(BaseAPITest):
 
         self.assert_validation_error(response, field="limit")
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Session history is only readable by an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.get(self.ENDPOINT))
-
-
 class TestGetChatSessionMessages(BaseAPITest):
     """``GET /api/v1/agent/chat/sessions/{session_id}``."""
 
@@ -207,13 +175,6 @@ class TestGetChatSessionMessages(BaseAPITest):
 
         self.assert_validation_error(response, field="limit")
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Transcripts are only readable by an authenticated admin."""
-        self.assert_unauthorized(
-            auth_enabled_client.get("/api/v1/agent/chat/sessions/missing-session")
-        )
-
-
 class TestDeleteChatSession(BaseAPITest):
     """``DELETE /api/v1/agent/chat/sessions/{session_id}``."""
 
@@ -228,13 +189,6 @@ class TestDeleteChatSession(BaseAPITest):
 
         self.assert_documented_status(api_spec, response)
         assert response.json() == {"deleted": 0}
-
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Session deletion is only available to an authenticated admin."""
-        self.assert_unauthorized(
-            auth_enabled_client.delete("/api/v1/agent/chat/sessions/missing-session")
-        )
-
 
 class TestSendChatToNotification(BaseAPITest):
     """``POST /api/v1/agent/chat/send``."""
@@ -264,9 +218,3 @@ class TestSendChatToNotification(BaseAPITest):
         response = api_client.post(self.ENDPOINT, json={"content": "x" * 50_001})
 
         self.assert_validation_error(response, field="content")
-
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Sending to notification channels requires an authenticated admin."""
-        response = auth_enabled_client.post(self.ENDPOINT, json={"content": "hi"})
-
-        self.assert_unauthorized(response)

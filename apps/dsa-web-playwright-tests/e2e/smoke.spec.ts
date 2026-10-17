@@ -12,7 +12,7 @@ async function captureSmokeScreenshot(page: Page, testInfo: TestInfo, name: stri
   });
 }
 
-async function login(page: Page) {
+async function openApp(page: Page) {
   await page.addInitScript(() => {
     if (window.localStorage.getItem('dsa.uiLanguage') === null) {
       window.localStorage.setItem('dsa.uiLanguage', 'zh');
@@ -26,8 +26,8 @@ test.describe('web smoke', () => {
   test.use({ locale: 'zh-CN' });
 
 
-  test('home page shows analysis entry and history panel after login', async ({ page }, testInfo) => {
-    await login(page);
+  test('home page shows analysis entry and history panel', async ({ page }, testInfo) => {
+    await openApp(page);
 
     const stockInput = page.getByPlaceholder('输入股票代码或名称，如 600519、贵州茅台、AAPL');
     await expect(stockInput).toBeVisible({ timeout: 10_000 });
@@ -43,7 +43,7 @@ test.describe('web smoke', () => {
   });
 
   test('chat page allows entering a question and starts a request', async ({ page }) => {
-    await login(page);
+    await openApp(page);
 
     // Navigate to chat page by clicking the link
     await page.getByRole('link', { name: '问股' }).click();
@@ -65,7 +65,7 @@ test.describe('web smoke', () => {
   });
 
   test('chat page uses accessible labels instead of native title attributes for key actions', async ({ page }) => {
-    await login(page);
+    await openApp(page);
 
     await page.getByRole('link', { name: '问股' }).click();
     await page.waitForLoadState('domcontentloaded');
@@ -81,9 +81,9 @@ test.describe('web smoke', () => {
     await expect(composer).not.toHaveAttribute('title', /.+/);
   });
 
-  test('mobile shell opens navigation drawer after login', async ({ page }, testInfo) => {
+  test('mobile shell opens navigation drawer', async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await login(page);
+    await openApp(page);
 
     // Try to open navigation menu
     const menuButton = page.getByRole('button', { name: /打开导航|菜单/i });
@@ -97,8 +97,8 @@ test.describe('web smoke', () => {
     await captureSmokeScreenshot(page, testInfo, 'smoke-mobile-shell-nav');
   });
 
-  test('settings page renders title and save actions after login', async ({ page }, testInfo) => {
-    await login(page);
+  test('settings page renders title and save actions', async ({ page }, testInfo) => {
+    await openApp(page);
 
     // Navigate to settings page by clicking the link
     await page.getByRole('link', { name: '设置' }).click();
@@ -114,7 +114,7 @@ test.describe('web smoke', () => {
   });
 
   test('language switch updates UI copy and persists after page refresh', async ({ page }, testInfo) => {
-    await login(page);
+    await openApp(page);
 
     const languageToggle = page.getByRole('button', { name: '切换界面语言' });
     await expect(languageToggle).toBeVisible();
@@ -154,8 +154,8 @@ test.describe('web smoke', () => {
     await captureSmokeScreenshot(page, testInfo, 'smoke-settings-page-en');
   });
 
-  test('backtest page renders filter controls after login', async ({ page }) => {
-    await login(page);
+  test('backtest page renders filter controls', async ({ page }) => {
+    await openApp(page);
 
     // Navigate to backtest page by clicking the link
     await page.getByRole('link', { name: '回测' }).click();

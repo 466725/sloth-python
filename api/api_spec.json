@@ -2,170 +2,10 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Daily Stock Analysis API",
-    "description": "A股/港股/美股自选股智能分析系统 API\n\n## 功能模块\n- 股票分析：触发 AI 智能分析\n- 历史记录：查询历史分析报告\n- 股票数据：获取行情数据\n\n## 认证方式\n支持可选管理员认证：ADMIN_AUTH_ENABLED=true 时，除登录、状态、健康检查和 OpenAPI 文档外，/api/v1/* 需要有效管理员会话 Cookie；关闭时不强制认证。",
+    "description": "A股/港股/美股自选股智能分析系统 API\n\n## 功能模块\n- 股票分析：触发 AI 智能分析\n- 历史记录：查询历史分析报告\n- 股票数据：获取行情数据\n\n## Access\nThis API has no built-in authentication. Expose it only on trusted networks or behind an authenticated reverse proxy.",
     "version": "1.0.0"
   },
   "paths": {
-    "/api/v1/auth/status": {
-      "get": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Get auth status",
-        "description": "Returns whether auth is enabled and if the current request is logged in.",
-        "operationId": "auth_status_api_v1_auth_status_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/auth/settings": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Update auth settings",
-        "description": "Enable or disable password login. When enabling without an existing password, password + passwordConfirm are required. When re-enabling with a stored password, currentPassword is required.",
-        "operationId": "auth_update_settings_api_v1_auth_settings_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AuthSettingsRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/auth/login": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Login or set initial password",
-        "description": "Verify password and set session cookie. If password not set yet, accepts password+passwordConfirm.",
-        "operationId": "auth_login_api_v1_auth_login_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/auth/change-password": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Change password",
-        "description": "Change password. Requires valid session.",
-        "operationId": "auth_change_password_api_v1_auth_change_password_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChangePasswordRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/auth/logout": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Logout",
-        "description": "Clear session cookie.",
-        "operationId": "auth_logout_api_v1_auth_logout_post",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/agent/models": {
       "get": {
         "tags": [
@@ -2548,16 +2388,6 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "500": {
             "description": "Internal server error",
             "content": {
@@ -2670,16 +2500,6 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "500": {
             "description": "Internal server error",
             "content": {
@@ -2712,18 +2532,8 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "403": {
-            "description": "Env backup disabled",
+            "description": "Desktop mode required",
             "content": {
               "application/json": {
                 "schema": {
@@ -2791,18 +2601,8 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "403": {
-            "description": "Env backup disabled",
+            "description": "Desktop mode required",
             "content": {
               "application/json": {
                 "schema": {
@@ -4046,11 +3846,6 @@
         "summary": "创建或去重决策信号",
         "description": "显式写入 DecisionSignal。未传 horizon/expires_at 时由服务补默认生命周期；命中同源去重键或窄 relaxed 去重时返回已有记录和 created=false；active 新建或 expired 续期会失效同股旧 active 相反信号，active duplicate retry 也会重跑该修复；普通旧 duplicate/replay 不作为新的激活事件；不保证并发绝对幂等。",
         "operationId": "createDecisionSignal",
-        "security": [
-          {
-            "AdminSessionCookie": []
-          }
-        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -4068,16 +3863,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DecisionSignalMutationResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "未登录或管理员会话无效（ADMIN_AUTH_ENABLED=true 时）",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -4121,11 +3906,6 @@
         "summary": "查询决策信号列表",
         "description": "分页查询 DecisionSignal；读取前会懒过期已到 expires_at 的 active 信号。当 source_type=analysis 且只传 source_report_id 查询时，若无命中信号会尝试基于该历史报告一次性懒回填 （仅首次命中列表场景，且该精确查询会触发历史决策信号回填写入，属于 read-with-write 行为；不影响其他分页列表筛选参数场景）。",
         "operationId": "listDecisionSignals",
-        "security": [
-          {
-            "AdminSessionCookie": []
-          }
-        ],
         "parameters": [
           {
             "name": "market",
@@ -4396,16 +4176,6 @@
               }
             }
           },
-          "401": {
-            "description": "未登录或管理员会话无效（ADMIN_AUTH_ENABLED=true 时）",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "400": {
             "description": "查询参数非法",
             "content": {
@@ -4468,16 +4238,6 @@
               }
             }
           },
-          "401": {
-            "description": "未登录或管理员会话无效（ADMIN_AUTH_ENABLED=true 时）",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "400": {
             "description": "请求字段非法",
             "content": {
@@ -4518,12 +4278,7 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "AdminSessionCookie": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/decision-signals/outcomes": {
@@ -4534,11 +4289,6 @@
         "summary": "查询决策信号后验结果",
         "description": "分页查询 signal-level outcome；默认只查当前 signal 后验 engine_version。",
         "operationId": "listDecisionSignalOutcomes",
-        "security": [
-          {
-            "AdminSessionCookie": []
-          }
-        ],
         "parameters": [
           {
             "name": "signal_id",
@@ -4656,16 +4406,6 @@
               }
             }
           },
-          "401": {
-            "description": "未登录或管理员会话无效（ADMIN_AUTH_ENABLED=true 时）",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "400": {
             "description": "查询参数非法",
             "content": {
@@ -4707,11 +4447,6 @@
         "summary": "查询决策信号后验统计",
         "description": "默认统计当前 engine_version，且排除 archived 信号。",
         "operationId": "getDecisionSignalOutcomeStats",
-        "security": [
-          {
-            "AdminSessionCookie": []
-          }
-        ],
         "parameters": [
           {
             "name": "horizons",
@@ -4779,16 +4514,6 @@
               }
             }
           },
-          "401": {
-            "description": "未登录或管理员会话无效（ADMIN_AUTH_ENABLED=true 时）",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "400": {
             "description": "查询参数非法",
             "content": {
@@ -4830,11 +4555,6 @@
         "summary": "查询股票最新 active 决策信号",
         "description": "返回指定股票最新 active 信号列表；读取前会执行懒过期。",
         "operationId": "getLatestDecisionSignals",
-        "security": [
-          {
-            "AdminSessionCookie": []
-          }
-        ],
         "parameters": [
           {
             "name": "stock_code",
@@ -4887,16 +4607,6 @@
               }
             }
           },
-          "401": {
-            "description": "未登录或管理员会话无效（ADMIN_AUTH_ENABLED=true 时）",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "400": {
             "description": "请求参数非法",
             "content": {
@@ -4938,11 +4648,6 @@
         "summary": "查询单条决策信号",
         "description": "按 ID 查询单条 DecisionSignal；读取前会执行懒过期。",
         "operationId": "getDecisionSignal",
-        "security": [
-          {
-            "AdminSessionCookie": []
-          }
-        ],
         "parameters": [
           {
             "name": "signal_id",
@@ -4961,16 +4666,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DecisionSignalItem"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "未登录或管理员会话无效（ADMIN_AUTH_ENABLED=true 时）",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -5016,11 +4711,6 @@
         "summary": "查询单个决策信号后验结果",
         "description": "返回指定 signal_id 在当前 engine_version 下的后验结果。",
         "operationId": "listDecisionSignalOutcomesBySignal",
-        "security": [
-          {
-            "AdminSessionCookie": []
-          }
-        ],
         "parameters": [
           {
             "name": "signal_id",
@@ -5039,16 +4729,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DecisionSignalOutcomeListResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "未登录或管理员会话无效（ADMIN_AUTH_ENABLED=true 时）",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -5094,11 +4774,6 @@
         "summary": "查询决策信号用户反馈",
         "description": "没有反馈时返回 feedback_value=null；信号不存在时返回 404。",
         "operationId": "getDecisionSignalFeedback",
-        "security": [
-          {
-            "AdminSessionCookie": []
-          }
-        ],
         "parameters": [
           {
             "name": "signal_id",
@@ -5117,16 +4792,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DecisionSignalFeedbackItem"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "未登录或管理员会话无效（ADMIN_AUTH_ENABLED=true 时）",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -5170,11 +4835,6 @@
         "summary": "写入决策信号用户反馈",
         "description": "按 signal_id upsert 最新 useful/not_useful 反馈。",
         "operationId": "putDecisionSignalFeedback",
-        "security": [
-          {
-            "AdminSessionCookie": []
-          }
-        ],
         "parameters": [
           {
             "name": "signal_id",
@@ -5203,16 +4863,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DecisionSignalFeedbackItem"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "未登录或管理员会话无效（ADMIN_AUTH_ENABLED=true 时）",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -5268,11 +4918,6 @@
         "summary": "更新决策信号状态",
         "description": "只更新合法状态和可选 metadata；传入 metadata 时按整包替换保存。expired/invalidated/closed/archived 等 terminal 状态不能直接 PATCH 回 active。",
         "operationId": "updateDecisionSignalStatus",
-        "security": [
-          {
-            "AdminSessionCookie": []
-          }
-        ],
         "parameters": [
           {
             "name": "signal_id",
@@ -5301,16 +4946,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DecisionSignalItem"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "未登录或管理员会话无效（ADMIN_AUTH_ENABLED=true 时）",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -7694,41 +7329,6 @@
           "stock_name": "贵州茅台"
         }
       },
-      "AuthSettingsRequest": {
-        "properties": {
-          "authEnabled": {
-            "type": "boolean",
-            "title": "Authenabled"
-          },
-          "password": {
-            "type": "string",
-            "title": "Password",
-            "default": ""
-          },
-          "passwordConfirm": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Passwordconfirm"
-          },
-          "currentPassword": {
-            "type": "string",
-            "title": "Currentpassword",
-            "default": ""
-          }
-        },
-        "type": "object",
-        "required": [
-          "authEnabled"
-        ],
-        "title": "AuthSettingsRequest",
-        "description": "Update auth enablement and initial password settings."
-      },
       "BacktestResultItem": {
         "properties": {
           "analysis_history_id": {
@@ -8445,28 +8045,6 @@
           "total_tokens"
         ],
         "title": "CallTypeBreakdown"
-      },
-      "ChangePasswordRequest": {
-        "properties": {
-          "currentPassword": {
-            "type": "string",
-            "title": "Currentpassword",
-            "default": ""
-          },
-          "newPassword": {
-            "type": "string",
-            "title": "Newpassword",
-            "default": ""
-          },
-          "newPasswordConfirm": {
-            "type": "string",
-            "title": "Newpasswordconfirm",
-            "default": ""
-          }
-        },
-        "type": "object",
-        "title": "ChangePasswordRequest",
-        "description": "Change password request body."
       },
       "ChatRequest": {
         "properties": {
@@ -11776,31 +11354,6 @@
         ],
         "title": "LLMCapabilityCheckResult",
         "description": "Runtime capability smoke result for one requested check."
-      },
-      "LoginRequest": {
-        "properties": {
-          "password": {
-            "type": "string",
-            "title": "Password",
-            "description": "Admin password",
-            "default": ""
-          },
-          "passwordConfirm": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Passwordconfirm",
-            "description": "Confirm (first-time)"
-          }
-        },
-        "type": "object",
-        "title": "LoginRequest",
-        "description": "Login request body. For first-time setup use password + password_confirm."
       },
       "MarkdownReportResponse": {
         "properties": {
@@ -15756,13 +15309,6 @@
         ],
         "title": "WatchlistResponse",
         "description": "自选队列响应"
-      }
-    },
-    "securitySchemes": {
-      "AdminSessionCookie": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "dsa_session"
       }
     }
   }

@@ -4,7 +4,6 @@
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
@@ -59,36 +58,6 @@ class HealthEndpointTestCase(unittest.TestCase):
 
         self.assertEqual(resp.status_code, 200)
         self.assertIn("application/json", resp.headers["content-type"])
-        self.assertEqual(resp.json()["status"], "ok")
-
-
-class HealthEndpointAuthEnabledTestCase(unittest.TestCase):
-    """Health endpoints must remain accessible when admin auth is enabled."""
-
-    @classmethod
-    def setUpClass(cls):
-        cls._patcher = patch("api.middlewares.auth.is_auth_enabled", return_value=True)
-        cls._patcher.start()
-        cls._temp_dir, cls.client = _make_client()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls._temp_dir.cleanup()
-        cls._patcher.stop()
-
-    def test_api_health_returns_200_when_auth_enabled(self):
-        resp = self.client.get("/api/health")
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json()["status"], "ok")
-
-    def test_root_health_returns_200_when_auth_enabled(self):
-        resp = self.client.get("/health")
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json()["status"], "ok")
-
-    def test_api_v1_health_returns_200_when_auth_enabled(self):
-        resp = self.client.get("/api/v1/health")
-        self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["status"], "ok")
 
 

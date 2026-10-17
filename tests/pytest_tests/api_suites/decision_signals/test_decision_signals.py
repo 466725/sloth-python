@@ -65,15 +65,6 @@ class TestCreateDecisionSignal(BaseAPITest):
 
         self.assert_validation_error(response, field=field)
 
-    def test_requires_authentication_when_enabled(
-        self, auth_enabled_client: TestClient, api_spec: dict[str, Any]
-    ) -> None:
-        """Without a session cookie the endpoint reports ``401``."""
-        response = auth_enabled_client.post(self.ENDPOINT, json=valid_signal_payload())
-
-        self.assert_unauthorized(response)
-        self.assert_documented_status(api_spec, response)
-
 
 class TestListDecisionSignals(BaseAPITest):
     """``GET /api/v1/decision-signals``."""
@@ -153,10 +144,6 @@ class TestListDecisionSignals(BaseAPITest):
         response = api_client.get(self.ENDPOINT, params={field: value})
 
         self.assert_validation_error(response, field=field)
-
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Without a session cookie the endpoint reports ``401``."""
-        self.assert_unauthorized(auth_enabled_client.get(self.ENDPOINT))
 
 
 class TestGetDecisionSignal(BaseAPITest):

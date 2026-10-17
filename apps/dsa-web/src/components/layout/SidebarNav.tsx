@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
-import { Activity, BarChart3, Bell, Gauge, Home, LogOut, MessageSquareQuote, Settings2 } from 'lucide-react';
+import React from 'react';
+import { Activity, BarChart3, Bell, Gauge, Home, MessageSquareQuote, Settings2 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
 import { useAgentChatStore } from '../../stores/agentChatStore';
 import { useUiLanguage } from '../../contexts/UiLanguageContext';
 import type { UiTextKey } from '../../i18n/uiText';
 import { cn } from '../../utils/cn';
-import { ConfirmDialog } from '../common/ConfirmDialog';
 import { StatusDot } from '../common/StatusDot';
 import { UiLanguageToggle } from '../i18n/UiLanguageToggle';
 import { ThemeToggle } from '../theme/ThemeToggle';
@@ -37,10 +35,8 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export const SidebarNav: React.FC<SidebarNavProps> = ({ collapsed = false, onNavigate, variant = 'default' }) => {
-  const { authEnabled, logout } = useAuth();
   const { t } = useUiLanguage();
   const completionBadge = useAgentChatStore((state) => state.completionBadge);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const isRail = variant === 'rail';
   const itemBaseClass = cn(
     'group relative flex h-[var(--nav-item-height)] w-full items-center overflow-hidden rounded-2xl border border-transparent text-sm leading-none text-secondary-text transition-all',
@@ -138,34 +134,6 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({ collapsed = false, onNav
         />
       </nav>
 
-      {authEnabled ? (
-        <button
-          type="button"
-          onClick={() => setShowLogoutConfirm(true)}
-          className={cn(
-            itemInteractiveClass,
-            isRail ? 'mt-1.5' : 'mt-5'
-          )}
-        >
-          <LogOut className={itemIconClass} />
-          {!collapsed ? <span className={itemLabelClass}>{t('layout.logout')}</span> : null}
-        </button>
-      ) : null}
-
-      <ConfirmDialog
-        isOpen={showLogoutConfirm}
-        title={t('layout.logoutTitle')}
-        message={t('layout.logoutMessage')}
-        confirmText={t('layout.logoutConfirm')}
-        cancelText={t('common.cancel')}
-        isDanger
-        onConfirm={() => {
-          setShowLogoutConfirm(false);
-          onNavigate?.();
-          void logout();
-        }}
-        onCancel={() => setShowLogoutConfirm(false)}
-      />
     </div>
   );
 };

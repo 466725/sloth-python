@@ -17,18 +17,9 @@ try:
 except ModuleNotFoundError:
     sys.modules["litellm"] = MagicMock()
 
-import ai_stock.auth as auth
 from api.app import create_app
 from ai_stock.config import Config
 from ai_stock.storage import DatabaseManager, StockDaily
-
-
-def _reset_auth_globals() -> None:
-    auth._auth_enabled = None
-    auth._session_secret = None
-    auth._password_hash_salt = None
-    auth._password_hash_stored = None
-    auth._rate_limit = {}
 
 
 @pytest.fixture()
@@ -44,7 +35,6 @@ def client_and_db(tmp_path):
             [
                 "STOCK_LIST=600519",
                 "GEMINI_API_KEY=test",
-                "ADMIN_AUTH_ENABLED=false",
                 f"DATABASE_PATH={db_path}",
             ]
         )
@@ -53,7 +43,6 @@ def client_and_db(tmp_path):
     )
     os.environ["ENV_FILE"] = str(env_path)
     os.environ["DATABASE_PATH"] = str(db_path)
-    _reset_auth_globals()
     Config.reset_instance()
     DatabaseManager.reset_instance()
     app = create_app(static_dir=Path(static_dir))
@@ -64,7 +53,6 @@ def client_and_db(tmp_path):
     finally:
         DatabaseManager.reset_instance()
         Config.reset_instance()
-        _reset_auth_globals()
         if old_env_file is None:
             os.environ.pop("ENV_FILE", None)
         else:

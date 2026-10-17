@@ -18,23 +18,11 @@ from tests.pytest_tests.api_suites.base import BaseAPITest
 
 pytestmark = pytest.mark.api
 
-PASSWORD = "Str0ng-Suite-Pass!"
-
-
 def current_version(client: TestClient) -> str:
     """Return the current optimistic-concurrency token for the config file."""
     response = client.get("/api/v1/system/config")
     assert response.status_code == 200, response.text
     return response.json()["config_version"]
-
-
-def enable_auth(client: TestClient) -> None:
-    """Enable password login so env backup access is permitted."""
-    response = client.post(
-        "/api/v1/auth/settings",
-        json={"authEnabled": True, "password": PASSWORD, "passwordConfirm": PASSWORD},
-    )
-    assert response.status_code == 200, response.text
 
 
 class TestGetSystemConfig(BaseAPITest):
@@ -76,11 +64,6 @@ class TestGetSystemConfig(BaseAPITest):
 
         self.assert_validation_error(response, field="include_schema")
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Configuration is only readable by an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.get(self.ENDPOINT))
-
-
 class TestGetSetupStatus(BaseAPITest):
     """``GET /api/v1/system/config/setup/status``."""
 
@@ -104,11 +87,6 @@ class TestGetSetupStatus(BaseAPITest):
             assert check["category"] in {"base", "ai_model", "agent", "notification", "system"}
             assert check["status"] in {"configured", "inherited", "optional", "needs_action"}
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Setup status is only readable by an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.get(self.ENDPOINT))
-
-
 class TestGetSystemConfigSchema(BaseAPITest):
     """``GET /api/v1/system/config/schema``."""
 
@@ -126,11 +104,6 @@ class TestGetSystemConfigSchema(BaseAPITest):
         assert body["categories"]
         assert all(category["title"] for category in body["categories"])
         assert any(category["fields"] for category in body["categories"])
-
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """The schema is only readable by an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.get(self.ENDPOINT))
-
 
 class TestUpdateSystemConfig(BaseAPITest):
     """``PUT /api/v1/system/config``."""
@@ -223,16 +196,6 @@ class TestUpdateSystemConfig(BaseAPITest):
 
         self.assert_validation_error(response, field="config_version")
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Configuration writes are only allowed for an authenticated admin."""
-        response = auth_enabled_client.put(
-            self.ENDPOINT,
-            json={"config_version": "any", "items": [{"key": "STOCK_LIST", "value": "600519"}]},
-        )
-
-        self.assert_unauthorized(response)
-
-
 class TestValidateSystemConfig(BaseAPITest):
     """``POST /api/v1/system/config/validate``."""
 
@@ -271,15 +234,6 @@ class TestValidateSystemConfig(BaseAPITest):
 
         self.assert_validation_error(response, field="items")
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Validation is only available to an authenticated admin."""
-        response = auth_enabled_client.post(
-            self.ENDPOINT, json={"items": [{"key": "REPORT_LANGUAGE", "value": "en"}]}
-        )
-
-        self.assert_unauthorized(response)
-
-
 class TestExportSystemConfig(BaseAPITest):
     """``GET /api/v1/system/config/export``."""
 
@@ -289,7 +243,7 @@ class TestExportSystemConfig(BaseAPITest):
     def test_returns_the_raw_env_in_desktop_mode(
         self, api_client: TestClient, api_spec: dict[str, Any], monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """The desktop runtime may read the backup without a session."""
+        """The desktop runtime may read the backup."""
         monkeypatch.setenv("DSA_DESKTOP_MODE", "true")
 
         response = api_client.get(self.ENDPOINT)
@@ -298,28 +252,11 @@ class TestExportSystemConfig(BaseAPITest):
         assert "STOCK_LIST=600519,000858" in body["content"]
         assert body["config_version"]
 
-    def test_returns_the_raw_env_for_an_authenticated_admin(self, api_client: TestClient) -> None:
-        """A logged-in admin on a server deployment may download the backup."""
-        enable_auth(api_client)
-
-        body = self.assert_ok(api_client.get(self.ENDPOINT))
-
-        assert "STOCK_LIST=600519,000858" in body["content"]
-
-    def test_is_denied_while_admin_auth_is_disabled(self, api_client: TestClient) -> None:
-        """Backups stay locked until password login is configured."""
+    def test_is_denied_outside_desktop_mode(self, api_client: TestClient) -> None:
+        """Raw configuration backups stay limited to the trusted desktop runtime."""
         response = api_client.get(self.ENDPOINT)
 
         self.assert_error(response, 403, "env_backup_access_denied")
-
-    def test_is_denied_without_a_session(self, api_client: TestClient) -> None:
-        """An enabled deployment still requires a valid admin cookie."""
-        enable_auth(api_client)
-        api_client.cookies.clear()
-
-        response = api_client.get(self.ENDPOINT)
-
-        self.assert_unauthorized(response)
 
 
 class TestImportSystemConfig(BaseAPITest):
@@ -400,24 +337,13 @@ class TestImportSystemConfig(BaseAPITest):
 
         self.assert_validation_error(response, field="content")
 
-    def test_is_denied_while_admin_auth_is_disabled(self, api_client: TestClient) -> None:
-        """Restores stay locked until password login is configured."""
+    def test_is_denied_outside_desktop_mode(self, api_client: TestClient) -> None:
+        """Raw configuration restores stay limited to the trusted desktop runtime."""
         response = api_client.post(
             self.ENDPOINT, json={"config_version": "any", "content": "STOCK_LIST=600519\n"}
         )
 
         self.assert_error(response, 403, "env_backup_access_denied")
-
-    def test_is_denied_without_a_session(self, api_client: TestClient) -> None:
-        """An enabled deployment still requires a valid admin cookie."""
-        enable_auth(api_client)
-        api_client.cookies.clear()
-
-        response = api_client.post(
-            self.ENDPOINT, json={"config_version": "any", "content": "STOCK_LIST=600519\n"}
-        )
-
-        self.assert_unauthorized(response)
 
 
 class TestTestLLMChannel(BaseAPITest):
@@ -446,11 +372,6 @@ class TestTestLLMChannel(BaseAPITest):
         response = api_client.post(self.ENDPOINT, json={"name": "suite", "timeout_seconds": "soon"})
 
         self.assert_validation_error(response, field="timeout_seconds")
-
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Channel tests are only available to an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.post(self.ENDPOINT, json={"name": "suite"}))
-
 
 class TestTestNotificationChannel(BaseAPITest):
     """``POST /api/v1/system/config/notification/test-channel``."""
@@ -487,13 +408,6 @@ class TestTestNotificationChannel(BaseAPITest):
 
         self.assert_validation_error(response, field="timeout_seconds")
 
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Notification tests are only available to an authenticated admin."""
-        response = auth_enabled_client.post(self.ENDPOINT, json={"channel": "email"})
-
-        self.assert_unauthorized(response)
-
-
 class TestDiscoverLLMChannelModels(BaseAPITest):
     """``POST /api/v1/system/config/llm/discover-models``."""
 
@@ -520,7 +434,3 @@ class TestDiscoverLLMChannelModels(BaseAPITest):
         response = api_client.post(self.ENDPOINT, json={"name": "suite", "timeout_seconds": "soon"})
 
         self.assert_validation_error(response, field="timeout_seconds")
-
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Model discovery is only available to an authenticated admin."""
-        self.assert_unauthorized(auth_enabled_client.post(self.ENDPOINT, json={"name": "suite"}))

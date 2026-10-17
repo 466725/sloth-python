@@ -8,7 +8,6 @@ export class DsaHomePage {
         window.localStorage.setItem("dsa.uiLanguage", "en");
       },
     });
-    cy.wait("@authStatus");
   }
 
   getAnalyzeButton() {

@@ -21,9 +21,7 @@ const {
   setDraftValue,
   applyPartialUpdate,
   refreshAfterExternalSave,
-  refreshStatus,
   settingsPanelErrorBoundary,
-  useAuthMock,
   useSystemConfigMock,
   webBuildInfoMock,
 } = vi.hoisted(() => ({
@@ -43,9 +41,7 @@ const {
   setDraftValue: vi.fn(),
   applyPartialUpdate: vi.fn(),
   refreshAfterExternalSave: vi.fn(),
-  refreshStatus: vi.fn(),
   settingsPanelErrorBoundary: vi.fn(),
-  useAuthMock: vi.fn(),
   useSystemConfigMock: vi.fn(),
   webBuildInfoMock: {
     version: '3.11.0',
@@ -59,7 +55,6 @@ const {
 const mockedAnchorClick = vi.fn();
 
 vi.mock('../../hooks', () => ({
-  useAuth: () => useAuthMock(),
   useSystemConfig: () => useSystemConfigMock(),
 }));
 
@@ -80,8 +75,6 @@ vi.mock('../../utils/constants', async () => {
 });
 
 vi.mock('../../components/settings', () => ({
-  AuthSettingsCard: () => <div>认证与登录保护</div>,
-  ChangePasswordCard: () => <div>修改密码</div>,
   IntelligentImport: ({ onMerged }: { onMerged: (value: string) => void }) => (
     <button type="button" onClick={() => onMerged('SZ000001,SZ000002')}>
       merge stock list
@@ -258,26 +251,7 @@ function buildSystemConfigState(overrides: ConfigOverride = {}) {
   return {
     categories: baseCategories,
     itemsByCategory: {
-      system: [
-        {
-          key: 'ADMIN_AUTH_ENABLED',
-          value: 'true',
-          rawValueExists: true,
-          isMasked: false,
-          schema: {
-            key: 'ADMIN_AUTH_ENABLED',
-            category: 'system',
-            dataType: 'boolean',
-            uiControl: 'switch',
-            isSensitive: false,
-            isRequired: false,
-            isEditable: true,
-            options: [],
-            validation: {},
-            displayOrder: 1,
-          },
-        },
-      ],
+      system: [],
       base: [
         {
           key: 'STOCK_LIST',
@@ -432,11 +406,6 @@ describe('SettingsPage', () => {
     desktopInstallDownloadedUpdate.mockResolvedValue(true);
     desktopOpenReleasePage.mockResolvedValue(true);
     desktopOnUpdateStateChange.mockImplementation(() => () => undefined);
-    useAuthMock.mockReturnValue({
-      authEnabled: true,
-      passwordChangeable: true,
-      refreshStatus,
-    });
     useSystemConfigMock.mockReturnValue(buildSystemConfigState());
     delete (window as { dsaDesktop?: unknown }).dsaDesktop;
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
@@ -444,12 +413,10 @@ describe('SettingsPage', () => {
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(mockedAnchorClick);
   });
 
-  it('renders category navigation and auth settings modules', async () => {
+  it('renders category navigation and system settings modules', async () => {
     render(<SettingsPage />);
 
     expect(await screen.findByRole('heading', { name: '系统设置' })).toBeInTheDocument();
-    expect(screen.getByText('认证与登录保护')).toBeInTheDocument();
-    expect(screen.getByText('修改密码')).toBeInTheDocument();
     expect(load).toHaveBeenCalled();
   });
 
@@ -944,50 +911,14 @@ describe('SettingsPage', () => {
     expect(screen.queryByText(/浏览器开发者工具控制台与后端日志/)).not.toBeInTheDocument();
   });
 
-  it('renders env backup actions outside desktop runtime', () => {
+  it('keeps env backup actions disabled outside desktop runtime', () => {
     render(<SettingsPage />);
 
     expect(screen.getByRole('heading', { name: '配置备份' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '导出 .env' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '导入 .env' })).toBeInTheDocument();
-    expect(screen.getByText(/Docker 部署中/)).toHaveTextContent('ENV_FILE');
-  });
-
-  it('disables env backup actions when web auth is not enabled', () => {
-    useAuthMock.mockReturnValue({
-      authEnabled: false,
-      passwordChangeable: false,
-      refreshStatus,
-    });
-
-    render(<SettingsPage />);
-
-    expect(screen.getByText(/当前 Web 端未开启管理员鉴权/)).toBeInTheDocument();
+    expect(screen.getByText(/Web 端不支持原始/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '导出 .env' })).toBeDisabled();
     expect(screen.getByRole('button', { name: '导入 .env' })).toBeDisabled();
-  });
-
-  it('uses live auth state for env backup availability instead of loaded config items', () => {
-    const configState = buildSystemConfigState();
-    useSystemConfigMock.mockReturnValue(buildSystemConfigState({
-      itemsByCategory: {
-        ...configState.itemsByCategory,
-        system: configState.itemsByCategory.system.map((item) => (
-          item.key === 'ADMIN_AUTH_ENABLED' ? { ...item, value: 'false' } : item
-        )),
-      },
-    }));
-    useAuthMock.mockReturnValue({
-      authEnabled: true,
-      passwordChangeable: true,
-      refreshStatus,
-    });
-
-    render(<SettingsPage />);
-
-    expect(screen.queryByText(/当前 Web 端未开启管理员鉴权/)).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '导出 .env' })).not.toBeDisabled();
-    expect(screen.getByRole('button', { name: '导入 .env' })).not.toBeDisabled();
+    expect(screen.getByText(/Docker 部署中/)).toHaveTextContent('ENV_FILE');
   });
 
   it('exports saved env from config backup actions', async () => {

@@ -1,6 +1,6 @@
 # DSA Web Playwright Tests
 
-Playwright + TypeScript E2E test automation for the [`apps/dsa-web`](../dsa-web) application, with backend-authenticated smoke tests.
+Playwright + TypeScript E2E test automation for the [`apps/dsa-web`](../dsa-web) application.
 
 ## Tech Stack
 
@@ -16,7 +16,7 @@ Playwright + TypeScript E2E test automation for the [`apps/dsa-web`](../dsa-web)
 dsa-web-playwright-tests/
 |-- e2e/
 |   |-- backend-command.spec.ts # Cross-platform backend startup regression tests
-|   |-- smoke.spec.ts           # Login, home page, chat flows
+|   |-- smoke.spec.ts           # Home page, chat flows
 |   `-- report-markdown.spec.ts # Report copy and clipboard tests
 |-- playwright.config.ts        # Playwright config with auto server startup
 |-- tsconfig.json
@@ -86,7 +86,7 @@ npx playwright test e2e/smoke.spec.ts
 
 ## Current Test Coverage
 
-- `e2e/smoke.spec.ts`: Login page renders, home page shows analysis entry and history after login, chat page allows entering a question.
+- `e2e/smoke.spec.ts`: Home page shows analysis entry and history, chat page allows entering a question.
 - `e2e/report-markdown.spec.ts`: Copy exact Markdown/plain-text content to the clipboard and verify both copy buttons are disabled while the report loads. History and report API responses are intercepted with fixed test data, so these UI tests need no existing reports, live analysis, or LLM credentials.
 
 All tests run with Chinese locale (`zh-CN`) and use Chromium browser.
@@ -122,17 +122,16 @@ This package and [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.
 | Feature | Playwright (this package) | Cypress |
 |---|---|---|
 | Test runner | `@playwright/test` | Cypress 16 |
-| Auth | None | None |
 | Server startup | Auto-starts backend + frontend | Manual `BASE_URL` |
 | Locale | Chinese `zh-CN` | Default |
 | Reporting | Built-in HTML report, screenshots/video on failure | Allure reporting |
 | Page objects | Inline locators | Page Object Model classes |
-| Coverage | Authenticated flows: login, home, chat, report copy | App shell renders, analyze button visible |
+| Coverage | Home, chat, report copy | App shell renders, analyze button visible |
 
 ## Troubleshooting
 
 - **Backend fails to start**: Activate your Python environment (for example, `.venv311\Scripts\Activate.ps1` on Windows), ensure project dependencies are installed, or set `DSA_WEB_SMOKE_BACKEND_CMD` manually.
-- **Stuck before tests are listed**: Check `http://127.0.0.1:18000/api/v1/auth/status` with `curl.exe --max-time 5` on Windows. An occupied port that accepts connections but never responds can stall Playwright's initial health check before its startup timeout applies. Inspect the port owner and stop or repair that service; do not terminate unrelated Docker/WSL processes blindly. For startup diagnostics in PowerShell, set `$env:DEBUG = 'pw:webserver'` before `npm test` and remove it afterward with `Remove-Item Env:DEBUG`.
+- **Stuck before tests are listed**: Check `http://127.0.0.1:18000/api/v1/health` with `curl.exe --max-time 5` on Windows. An occupied port that accepts connections but never responds can stall Playwright's initial health check before its startup timeout applies. Inspect the port owner and stop or repair that service; do not terminate unrelated Docker/WSL processes blindly. For startup diagnostics in PowerShell, set `$env:DEBUG = 'pw:webserver'` before `npm test` and remove it afterward with `Remove-Item Env:DEBUG`.
 - **Frontend port already in use**: Stop the existing server on port 4173; Playwright deliberately does not reuse it.
 - **Frontend fails to start**: Ensure `apps/dsa-web` dependencies are installed (`cd apps/dsa-web && npm install`).
 - **Browser not found**: Run `npx playwright install chromium`.

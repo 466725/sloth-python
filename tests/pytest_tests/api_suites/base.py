@@ -98,11 +98,6 @@ class BaseAPITest:
         """Assert a ``404`` response using the shared error envelope."""
         return cls.assert_error(response, 404, "not_found")
 
-    @classmethod
-    def assert_unauthorized(cls, response: Response) -> dict[str, Any]:
-        """Assert the auth middleware rejected the request with ``401``."""
-        return cls.assert_error(response, 401, "unauthorized")
-
     @staticmethod
     def assert_paginated(body: dict[str, Any], *, page: int | None = None) -> list[Any]:
         """Assert a list envelope exposing ``items``/``total`` and return the items."""

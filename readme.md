@@ -519,7 +519,7 @@ Docker Compose defines separate server and analyzer services. Start the Web/API 
 
 `STOCK_LIST` controls the analysis universe. Search and market-data sources use provider keys and fallbacks configured through environment variables or Web Settings. Email is the supported notification transport; configure it only if report or alert delivery is needed. Detailed feature behavior is in the [LLM provider guide](ai_stock/llm/llm-providers.md) and [DSA Web feature guides](apps/dsa-web/readme.md#web-workflows).
 
-For a remotely accessible server, enable administrator authentication and use suitable firewall and HTTPS reverse-proxy protections. Do not expose an unprotected settings/API service to the public Internet.
+The Web/API service has no built-in authentication. Keep it on a trusted private network or place it behind an authenticated HTTPS reverse proxy; do not expose it directly to the public Internet.
 
 ### API and Web references
 

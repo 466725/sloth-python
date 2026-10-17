@@ -92,8 +92,8 @@ under `apps/dsa-web` first. The small `start-server-and-test` development depend
 handles readiness and process cleanup across Windows, macOS, and Linux.
 
 No backend, Python environment, or Docker service is required for these two UI
-specs: the support file intercepts their auth, history, task, watchlist, skills,
-and setup-status API requests. Application exceptions still fail tests.
+specs: the support file intercepts their history, task, watchlist, skills, and
+setup-status API requests. Application exceptions still fail tests.
 
 `cypress.config.ts` reads `BASE_URL`, defaulting to `http://127.0.0.1:4174`.
 For an already-running app, use `cypress:run` or `cypress:open` rather than
@@ -137,7 +137,7 @@ npx cypress run --spec "e2e/home.cy.ts"
 ## Current Test Coverage
 
 - `e2e/home.cy.ts`: home page loads and the "Analyze" button is visible.
-- `e2e/dsa_web_smoke.cy.ts`: backend-independent sanity check that the app shell renders and the page title is correct; useful for verifying the Cypress setup itself without requiring the backend or auth to be configured.
+- `e2e/dsa_web_smoke.cy.ts`: backend-independent sanity check that the app shell renders and the page title is correct; useful for verifying the Cypress setup itself without requiring the backend.
 
 ## Allure Reporting
 
@@ -161,5 +161,5 @@ Results: `temps/cypress_dsa_web/allure-results`; report: `temps/cypress_dsa_web/
 
 ## Next Steps
 
-- Add specs/page objects for additional `dsa-web` flows (Ask Stock, Backtest, Alerts, Settings, login/auth).
+- Add specs/page objects for additional `dsa-web` flows (Ask Stock, Backtest, Alerts, Settings).
 - Add a CI workflow for this package.

@@ -1,13 +1,6 @@
 import "allure-cypress";
 
 beforeEach(() => {
-    cy.intercept("GET", "/api/v1/auth/status", {
-        authEnabled: false,
-        loggedIn: false,
-        passwordSet: false,
-        passwordChangeable: false,
-        setupState: "no_password",
-    }).as("authStatus");
     cy.intercept("GET", "/api/v1/history?*", {
         total: 0, page: 1, limit: 20, items: [],
     });

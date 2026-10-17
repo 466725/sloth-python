@@ -27,7 +27,6 @@ if "litellm" not in sys.modules:
     except ModuleNotFoundError:  # pragma: no cover - exercised on slim installs
         sys.modules["litellm"] = MagicMock()
 
-import ai_stock.auth as auth
 from ai_stock.config import Config
 from ai_stock.core import market_review_lock
 from ai_stock.storage import DatabaseManager
@@ -41,7 +40,6 @@ REPO_ENV_PATH = REPO_ROOT / ".env"
 #: optional integrations stay disabled unless a test explicitly enables them,
 #: and the remote stock index refresh is switched off to keep runs network-free.
 BASE_ENV = {
-    "ADMIN_AUTH_ENABLED": "false",
     "AGENT_MODE": "false",
     "STOCK_LIST": "600519,000858",
     "ENABLE_NOTIFICATION": "false",
@@ -73,11 +71,6 @@ class ApiEnvironment:
 
 def _reset_runtime_state() -> None:
     """Drop cached singletons so each test observes a clean runtime."""
-    auth._auth_enabled = None
-    auth._session_secret = None
-    auth._password_hash_salt = None
-    auth._password_hash_stored = None
-    auth._rate_limit = {}
     market_review_lock._market_review_running = False
     Config.reset_instance()
     DatabaseManager.reset_instance()
@@ -149,13 +142,6 @@ def api_client(api_env: ApiEnvironment) -> TestClient:
     the application lifespan, which schedules a remote stock-index refresh, does
     not run during tests.
     """
-    return TestClient(create_app(static_dir=api_env.static_dir))
-
-
-@pytest.fixture
-def auth_enabled_client(api_env: ApiEnvironment, monkeypatch: pytest.MonkeyPatch) -> TestClient:
-    """Provide an unauthenticated client against an auth-protected application."""
-    monkeypatch.setattr("api.middlewares.auth.is_auth_enabled", lambda: True)
     return TestClient(create_app(static_dir=api_env.static_dir))
 
 

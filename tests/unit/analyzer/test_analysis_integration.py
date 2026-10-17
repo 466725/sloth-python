@@ -17,22 +17,12 @@ from fastapi.testclient import TestClient
 from api.app import create_app
 from ai_stock.services.task_queue import AnalysisTaskQueue, TaskStatus
 from ai_stock.config import Config
-import ai_stock.auth as auth
 
 @pytest.fixture
 def client():
     app = create_app()
     return TestClient(app)
 
-
-@pytest.fixture(autouse=True)
-def disable_auth():
-    """Keep analysis integration tests independent from local auth env state."""
-    auth._auth_enabled = None
-    with patch("api.middlewares.auth.is_auth_enabled", return_value=False), \
-         patch("ai_stock.auth.is_auth_enabled", return_value=False):
-        yield
-    auth._auth_enabled = None
 
 @pytest.fixture
 def mock_task_queue():

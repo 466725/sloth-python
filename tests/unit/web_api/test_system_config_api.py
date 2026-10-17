@@ -1,24 +1,19 @@
 # -*- coding: utf-8 -*-
 """Integration tests for system configuration API endpoints."""
 
-import asyncio
 import os
 import tempfile
 import unittest
 from pathlib import Path
-from types import SimpleNamespace
 from unittest.mock import patch
 
-import httpx
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import HTTPException
 from pydantic import ValidationError
 
 from tests.unit.llm.litellm_stub import ensure_litellm_stub
 
 ensure_litellm_stub()
 
-from api.middlewares.auth import add_auth_middleware
-from api.middlewares.error_handler import add_error_handlers
 from api.v1.endpoints import system_config
 from api.v1.schemas.system_config import (
     DiscoverLLMChannelModelsRequest,
@@ -27,7 +22,6 @@ from api.v1.schemas.system_config import (
     TestNotificationChannelRequest,
     UpdateSystemConfigRequest,
 )
-import ai_stock.auth as auth
 from ai_stock.config import Config
 from ai_stock.core.config_manager import ConfigManager
 from ai_stock.services.system_config_service import SystemConfigService
@@ -37,12 +31,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
     """System config API tests in isolation without loading the full app."""
 
     def setUp(self) -> None:
-        auth._auth_enabled = None
-        auth._session_secret = None
-        auth._password_hash_salt = None
-        auth._password_hash_stored = None
-        auth._rate_limit = {}
-
         self.temp_dir = tempfile.TemporaryDirectory()
         self.env_path = Path(self.temp_dir.name) / ".env"
         self.env_path.write_text(
@@ -52,7 +40,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
                     "GEMINI_API_KEY=secret-key-value",
                     "SCHEDULE_TIME=18:00",
                     "LOG_LEVEL=INFO",
-                    "ADMIN_AUTH_ENABLED=true",
                 ]
             )
             + "\n",
@@ -62,16 +49,14 @@ class SystemConfigApiTestCase(unittest.TestCase):
         self._orig_database_path = os.environ.get("DATABASE_PATH")
         os.environ["ENV_FILE"] = str(self.env_path)
         os.environ["DATABASE_PATH"] = str(Path(self.temp_dir.name) / "system_config_api_test.db")
+        os.environ["DSA_DESKTOP_MODE"] = "true"
         Config.reset_instance()
 
         self.manager = ConfigManager(env_path=self.env_path)
         self.service = SystemConfigService(manager=self.manager)
-        self._verify_session_patch = patch.object(system_config, "verify_session", return_value=True)
-        self._verify_session_patch.start()
 
     def tearDown(self) -> None:
         Config.reset_instance()
-        self._verify_session_patch.stop()
         os.environ.pop("ENV_FILE", None)
         if self._orig_dsa_desktop_mode is None:
             os.environ.pop("DSA_DESKTOP_MODE", None)
@@ -83,28 +68,11 @@ class SystemConfigApiTestCase(unittest.TestCase):
             os.environ["DATABASE_PATH"] = self._orig_database_path
         self.temp_dir.cleanup()
 
-    @staticmethod
-    def _build_request(cookies: dict[str, str] | None = None) -> SimpleNamespace:
-        return SimpleNamespace(
-            cookies=cookies if cookies is not None else {system_config.COOKIE_NAME: "valid-session-token"}
-        )
-
     def _rewrite_env(self, *lines: str) -> None:
         self.env_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
         Config.reset_instance()
         self.manager = ConfigManager(env_path=self.env_path)
         self.service = SystemConfigService(manager=self.manager)
-
-    def _build_client_app(self) -> FastAPI:
-        app = FastAPI()
-
-        @app.get("/api/v1/system/config/export")
-        async def export_config(request: Request):
-            return system_config.export_system_config(request=request, service=self.service)
-
-        add_error_handlers(app)
-        add_auth_middleware(app)
-        return app
 
     def test_get_config_keeps_regular_secret_value_unmasked(self) -> None:
         payload = system_config.get_system_config(include_schema=True, service=self.service).model_dump(by_alias=True)
@@ -118,7 +86,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
             "GEMINI_API_KEY=secret-key-value",
             "LLM_USAGE_HMAC_SECRET=telemetry-secret",
             "LLM_USAGE_HMAC_KEY_VERSION=test-v1",
-            "ADMIN_AUTH_ENABLED=true",
         )
 
         payload = system_config.get_system_config(include_schema=True, service=self.service).model_dump(by_alias=True)
@@ -158,7 +125,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
                     "LITELLM_MODEL=gemini/gemini-3-flash-preview",
                     "GEMINI_API_KEY=secret-key-value",
                     "STOCK_LIST=600519",
-                    "ADMIN_AUTH_ENABLED=false",
                 ]
             )
             + "\n",
@@ -219,7 +185,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
                     "",
                     "# Secrets",
                     "GEMINI_API_KEY=secret-key-value",
-                    "ADMIN_AUTH_ENABLED=false",
                 ]
             )
             + "\n",
@@ -302,7 +267,7 @@ class SystemConfigApiTestCase(unittest.TestCase):
 
     def test_export_system_config_returns_raw_env_content(self) -> None:
         self.env_path.write_text(
-            "# Web config\nSTOCK_LIST=600519,000001\nGEMINI_API_KEY=secret-key-value\nADMIN_AUTH_ENABLED=true\n",
+            "# Web config\nSTOCK_LIST=600519,000001\nGEMINI_API_KEY=secret-key-value\n",
             encoding="utf-8",
         )
         self.manager = ConfigManager(env_path=self.env_path)
@@ -310,13 +275,12 @@ class SystemConfigApiTestCase(unittest.TestCase):
         Config.reset_instance()
 
         payload = system_config.export_system_config(
-            request=self._build_request(),
             service=self.service,
         ).model_dump()
 
         self.assertEqual(
             payload["content"],
-            "# Web config\nSTOCK_LIST=600519,000001\nGEMINI_API_KEY=secret-key-value\nADMIN_AUTH_ENABLED=true\n",
+            "# Web config\nSTOCK_LIST=600519,000001\nGEMINI_API_KEY=secret-key-value\n",
         )
         self.assertEqual(payload["config_version"], self.manager.get_config_version())
 
@@ -324,7 +288,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
         current = system_config.get_system_config(include_schema=False, service=self.service).model_dump()
 
         payload = system_config.import_system_config(
-            request_obj=self._build_request(),
             request=ImportSystemConfigRequest(
                 config_version=current["config_version"],
                 content="STOCK_LIST=300750\nCUSTOM_NOTE=config backup\n",
@@ -342,7 +305,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
     def test_import_system_config_returns_conflict_when_version_is_stale(self) -> None:
         with self.assertRaises(HTTPException) as context:
             system_config.import_system_config(
-                request_obj=self._build_request(),
                 request=ImportSystemConfigRequest(
                     config_version="stale-version",
                     content="STOCK_LIST=300750\n",
@@ -359,7 +321,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
 
         with self.assertRaises(HTTPException) as context:
             system_config.import_system_config(
-                request_obj=self._build_request(),
                 request=ImportSystemConfigRequest(
                     config_version=current["config_version"],
                     content="# comments only\n\n",
@@ -376,7 +337,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
 
         with self.assertRaises(HTTPException) as context:
             system_config.import_system_config(
-                request_obj=self._build_request(),
                 request=ImportSystemConfigRequest(
                     config_version=current["config_version"],
                     content="",
@@ -387,28 +347,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
 
         self.assertEqual(context.exception.status_code, 400)
         self.assertEqual(context.exception.detail["error"], "invalid_import_file")
-
-    def test_config_env_endpoints_work_outside_desktop_mode(self) -> None:
-        with patch.dict(os.environ, {"DSA_DESKTOP_MODE": "false"}, clear=False):
-            current = system_config.get_system_config(include_schema=False, service=self.service).model_dump()
-
-            export_payload = system_config.export_system_config(
-                request=self._build_request(),
-                service=self.service,
-            ).model_dump()
-            import_payload = system_config.import_system_config(
-                request_obj=self._build_request(),
-                request=ImportSystemConfigRequest(
-                    config_version=current["config_version"],
-                    content="STOCK_LIST=300750\n",
-                    reload_now=False,
-                ),
-                service=self.service,
-            ).model_dump()
-
-            self.assertIn("STOCK_LIST=600519,000001", export_payload["content"])
-            self.assertTrue(import_payload["success"])
-            self.assertEqual(self.manager.read_config_map()["STOCK_LIST"], "300750")
 
     def test_config_env_endpoints_reject_without_backup_access(self) -> None:
         with patch.dict(
@@ -423,7 +361,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
                         "GEMINI_API_KEY=secret-key-value",
                         "SCHEDULE_TIME=18:00",
                         "LOG_LEVEL=INFO",
-                        "ADMIN_AUTH_ENABLED=false",
                     ]
                 )
                 + "\n",
@@ -437,7 +374,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
 
             with self.assertRaises(HTTPException) as export_ctx:
                 system_config.export_system_config(
-                    request=self._build_request(),
                     service=self.service,
                 )
             self.assertEqual(export_ctx.exception.status_code, 403)
@@ -445,7 +381,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
 
             with self.assertRaises(HTTPException) as import_ctx:
                 system_config.import_system_config(
-                    request_obj=self._build_request(),
                     request=ImportSystemConfigRequest(
                         config_version=current["config_version"],
                         content="STOCK_LIST=300750\n",
@@ -469,7 +404,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
                         "GEMINI_API_KEY=secret-key-value",
                         "SCHEDULE_TIME=18:00",
                         "LOG_LEVEL=INFO",
-                        "ADMIN_AUTH_ENABLED=false",
                     ]
                 )
                 + "\n",
@@ -481,7 +415,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
 
             with self.assertRaises(HTTPException) as export_ctx:
                 system_config.export_system_config(
-                    request=self._build_request(),
                     service=self.service,
                 )
 
@@ -494,7 +427,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
         with patch.object(self.service, "export_env", side_effect=PermissionError("read denied")):
             with self.assertRaises(HTTPException) as export_ctx:
                 system_config.export_system_config(
-                    request=self._build_request(),
                     service=self.service,
                 )
 
@@ -504,7 +436,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
         with patch.object(self.service, "import_env", side_effect=PermissionError("write denied")):
             with self.assertRaises(HTTPException) as import_ctx:
                 system_config.import_system_config(
-                    request_obj=self._build_request(),
                     request=ImportSystemConfigRequest(
                         config_version=current["config_version"],
                         content="STOCK_LIST=300750\n",
@@ -515,48 +446,6 @@ class SystemConfigApiTestCase(unittest.TestCase):
 
         self.assertEqual(import_ctx.exception.status_code, 500)
         self.assertEqual(import_ctx.exception.detail["error"], "internal_error")
-
-    def test_config_env_endpoints_reject_without_session_after_auth_toggle(self) -> None:
-        self.env_path.write_text(
-            "\n".join(
-                [
-                    "STOCK_LIST=600519,000001",
-                    "GEMINI_API_KEY=secret-key-value",
-                    "SCHEDULE_TIME=18:00",
-                    "LOG_LEVEL=INFO",
-                    "ADMIN_AUTH_ENABLED=false",
-                ]
-            )
-            + "\n",
-            encoding="utf-8",
-        )
-        self.manager = ConfigManager(env_path=self.env_path)
-        self.service = SystemConfigService(manager=self.manager)
-        Config.reset_instance()
-
-        self.env_path.write_text(
-            "\n".join(
-                [
-                    "STOCK_LIST=600519,000001",
-                    "GEMINI_API_KEY=secret-key-value",
-                    "SCHEDULE_TIME=18:00",
-                    "LOG_LEVEL=INFO",
-                    "ADMIN_AUTH_ENABLED=true",
-                ]
-            )
-            + "\n",
-            encoding="utf-8",
-        )
-        auth._auth_enabled = False
-
-        async def request_export() -> httpx.Response:
-            transport = httpx.ASGITransport(app=self._build_client_app())
-            async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
-                return await client.get("/api/v1/system/config/export")
-
-        response = asyncio.run(request_export())
-        self.assertEqual(response.status_code, 401)
-        self.assertEqual(response.json()["error"], "env_backup_access_denied")
 
     def test_test_llm_channel_endpoint_returns_service_payload(self) -> None:
         with patch.object(

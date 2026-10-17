@@ -61,15 +61,6 @@ class TestRunOutcomes(BaseAPITest):
 
         self.assert_validation_error(response, field=field)
 
-    def test_requires_authentication_when_enabled(
-        self, auth_enabled_client: TestClient, api_spec: dict[str, Any]
-    ) -> None:
-        """Without a session cookie the endpoint reports ``401``."""
-        response = auth_enabled_client.post(self.ENDPOINT, json={})
-
-        self.assert_unauthorized(response)
-        self.assert_documented_status(api_spec, response)
-
 
 class TestListOutcomes(BaseAPITest):
     """``GET /api/v1/decision-signals/outcomes``."""
@@ -146,10 +137,6 @@ class TestOutcomeStats(BaseAPITest):
 
         body = self.assert_matches_spec(api_spec, response)
         assert body["horizons"] == ["1d", "5d"]
-
-    def test_requires_authentication_when_enabled(self, auth_enabled_client: TestClient) -> None:
-        """Without a session cookie the endpoint reports ``401``."""
-        self.assert_unauthorized(auth_enabled_client.get(self.ENDPOINT))
 
 
 class TestSignalOutcomes(BaseAPITest):

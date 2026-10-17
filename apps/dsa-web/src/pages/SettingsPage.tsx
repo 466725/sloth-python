@@ -1,13 +1,11 @@
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { useAuth, useSystemConfig } from '../hooks';
+import { useSystemConfig } from '../hooks';
 import { useUiLanguage } from '../contexts/UiLanguageContext';
 import { createParsedApiError, getParsedApiError, type ParsedApiError } from '../api/error';
 import { systemConfigApi } from '../api/systemConfig';
 import { ApiErrorAlert, Button, ConfirmDialog, EmptyState } from '../components/common';
 import {
-  AuthSettingsCard,
-  ChangePasswordCard,
   IntelligentImport,
   LLMChannelEditor,
   NotificationTestPanel,
@@ -209,7 +207,6 @@ function formatEnvBackupFilename(isDesktopRuntime: boolean) {
 }
 
 const SettingsPage: React.FC = () => {
-  const { authEnabled, passwordChangeable } = useAuth();
   const { language: uiLanguage, t } = useUiLanguage();
   const [envBackupActionError, setEnvBackupActionError] = useState<ParsedApiError | null>(null);
   const [envBackupActionSuccess, setEnvBackupActionSuccess] = useState<string>('');
@@ -355,9 +352,6 @@ const SettingsPage: React.FC = () => {
     'OPENAI_TEMPERATURE',
     'VISION_MODEL',
   ]);
-  const SYSTEM_HIDDEN_KEYS = new Set([
-    'ADMIN_AUTH_ENABLED',
-  ]);
   const AGENT_HIDDEN_KEYS = new Set<string>();
   const activeItems =
     activeCategory === 'ai_model'
@@ -370,12 +364,10 @@ const SettingsPage: React.FC = () => {
         }
         return true;
       })
-      : activeCategory === 'system'
-        ? rawActiveItems.filter((item) => !SYSTEM_HIDDEN_KEYS.has(item.key))
       : activeCategory === 'agent'
         ? rawActiveItems.filter((item) => !AGENT_HIDDEN_KEYS.has(item.key))
-      : rawActiveItems;
-  const isEnvBackupAllowed = isDesktopRuntime || authEnabled;
+        : rawActiveItems;
+  const isEnvBackupAllowed = isDesktopRuntime;
   const envBackupActionDisabled = isLoading || isSaving || isExportingEnv || isImportingEnv || !isEnvBackupAllowed;
 
   const downloadEnvBackup = async () => {
@@ -615,7 +607,6 @@ const SettingsPage: React.FC = () => {
           </aside>
 
           <section className="space-y-4">
-            {activeCategory === 'system' ? <AuthSettingsCard /> : null}
             {activeCategory === 'system' ? (
               <SettingsSectionCard
                 title={t('settings.versionInfo')}
@@ -718,7 +709,7 @@ const SettingsPage: React.FC = () => {
                 <div className="space-y-4">
                   {!isEnvBackupAllowed ? (
                     <p className="text-xs leading-6 text-amber-700 dark:text-amber-300">
-                      {t('settings.disabledAuthBackupWarning')}
+                      {t('settings.webEnvBackupUnavailable')}
                     </p>
                   ) : null}
                   <div className="flex flex-wrap items-center gap-3">
@@ -804,9 +795,6 @@ const SettingsPage: React.FC = () => {
                   disabled={isSaving || isLoading}
                 />
               </SettingsSectionCard>
-            ) : null}
-            {activeCategory === 'system' && passwordChangeable ? (
-              <ChangePasswordCard />
             ) : null}
             {activeCategory === 'notification' ? (
               <SettingsPanelErrorBoundary

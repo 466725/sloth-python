@@ -46,7 +46,6 @@ Open <http://localhost:5173>. Vite proxies `/api` requests to `http://127.0.0.1:
 | `/alerts` | Alerts | Manage alert rules and review triggered, skipped, or degraded results |
 | `/usage` | Token Usage | Track LLM token usage |
 | `/settings` | Settings | Configure LLM providers, notifications, data sources, and runtime options |
-| `/login` | Login | Sign in when backend authentication is enabled |
 
 ## Workflows and shared features
 
@@ -97,9 +96,10 @@ catalog by symbol, name, alias, full pinyin, or pinyin initials; see the
 When running the frontend separately, start the FastAPI backend and use the
 configured Vite proxy. If a page loads but API calls fail, check `/health` or
 `/api/health`, confirm `/docs` is available, and inspect backend logs. For
-remote access, enable administrator authentication and protect the service with
-firewall rules and an HTTPS reverse proxy; do not expose an unprotected settings
-or API service to the public Internet.
+remote access, keep the service behind a trusted network boundary or an
+authenticated HTTPS reverse proxy. The application has no built-in
+authentication; do not expose its settings or API directly to the public
+Internet.
 
 ## Development
 
@@ -109,7 +109,7 @@ or API service to the public Internet.
 - Vite 7 (dev server and build), Tailwind CSS 4
 - Zustand for state, Axios for API calls, Recharts for charts
 - Vitest + Testing Library for unit/component tests
-- E2E tests live in separate packages: [`apps/dsa-web-playwright-tests`](../dsa-web-playwright-tests/Readme.md) (Playwright, authenticated flows) and [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.md) (Cypress, Page Object Model)
+- E2E tests live in separate packages: [`apps/dsa-web-playwright-tests`](../dsa-web-playwright-tests/Readme.md) (Playwright) and [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.md) (Cypress, Page Object Model)
 
 ### Scripts and local servers
 
@@ -162,7 +162,7 @@ npm test                 # vitest run
 
 E2E tests live in separate sibling packages, not in this folder:
 
-- **Playwright** ([`apps/dsa-web-playwright-tests`](../dsa-web-playwright-tests/Readme.md)): Authenticated smoke tests covering login, home dashboard, chat, and report flows. Auto-starts backend and frontend servers.
+- **Playwright** ([`apps/dsa-web-playwright-tests`](../dsa-web-playwright-tests/Readme.md)): Smoke tests covering the home dashboard, chat, and report flows. Auto-starts backend and frontend servers.
 - **Cypress** ([`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.md)): Page Object Model tests with Allure reporting.
 
 Start the backend and/or `npm run dev` here first, then follow the respective package's README to run or add specs.
@@ -170,7 +170,7 @@ Start the backend and/or `npm run dev` here first, then follow the respective pa
 ### Adding New Tests
 
 - Prefer Vitest + Testing Library for component/unit behavior that doesn't need a real backend.
-- For E2E tests, choose the appropriate package: Playwright for authenticated backend flows, Cypress for page-object-based UI coverage.
+- For E2E tests, choose the appropriate package: Playwright for backend-backed flows, Cypress for page-object-based UI coverage.
 - Keep assertions on stable text/roles/ids rather than styling classes, and avoid hardcoding secrets — use environment variables.
 
 ## Feature guides

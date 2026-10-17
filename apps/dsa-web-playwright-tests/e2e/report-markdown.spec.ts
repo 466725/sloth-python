@@ -50,8 +50,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-async function login(page: Page) {
-  // Login is no longer required; navigate to home page directly
+async function openApp(page: Page) {
   await page.addInitScript((storageKey) => {
     window.localStorage.setItem(storageKey, 'zh');
   }, UI_LANGUAGE_STORAGE_KEY);
@@ -71,7 +70,7 @@ test.describe('ReportMarkdown component', () => {
     // Grant clipboard permissions
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
 
-    await login(page);
+    await openApp(page);
 
     // Ensure there is a history item to work with
     await ensureHistoryItem(page);
@@ -108,7 +107,7 @@ test.describe('ReportMarkdown component', () => {
     // Grant clipboard permissions
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
 
-    await login(page);
+    await openApp(page);
 
     // Ensure there is a history item to work with
     await ensureHistoryItem(page);
@@ -150,7 +149,7 @@ test.describe('ReportMarkdown component', () => {
       await markdownReady;
       await route.fulfill({ json: { content: REPORT_MARKDOWN } });
     });
-    await login(page);
+    await openApp(page);
 
     // Ensure there is a history item to work with
     await ensureHistoryItem(page);

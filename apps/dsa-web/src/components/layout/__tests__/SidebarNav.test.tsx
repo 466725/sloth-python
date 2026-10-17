@@ -1,21 +1,13 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { SidebarNav } from '../SidebarNav';
 
-const mockLogout = vi.fn().mockResolvedValue(undefined);
 const mockThemeToggle = vi.fn(({ collapsed }: { collapsed?: boolean }) => (
   <button type="button">{collapsed ? '切换主题(折叠)' : '切换主题'}</button>
 ));
 
 const completionBadgeState = { value: true };
-
-vi.mock('../../../contexts/AuthContext', () => ({
-  useAuth: () => ({
-    authEnabled: true,
-    logout: mockLogout,
-  }),
-}));
 
 vi.mock('../../../stores/agentChatStore', () => ({
   useAgentChatStore: (selector: (state: { completionBadge: boolean }) => unknown) =>
@@ -84,19 +76,5 @@ describe('SidebarNav', () => {
     const signalsLink = screen.getByRole('link', { name: 'AI 建议' });
     expect(signalsLink).toHaveAttribute('href', '/decision-signals');
     expect(signalsLink).toHaveClass('font-medium');
-  });
-
-  it('opens the logout confirmation and confirms logout', async () => {
-    render(
-      <MemoryRouter initialEntries={['/chat']}>
-        <SidebarNav />
-      </MemoryRouter>,
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: '退出' }));
-
-    expect(await screen.findByRole('heading', { name: '退出登录' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: '确认退出' }));
-    expect(mockLogout).toHaveBeenCalled();
   });
 });

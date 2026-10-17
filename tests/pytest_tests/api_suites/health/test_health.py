@@ -46,16 +46,6 @@ class TestHealthCheck(BaseAPITest):
         self.assert_matches_spec(api_spec, response, path=endpoint, method="get")
 
     @pytest.mark.parametrize("endpoint", HEALTH_ENDPOINTS)
-    def test_remains_accessible_when_auth_enabled(
-        self, auth_enabled_client: TestClient, endpoint: str
-    ) -> None:
-        """Health URLs stay auth-exempt so monitoring never needs a session."""
-        response = auth_enabled_client.get(endpoint)
-
-        body = self.assert_ok(response)
-        assert body["status"] == "ok"
-
-    @pytest.mark.parametrize("endpoint", HEALTH_ENDPOINTS)
     def test_rejects_unsupported_method(self, api_client: TestClient, endpoint: str) -> None:
         """Health endpoints are read-only."""
         response = api_client.post(endpoint)
