@@ -265,7 +265,7 @@ def run_market_review(
                 report_filename = f"market_review_{date_str}.md"
                 filepath = notifier.save_report_to_file(
                     markdown_report,
-                    report_filename
+                    report_filename,
                 )
                 logger.info(
                     "[MarketReview] component=market_review action=save_report "
