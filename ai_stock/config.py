@@ -780,7 +780,7 @@ class Config:
     backtest_neutral_band_pct: float = 2.0
     
     # === 日志配置 ===
-    log_dir: str = "./logs"  # 日志文件目录
+    log_dir: str = "./temps/logs"  # 日志文件目录
     log_level: str = "INFO"  # 日志级别
     
     # === 系统配置 ===
@@ -1520,7 +1520,7 @@ class Config:
                 field_name='BACKTEST_NEUTRAL_BAND_PCT',
                 minimum=0.0,
             ),
-            log_dir=os.getenv('LOG_DIR', './logs'),
+            log_dir=os.getenv('LOG_DIR', './temps/logs'),
             log_level=os.getenv('LOG_LEVEL', 'INFO'),
             max_workers=parse_env_int(os.getenv('MAX_WORKERS'), 3, field_name='MAX_WORKERS', minimum=1),
             debug=os.getenv('DEBUG', 'false').lower() == 'true',
