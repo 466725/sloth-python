@@ -45,8 +45,8 @@ application documentation that owns them.
   browser test setup and coverage.
 - [Cypress test package guide](apps/dsa-web-cypress-tests/Readme.md) —
   browser test setup and coverage.
-- [Database utilities guide](utils/data_base/readme.md) — database helper
-  usage and query examples.
+- [Utilities guide](utils/readme.md) — shared configuration, database helpers,
+  browser testing, logging, integrations, and AI test generation.
 - [Load runner best practices](tests/performance/load_runner/load_runner_best_practices.md)
   — performance test asset guidance.
 - [Playwright locator strategy](tests/pytest_tests/ui_suites/tangerine/Playwright%20Locator%20Strategy%20Guide.md)
