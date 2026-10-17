@@ -82,7 +82,7 @@ def _resolve_litellm_log_level(raw_level: Optional[str] = None) -> Tuple[int, Op
 
 def setup_logging(
     log_prefix: str = "app",
-    log_dir: str = "./logs",
+    log_dir: str = "./temps/logs",
     console_level: Optional[int] = None,
     debug: bool = False,
     extra_quiet_loggers: Optional[List[str]] = None,
@@ -97,7 +97,7 @@ def setup_logging(
 
     Args:
         log_prefix: 日志文件名前缀（如 "api_server" -> api_server_20240101.log）
-        log_dir: 日志文件目录，默认 ./logs
+        log_dir: 日志文件目录，默认 ./temps/logs
         console_level: 控制台日志级别（可选，优先于 debug 参数）
         debug: 是否启用调试模式（控制台输出 DEBUG 级别）
         extra_quiet_loggers: 额外需要降低日志级别的第三方库列表
