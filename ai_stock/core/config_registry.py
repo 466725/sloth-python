@@ -1966,13 +1966,13 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "is_sensitive": False,
         "is_required": False,
         "is_editable": True,
-        "default_value": "./logs",
+        "default_value": "./temps/logs",
         "options": [],
         "validation": {},
         "display_order": 31,
         "help_key": "settings.system.LOG_DIR",
         "examples": [
-            "LOG_DIR=./logs",
+            "LOG_DIR=./temps/logs",
             "LOG_DIR=/app/logs",
         ],
         "docs": [
