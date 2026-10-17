@@ -1876,7 +1876,7 @@ class NotificationService(EmailSender):
     def save_report_to_file(
         self, 
         content: str, 
-        filename: Optional[str] = None
+        filename: Optional[str] = None,
     ) -> str:
         """
         保存日报到本地文件
@@ -1894,8 +1894,8 @@ class NotificationService(EmailSender):
             date_str = datetime.now().strftime('%Y%m%d')
             filename = f"report_{date_str}.md"
         
-        # 确保 reports 目录存在（使用项目根目录下的 reports）
-        reports_dir = Path(__file__).parent.parent / 'reports'
+        project_root = Path(__file__).resolve().parents[2]
+        reports_dir = project_root / 'temps' / 'ai_stock_reports'
         reports_dir.mkdir(parents=True, exist_ok=True)
         
         filepath = reports_dir / filename
