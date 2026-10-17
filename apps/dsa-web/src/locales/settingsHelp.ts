@@ -305,7 +305,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
   'settings.system.LOG_DIR': {
     title: '日志目录',
     summary: '配置应用日志输出目录。',
-    usage: '填写运行用户或容器可写的目录路径；本地默认 ./logs，容器内常见路径为 /app/logs。',
+    usage: '填写运行用户或容器可写的目录路径；本地默认 ./temps/logs，容器内常见路径为 /app/logs。',
     valueNotes: [
       '相对路径按运行进程的工作目录解析。',
       'Longbridge SDK 等组件也可能在该目录下写入日志文件。',
@@ -1135,7 +1135,7 @@ const settingsHelpEnUS: SettingsHelpMap = {
   'settings.system.LOG_DIR': {
     title: 'Log Directory',
     summary: 'Configures where application logs are written.',
-    usage: 'Use a directory writable by the runtime user or container. The local default is ./logs; container deployments often use /app/logs.',
+    usage: 'Use a directory writable by the runtime user or container. The local default is ./temps/logs; container deployments often use /app/logs.',
     valueNotes: [
       'Relative paths are resolved from the process working directory.',
       'Components such as the Longbridge SDK can also write log files under this directory.',
