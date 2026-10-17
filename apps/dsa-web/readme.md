@@ -1,23 +1,54 @@
 # DSA Web
 
-React + TypeScript frontend for Daily Stock Analysis (DSA). It is the Web workspace described in the root [readme.md](../../readme.md#-daily-stock-analysis-dsa-user-guide), served by the FastAPI backend (`server.py` / `main.py --serve-only`) or run standalone against it via Vite.
+React and TypeScript frontend for Daily Stock Analysis (DSA). The app runs with the FastAPI backend and is also served as part of the repository's Web workspace; see the [root README](../../readme.md#-daily-stock-analysis-dsa-user-guide) for the full product guide.
 
-## Main Functions
+## Contents
 
-| Route | Page | Purpose |
-|---|---|---|
-| `/` | `HomePage` | Watchlist, manual analysis entry, task progress, market review, history, and full Markdown reports |
-| `/chat` | `ChatPage` | Ask Stock / Agent strategy chat (multi-turn Q&A over built-in strategies) |
-| `/decision-signals` | `DecisionSignalsPage` | AI decision signals: action tendency, evidence, risks, follow-up watch conditions |
-| `/backtest` | `BacktestPage` | Backtesting of historical rules against market data |
-| `/alerts` | `AlertsPage` | Real-time alert rules and their triggered/skipped/degraded results |
-| `/usage` | `TokenUsagePage` | LLM token usage tracking |
-| `/settings` | `SettingsPage` | LLM providers, notification channels, data sources, and other runtime configuration |
-| `/login` | `LoginPage` | Password-based auth, shown only when the backend has auth enabled |
+- [Quick start](#quick-start)
+- [Application pages](#application-pages)
+- [Workflows and shared features](#workflows-and-shared-features)
+- [Development](#development)
+  - [Tech stack](#tech-stack)
+  - [Scripts and local servers](#scripts-and-local-servers)
+  - [Maintaining tests](#maintaining-tests)
+- [Feature guides](#feature-guides)
+  - [Stock Analyzer skill](#stock-analyzer-skill)
+  - [Stock autocomplete catalog](#stock-autocomplete-catalog)
+  - [Alert Center](#alert-center)
+  - [Email notifications](#email-notifications)
+- [Analysis context pack](#analysis-context-pack)
 
-Cross-cutting features available from the shell: smart import (image/CSV/Excel/clipboard), code/name/pinyin/alias autocomplete, light/dark theme, and English/Chinese UI language toggle.
+## Quick start
 
-## Web Workflows
+Requirements: Node.js 20.19 or newer and npm 10 or newer. Start the backend in one terminal from the repository root:
+
+```powershell
+python main.py --serve-only --host 127.0.0.1 --port 8000
+```
+
+Then start the frontend from `apps/dsa-web`:
+
+```bash
+npm install
+npm run dev
+```
+
+Open <http://localhost:5173>. Vite proxies `/api` requests to `http://127.0.0.1:8000` by default. Set `DSA_WEB_API_PROXY_TARGET` in the frontend process environment to use another backend. Most pages need the backend to load data.
+
+## Application pages
+
+| Route | Page | What you can do |
+| --- | --- | --- |
+| `/` | Home | Manage the watchlist, start analysis, follow task progress, review the market, browse history, and read Markdown reports |
+| `/chat` | Ask Stock | Ask multi-turn questions about stocks and built-in strategies |
+| `/decision-signals` | Decision Signals | Review action tendency, evidence, risks, and follow-up watch conditions |
+| `/backtest` | Backtest | Evaluate historical rules against available market data |
+| `/alerts` | Alerts | Manage alert rules and review triggered, skipped, or degraded results |
+| `/usage` | Token Usage | Track LLM token usage |
+| `/settings` | Settings | Configure LLM providers, notifications, data sources, and runtime options |
+| `/login` | Login | Sign in when backend authentication is enabled |
+
+## Workflows and shared features
 
 ### Analysis and reports
 
@@ -69,6 +100,80 @@ configured Vite proxy. If a page loads but API calls fail, check `/health` or
 remote access, enable administrator authentication and protect the service with
 firewall rules and an HTTPS reverse proxy; do not expose an unprotected settings
 or API service to the public Internet.
+
+## Development
+
+### Tech stack
+
+- React 19 + TypeScript, React Router
+- Vite 7 (dev server and build), Tailwind CSS 4
+- Zustand for state, Axios for API calls, Recharts for charts
+- Vitest + Testing Library for unit/component tests
+- E2E tests live in separate packages: [`apps/dsa-web-playwright-tests`](../dsa-web-playwright-tests/Readme.md) (Playwright, authenticated flows) and [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.md) (Cypress, Page Object Model)
+
+### Scripts and local servers
+
+```bash
+cd apps/dsa-web
+npm install
+npm run dev        # Vite dev server at http://localhost:5173
+```
+
+The dev server proxies `/api` to a backend (see `vite.config.ts`). Start the backend separately for any page that calls the API (most pages do):
+
+```powershell
+# from the repo root, in a separate terminal
+python main.py --serve-only --host 127.0.0.1 --port 8000
+```
+
+The proxy defaults to `http://127.0.0.1:8000`. To use a different backend,
+export `DSA_WEB_API_PROXY_TARGET` in the shell running `npm run dev`.
+The [Playwright package](../dsa-web-playwright-tests/Readme.md) sets this to
+`http://127.0.0.1:18000` for its isolated test backend; normal development
+is unchanged.
+
+Other scripts (run from `apps/dsa-web`):
+
+```bash
+npm run build       # type-check (tsc -b) and production build
+npm run preview      # preview the production build
+npm run lint         # ESLint
+```
+
+## Maintaining Tests
+
+All commands below are run from `apps/dsa-web`:
+
+```bash
+cd apps/dsa-web
+```
+
+### Unit / Component Tests (Vitest)
+
+```bash
+npm test                 # vitest run
+```
+
+- Specs live beside the code under `src/**/__tests__/` and in `tests/` (e.g. i18n fallback, theme tokens, UI governance checks).
+- Uses `jsdom` + Testing Library; setup file is `src/setupTests.ts` (see `vitest.config.ts`).
+- Add new tests next to the component/module they cover, following the existing `*.test.ts(x)` naming.
+
+### E2E Tests
+
+E2E tests live in separate sibling packages, not in this folder:
+
+- **Playwright** ([`apps/dsa-web-playwright-tests`](../dsa-web-playwright-tests/Readme.md)): Authenticated smoke tests covering login, home dashboard, chat, and report flows. Auto-starts backend and frontend servers.
+- **Cypress** ([`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.md)): Page Object Model tests with Allure reporting.
+
+Start the backend and/or `npm run dev` here first, then follow the respective package's README to run or add specs.
+
+### Adding New Tests
+
+- Prefer Vitest + Testing Library for component/unit behavior that doesn't need a real backend.
+- For E2E tests, choose the appropriate package: Playwright for authenticated backend flows, Cypress for page-object-based UI coverage.
+- Keep assertions on stable text/roles/ids rather than styling classes, and avoid hardcoding secrets — use environment variables.
+
+## Feature guides
 
 ## Stock Analyzer Skill
 
@@ -254,77 +359,126 @@ starting the new version. Restoring the previous code and frontend assets restor
 the old behavior, but **cannot recover data already deleted by the new version**.
 Recovery of deleted database records requires a database backup.
 
-## Tech Stack
+## Email notifications
 
-- React 19 + TypeScript, React Router
-- Vite 7 (dev server and build), Tailwind CSS 4
-- Zustand for state, Axios for API calls, Recharts for charts
-- Vitest + Testing Library for unit/component tests
-- E2E tests live in separate packages: [`apps/dsa-web-playwright-tests`](../dsa-web-playwright-tests/Readme.md) (Playwright, authenticated flows) and [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.md) (Cypress, Page Object Model)
+SMTP email is the only supported notification transport for analysis reports and
+event-driven alerts. Other channel senders, settings, and notification test options
+have been removed. Local report saving remains available without email credentials.
 
-## Running Locally
+### Configuration
 
-```bash
-cd apps/dsa-web
-npm install
-npm run dev        # Vite dev server at http://localhost:5173
+Set these values in `.env`, the process environment, or Web Settings → Notifications:
+
+```dotenv
+EMAIL_SENDER=sender@example.com
+EMAIL_PASSWORD=your_smtp_authorization_code
+EMAIL_RECEIVERS=recipient@example.com
+EMAIL_SENDER_NAME=DSA
 ```
 
-The dev server proxies `/api` to a backend (see `vite.config.ts`). Start the backend separately for any page that calls the API (most pages do):
+Use an SMTP authorization/app password where required. Never commit real
+credentials. The SMTP host is detected from the sender's domain. Supported
+providers include QQ, 163, and Gmail. OAuth2-only Outlook/Exchange tenants are
+not supported.
 
-```powershell
-# from the repo root, in a separate terminal
-python main.py --serve-only --host 127.0.0.1 --port 8000
+`EMAIL_SENDER` and `EMAIL_PASSWORD` must both be configured. `EMAIL_RECEIVERS` is a
+comma-separated list; leaving it empty sends to the sender. `EMAIL_SENDER_NAME`
+controls the displayed sender name.
+
+### Testing and delivery diagnostics
+
+The Web notification test sends a real email using the current settings draft.
+It does not save the draft. Only `email` is accepted by
+`POST /api/v1/system/config/notification/test-channel`; other channel names fail
+request validation.
+
+Run `python main.py --check-notify` for read-only configuration diagnostics.
+SMTP delivery failures are reported without exposing credentials or invalidating
+the analysis report. Report history retains delivery diagnostics.
+
+### Recipient groups and report options
+
+Numbered stock/email groups are supported in `.env` or the process environment:
+
+```dotenv
+STOCK_GROUP_1=600519,300750
+EMAIL_GROUP_1=team@example.com
 ```
 
-The proxy defaults to `http://127.0.0.1:8000`. To use a different backend,
-export `DSA_WEB_API_PROXY_TARGET` in the shell running `npm run dev`.
-The [Playwright package](../dsa-web-playwright-tests/Readme.md) sets this to
-`http://127.0.0.1:18000` for its isolated test backend; normal development
-is unchanged.
+Groups select recipients, not the analysis universe: `STOCK_LIST` still controls
+which stocks are analyzed. Unmatched stocks use the default recipients. Aggregate
+reports are generated separately for each recipient group; a failed group does
+not prevent later groups from receiving their reports.
 
-Other scripts (run from `apps/dsa-web`):
+Existing report controls remain supported: `SINGLE_STOCK_NOTIFY`, `REPORT_TYPE`,
+`REPORT_LANGUAGE`, `REPORT_SUMMARY_ONLY`, `REPORT_SHOW_LLM_MODEL`, and
+`MERGE_EMAIL_NOTIFICATION`. Template, integrity, and history-comparison controls
+are unchanged.
 
-```bash
-npm run build       # type-check (tsc -b) and production build
-npm run preview      # preview the production build
-npm run lint         # ESLint
-```
+For inline-image emails, set `MARKDOWN_TO_IMAGE_CHANNELS=email` and install the
+conversion tool required by `MD2IMG_ENGINE`. Conversion failures fall back to the
+regular email report. `MARKDOWN_TO_IMAGE_MAX_CHARS` limits conversion size.
 
-## Maintaining Tests
+### Routing and noise controls
 
-All commands below are run from `apps/dsa-web`:
+`NOTIFICATION_REPORT_CHANNELS`, `NOTIFICATION_ALERT_CHANNELS`, and
+`NOTIFICATION_SYSTEM_ERROR_CHANNELS` accept only `email` or an empty value.
+Empty means use the configured email transport. The system-error route remains
+reserved for future producers.
 
-```bash
-cd apps/dsa-web
-```
+Deduplication, cooldown, quiet hours/timezone, and minimum severity remain
+available through `NOTIFICATION_DEDUP_TTL_SECONDS`,
+`NOTIFICATION_COOLDOWN_SECONDS`, `NOTIFICATION_QUIET_HOURS`,
+`NOTIFICATION_TIMEZONE`, and `NOTIFICATION_MIN_SEVERITY`.
+`NOTIFICATION_DAILY_DIGEST_ENABLED` is reserved and does not send a daily digest.
 
-### Unit / Component Tests (Vitest)
+### Migration and deployment
 
-```bash
-npm test                 # vitest run
-```
+- Remove old bot, webhook, and push-provider notification variables from local,
+  Docker, Desktop, and GitHub Actions configurations. Existing `.env` files are
+  not automatically rewritten; retired variables are ignored at startup with a
+  warning and excluded from both settings values and the schema.
+- Update/import requests containing retired channel settings are rejected with
+  `unsupported_notification_setting`. Clean old backups before importing them.
+  Raw `.env` export remains a backup of the original file, including obsolete
+  assignments that have not yet been removed.
+- Replace old route lists and image-channel lists with `email` or clear them.
+  An old route containing only removed channels does not enable email implicitly.
+- The [disabled daily-analysis workflow](../../.github/workflows/disabled/00-daily-analysis.yml)
+  now maps only email transport settings plus routing/noise controls. It remains
+  disabled; this change does not enable scheduling or add permissions.
+- Restart/rebuild the backend and Web app after deployment to replace previously
+  served settings/UI assets. Desktop uses the same configuration API.
 
-- Specs live beside the code under `src/**/__tests__/` and in `tests/` (e.g. i18n fallback, theme tokens, UI governance checks).
-- Uses `jsdom` + Testing Library; setup file is `src/setupTests.ts` (see `vitest.config.ts`).
-- Add new tests next to the component/module they cover, following the existing `*.test.ts(x)` naming.
+To roll back this intentional removal, restore the preceding application version
+and its frontend assets. Retain a private configuration backup if needed; do not
+restore obsolete secrets into source control.
 
-### E2E Tests
+### GitHub Actions environment mapping
 
-E2E tests live in separate sibling packages, not in this folder:
+This table describes the disabled daily-analysis workflow, not an active schedule.
 
-- **Playwright** ([`apps/dsa-web-playwright-tests`](../dsa-web-playwright-tests/Readme.md)): Authenticated smoke tests covering login, home dashboard, chat, and report flows. Auto-starts backend and frontend servers.
-- **Cypress** ([`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.md)): Page Object Model tests with Allure reporting.
+<!-- notification-actions-env-table:start -->
 
-Start the backend and/or `npm run dev` here first, then follow the respective package's README to run or add specs.
+| Key | Tier | Channel / feature | Actions source | Default |
+| --- | --- | --- | --- | --- |
+| `EMAIL_SENDER` | minimal | email | Variable or Secret | - |
+| `EMAIL_PASSWORD` | minimal | email | Secret | - |
+| `EMAIL_RECEIVERS` | advanced | email | Variable or Secret | - |
+| `EMAIL_SENDER_NAME` | advanced | email | Variable or Secret | `sloth-python股票分析助手` |
+| `NOTIFICATION_REPORT_CHANNELS` | advanced | routing | Variable or Secret | - |
+| `NOTIFICATION_ALERT_CHANNELS` | advanced | routing | Variable or Secret | - |
+| `NOTIFICATION_SYSTEM_ERROR_CHANNELS` | advanced | routing | Variable or Secret | - |
+| `NOTIFICATION_DEDUP_TTL_SECONDS` | advanced | noise | Variable or Secret | `0` |
+| `NOTIFICATION_COOLDOWN_SECONDS` | advanced | noise | Variable or Secret | `0` |
+| `NOTIFICATION_QUIET_HOURS` | advanced | noise | Variable or Secret | - |
+| `NOTIFICATION_TIMEZONE` | advanced | noise | Variable or Secret | - |
+| `NOTIFICATION_MIN_SEVERITY` | advanced | noise | Variable or Secret | - |
+| `NOTIFICATION_DAILY_DIGEST_ENABLED` | advanced | noise | Variable or Secret | `false` |
 
-### Adding New Tests
+<!-- notification-actions-env-table:end -->
 
-- Prefer Vitest + Testing Library for component/unit behavior that doesn't need a real backend.
-- For E2E tests, choose the appropriate package: Playwright for authenticated backend flows, Cypress for page-object-based UI coverage.
-- Keep assertions on stable text/roles/ids rather than styling classes, and avoid hardcoding secrets — use environment variables.
-
-## Analysis Context Pack
+## Analysis context pack
 
 The `AnalysisContextPack` is an internal, versioned envelope that describes the
 inputs available to a stock analysis and the quality or limitations of those
@@ -536,122 +690,3 @@ credentials.
 
 The focused contract tests are under `tests/unit/analyzer/`, including tests
 for the schema, builder, prompt renderer, and public overview.
-
-## Email notifications
-
-SMTP email is the only supported notification transport for analysis reports and
-event-driven alerts. Other channel senders, settings, and notification test options
-have been removed. Local report saving remains available without email credentials.
-
-### Configuration
-
-Set these values in `.env`, the process environment, or Web Settings → Notifications:
-
-```dotenv
-EMAIL_SENDER=sender@example.com
-EMAIL_PASSWORD=your_smtp_authorization_code
-EMAIL_RECEIVERS=recipient@example.com
-EMAIL_SENDER_NAME=DSA
-```
-
-Use an SMTP authorization/app password where required. Never commit real
-credentials. The SMTP host is detected from the sender's domain. Supported
-providers include QQ, 163, and Gmail. OAuth2-only Outlook/Exchange tenants are
-not supported.
-
-`EMAIL_SENDER` and `EMAIL_PASSWORD` must both be configured. `EMAIL_RECEIVERS` is a
-comma-separated list; leaving it empty sends to the sender. `EMAIL_SENDER_NAME`
-controls the displayed sender name.
-
-### Testing and delivery diagnostics
-
-The Web notification test sends a real email using the current settings draft.
-It does not save the draft. Only `email` is accepted by
-`POST /api/v1/system/config/notification/test-channel`; other channel names fail
-request validation.
-
-Run `python main.py --check-notify` for read-only configuration diagnostics.
-SMTP delivery failures are reported without exposing credentials or invalidating
-the analysis report. Report history retains delivery diagnostics.
-
-### Recipient groups and report options
-
-Numbered stock/email groups are supported in `.env` or the process environment:
-
-```dotenv
-STOCK_GROUP_1=600519,300750
-EMAIL_GROUP_1=team@example.com
-```
-
-Groups select recipients, not the analysis universe: `STOCK_LIST` still controls
-which stocks are analyzed. Unmatched stocks use the default recipients. Aggregate
-reports are generated separately for each recipient group; a failed group does
-not prevent later groups from receiving their reports.
-
-Existing report controls remain supported: `SINGLE_STOCK_NOTIFY`, `REPORT_TYPE`,
-`REPORT_LANGUAGE`, `REPORT_SUMMARY_ONLY`, `REPORT_SHOW_LLM_MODEL`, and
-`MERGE_EMAIL_NOTIFICATION`. Template, integrity, and history-comparison controls
-are unchanged.
-
-For inline-image emails, set `MARKDOWN_TO_IMAGE_CHANNELS=email` and install the
-conversion tool required by `MD2IMG_ENGINE`. Conversion failures fall back to the
-regular email report. `MARKDOWN_TO_IMAGE_MAX_CHARS` limits conversion size.
-
-### Routing and noise controls
-
-`NOTIFICATION_REPORT_CHANNELS`, `NOTIFICATION_ALERT_CHANNELS`, and
-`NOTIFICATION_SYSTEM_ERROR_CHANNELS` accept only `email` or an empty value.
-Empty means use the configured email transport. The system-error route remains
-reserved for future producers.
-
-Deduplication, cooldown, quiet hours/timezone, and minimum severity remain
-available through `NOTIFICATION_DEDUP_TTL_SECONDS`,
-`NOTIFICATION_COOLDOWN_SECONDS`, `NOTIFICATION_QUIET_HOURS`,
-`NOTIFICATION_TIMEZONE`, and `NOTIFICATION_MIN_SEVERITY`.
-`NOTIFICATION_DAILY_DIGEST_ENABLED` is reserved and does not send a daily digest.
-
-### Migration and deployment
-
-- Remove old bot, webhook, and push-provider notification variables from local,
-  Docker, Desktop, and GitHub Actions configurations. Existing `.env` files are
-  not automatically rewritten; retired variables are ignored at startup with a
-  warning and excluded from both settings values and the schema.
-- Update/import requests containing retired channel settings are rejected with
-  `unsupported_notification_setting`. Clean old backups before importing them.
-  Raw `.env` export remains a backup of the original file, including obsolete
-  assignments that have not yet been removed.
-- Replace old route lists and image-channel lists with `email` or clear them.
-  An old route containing only removed channels does not enable email implicitly.
-- The [disabled daily-analysis workflow](../../.github/workflows/disabled/00-daily-analysis.yml)
-  now maps only email transport settings plus routing/noise controls. It remains
-  disabled; this change does not enable scheduling or add permissions.
-- Restart/rebuild the backend and Web app after deployment to replace previously
-  served settings/UI assets. Desktop uses the same configuration API.
-
-To roll back this intentional removal, restore the preceding application version
-and its frontend assets. Retain a private configuration backup if needed; do not
-restore obsolete secrets into source control.
-
-### GitHub Actions environment mapping
-
-This table describes the disabled daily-analysis workflow, not an active schedule.
-
-<!-- notification-actions-env-table:start -->
-
-| Key | Tier | Channel / feature | Actions source | Default |
-| --- | --- | --- | --- | --- |
-| `EMAIL_SENDER` | minimal | email | Variable or Secret | - |
-| `EMAIL_PASSWORD` | minimal | email | Secret | - |
-| `EMAIL_RECEIVERS` | advanced | email | Variable or Secret | - |
-| `EMAIL_SENDER_NAME` | advanced | email | Variable or Secret | `sloth-python股票分析助手` |
-| `NOTIFICATION_REPORT_CHANNELS` | advanced | routing | Variable or Secret | - |
-| `NOTIFICATION_ALERT_CHANNELS` | advanced | routing | Variable or Secret | - |
-| `NOTIFICATION_SYSTEM_ERROR_CHANNELS` | advanced | routing | Variable or Secret | - |
-| `NOTIFICATION_DEDUP_TTL_SECONDS` | advanced | noise | Variable or Secret | `0` |
-| `NOTIFICATION_COOLDOWN_SECONDS` | advanced | noise | Variable or Secret | `0` |
-| `NOTIFICATION_QUIET_HOURS` | advanced | noise | Variable or Secret | - |
-| `NOTIFICATION_TIMEZONE` | advanced | noise | Variable or Secret | - |
-| `NOTIFICATION_MIN_SEVERITY` | advanced | noise | Variable or Secret | - |
-| `NOTIFICATION_DAILY_DIGEST_ENABLED` | advanced | noise | Variable or Secret | `false` |
-
-<!-- notification-actions-env-table:end -->
