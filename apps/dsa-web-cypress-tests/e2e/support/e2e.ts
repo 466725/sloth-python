@@ -23,12 +23,3 @@ beforeEach(() => {
         checks: [],
     });
 });
-
-afterEach(function () {
-    if (this.currentTest?.state !== "passed") {
-        return;
-    }
-
-    const safeTitle = this.currentTest.title.replace(/[^a-zA-Z0-9_-]+/g, " ").trim();
-    cy.screenshot(`passed/${safeTitle}`);
-});

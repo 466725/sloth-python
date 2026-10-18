@@ -12,7 +12,6 @@ export default defineConfig({
     viewportHeight: 720,
     defaultCommandTimeout: 10000,
     pageLoadTimeout: 120000,
-    chromeWebSecurity: false,
     video: false,
 
     screenshotsFolder: path.join(reportsRoot, "screenshots"),
