@@ -1,15 +1,15 @@
 /// <reference types="cypress" />
 
-import { DsaHomePage } from "./support/pages/DsaHomePage";
+import {DsaHomePage} from "./support/pages/DsaHomePage";
 
 describe("DSA Home Page", () => {
-  const home = new DsaHomePage();
+    const home = new DsaHomePage();
 
-  beforeEach(() => {
-    home.visit();
-  });
+    beforeEach(() => {
+        home.visit();
+    });
 
-  it("should display the Analyze button in the top right corner", () => {
-    home.getAnalyzeButton().should("be.visible");
-  });
+    it("should display the Analyze button in the top right corner", () => {
+        home.getAnalyzeButton().should("be.visible");
+    });
 });

@@ -24,7 +24,6 @@
     "allure:open": "allure open ../../temps/cypress_dsa_web/allure-report"
   },
   "devDependencies": {
-    "@bahmutov/cy-grep": "^3.0.5",
     "@types/node": "^26.6.5",
     "allure-commandline": "^2.46.1",
     "allure-cypress": "^3.13.0",
