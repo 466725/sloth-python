@@ -29,7 +29,7 @@ dsa-web-cypress-tests/
 Screenshots, videos, downloads, and Allure results are not written inside this package. They go to the repo-root `temps/` folder (already gitignored there), alongside the other test frameworks' output:
 
 ```text
-sloth-python/temps/cypress_dsa_web/
+sloth-python/temps/dsa-web-ts-cypress/
 |-- screenshots/
 |-- videos/
 |-- downloads/
@@ -126,7 +126,7 @@ To instead test against the Vite dev server (`npm run dev` under `apps/dsa-web`,
 | `npm test` | Start isolated Vite, run all specs headlessly, stop Vite |
 | `npm run cypress:run` | Run all specs against an already-running app |
 | `npm run cypress:open` | Open the Cypress UI |
-| `npm run allure:generate` | Build the Allure report from `../../temps/cypress_dsa_web/allure-results` |
+| `npm run allure:generate` | Build the Allure report from `../../temps/dsa-web-ts-cypress/allure-results` |
 | `npm run allure:open` | Open the generated Allure report |
 
 ```bash
@@ -146,7 +146,7 @@ npm run allure:generate
 npm run allure:open
 ```
 
-Results: `temps/cypress_dsa_web/allure-results`; report: `temps/cypress_dsa_web/allure-report` (both generated under the repo-root `temps/` folder, gitignored).
+Results: `temps/dsa-web-ts-cypress/allure-results`; report: `temps/dsa-web-ts-cypress/allure-report` (both generated under the repo-root `temps/` folder, gitignored).
 
 ## Troubleshooting
 

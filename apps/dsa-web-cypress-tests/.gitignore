@@ -4,7 +4,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Cypress output now lives under the repo-root temps/ folder (see ../../temps/cypress_dsa_web)
+# Cypress output now lives under the repo-root temps/ folder (see ../../temps/dsa-web-ts-cypress)
 
 # TypeScript
 *.tsbuildinfo
@@ -31,7 +31,7 @@ Thumbs.db
 logs
 *.log
 
-# Allure results (Cypress output lives under ../../temps/cypress_dsa_web)
+# Allure results (Cypress output lives under ../../temps/dsa-web-ts-cypress)
 test-results/
 
 # Queries subproject generated logs

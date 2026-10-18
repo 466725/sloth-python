@@ -20,8 +20,8 @@
     "cypress:run": "npx cypress run",
     "test": "start-server-and-test test:serve http-get://127.0.0.1:4174 cypress:run",
     "test:serve": "npm --prefix ../dsa-web run dev -- --host 127.0.0.1 --port 4174 --strictPort",
-    "allure:generate": "allure generate ../../temps/cypress_dsa_web/allure-results --clean -o ../../temps/cypress_dsa_web/allure-report",
-    "allure:open": "allure open ../../temps/cypress_dsa_web/allure-report"
+    "allure:generate": "allure generate ../../temps/dsa-web-ts-cypress/allure-results --clean -o ../../temps/dsa-web-ts-cypress/allure-report",
+    "allure:open": "allure open ../../temps/dsa-web-ts-cypress/allure-report"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

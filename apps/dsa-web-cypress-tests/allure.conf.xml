@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-	<resultsDirectory>${projectDir}/../../temps/cypress_dsa_web/allure-results</resultsDirectory>
+	<resultsDirectory>${projectDir}/../../temps/dsa-web-ts-cypress/allure-results</resultsDirectory>
 	<reportTitle>DSA Web Test Report</reportTitle>
 	<extensions>
 		<extension>
 			<format>html</format>
-			<pattern>../../temps/cypress_dsa_web/allure-report</pattern>
+			<pattern>../../temps/dsa-web-ts-cypress/allure-report</pattern>
 		</extension>
 	</extensions>
 </configuration>
