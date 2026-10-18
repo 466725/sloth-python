@@ -115,10 +115,6 @@ BASE_URL="http://localhost:8000" npm run cypress:run
 
 To instead test against the Vite dev server (`npm run dev` under `apps/dsa-web`, no backend required for static/UI-only checks), set `BASE_URL=http://localhost:5173`.
 
-### Test Config Helpers
-
-`e2e` exposes `getBaseUrl()` for specs/page objects that need the resolved base URL at runtime.
-
 ## Running Cypress Tests
 
 | Script | Purpose |

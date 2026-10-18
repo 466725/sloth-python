@@ -7,6 +7,7 @@
     ],
     "module": "Node16",
     "moduleResolution": "Node16",
+    "noEmit": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -15,8 +16,7 @@
     "types": [
       "cypress",
       "node"
-    ],
-    "outDir": "dist"
+    ]
   },
   "include": [
     "*.config.ts",

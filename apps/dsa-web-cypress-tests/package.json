@@ -16,6 +16,7 @@
     "npm": ">=9"
   },
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "cypress:open": "npm run allure:clean && npx cypress open",
     "cypress:run": "npm run allure:clean && npx cypress run",
     "test": "start-server-and-test test:serve http-get://127.0.0.1:4174 cypress:run",
@@ -30,7 +31,6 @@
     "allure-cypress": "^3.13.0",
     "allure-js-commons": "^3.13.0",
     "cypress": "^16.1.1",
-    "cypress-multi-reporters": "^2.0.5",
     "start-server-and-test": "^3.0.13",
     "typescript": "^7.0.2"
   }
