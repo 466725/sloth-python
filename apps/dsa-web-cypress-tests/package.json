@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@bahmutov/cy-grep": "^3.0.5",
-    "@types/node": "^26.6.4",
+    "@types/node": "^26.6.5",
     "allure-commandline": "^2.46.1",
     "allure-cypress": "^3.13.0",
     "allure-js-commons": "^3.13.0",
