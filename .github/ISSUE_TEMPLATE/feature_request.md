@@ -7,32 +7,36 @@ assignees: ''
 ---
 
 <!--
-中文用户请直接填写下方表单。
-English users: fill in the English fields below.
+请用中文或英文填写下方表单，并删除不适用的提示。
+Fill in the form in Chinese or English and remove prompts that do not apply.
 -->
 
-## 功能描述 / Feature Description
+## 需求概述 / Feature Summary
 
-简明扼要地描述你希望增加的功能。  
-Briefly describe the feature you would like added.
+简要描述你希望新增或改进的功能。
 
-## 使用场景 / Use Case
+Briefly describe the feature or improvement you are requesting.
 
-描述在什么情况下需要这个功能。  
-Describe the situation where this feature would be useful.
+## 当前问题与使用场景 / Problem and Use Case
 
-## 期望实现 / Proposed Solution
+目前遇到了什么限制？谁会在什么情况下受影响？
 
-描述你期望这个功能如何工作。  
-Describe how you would expect this feature to work.
+What limitation are you experiencing, and who is affected in what situation?
 
-## 备选方案 / Alternatives Considered
+## 期望行为 / Desired Behavior
 
-描述你考虑过的其他替代方案。  
-Describe any alternative solutions you have considered.
+描述你希望功能如何工作；如有帮助，请提供示例或完成条件。
 
-## 相关信息 / Additional Context
+Describe how you expect it to work. Include an example or success criteria if helpful.
 
-- 是否愿意贡献代码实现 / Willing to implement: [Yes / No]
-- 参考链接 / Reference links:
-- 其他说明 / Other notes:
+## 备选方案 / Alternatives Considered（可选 / Optional）
+
+你考虑过哪些替代方案？
+
+What alternatives have you considered?
+
+## 补充信息 / Additional Context（可选 / Optional）
+
+- 参考链接、截图或示例 / Links, screenshots, or examples:
+- 约束或相关背景 / Constraints or relevant context:
+- 是否愿意协助实现 / Willing to help implement: [Yes / No]
