@@ -64,7 +64,6 @@ documentation.
 - [Backend-specific instructions](.github/instructions/backend.instructions.md)
 - [Web client instructions](.github/instructions/client.instructions.md)
 - [Governance instructions](.github/instructions/governance.instructions.md)
-- [Security instructions](.github/instructions/security.instructions.md)
 - [Claude skills index](.claude/skills/README.md)
 
 ## Learning material
