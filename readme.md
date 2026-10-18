@@ -61,7 +61,7 @@ documentation.
 
 - [Shared repository instructions](CLAUDE.md)
 - [Copilot instructions](.github/copilot-instructions.md)
-- [Backend-specific instructions](.github/instructions/backend.instructions.md)
+- [Backend instructions](.github/instructions/backend.instructions.md)
 - [Frontend instructions](.github/instructions/frontend.instructions.md)
 - [Governance instructions](.github/instructions/governance.instructions.md)
 - [Claude skills index](.claude/skills/README.md)

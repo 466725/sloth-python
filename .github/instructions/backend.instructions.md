@@ -1,11 +1,32 @@
 ---
-applyTo: "main.py,server.py,src/**/*.py,data_provider/**/*.py,api/**/*.py,tests/**/*.py"
+applyTo: "main.py,server.py,ai_stock/**/*.py,api/**/*.py,tests/**/*.py"
 ---
 
-# Backend Instructions
+# DSA Backend Instructions
 
-- Preserve current pipeline boundaries and reuse existing services, repositories, schemas, and fallback logic instead of creating parallel paths.
-- Changes touching config, CLI flags, schedule semantics, API behavior, auth, or report payloads must sync `.env.example` and assess Web/Desktop compatibility.
-- Changes in `data_provider/` must preserve provider priority, normalization behavior, timeout/retry expectations, and graceful degradation.
-- Run `python -m py_compile` on changed files plus the closest deterministic tests.
-- Do not let a single provider, notification channel, or optional integration failure break the main analysis flow unless the requirement explicitly demands fail-fast behavior.
+These instructions apply to the backend entry points, `ai_stock/`, `api/`, and
+Python tests selected by the `applyTo` pattern above.
+
+## Architecture and resilience
+
+- Preserve existing pipeline boundaries. Reuse services, repositories, schemas,
+  and fallback logic instead of creating parallel paths.
+- A failure in one provider, notification channel, or optional integration
+  should not break the main analysis flow unless fail-fast behavior is required.
+
+## Configuration and compatibility
+
+When changes affect configuration, CLI flags, schedule behavior, API behavior,
+or report payloads, update `.env.example` as needed and assess Web/Desktop
+compatibility.
+
+## Data providers
+
+Changes to providers under `ai_stock/stock_data/` or `ai_stock/stock_news/`
+should preserve provider priority, normalization, timeout and retry behavior,
+and graceful degradation.
+
+## Validation
+
+Run `python -m py_compile` on changed Python files and the closest deterministic
+tests when feasible.
