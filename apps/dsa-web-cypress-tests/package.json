@@ -16,10 +16,11 @@
     "npm": ">=9"
   },
   "scripts": {
-    "cypress:open": "npx cypress open",
-    "cypress:run": "npx cypress run",
+    "cypress:open": "npm run allure:clean && npx cypress open",
+    "cypress:run": "npm run allure:clean && npx cypress run",
     "test": "start-server-and-test test:serve http-get://127.0.0.1:4174 cypress:run",
     "test:serve": "npm --prefix ../dsa-web run dev -- --host 127.0.0.1 --port 4174 --strictPort",
+    "allure:clean": "node -e \"require('node:fs').rmSync('../../temps/dsa-web-ts-cypress/allure-results', { recursive: true, force: true })\"",
     "allure:generate": "allure generate ../../temps/dsa-web-ts-cypress/allure-results --clean -o ../../temps/dsa-web-ts-cypress/allure-report",
     "allure:open": "allure open ../../temps/dsa-web-ts-cypress/allure-report"
   },

@@ -126,6 +126,7 @@ To instead test against the Vite dev server (`npm run dev` under `apps/dsa-web`,
 | `npm test` | Start isolated Vite, run all specs headlessly, stop Vite |
 | `npm run cypress:run` | Run all specs against an already-running app |
 | `npm run cypress:open` | Open the Cypress UI |
+| `npm run allure:clean` | Remove previous Allure result files |
 | `npm run allure:generate` | Build the Allure report from `../../temps/dsa-web-ts-cypress/allure-results` |
 | `npm run allure:open` | Open the generated Allure report |
 
@@ -141,7 +142,13 @@ npx cypress run --spec "e2e/home.cy.ts"
 
 ## Allure Reporting
 
+`npm test`, `npm run cypress:run`, and `npm run cypress:open` clear the previous
+Allure results before starting, so a generated report reflects the current test
+run or Cypress open session. Run `npm run allure:clean` manually before launching
+Cypress directly with `npx cypress`.
+
 ```bash
+npm run cypress:run
 npm run allure:generate
 npm run allure:open
 ```
