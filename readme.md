@@ -49,7 +49,7 @@ application documentation that owns them.
   browser testing, logging, integrations, and AI test generation.
 - [Load runner best practices](tests/performance/load_runner/load_runner_best_practices.md)
   — performance test asset guidance.
-- [Playwright locator strategy](tests/pytest_tests/ui_suites/tangerine/Playwright%20Locator%20Strategy%20Guide.md)
+- [Playwright locator strategy](<tests/pytest_tests/ui_suites/tangerine/Playwright Locator Strategy Guide.md>)
   — locator selection guidance for UI automation.
 - [JSON locator tradeoffs](tests/pytest_tests/ui_suites/locators/Json_locator_pros_and_cons.md)
   — pros and cons of JSON-based locator storage.
