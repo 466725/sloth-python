@@ -444,39 +444,12 @@ available through `NOTIFICATION_DEDUP_TTL_SECONDS`,
   assignments that have not yet been removed.
 - Replace old route lists and image-channel lists with `email` or clear them.
   An old route containing only removed channels does not enable email implicitly.
-- The [disabled daily-analysis workflow](../../.github/workflows/disabled/00-daily-analysis.yml)
-  now maps only email transport settings plus routing/noise controls. It remains
-  disabled; this change does not enable scheduling or add permissions.
 - Restart/rebuild the backend and Web app after deployment to replace previously
   served settings/UI assets. Desktop uses the same configuration API.
 
 To roll back this intentional removal, restore the preceding application version
 and its frontend assets. Retain a private configuration backup if needed; do not
 restore obsolete secrets into source control.
-
-### GitHub Actions environment mapping
-
-This table describes the disabled daily-analysis workflow, not an active schedule.
-
-<!-- notification-actions-env-table:start -->
-
-| Key | Tier | Channel / feature | Actions source | Default |
-| --- | --- | --- | --- | --- |
-| `EMAIL_SENDER` | minimal | email | Variable or Secret | - |
-| `EMAIL_PASSWORD` | minimal | email | Secret | - |
-| `EMAIL_RECEIVERS` | advanced | email | Variable or Secret | - |
-| `EMAIL_SENDER_NAME` | advanced | email | Variable or Secret | `sloth-python股票分析助手` |
-| `NOTIFICATION_REPORT_CHANNELS` | advanced | routing | Variable or Secret | - |
-| `NOTIFICATION_ALERT_CHANNELS` | advanced | routing | Variable or Secret | - |
-| `NOTIFICATION_SYSTEM_ERROR_CHANNELS` | advanced | routing | Variable or Secret | - |
-| `NOTIFICATION_DEDUP_TTL_SECONDS` | advanced | noise | Variable or Secret | `0` |
-| `NOTIFICATION_COOLDOWN_SECONDS` | advanced | noise | Variable or Secret | `0` |
-| `NOTIFICATION_QUIET_HOURS` | advanced | noise | Variable or Secret | - |
-| `NOTIFICATION_TIMEZONE` | advanced | noise | Variable or Secret | - |
-| `NOTIFICATION_MIN_SEVERITY` | advanced | noise | Variable or Secret | - |
-| `NOTIFICATION_DAILY_DIGEST_ENABLED` | advanced | noise | Variable or Secret | `false` |
-
-<!-- notification-actions-env-table:end -->
 
 ## Analysis context pack
 

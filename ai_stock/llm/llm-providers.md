@@ -133,25 +133,6 @@ configuration. DSA parses the `model_list` from the YAML and creates its own
 LiteLLM Router; LiteLLM Proxy server settings such as `router_settings` are not
 read from the file.
 
-## GitHub Actions
-
-The repository's daily-analysis workflow is under
-[`00-daily-analysis.yml`](../../.github/workflows/disabled/00-daily-analysis.yml)
-and is disabled; it is not an active scheduled deployment. It can be used as a
-reference for environment mapping if you maintain a workflow of your own.
-Workflows receive only variables explicitly mapped in their YAML. When using
-Channels or a custom provider, map each required `LLM_<CHANNEL>_*` variable
-yourself, and put API keys in GitHub Secrets rather than Variables.
-
-The disabled workflow also supports `LITELLM_CONFIG_YAML`: it writes that YAML
-content to the path specified by `LITELLM_CONFIG` before starting DSA. This is
-workflow behavior; the application itself reads the YAML file named by
-`LITELLM_CONFIG`.
-
-An Ollama URL such as `127.0.0.1:11434` refers to the machine running the
-backend. A GitHub-hosted runner will not normally have an Ollama service at that
-address; use a reachable self-hosted service if needed.
-
 ## Troubleshooting
 
 | Diagnostic / symptom | Common cause | What to check |

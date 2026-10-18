@@ -126,7 +126,6 @@ work.
   - `ai_stock/agent/`: LLM agent execution, tool calling, specialist
     orchestration, trading skills, chat context, and deep research.
   - `api/`: FastAPI routes and request/response models.
-  - `.github/scripts/`: GitHub automation scripts.
   - `tests/`: pytest suites.
   - Documentation is kept with its owning package or test area, with
     repository-wide guidance in `CONTRIBUTING.md`.
@@ -228,12 +227,10 @@ The active `.github/workflows/ci.yml` workflow currently has two jobs:
 | `smoke-test` | Pushes and pull requests to `main` or `master` | Runs selected pytest and Robot Framework smoke suites. |
 | `regression-test` | Scheduled runs and manual dispatch | Installs Playwright browsers, then runs broader pytest and Robot Framework suites. |
 
-The workflow also runs on a schedule and supports manual dispatch. Other
-workflow files under `.github/workflows/disabled/` are inactive; do not
-describe them as current CI checks. If the PR already has relevant CI results,
-reference them. If CI does not cover the changed behavior, or local and CI
-environments differ materially, state what was validated locally and what
-remains uncovered.
+The workflow also runs on a schedule and supports manual dispatch. If the PR
+already has relevant CI results, reference them. If CI does not cover the
+changed behavior, or local and CI environments differ materially, state what
+was validated locally and what remains uncovered.
 
 #### By change area
 
