@@ -1,11 +1,14 @@
+# Allow users to report issues without selecting a template.
 blank_issues_enabled: true
+
+# Offer discussion and documentation links in the issue chooser.
 contact_links:
   - name: 💬 讨论区 / Discussions
     url: https://github.com/466725/sloth-python/discussions
-    about: 有问题想讨论？欢迎来讨论区交流 / Want to chat? Join the discussion board
+    about: 有问题想讨论？欢迎来讨论区交流 / Questions or ideas? Join the community discussion.
   - name: 📖 使用文档 / Documentation
     url: https://github.com/466725/sloth-python#-快速开始
-    about: 查看中文 README 获取使用帮助 / View the Chinese README for setup help
-  - name: 📋 English Docs Index
+    about: 查看中文 README 获取使用帮助 / See the Chinese README for setup help.
+  - name: 📋 英文文档索引 / English Docs Index
     url: https://github.com/466725/sloth-python/blob/main/docs/INDEX_EN.md
-    about: All English-language documentation in one place
+    about: 查看英文文档目录 / Browse the English-language documentation.
