@@ -7,59 +7,63 @@ assignees: ''
 ---
 
 <!--
-中文用户请直接填写下方表单。
-English users: fill in the English fields below (marked with 🌐).
+请用中文或英文填写下方表单，并删除不适用的提示。
+Fill in the form in Chinese or English and remove prompts that do not apply.
 -->
 
-## ⚠️ 提交前必读 / Before You Submit
+## 提交前检查 / Before You Submit
 
-请确认已更新到最新版本后再提交 Issue，避免重复报告已修复的问题。  
-Please confirm you are on the latest version before filing, to avoid duplicate reports of already-fixed issues.
+请先更新到最新版本并确认问题仍然存在，避免重复报告已修复的问题。
 
-## 版本确认 / Version Check（必填 / Required）
-- [ ] 我已同步最新代码 / I am on the latest commit (Fork users: Sync fork first, then re-run Actions)
-- 代码版本 / Commit hash:
-  - 本地 / Local: `git rev-parse --short HEAD` → ______
-  - GitHub Actions: commit hash shown at the top of the workflow log → ______
+Update to the latest version and confirm the issue still occurs before filing.
 
-## 问题描述 / Problem Description
+Fork 用户请先同步上游代码；如果问题发生在 GitHub Actions 中，请使用最新代码重新运行工作流。
 
-简明扼要地描述遇到的问题。  
-Briefly describe the problem.
+Fork users: sync with upstream first. For GitHub Actions issues, rerun the workflow on the latest code.
 
-## 复现步骤 / Reproduction Steps
+## 版本信息 / Version Information（必填 / Required）
 
-1. 执行命令 / Run command '...'
-2. 配置 / Config '...'
-3. 查看 / View '...'
-4. 出现错误 / Error occurs
+- [ ] 我已更新到最新代码，并确认问题仍然存在 / I updated to the latest code and confirmed the issue still occurs.
+- 提交版本 / Commit hash:
+  - 本地 / Local: `git rev-parse --short HEAD` →
+  - GitHub Actions: 工作流日志顶部显示的提交哈希 / commit hash at the top of the workflow log:
 
-## 期望行为 / Expected Behavior
+## 问题摘要 / Problem Summary
 
-描述你期望发生的情况。  
-Describe what you expected to happen.
+简要说明问题及其影响。
 
-## 实际行为 / Actual Behavior
+Summarize the problem and its impact.
 
-描述实际发生的情况。  
-Describe what actually happened.
+## 复现步骤 / Steps to Reproduce
 
-## 错误日志 / Error Logs
+1. 执行的命令或操作 / Command or action:
+2. 使用的配置或输入 / Configuration or input:
+3. 观察到的结果 / Observed result:
 
+## 期望结果与实际结果 / Expected and Actual Behavior
+
+- 期望结果 / Expected:
+- 实际结果 / Actual:
+
+## 错误日志 / Error Logs（可选 / Optional）
+
+```text
+粘贴相关日志 / Paste relevant logs
 ```
-Paste relevant error logs here
-```
 
-## 环境信息 / Environment
+请先删除日志中的密码、令牌、API 密钥和个人信息。
 
-- 操作系统 / OS: [e.g. Ubuntu 22.04 / Windows 11 / macOS 14]
-- Python 版本 / Python version: [e.g. 3.11]
-- 运行方式 / Run mode: [Local / Docker / GitHub Actions]
-- 相关配置 / Relevant config:
-  - GEMINI_MODEL / AI model: 
-  - 数据源 / Data source: 
+Remove passwords, tokens, API keys, and personal information before posting logs.
 
-## 其他信息 / Additional Context
+## 环境信息 / Environment Information
 
-添加任何其他有关问题的信息或截图。  
-Add any other context or screenshots about the problem.
+- 操作系统 / OS: [例如 Ubuntu 22.04、Windows 11、macOS 14 / e.g. Ubuntu 22.04, Windows 11, macOS 14]
+- Python 版本 / Python version:
+- 运行方式 / Run mode: [本地、Docker、GitHub Actions / Local, Docker, GitHub Actions]
+- 相关 AI 模型或数据源 / Relevant AI model or data source:
+- 相关配置（请勿包含密钥）/ Relevant configuration (no secrets):
+
+## 补充信息 / Additional Context（可选 / Optional）
+
+- 参考链接或截图 / Reference links or screenshots:
+- 其他背景 / Other context:
