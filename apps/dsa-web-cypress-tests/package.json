@@ -30,7 +30,7 @@
     "allure-commandline": "^2.46.1",
     "allure-cypress": "^3.13.0",
     "allure-js-commons": "^3.13.0",
-    "cypress": "^16.1.1",
+    "cypress": "^16.2.0",
     "start-server-and-test": "^3.0.13",
     "typescript": "^7.0.2"
   }
