@@ -33,8 +33,6 @@ test.describe('web smoke', () => {
 
         // Navigate to chat page by clicking the link
         await page.getByRole('link', {name: '问股'}).click();
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(1000);
 
         await expect(page.getByTestId('chat-workspace')).toBeVisible({timeout: 10_000});
         await expect(page.getByTestId('chat-session-list-scroll')).toBeVisible();
@@ -54,7 +52,6 @@ test.describe('web smoke', () => {
         await openApp(page);
 
         await page.getByRole('link', {name: '问股'}).click();
-        await page.waitForLoadState('domcontentloaded');
 
         const sendButton = page.getByRole('button', {name: '发送'});
         const composer = page.getByPlaceholder(/分析 600519/);
@@ -105,8 +102,6 @@ test.describe('web smoke', () => {
         await expect(page.getByRole('link', {name: 'Home'})).toBeVisible();
 
         await page.getByRole('link', {name: 'Settings'}).click();
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(1000);
 
         await expect(page.getByRole('heading', {name: 'System settings'})).toBeVisible({timeout: 10_000});
 
@@ -123,8 +118,6 @@ test.describe('web smoke', () => {
 
         // Navigate to backtest page by clicking the link
         await page.getByRole('link', {name: '回测'}).click();
-        await page.waitForLoadState('domcontentloaded');
-        await page.waitForTimeout(1000);
 
         // Check for filter controls
         const filterInput = page.getByPlaceholder('按股票代码筛选（留空表示全部）');
