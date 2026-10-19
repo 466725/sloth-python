@@ -1,18 +1,4 @@
-import {expect, test, type Page, type TestInfo} from '@playwright/test';
-
-async function captureSmokeScreenshot(page: Page, testInfo: TestInfo, name: string, options: {
-    fullPage?: boolean
-} = {}) {
-    const path = testInfo.outputPath(`${name}.png`);
-    await page.screenshot({
-        path,
-        fullPage: options.fullPage ?? true,
-    });
-    await testInfo.attach(name, {
-        path,
-        contentType: 'image/png',
-    });
-}
+import {expect, test, type Page} from '@playwright/test';
 
 async function openApp(page: Page) {
     await page.addInitScript(() => {
@@ -28,7 +14,7 @@ test.describe('web smoke', () => {
     test.use({locale: 'zh-CN'});
 
 
-    test('home page shows analysis entry and history panel', async ({page}, testInfo) => {
+    test('home page shows analysis entry and history panel', async ({page}) => {
         await openApp(page);
 
         const stockInput = page.getByPlaceholder('输入股票代码或名称，如 600519、贵州茅台、AAPL');
@@ -40,8 +26,6 @@ test.describe('web smoke', () => {
         await stockInput.fill('600519');
         const analyzeButton = page.getByRole('button', {name: '分析', exact: true});
         await expect(analyzeButton).toBeVisible();
-
-        await captureSmokeScreenshot(page, testInfo, 'smoke-home-page-zh', {fullPage: true});
     });
 
     test('chat page allows entering a question and starts a request', async ({page}) => {
@@ -83,7 +67,7 @@ test.describe('web smoke', () => {
         await expect(composer).not.toHaveAttribute('title', /.+/);
     });
 
-    test('mobile shell opens navigation drawer', async ({page}, testInfo) => {
+    test('mobile shell opens navigation drawer', async ({page}) => {
         await page.setViewportSize({width: 390, height: 844});
         await openApp(page);
 
@@ -95,11 +79,9 @@ test.describe('web smoke', () => {
 
         // Check if navigation is visible
         await expect(page.getByRole('link', {name: '回测'})).toBeVisible({timeout: 5000});
-
-        await captureSmokeScreenshot(page, testInfo, 'smoke-mobile-shell-nav');
     });
 
-    test('language switch updates UI copy and persists after page refresh', async ({page}, testInfo) => {
+    test('language switch updates UI copy and persists after page refresh', async ({page}) => {
         await openApp(page);
 
         const languageToggle = page.getByRole('button', {name: '切换界面语言'});
@@ -113,8 +95,6 @@ test.describe('web smoke', () => {
         await expect(englishLanguageToggle).toBeVisible();
         await expect(page.getByRole('link', {name: 'Settings'})).toBeVisible();
         await expect(page.getByRole('link', {name: 'Home'})).toBeVisible();
-        await captureSmokeScreenshot(page, testInfo, 'smoke-home-page-en');
-
         expect(await page.evaluate(() => localStorage.getItem('dsa.uiLanguage'))).toBe('en');
 
         await page.reload();
@@ -136,8 +116,6 @@ test.describe('web smoke', () => {
         await notificationsTab.click();
         await expect(page.getByRole('button', {name: 'Send test'})).toBeVisible({timeout: 10_000});
         await expect(page.getByRole('textbox', {name: 'Title'})).toHaveValue('DSA notification test');
-
-        await captureSmokeScreenshot(page, testInfo, 'smoke-settings-page-en');
     });
 
     test('backtest page renders filter controls', async ({page}) => {
