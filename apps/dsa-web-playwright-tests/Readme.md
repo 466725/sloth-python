@@ -109,9 +109,19 @@ system clipboard, including when repeating the suite.
    Normal Vite development still proxies to port 8000.
 
 The dedicated backend port avoids conflicts with Docker/WSL or a normal development
-server on port 8000. A healthy backend on port 18000 can be reused outside CI.
-The frontend is always started by Playwright so it cannot reuse a Vite server
-that proxies to a different backend. Stop any other server on port 4173 first.
+server on port 8000. By default, Playwright starts its own backend and fails if
+port 18000 is already occupied. To intentionally reuse a healthy backend on that
+port during local runs, set `DSA_WEB_REUSE_BACKEND=1`:
+
+```powershell
+$env:DSA_WEB_REUSE_BACKEND = '1'
+npm test
+Remove-Item Env:DSA_WEB_REUSE_BACKEND
+```
+
+CI always starts its own backend. The frontend is always started by Playwright so
+it cannot reuse a Vite server that proxies to a different backend. Stop any
+other server on port 4173 first.
 Server startup output is shown in the terminal. The backend uses UTF-8,
 unbuffered output so Chinese log messages work in Windows subprocess pipes.
 

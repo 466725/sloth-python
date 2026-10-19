@@ -33,7 +33,7 @@ export default defineConfig({
             cwd: repoRoot,
             env: {PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1'},
             url: `${BACKEND_URL}/api/v1/health`,
-            reuseExistingServer: !process.env.CI,
+            reuseExistingServer: !process.env.CI && process.env.DSA_WEB_REUSE_BACKEND === '1',
             timeout: 120_000,
             stdout: 'pipe',
         },
