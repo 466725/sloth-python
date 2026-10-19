@@ -6,7 +6,7 @@ Playwright + TypeScript E2E test automation for the [`apps/dsa-web`](../dsa-web)
 
 - Node.js 22, 24, or 26+
 - npm 9+
-- TypeScript 5.8
+- TypeScript 7
 - Playwright 1.58
 - Auto-starts backend and frontend servers
 
@@ -58,6 +58,7 @@ npx playwright install chromium
 | `npm test` | Run all Playwright tests headlessly and generate an HTML report |
 | `npm run test:ui` | Open Playwright UI mode for debugging |
 | `npm run test:headed` | Run tests in a visible browser |
+| `npm run typecheck` | Check TypeScript types without emitting files |
 | `npm run test:report` | Open the latest HTML report from `temps/dsa-web-ts-playwright/html-report/` |
 
 The HTML report is generated after each test run. Run `npm run test:report` from
