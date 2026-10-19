@@ -55,10 +55,13 @@ npx playwright install chromium
 
 | Script | Purpose |
 |---|---|
-| `npm test` | Run all Playwright tests headlessly |
+| `npm test` | Run all Playwright tests headlessly and generate an HTML report |
 | `npm run test:ui` | Open Playwright UI mode for debugging |
 | `npm run test:headed` | Run tests in a visible browser |
-| `npm run test:report` | Open the HTML report |
+| `npm run test:report` | Open the latest HTML report from `temps/dsa-web-ts-playwright/html-report/` |
+
+The HTML report is generated after each test run. Run `npm run test:report` from
+this package directory to open it.
 
 ### Custom Backend Command
 

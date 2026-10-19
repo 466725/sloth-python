@@ -13,7 +13,13 @@ export default defineConfig({
     fullyParallel: false,
     workers: 1,
     retries: process.env.CI ? 2 : 0,
-    reporter: 'list',
+    reporter: [
+        ['list'],
+        ['html', {
+            outputFolder: path.join(repoRoot, 'temps', 'dsa-web-ts-playwright', 'html-report'),
+            open: 'never',
+        }],
+    ],
     use: {
         baseURL: 'http://127.0.0.1:4173',
         locale: 'zh-CN',

@@ -43,7 +43,7 @@
     "@types/remove-markdown": "^0.3.4",
     "@vitejs/plugin-react": "^5.1.1",
     "babel-plugin-react-compiler": "^1.0.0",
-    "eslint": "^9.39.1",
+    "eslint": "^10.13.0",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
