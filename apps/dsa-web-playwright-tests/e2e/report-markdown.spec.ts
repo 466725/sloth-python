@@ -55,6 +55,13 @@ async function openApp(page: Page) {
         window.localStorage.setItem(storageKey, 'zh');
     }, UI_LANGUAGE_STORAGE_KEY);
 
+    /* 
+    Above code functions exactly the same with below code, but uses a constant instead of hardcoding.
+    await page.addInitScript(() => {
+        window.localStorage.setItem('dsa.uiLanguage', 'zh');
+    });
+    */
+
     await page.goto('/');
 }
 
