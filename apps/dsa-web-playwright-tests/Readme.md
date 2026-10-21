@@ -24,10 +24,12 @@ dsa-web-playwright-tests/
 `-- Readme.md
 ```
 
-Test results, screenshots, and videos are written to the repo-root `temps/` folder (already gitignored):
+Test results, screenshots, and videos, along with the HTML report, are written under the repo-root `temps/` folder (already gitignored):
 
 ```text
 sloth-python/temps/dsa-web-ts-playwright/
+|-- results/
+`-- html-report/
 ```
 
 ## Setup

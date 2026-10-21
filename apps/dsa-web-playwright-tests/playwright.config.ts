@@ -9,7 +9,7 @@ const dsaWebDir = path.resolve(currentDir, '../dsa-web');
 
 export default defineConfig({
     testDir: './e2e',
-    outputDir: path.join(repoRoot, 'temps', 'dsa-web-ts-playwright'),
+    outputDir: path.join(repoRoot, 'temps', 'dsa-web-ts-playwright', 'results'),
     fullyParallel: false,
     workers: 1,
     retries: process.env.CI ? 2 : 0,
