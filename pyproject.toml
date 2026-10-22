@@ -1,6 +1,6 @@
 [tool.black]
 line-length = 100
-target-version = ["py312"]
+target-version = ["py314"]
 include = "\\.pyi?$"
 extend-exclude = """
 (
@@ -14,13 +14,13 @@ extend-exclude = """
 [tool.isort]
 profile = "black"
 line_length = 100
-py_version = 312
+py_version = 314
 skip = [".venv", "temps", ".pytest_cache", ".idea"]
 known_first_party = ["config", "storage", "analyzer", "notification", "scheduler", "search_service", "market_analyzer", "stock_analyzer", "data_provider"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py314"
 exclude = [".venv", "temps", ".pytest_cache", ".idea"]
 
 [tool.ruff.lint]

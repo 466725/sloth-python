@@ -34,7 +34,7 @@ instructions under [.github/instructions/](.github/instructions/).
 
 ## Python and frontend conventions
 
-- Preserve Python 3.11+ compatibility and follow the existing file's style.
+- Preserve Python 3.14+ compatibility and follow the existing file's style.
 - Use clear names, proper types, and brief comments only for non-obvious logic.
 - Prefer the standard library and existing dependencies; justify new packages.
 - Keep Web changes within the existing components, API clients, and state stores.

@@ -38,7 +38,7 @@ sloth-python/temps/dsa-web-ts-playwright/
 
 - Node.js 24 LTS recommended (supported: Node.js 22, 24, or 26+)
 - npm 9+
-- Python 3.11+ with project dependencies installed (for backend auto-start)
+- Python 3.14+ with project dependencies installed (for backend auto-start)
 
 ```bash
 node -v
@@ -105,7 +105,7 @@ system clipboard, including when repeating the suite.
 
 1. **Backend**: `python main.py --webui-only --host 127.0.0.1 --port 18000` (from repo root).
    Python is selected from the activated `VIRTUAL_ENV`, then the repository's `.venv`,
-   then `.venv311`, then `python` on PATH. Executable paths are quoted on all platforms.
+   then `.venv314`, then `python` on PATH. Executable paths are quoted on all platforms.
 2. **Frontend**: `npm run dev -- --host 127.0.0.1 --port 4173 --strictPort` (from `apps/dsa-web`).
    Playwright sets `DSA_WEB_API_PROXY_TARGET=http://127.0.0.1:18000` for this server.
    Normal Vite development still proxies to port 8000.
@@ -146,7 +146,7 @@ This package and [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.
 
 ## Troubleshooting
 
-- **Backend fails to start**: Activate your Python environment (for example, `.venv311\Scripts\Activate.ps1` on Windows), ensure project dependencies are installed, or set `DSA_WEB_SMOKE_BACKEND_CMD` manually.
+- **Backend fails to start**: Activate your Python environment (for example, `.venv314\Scripts\Activate.ps1` on Windows), ensure project dependencies are installed, or set `DSA_WEB_SMOKE_BACKEND_CMD` manually.
 - **Stuck before tests are listed**: Check `http://127.0.0.1:18000/api/v1/health` with `curl.exe --max-time 5` on Windows. An occupied port that accepts connections but never responds can stall Playwright's initial health check before its startup timeout applies. Inspect the port owner and stop or repair that service; do not terminate unrelated Docker/WSL processes blindly. For startup diagnostics in PowerShell, set `$env:DEBUG = 'pw:webserver'` before `npm test` and remove it afterward with `Remove-Item Env:DEBUG`.
 - **Frontend port already in use**: Stop the existing server on port 4173; Playwright deliberately does not reuse it.
 - **Frontend fails to start**: Ensure `apps/dsa-web` dependencies are installed (`cd apps/dsa-web && npm install`).

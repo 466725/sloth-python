@@ -30,6 +30,7 @@ exclude:
     - .pytest_cache
     - .venv
     - .venv311
+    - .venv314
     - temps
   files:
     - '*.ipynb'
@@ -51,6 +52,7 @@ black_duck:
     - .pytest_cache
     - .venv
     - .venv311
+    - .venv314
     - temps
   detect_policy_check_fail_on_severities:
     - BLOCKER

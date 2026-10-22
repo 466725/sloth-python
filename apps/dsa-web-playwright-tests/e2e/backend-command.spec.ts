@@ -25,7 +25,7 @@ test.describe('backend startup command', () => {
             expect(command).toBe(`"${python}" main.py --webui-only --host 127.0.0.1 --port ${BACKEND_PORT}`);
         });
 
-        for (const name of ['.venv', '.venv311']) {
+        for (const name of ['.venv', '.venv314']) {
             test(`${platform}: discovers ${name} without an activated environment`, () => {
                 const python = path.join(repoRoot, name, ...pythonParts);
                 const command = resolveBackendCommand(repoRoot, {

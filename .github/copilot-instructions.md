@@ -17,7 +17,7 @@ Keep changes minimal, task-focused, and easy to review.
 - Do not modify generated artifacts unless the task explicitly asks for it.
 
 ## Python Standards
-- Target Python 3.11+ compatibility.
+- Target Python 3.14+ compatibility.
 - Follow existing style conventions in the repository.
 - Use clear names and straightforward control flow.
 - Add brief comments only for non-obvious logic.

@@ -1,16 +1,16 @@
 {
-  "python.defaultInterpreterPath": "${workspaceFolder}/.venv311/Scripts/python.exe",
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
   "terminal.integrated.profiles.windows": {
-    "PowerShell (.venv311)": {
+    "PowerShell (.venv)": {
       "source": "PowerShell",
       "args": [
         "-NoExit",
         "-Command",
-        "& '${workspaceFolder}\\.venv311\\Scripts\\Activate.ps1'"
+        "& '${workspaceFolder}\\.venv\\Scripts\\Activate.ps1'"
       ]
     }
   },
-  "terminal.integrated.defaultProfile.windows": "PowerShell (.venv311)",
+  "terminal.integrated.defaultProfile.windows": "PowerShell (.venv)",
   "python.analysis.extraPaths": [
     "./claude_code/claude_agent_sdk/src",
     "./claude_code/claude_agent_sdk",

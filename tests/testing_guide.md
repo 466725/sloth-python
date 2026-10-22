@@ -21,11 +21,12 @@ configuration.
 
 ### Python tests
 
-Use Python 3.11 and install the repository requirements into a virtual
-environment. From the repository root:
+Python 3.14 is the minimum and current CI-tested version; later versions are not
+yet covered by the test configuration. Install the repository requirements into
+a virtual environment. From the repository root:
 
 ```powershell
-py -3.11 -m venv .venv
+py -3.14 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt

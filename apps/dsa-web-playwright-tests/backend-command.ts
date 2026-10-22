@@ -21,7 +21,7 @@ export function resolveBackendCommand(
     }
 
     const pythonParts = platform === 'win32' ? ['Scripts', 'python.exe'] : ['bin', 'python'];
-    const environments = [env.VIRTUAL_ENV, path.join(repoRoot, '.venv'), path.join(repoRoot, '.venv311')];
+    const environments = [env.VIRTUAL_ENV, path.join(repoRoot, '.venv'), path.join(repoRoot, '.venv314')];
     for (const environment of environments) {
         if (!environment) {
             continue;

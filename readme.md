@@ -101,17 +101,20 @@ and [plugins](skill_spring/claude_code/claude_agent_sdk/examples/plugins/demo-pl
 <a id="installation"></a>
 ## 🛠️ Installation
 
+The root application requires Python 3.14 or newer. CI currently validates
+Python 3.14; later versions are not yet covered by the test configuration.
+
 ### 1. Create and activate a virtual environment
 
 **Windows (PowerShell):**
 ```powershell
-py -3.11 -m venv .venv
+py -3.14 -m venv .venv
 .\.venv\Scripts\activate
 ```
 
 **Linux/macOS (bash/zsh):**
 ```bash
-python3 -m venv .venv
+python3.14 -m venv .venv
 source .venv/bin/activate
 ```
 

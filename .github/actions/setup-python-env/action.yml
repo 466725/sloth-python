@@ -4,7 +4,7 @@ description: Install Python and project dependencies with pip caching
 inputs:
   python-version:
     description: Python version to install
-    default: '3.11'
+    default: '3.14'
   requirements-file:
     description: Path to the requirements file
     default: requirements.txt

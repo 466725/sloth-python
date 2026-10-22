@@ -1,6 +1,7 @@
 ### Python / Virtualenv ###
 # Ignore real virtual environments
 .venv311/
+.venv314
 .venv/
 
 ### Environment Variables ###

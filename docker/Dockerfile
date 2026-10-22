@@ -14,7 +14,7 @@ COPY apps/dsa-web/ ./
 RUN npm run build
 
 # Use Trixie (glibc 2.41) to support longbridge 5.x manylinux_2_39 wheels
-FROM python:3.11-slim
+FROM python:3.14-slim
 
 # 设置工作目录
 WORKDIR /app
