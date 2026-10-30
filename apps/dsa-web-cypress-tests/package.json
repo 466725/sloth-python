@@ -28,7 +28,7 @@
   "devDependencies": {
     "@types/node": "^26.6.5",
     "allure-commandline": "^2.46.1",
-    "allure-cypress": "^3.13.0",
+    "allure-cypress": "^3.14.0",
     "allure-js-commons": "^3.14.0",
     "cypress": "^16.2.0",
     "start-server-and-test": "^3.0.13",
