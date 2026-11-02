@@ -1,3 +1,99 @@
+[dependency-groups]
+requirements = [
+  # Core Configuration & Serialization
+  "python-dotenv>=1.0.0",
+  "PyYAML>=6.0.3,<7",
+
+  # AI, LLM & Language Models
+  "anthropic",
+  "openai>=2.20.0,<3.0.0",
+  "litellm!=1.82.7,!=1.82.8,>=1.105.1,<2.0.0",
+  "mcp",
+  "tiktoken>=0.14.0,<0.15.0",
+  "voyageai",
+
+  # Data Processing & Analysis
+  "numpy>=2.4.4,<3",
+  "pandas>=2.3.3",
+  "scikit-learn",
+  "scipy",
+
+  # Data Visualization
+  "matplotlib",
+  "pyecharts",
+
+  # Document Processing & Content
+  "markitdown[docx,pdf]>=0.1.9,<0.2.0",
+  "markdown2>=2.4.0",
+  "imgkit>=1.2.0",
+  "pypinyin>=0.55.0",
+
+  # Web Content Extraction
+  "requests>=2.34.2,<3",
+  "httpx[socks]",
+  "beautifulsoup4>=4.15.0,<5",
+  "lxml[html-clean]",
+  "newspaper3k>=0.2.8",
+  "fake-useragent>=2.2.0",
+
+  # Data & Information Sources
+  "akshare>=1.18.88",
+  "efinance>=0.5.9",
+  "pytdx>=1.72",
+  "baostock>=0.9.4",
+  "yfinance>=1.7.0",
+  "longbridge>=5.2.0",
+  "tickflow>=0.1.0",
+  "tavily-python>=0.8.5",
+  "google-search-results>=2.4.2",
+
+  # Database & ORM
+  "sqlalchemy>=2.0.55",
+  "mysql-connector-python",
+  "openpyxl>=3.1.5",
+
+  # Scheduling & Time
+  "schedule>=1.2.2",
+  "exchange-calendars>=4.13.2",
+
+  # Retry & Resilience
+  "tenacity>=9.1.4",
+
+  # Security & Network
+  "PyNaCl>=1.6.2",
+  "python-nmap",
+
+  # Web Framework & API
+  "fastapi>=0.143.0",
+  "uvicorn[standard]>=0.54.0",
+  "python-multipart>=0.0.6",
+  "jinja2>=3.1.6",
+
+  # Browser & UI Automation
+  "playwright",
+  "pygame; python_version < \"3.14\"",
+  "Appium-Python-Client>=6.0.8",
+
+  # Testing & QA
+  "pytest",
+  "pytest-playwright>=0.10.0,<1.0.0",
+  "pytest-html",
+  "pytest-rerunfailures",
+  "pytest-result-log",
+  "allure-pytest",
+  "allure-python-commons",
+  "robotframework~=7.5",
+  "robotframework-datadriver",
+  "robotframework-debuglibrary",
+  "robotframework-requests",
+
+  # Utilities
+  "json-repair>=0.64.0",
+]
+
+[tool.uv]
+default-groups = ["requirements"]
+
 [tool.black]
 line-length = 100
 target-version = ["py314"]
