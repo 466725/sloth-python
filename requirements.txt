@@ -116,7 +116,7 @@ robotframework-requests
 # ===================================
 # Utilities
 # ===================================
-json-repair>=0.64.0
+json-repair>=0.64.2
 
 # ===================================
 # Custom Packages
