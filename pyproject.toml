@@ -25,7 +25,7 @@ requirements = [
   # Document Processing & Content
   "markitdown[docx,pdf]>=0.1.9,<0.2.0",
   "markdown2>=2.4.0",
-  "imgkit>=1.2.0",
+  "imgkit>=1.2.3",
   "pypinyin>=0.55.0",
 
   # Web Content Extraction
