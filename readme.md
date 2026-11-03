@@ -104,6 +104,26 @@ and [plugins](skill_spring/claude_code/claude_agent_sdk/examples/plugins/demo-pl
 The root application requires Python 3.14 or newer. CI currently validates
 Python 3.14; later versions are not yet covered by the test configuration.
 
+### One-command DSA setup and verification with Just
+
+Install [Casey/just](https://just.systems/man/en/packages.html), Python 3.14,
+Node.js 24.15+ (24 LTS), npm 10+, and uv (`python -m pip install uv`). Then run:
+
+```powershell
+just verify
+```
+
+This installs locked Python/npm dependencies and DSA browser assets, builds the
+frontend, and runs Python unit tests, isolated DSA API tests, Vitest, Playwright,
+and Cypress. It does not run unrelated demo UI suites. Browser test servers are
+started and stopped automatically; failures stop the command with a nonzero exit.
+
+Run `just dsa` to set up and launch DSA at <http://127.0.0.1:8000>, or `just`
+to list recipes. No virtual-environment activation is needed. Provider-backed
+analysis still needs your own configuration; setup never overwrites `.env`.
+See the [Just workflow guide](tests/testing_guide.md#just-workflows) for individual
+commands, prerequisites, and test isolation details.
+
 ### 1. Create and activate a virtual environment
 
 **Windows (PowerShell):**

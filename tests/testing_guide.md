@@ -17,6 +17,81 @@ configuration.
 | Cypress | `apps/dsa-web-cypress-tests/e2e/` | DSA Web browser end-to-end tests against a running app |
 | Performance assets | `tests/performance/` | JMeter, Postman, and LoadRunner scenarios; these require their respective tools and environment setup |
 
+## Just workflows
+
+The root [justfile](../justfile) provides the DSA workflow on Windows
+(PowerShell), macOS, and Linux (sh). Install `just` 1.51+,
+Python 3.14, Node.js 24.15+ (24 LTS), npm 10+, and uv:
+
+```powershell
+python -m pip install uv
+just doctor
+just verify
+```
+
+`just verify` runs setup, the production frontend build, and the complete DSA
+test selection in that order. Python setup uses `uv sync --locked --python 3.14`;
+npm packages use `npm ci`. It updates the repository `.venv` and each package's
+`node_modules`, but not dependency manifests, lockfiles, or your `.env`.
+Playwright's `--with-deps` browser install may require sudo on Linux.
+Cypress's native system libraries must also be available; see its
+[Linux prerequisites](https://docs.cypress.io/app/get-started/install-cypress#Linux-Prerequisites).
+Docker, MySQL, Java/Allure CLI, live LLM credentials, and a manually started
+backend are not required for this test selection.
+
+| Command | Purpose |
+| --- | --- |
+| `just` | List recipes |
+| `just setup` | Install Python, frontend, browser-test dependencies, Chromium, and Cypress |
+| `just verify` | Setup + build + all test recipes below; stops at the first failure |
+| `just dsa` | Setup application dependencies, build the frontend, and serve DSA at `http://127.0.0.1:8000` |
+| `just dsa 127.0.0.1 8080` | Serve DSA on a different port |
+| `just dev-api` / `just dev-web` | Run backend reload and Vite development servers in separate terminals after setup |
+| `just analyze --help` | Show the existing DSA CLI options; arguments are forwarded to `main.py` |
+| `just build` | Build/type-check the frontend into the backend's configured static-assets directory |
+| `just test` | All configured DSA test suites, without reinstalling npm packages |
+| `just test-unit` | All `tests/unit` tests, including unmarked unittest cases |
+| `just test-api` | `tests/pytest_tests/api_suites`: isolated in-process API and contract tests |
+| `just test-web` | All DSA frontend Vitest unit/component tests |
+| `just test-ui` | Both DSA Web Playwright and Cypress browser suites |
+| `just test-playwright` / `just test-cypress` | Run either browser framework separately |
+| `just lint` | Frontend ESLint and both browser packages' TypeScript checks |
+| `just report-ui` | Open the most recent Playwright HTML report |
+
+Individual test recipes accept runner arguments, for example:
+
+```powershell
+just test-unit -k calculator
+just test-api -k health
+just test-web src/pages/__tests__/HomePage.test.tsx
+just test-playwright "--grep 'home page'"
+just test-cypress --spec e2e/home.cy.ts
+```
+
+For arguments containing spaces, preserve the runner's inner quotes as in the
+Playwright example above.
+
+Python unit and API recipes use separate Allure output directories under
+`temps/test-results-pytest/unit` and `temps/test-results-pytest/api`, so the second
+run does not clean the first run's results. Existing browser reports remain
+under `temps/dsa-web-ts-playwright` and `temps/dsa-web-ts-cypress`.
+
+The Just Playwright recipe runs the backend on port **18000** and Vite on
+**4173**, using a per-invocation database under `.pytest_cache/just` and an
+`ENV_FILE` there instead of your repository `.env`. Notifications and remote
+stock-index refresh are disabled for this recipe. Do not export live provider
+credentials when running browser smoke tests; explicitly exported environment
+variables and existing Playwright command/server-reuse overrides still apply.
+Cypress starts its own Vite server on **4174** and mocks the API calls its specs
+exercise. Keep these ports free. Both runners clean up their own servers.
+`just verify` finishes after testing; it does not leave DSA running.
+
+The recipes intentionally exclude Python demo/UI, Robot Framework, AI/network,
+and performance suites. Run those using the framework-specific instructions
+below when their external prerequisites are available. Application startup does
+not configure LLM/data/notification providers; use the existing DSA setup UI or
+your own `.env` for real analysis.
+
 ## One-time setup
 
 ### Python tests
@@ -47,7 +122,7 @@ python -m playwright install chromium
 
 ### DSA Web tests
 
-Use Node.js 22 or 24 and npm. Install each package’s locked dependencies once
+Use Node.js 22.22.2+, 24.15+, or 26.x and npm 10+. Install each package’s locked dependencies once
 from the repository root:
 
 ```powershell
@@ -143,7 +218,7 @@ Pop-Location
 ### Playwright
 
 The Playwright configuration starts the backend and Vite dev server at
-`http://127.0.0.1:8000` and `http://127.0.0.1:4173`. Activate the Python
+`http://127.0.0.1:18000` and `http://127.0.0.1:4173`. Activate the Python
 virtual environment first so the auto-started backend uses the project’s
 installed dependencies.
 
@@ -165,28 +240,22 @@ root. To override the backend startup command for the current PowerShell
 session, set `DSA_WEB_SMOKE_BACKEND_CMD` before running Playwright:
 
 ```powershell
-$env:DSA_WEB_SMOKE_BACKEND_CMD = 'python main.py --serve-only'
+$env:DSA_WEB_SMOKE_BACKEND_CMD = 'python main.py --serve-only --host 127.0.0.1 --port 18000'
 ```
 
 ### Cypress
 
-Cypress uses `BASE_URL`, which defaults to `http://localhost:8000`. Start the
-DSA Web/API service before running the suite, for example in a separate
-PowerShell window from the repository root:
-
-```powershell
-python main.py --serve-only
-```
-
-Then, in another PowerShell window:
+Cypress uses `BASE_URL`, which defaults to `http://127.0.0.1:4174`.
+`npm test` starts and stops Vite automatically. The existing specs intercept
+their API requests, so they do not need a backend or live credentials.
 
 ```powershell
 Push-Location apps\dsa-web-cypress-tests
 
-# Run all Cypress specs
+# Start Vite, run all Cypress specs, and stop Vite
 npm test
 
-# Run one spec or open the interactive runner
+# Against an already-running frontend, run one spec or open the interactive runner
 npm run cypress:run -- --spec "e2e/home.cy.ts"
 npm run cypress:open
 
@@ -194,11 +263,11 @@ Pop-Location
 ```
 
 To test against another running URL, set `BASE_URL` in the Cypress window
-before running the suite:
+and use the direct runner instead of `npm test`:
 
 ```powershell
 $env:BASE_URL = 'http://localhost:5173'
-npm test
+npm run cypress:run
 ```
 
 Cypress output is written under `temps/dsa-web-ts-cypress/` at the repository

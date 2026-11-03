@@ -20,7 +20,8 @@ React and TypeScript frontend for Daily Stock Analysis (DSA). The app runs with 
 
 ## Quick start
 
-Requirements: Node.js 20.19 or newer and npm 10 or newer. Start the backend in one terminal from the repository root:
+Requirements: Node.js 22.22.2+, 24.15+, or 26.x and npm 10 or newer.
+Node.js 24 LTS is recommended. Start the backend in one terminal from the repository root:
 
 ```powershell
 python main.py --serve-only --host 127.0.0.1 --port 8000
@@ -106,10 +107,17 @@ Internet.
 ### Tech stack
 
 - React 19 + TypeScript, React Router
-- Vite 7 (dev server and build), Tailwind CSS 4
+- Vite 8 (dev server and build), Tailwind CSS 4
 - Zustand for state, Axios for API calls, Recharts for charts
 - Vitest + Testing Library for unit/component tests
 - E2E tests live in separate packages: [`apps/dsa-web-playwright-tests`](../dsa-web-playwright-tests/Readme.md) (Playwright) and [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.md) (Cypress, Page Object Model)
+
+The frontend uses TypeScript 6 to stay within `typescript-eslint`'s supported
+peer range. `@vitejs/plugin-react` 5.2 supports Vite 8 and the existing Babel
+React Compiler configuration; plugin-react 6 removes that `babel` option.
+Do not bypass these compatibility checks with `--force` or `--legacy-peer-deps`.
+The separate browser-test packages can use TypeScript 7 because they do not
+depend on `typescript-eslint`.
 
 ### Scripts and local servers
 

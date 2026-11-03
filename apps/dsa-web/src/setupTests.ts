@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 class MemoryStorageMock implements Storage {
   private readonly values = new Map<string, string>();
@@ -31,6 +31,7 @@ class MemoryStorageMock implements Storage {
 class IntersectionObserverMock implements IntersectionObserver {
   readonly root = null;
   readonly rootMargin = '';
+  readonly scrollMargin = '';
   readonly thresholds = [0];
 
   disconnect() {}
