@@ -8,7 +8,7 @@ When this guide differs from workflows or code, follow the executable
 repository state and update the relevant documentation as part of the related
 work.
 
-### 1. Core rules
+## 1. Core rules
 
 - Respect the existing directory boundaries:
   - Backend code belongs primarily in `ai_stock/`, `api/`, and their related
@@ -56,7 +56,7 @@ work.
 - Write comments, docstrings, and log messages clearly and accurately. Match
   the language and style of the surrounding file.
 
-#### 1.1 Pull request title guidance
+### 1.1 Pull request title guidance
 
 - Prefer `<type>: <change summary>`, for example `fix: Correct session history
   loading`. Suggested types include `fix`, `feat`, `refactor`, `docs`,
@@ -65,7 +65,7 @@ work.
   `[codex]`, `codex`, `autocode`, or `copilot`.
 - This is a collaboration guideline, not a review blocker.
 
-#### 1.2 Contribution quality bar
+### 1.2 Contribution quality bar
 
 - Do not substitute larger diffs, extra code, or patching review comments for
   sound design and convergence on the real requirement.
@@ -86,7 +86,7 @@ work.
   contradict the diff, maintainers may ask for the PR to be closed and
   reworked.
 
-### 2. AI collaboration assets
+## 2. AI collaboration assets
 
 - [CLAUDE.md](CLAUDE.md) is a regular Markdown file containing the shared
   repository AI collaboration instructions and the entry point for Claude
@@ -106,7 +106,7 @@ work.
 - When changing AI collaboration governance assets, review the collaboration
   entry points and scoped instructions for consistency.
 
-### 3. Project overview
+## 3. Project overview
 
 - The project is a stock-analysis system covering A-shares, Hong Kong stocks,
   and U.S. equities.
@@ -130,7 +130,7 @@ work.
   - Documentation is kept with its owning package or test area, with
     repository-wide guidance in `CONTRIBUTING.md`.
 
-#### 3.1 Agent paths used by the DSA application
+### 3.1 Agent paths used by the DSA application
 
 - The stock-analysis pipeline in `ai_stock/core/pipeline.py` can route a
   stock analysis through the Agent factory in `ai_stock/agent/factory.py`.
@@ -151,11 +151,11 @@ work.
   and event alerts are supporting features, not required stages in every
   stock-analysis run.
 
-### 4. Common commands
+## 4. Common commands
 
 Run commands from the repository root unless a command changes directory.
 
-#### Run the application
+### Run the application
 
 ```bash
 python main.py
@@ -169,7 +169,7 @@ python main.py --serve-only
 uvicorn server:app --reload --host 0.0.0.0 --port 8000
 ```
 
-#### Backend validation
+### Backend validation
 
 ```bash
 pip install -r requirements.txt
@@ -179,7 +179,7 @@ python -m pytest -m "not network"
 python -m py_compile <changed_python_files>
 ```
 
-#### Web validation
+### Web validation
 
 ```bash
 cd apps/dsa-web
@@ -188,7 +188,7 @@ npm run lint
 npm run build
 ```
 
-#### Pull request and CI evidence
+### Pull request and CI evidence
 
 ```bash
 gh pr view <pr_number>
@@ -196,7 +196,7 @@ gh pr checks <pr_number>
 gh run view <run_id> --log-failed
 ```
 
-### 5. Default workflow
+## 5. Default workflow
 
 1. Classify the task: `fix`, `feat`, `refactor`, `docs`, `chore`, `test`, or
    `review`.
@@ -216,9 +216,9 @@ gh run view <run_id> --log-failed
 8. In the final delivery, explain what changed and why, validation performed,
    anything not validated, risks, and how to roll back.
 
-### 6. Validation matrix
+## 6. Validation matrix
 
-#### CI coverage
+### CI coverage
 
 The active `.github/workflows/ci.yml` workflow currently has two jobs:
 
@@ -237,7 +237,7 @@ already has relevant CI results, reference them. If CI does not cover the
 changed behavior, or local and CI environments differ materially, state what
 was validated locally and what remains uncovered.
 
-#### By change area
+### By change area
 
 - **Python backend**
   - Scope: `main.py`, `ai_stock/`, `api/`, and `tests/`.
@@ -275,7 +275,7 @@ was validated locally and what remains uncovered.
   - Verify timeout, retry, fallback, error-message, and degradation behavior.
   - If online validation was not run, explain why.
 
-### 7. Stability guardrails
+## 7. Stability guardrails
 
 - **Configuration and entry points**
   - For changes to `.env` semantics, defaults, CLI options, service startup,
@@ -311,7 +311,7 @@ was validated locally and what remains uncovered.
     `#minor`, or `#major` should trigger version updates unless release policy
     is explicitly changed.
 
-### 8. Issue, PR, and skill workflows
+## 8. Issue, PR, and skill workflows
 
 - Reuse repository skills where applicable:
   - `.claude/skills/analyze-issue/SKILL.md`
@@ -342,7 +342,7 @@ was validated locally and what remains uncovered.
   rollback steps, or repeated unresolved contract drift, patch stacking, or
   unreliable validation evidence.
 
-#### 8.1 Addressing review feedback without patch stacking
+### 8.1 Addressing review feedback without patch stacking
 
 Do not add a local patch only at the line named by a reviewer and then claim
 that all feedback is resolved. First understand the business contract behind
@@ -384,7 +384,7 @@ Passing CI proves that automated checks passed. It does not replace semantic
 review or independently prove that a reviewer's counterexample has been
 addressed.
 
-### 9. Delivery and releases
+## 9. Delivery and releases
 
 - Use this default delivery summary:
   - What changed.
