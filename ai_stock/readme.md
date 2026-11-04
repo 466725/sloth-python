@@ -55,16 +55,16 @@ python -c "from ai_stock.core.ai_coordinator_agent import AICoordinatorAgent; ag
 
 ```mermaid
 flowchart TD
-		U[User Request\nSymbol + Market + Optional Strategies] --> C[Coordinator Agent\ncore/ai_coordinator_agent.py]
-		C --> D[Stock Data Agent\nstock_data/ai_stock_data_agent.py]
-		C --> N[Stock News Agent\nstock_news/ai_stock_news_agent.py]
-		C --> S[Strategy Loader\nstrategies/*.yaml]
-		D --> P[Structured Payload]
-		N --> P
-		S --> P
-		P --> B[Injected Predictor or\nBaseline Trend + Sentiment]
-		B --> R[Report Agent\nreport/ai_report_agent.py]
-		R --> O[User Report\nJSON + Markdown]
+    U[User Request\nSymbol + Market + Optional Strategies] --> C[Coordinator Agent\ncore/ai_coordinator_agent.py]
+    C --> D[Stock Data Agent\nstock_data/ai_stock_data_agent.py]
+    C --> N[Stock News Agent\nstock_news/ai_stock_news_agent.py]
+    C --> S[Strategy Loader\nstrategies/*.yaml]
+    D --> P[Structured Payload]
+    N --> P
+    S --> P
+    P --> B[Injected Predictor or\nBaseline Trend + Sentiment]
+    B --> R[Report Agent\nreport/ai_report_agent.py]
+    R --> O[User Report\nJSON + Markdown]
 ```
 
 The diagram above describes the code that runs today. The `llm/` package is an extension point, not an active coordinator stage.
@@ -112,18 +112,18 @@ The coordinator should build one normalized payload:
 
 ```json
 {
-	"symbol": "600519",
-	"market": "cn",
-	"stock_data": {
-		"history": [],
-		"realtime_quote": {},
-		"fundamentals": {}
-	},
-	"stock_news": {
-		"news_items": [],
-		"sentiment_score": 0
-	},
-	"strategies": []
+  "symbol": "600519",
+  "market": "cn",
+  "stock_data": {
+    "history": [],
+    "realtime_quote": {},
+    "fundamentals": {}
+  },
+  "stock_news": {
+    "news_items": [],
+    "sentiment_score": 0
+  },
+  "strategies": []
 }
 ```
 
@@ -143,16 +143,16 @@ Recommended shape:
 
 ```json
 {
-	"summary": "short conclusion",
-	"signals": ["signal_a", "signal_b"],
-	"risks": ["risk_a"],
-	"confidence": 0.72,
-	"evidence": [
-		{
-			"source": "stock_data.history",
-			"detail": "close price up 8% over lookback window"
-		}
-	]
+  "summary": "short conclusion",
+  "signals": ["signal_a", "signal_b"],
+  "risks": ["risk_a"],
+  "confidence": 0.72,
+  "evidence": [
+    {
+      "source": "stock_data.history",
+      "detail": "close price up 8% over lookback window"
+    }
+  ]
 }
 ```
 
@@ -244,10 +244,10 @@ These are the implementation rules future AI agents or developers should follow.
 
 ```python
 {
-		"symbol": "AAPL",
-		"market": "us",
-		"strategy_names": ["bull_trend", "event_driven"],
-		"question": "Should I watch for a breakout this week?",
+    "symbol": "AAPL",
+    "market": "us",
+    "strategy_names": ["bull_trend", "event_driven"],
+    "question": "Should I watch for a breakout this week?",
 }
 ```
 
@@ -255,23 +255,23 @@ These are the implementation rules future AI agents or developers should follow.
 
 ```python
 {
-		"generated_at": "...",
-		"symbol": "AAPL",
-		"market": "us",
-		"prediction": {
-				"direction": "up",
-				"confidence": 0.68,
-				"reason": "..."
-		},
-		"strategy_names": ["bull_trend", "event_driven"],
-		"stock_data": {},
-		"stock_news": {},
-		"agent_outputs": {
-				"data_analysis": {},
-				"news_analysis": {},
-				"strategy_analysis": {}
-		},
-		"report_markdown": "..."
+    "generated_at": "...",
+    "symbol": "AAPL",
+    "market": "us",
+    "prediction": {
+        "direction": "up",
+        "confidence": 0.68,
+        "reason": "..."
+    },
+    "strategy_names": ["bull_trend", "event_driven"],
+    "stock_data": {},
+    "stock_news": {},
+    "agent_outputs": {
+        "data_analysis": {},
+        "news_analysis": {},
+        "strategy_analysis": {}
+    },
+    "report_markdown": "..."
 }
 ```
 
