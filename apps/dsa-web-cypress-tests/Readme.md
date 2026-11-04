@@ -118,7 +118,7 @@ To instead test against the Vite dev server (`npm run dev` under `apps/dsa-web`,
 ## Running Cypress Tests
 
 | Script | Purpose |
-|---|---|
+| --- | --- |
 | `npm test` | Start isolated Vite, run all specs headlessly, stop Vite |
 | `npm run cypress:run` | Run all specs against an already-running app |
 | `npm run cypress:open` | Open the Cypress UI |
