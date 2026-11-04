@@ -1,6 +1,9 @@
 # Sloth Python
 
+<!-- markdownlint-configure-file { "MD033": { "allowed_elements": ["a"] } } -->
+
 <a id="documentation-index"></a>
+
 ## 📚 Documentation Index
 
 Find project guides, feature documentation, development references, and
@@ -81,6 +84,7 @@ and [plugins](skill_spring/claude_code/claude_agent_sdk/examples/plugins/demo-pl
 
 <!-- Table of Contents -->
 <a id="table-of-contents"></a>
+
 ## 📑 Table of Contents
 
 - [📚 Documentation Index](#documentation-index)
@@ -99,6 +103,7 @@ and [plugins](skill_spring/claude_code/claude_agent_sdk/examples/plugins/demo-pl
 - [📝 License](#license)
 
 <a id="installation"></a>
+
 ## 🛠️ Installation
 
 The root application requires Python 3.14 or newer. CI currently validates
@@ -127,12 +132,14 @@ commands, prerequisites, and test isolation details.
 ### 1. Create and activate a virtual environment
 
 **Windows (PowerShell):**
+
 ```powershell
 py -3.14 -m venv .venv
 .\.venv\Scripts\activate
 ```
 
 **Linux/macOS (bash/zsh):**
+
 ```bash
 python3.14 -m venv .venv
 source .venv/bin/activate
@@ -143,11 +150,13 @@ source .venv/bin/activate
 Choose one package manager after activating the virtual environment:
 
 **Using pip:**
+
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
 **Using uv:**
+
 ```powershell
 uv pip install -r requirements.txt
 ```
@@ -161,6 +170,7 @@ playwright install
 ```
 
 <a id="configuration"></a>
+
 ## ⚙️ Configuration
 
 Runtime settings are read from environment variables. Shared test and AI-generation settings are centralized in `utils/config`; provider-specific `ai_stock` settings are documented in [ai_stock/readme.md](ai_stock/readme.md).
@@ -168,7 +178,7 @@ Runtime settings are read from environment variables. Shared test and AI-generat
 ### Shared URLs
 
 | Variable | Default | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `TANGERINE_URL` | `https://www.tangerine.ca/en/personal` | Base URL for Tangerine UI tests |
 | `DEEP_SEEK_URL` | `https://api.deepseek.com` | DeepSeek-compatible API endpoint |
 | `OPENAI_URL` | `https://api.openai.com/v1` | OpenAI-compatible API endpoint |
@@ -176,7 +186,7 @@ Runtime settings are read from environment variables. Shared test and AI-generat
 ### UI and Playwright
 
 | Variable | Default | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `UI_LOCALE` | `en-US` | Browser locale for Playwright tests |
 | `SLEEP_TIME` | `1` | Generic delay used by selected fixtures |
 | `COOKIE_BANNER_TIMEOUT_SECONDS` | `5` | Timeout for Tangerine cookie-banner handling |
@@ -185,7 +195,7 @@ Runtime settings are read from environment variables. Shared test and AI-generat
 ### AI test generation
 
 | Variable | Default | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `AI_GEN_MODEL` | `gpt-4.1` | LLM model identifier |
 | `AI_GEN_BASE_URL` | `OPENAI_URL` | API endpoint used by the generator |
 | `AI_GEN_MAX_DOM_CHARS` | `12000` | Maximum DOM characters sent to the model |
@@ -196,7 +206,7 @@ Set the required provider key, such as `OPENAI_API_KEY`, through the environment
 ### Optional qTest integration
 
 | Variable | Default | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `QTEST_BASE_URL` | `https://yourcompany.qtestnet.com` | qTest API base URL |
 | `QTEST_PROJECT_ID` | `123456` | qTest project identifier |
 | `QTEST_API_TOKEN` | `your_token_here` | qTest authentication token |
@@ -208,6 +218,7 @@ python -m utils.config.config
 ```
 
 <a id="docker-and-database"></a>
+
 ## 🐳 Docker and Database
 
 The local MySQL service is defined in `docker/docker-compose.yml`. It stores data in the named `mysql-data` Docker volume, so stopping or recreating the container does not remove the database.
@@ -244,7 +255,7 @@ The service is exposed at `localhost:3306` by default. Set `SLOTH_MYSQL_PORT` be
 The default local connection values are:
 
 | Setting | Value |
-|---|---|
+| --- | --- |
 | Host | `127.0.0.1` |
 | Port | `3306` |
 | Database | `slothdb` |
@@ -256,6 +267,7 @@ Override these local defaults with `SLOTH_MYSQL_DB`, `SLOTH_MYSQL_USER`, `SLOTH_
 For Python database helper usage and parameterized query examples, see [utils/data_base/README.md](utils/data_base/README.md).
 
 <a id="running-tests"></a>
+
 ## 🏃 Running Tests
 
 Run commands from the repository root. Choose the narrowest workflow that matches the change you are validating.
@@ -365,6 +377,7 @@ For pytest UI runs, Playwright records per-test video and keeps/attaches it only
 The Tangerine Robot keyword libraries also bootstrap the project root import path automatically, so `-P` is typically not needed.
 
 <a id="self-healing-framework-playwright"></a>
+
 ## 🤖 Self-Healing Framework (Playwright)
 
 The Playwright UI tests use fallback locators and DOM similarity matching to recover from selector changes.
@@ -383,7 +396,7 @@ This opens the sign-in flow through the shared UI fixture and self-healing locat
 ### Components
 
 | Component | Responsibility |
-|---|---|
+| --- | --- |
 | `self_healing/element_finder.py` | Tries the primary locator and configured fallbacks |
 | `self_healing/dom_similarity.py` | Finds likely replacements in the current page DOM |
 | `self_healing/self_healing.py` | Coordinates recovery and optional locator updates |
@@ -414,6 +427,7 @@ required. The locator store currently supports these keys:
 Robot integration enables locator updates through `SELF_HEAL_AUTO_UPDATE`. Set that constant to `False` when a run must recover without rewriting locator files.
 
 <a id="ai-generated-ui-test-scripts-python-playwright-mcp"></a>
+
 ## 🤖 AI-Generated UI Test Scripts (Python + Playwright + MCP)
 
 Generate runnable pytest + Playwright scripts from a natural-language goal and live page context.
@@ -433,7 +447,7 @@ or the current working directory. Absolute paths are preserved.
 ### CLI options
 
 | Option | Default | Description |
-|---|---|---|
+| --- | --- | --- |
 | `--model` | `AI_GEN_MODEL` (`gpt-4.1`) | LLM model name |
 | `--base-url` | `AI_GEN_BASE_URL` | OpenAI-compatible API endpoint |
 | `--headless` | `false` | Run context collection headlessly (`true`/`false`) |
@@ -441,6 +455,7 @@ or the current working directory. Absolute paths are preserved.
 ### Additional examples
 
 **Windows (PowerShell):**
+
 ```powershell
 python -m utils.ai_gen.cli `
    --url "https://www.tangerine.ca/app/#/login" `
@@ -452,6 +467,7 @@ python -m pytest -q temps/ai/generated_playwright/test_tangerine_signin.py
 ```
 
 **Linux/macOS (bash/zsh):**
+
 ```bash
 python -m utils.ai_gen.cli \
   --url "https://www.tangerine.ca/app/#/login" \
@@ -496,6 +512,7 @@ python -m pytest -q tests\unit\test_ai_generation.py
 ```
 
 <a id="daily-stock-analysis-dsa-user-guide"></a>
+
 ## 📈 Daily Stock Analysis (DSA) User Guide
 
 DSA combines market data, technical analysis, news, and language models to produce stock-analysis reports. It also includes a Web workspace for chat, backtesting, alerts, decision signals, and report history. These features are decision-support tools, not investment advice or automated trading.
@@ -503,7 +520,7 @@ DSA combines market data, technical analysis, news, and language models to produ
 ### Overview
 
 | Area | What it provides |
-|---|---|
+| --- | --- |
 | Analysis | Reports for A-shares, Hong Kong stocks, U.S. equities, and supported Japan/Korea symbols |
 | Data and research | Quotes, historical bars, technical indicators, fundamentals, news, and source-quality context where available |
 | Web workspace | Watchlists, reports, history, strategy chat, backtesting, alerts, and settings |
@@ -526,7 +543,7 @@ Open `http://127.0.0.1:8000`; the interactive API reference is at `/docs`. For a
 ### Run modes
 
 | Goal | Command |
-|---|---|
+| --- | --- |
 | Analyze the configured watchlist | `python main.py` |
 | Analyze selected symbols | `python main.py --stocks 600519,hk00700,AAPL` |
 | Review market conditions | `python main.py --market-review` |
@@ -551,6 +568,7 @@ The Web/API service has no built-in authentication. Keep it on a trusted private
 - [Alert Center guide](apps/dsa-web/readme.md#alert-center)
 
 <a id="skill-spring-learning-lab"></a>
+
 ## 🌱 Skill Spring Learning Lab
 
 `skill_spring` is the repository's learning and research area: a collection of study tracks, experiments, notebooks, and reusable examples spanning software engineering, AI, and exploratory programming.
@@ -558,7 +576,7 @@ The Web/API service has no built-in authentication. Keep it on a trusted private
 ### Learning paths
 
 | Directory | Focus |
-|---|---|
+| --- | --- |
 | [`algorithms/`](skill_spring/algorithms/) | Algorithms, data structures, problem-solving patterns, and machine learning exercises |
 | [`concepts/`](skill_spring/concepts/) | Practical programming and test-automation concepts, from browser contexts to CI/CD |
 | [`claude_code/`](skill_spring/claude_code/) | Claude, MCP, prompting, retrieval, tool use, and agent-oriented research |
@@ -570,7 +588,7 @@ The Web/API service has no built-in authentication. Keep it on a trusted private
 `skill_spring` is the repository's learning and research area. It contains algorithms, test-automation concepts, web-scraping exercises, and Claude/MCP experiments.
 
 | Area | Starting point |
-|---|---|
+| --- | --- |
 | Algorithms and data structures | [skill_spring/algorithms/](skill_spring/algorithms/) |
 | Test-automation concepts | [skill_spring/concepts/](skill_spring/concepts/) |
 | Claude, MCP, and agent experiments | [skill_spring/claude_code/](skill_spring/claude_code/) |
@@ -579,6 +597,7 @@ The Web/API service has no built-in authentication. Keep it on a trusted private
 Each runnable subproject carries its own setup instructions. For the Claude/MCP index and notebook guide, see [Skill Spring Learning Notes](skill_spring/claude_code/claude_code_learning.md).
 
 <a id="project-structure"></a>
+
 ## 📂 Project Structure
 
 ```text
@@ -603,6 +622,7 @@ sloth-python/
 ```
 
 <a id="best-practices-patterns"></a>
+
 ## 🎓 Best Practices & Patterns
 
 Keep changes focused, reusable, and easy to validate.
@@ -635,6 +655,7 @@ Keep changes focused, reusable, and easy to validate.
 - **Preserve diagnostics:** Use Allure, Robot HTML reports, screenshots, videos, and uploaded artifacts to investigate failures.
 
 <a id="repository-development-guide"></a>
+
 ## 🧭 Repository Development Guide
 
 Follow the repository conventions and focused development workflow: preserve
@@ -646,6 +667,7 @@ review workflows, and delivery practices.
 See [contributing.md](contributing.md) for the complete guide.
 
 <a id="support-feedback"></a>
+
 ## ❤️ Support & Feedback
 
 If **Sloth Python** helps you learn, automate, or experiment, your support helps keep the project maintained and growing.
@@ -674,6 +696,7 @@ For issues and questions, include:
 Report security vulnerabilities privately to the project maintainers, not through a public issue. Never include API keys, tokens, credentials, or other sensitive values in reports.
 
 <a id="license"></a>
+
 ## 📝 License
 
 Sloth Python is distributed under the **MIT License**.
@@ -681,7 +704,7 @@ Sloth Python is distributed under the **MIT License**.
 ### Permissions
 
 | Use | Permitted |
-|---|---|
+| --- | --- |
 | Commercial use | Yes |
 | Private use | Yes |
 | Modification | Yes |
