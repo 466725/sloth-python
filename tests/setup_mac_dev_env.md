@@ -18,6 +18,7 @@ A complete guide for setting up **Java**, **Python**, and **TypeScript** develop
 5. [Environment Smoke Tests](#5-environment-smoke-tests)
 6. [Additional Tools](#6-additional-tools)
    - [6.1 JMeter](#61-jmeter)
+   - [6.2 Just and DSA project setup](#62-just-and-dsa-project-setup)
 
 ---
 
@@ -25,7 +26,7 @@ A complete guide for setting up **Java**, **Python**, and **TypeScript** develop
 
 Homebrew is the standard package manager for macOS. Install it first, as all subsequent tools depend on it.
 
-### Install
+### Install Homebrew
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -40,7 +41,7 @@ echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
 eval "$(/opt/homebrew/bin/brew shellenv)"
 ```
 
-### Verify
+### Verify Homebrew
 
 ```bash
 brew --version
@@ -51,13 +52,13 @@ brew doctor
 
 ## 2. Version Control (Git)
 
-### Install
+### Install Git
 
 ```bash
 brew install git
 ```
 
-### Configure
+### Configure Git
 
 Set your global Git identity:
 
@@ -66,7 +67,7 @@ git config --global user.name "Your Name"
 git config --global user.email "your.email@example.com"
 ```
 
-### Verify
+### Verify Git
 
 ```bash
 git --version
@@ -79,7 +80,7 @@ git config --list --global
 
 ### 3.1 Java (JDK)
 
-#### Install
+#### Install Java
 
 Install OpenJDK via Homebrew:
 
@@ -93,7 +94,7 @@ Symlink OpenJDK so the system Java wrappers can find it:
 sudo ln -sfn $(brew --prefix)/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
 ```
 
-#### Configure
+#### Configure Java
 
 Add `JAVA_HOME` and update `PATH` in `~/.zshrc`:
 
@@ -103,7 +104,7 @@ echo 'export PATH="$JAVA_HOME/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-#### Verify
+#### Verify Java
 
 ```bash
 java -version
@@ -115,13 +116,13 @@ echo $JAVA_HOME
 
 ### 3.2 Python
 
-#### Install
+#### Install Python
 
 ```bash
 brew install python
 ```
 
-#### Configure
+#### Configure Python
 
 Add Homebrew's Python binary directory to your PATH in `~/.zshrc`:
 
@@ -130,7 +131,7 @@ echo 'export PATH="$(brew --prefix)/opt/python/libexec/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-#### Verify
+#### Verify Python
 
 ```bash
 python3 --version
@@ -142,7 +143,7 @@ which python3
 
 ### 3.3 Node.js & TypeScript
 
-#### Install
+#### Install Node.js and TypeScript
 
 Install Node.js (includes `npm`):
 
@@ -156,7 +157,7 @@ Install TypeScript globally:
 npm install -g typescript
 ```
 
-#### Verify
+#### Verify Node.js and TypeScript
 
 ```bash
 node -v
@@ -170,7 +171,7 @@ tsc -v
 
 ### 4.1 Visual Studio Code
 
-#### Install
+#### Install Visual Studio Code
 
 ```bash
 brew install --cask visual-studio-code
@@ -191,7 +192,7 @@ code --install-extension ms-python.python
 code --install-extension dbaeumer.vscode-eslint
 ```
 
-#### Verify
+#### Verify Visual Studio Code
 
 ```bash
 code --version
@@ -288,3 +289,78 @@ Verify the installation:
 jmeter --version
 ```
 
+### 6.2 Just and DSA project setup
+
+The repository-root [justfile](../justfile) automates dependency setup,
+application builds, and DSA tests. Use Python 3.14, Node.js **24.15+**
+(24 LTS), npm 10+, and `just` 1.51+ for this workflow.
+
+#### Install the Just prerequisites
+
+```bash
+brew install just python@3.14 node@24
+export PATH="$(brew --prefix node@24)/bin:$PATH"
+```
+
+Add the Node.js PATH export to `~/.zshrc` if you want it to persist across
+terminals. Check `node --version` and upgrade `node@24` if it is older than
+24.15. Global TypeScript is only needed for the standalone smoke example above;
+the project installs its own compilers through npm.
+
+The recipes invoke **`python -m uv`**, not just the standalone `uv` executable.
+Install uv in a separate tooling environment to avoid Homebrew's
+externally-managed Python restriction and keep it available when the project
+environment is synchronized:
+
+```bash
+"$(brew --prefix python@3.14)/bin/python3.14" -m venv "$HOME/.venvs/sloth-tools"
+source "$HOME/.venvs/sloth-tools/bin/activate"
+python -m pip install uv
+```
+
+Activate this tooling environment in each new terminal before running Just.
+The recipes manage the repository's `.venv` separately; do not switch to that
+environment to run Just unless it also has uv installed. uv may warn that the
+active tooling environment differs from the project `.venv`; this is expected.
+Do not pass `--active`, which would install project dependencies into the tooling
+environment instead.
+
+#### Configure and verify DSA
+
+From your local `sloth-python` checkout's root:
+
+```bash
+just doctor
+just verify
+```
+
+`just doctor` prints tool versions. `just verify` installs the locked Python
+and npm dependencies, Chromium and Cypress assets, builds the frontend, and
+runs Python unit tests, isolated DSA API tests, Vitest, Playwright, and Cypress.
+It stops at the first failure and does not leave application servers running.
+Downloads require network access; the selected tests do not need Docker, MySQL,
+or live LLM credentials.
+
+For setup without running tests, use `just setup`. For individual checks:
+
+```bash
+just test-unit
+just test-api
+just test-web
+just test-ui
+```
+
+#### Launch DSA with Just
+
+```bash
+just dsa
+```
+
+Open <http://127.0.0.1:8000>; press Ctrl+C to stop the app.
+This command installs application dependencies and builds the frontend before
+startup. It does not overwrite `.env` or configure provider accounts; use the
+existing setup UI or your local `.env` for real stock analysis.
+
+Run `just` to list all recipes. See the
+[Just workflow guide](testing_guide.md#just-workflows) for development servers,
+runner arguments, test isolation, ports, and report locations.
