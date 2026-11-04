@@ -1,104 +1,41 @@
 # Copilot Instructions for sloth-python
 
-Canonical source: [CLAUDE.md](../CLAUDE.md) contains the shared repository AI
-collaboration rules as a regular Markdown file. Keep these Copilot instructions
-and the scoped instructions consistent with it. Repository collaboration skills
-live in [.claude/skills/](../.claude/skills/).
+[CLAUDE.md](../CLAUDE.md) is the canonical shared AI collaboration guide and a
+regular Markdown file, not a symlink. Follow it and the applicable scoped
+instructions; keep these entry points consistent with
+[CONTRIBUTING.md](../CONTRIBUTING.md).
 
-## Purpose
-This repository contains Python libraries, pytest suites (API/UI/unit), Robot Framework suites, and load testing assets.
-Keep changes minimal, task-focused, and easy to review.
+## Scope
 
-## Core Principles
-- Prefer small, incremental edits over broad refactors.
-- Preserve existing public behavior unless a change is explicitly requested.
-- Reuse existing utilities before introducing new helpers.
-- Keep code readable and maintainable; optimize only when needed.
-- Do not modify generated artifacts unless the task explicitly asks for it.
+- Backend/API: `ai_stock/`, `api/`, and related Python entry points and tests.
+  Read [backend instructions](instructions/backend.instructions.md).
+- React/Vite client: `apps/dsa-web/`.
+  Read [frontend instructions](instructions/frontend.instructions.md).
+- Documentation, collaboration, CI, and deployment:
+  read [governance instructions](instructions/governance.instructions.md).
+- Repository collaboration skills are indexed in
+  [.claude/skills/README.md](../.claude/skills/README.md).
 
-## Python Standards
-- Target Python 3.14+ compatibility.
-- Follow existing style conventions in the repository.
-- Use clear names and straightforward control flow.
-- Add brief comments only for non-obvious logic.
-- Avoid adding unnecessary dependencies.
+## Working rules
 
-## Formatting and Linting
-Run these before finalizing substantial Python changes:
+- Make focused, complete changes. Reuse existing utilities and preserve public
+  behavior, API contracts, defaults, and optional-provider resilience.
+- Preserve Python 3.14+ compatibility and existing formatting, types, imports,
+  and localization. Prefer existing dependencies; justify additions.
+- Preserve unrelated worktree changes. Do not manually edit generated assets or
+  `temps/` unless requested, or commit, tag, push, or open a remote PR without
+  approval.
+- Never hardcode or expose secrets. Update configuration examples and related
+  documentation when configuration changes.
 
-```bash
-python -m ruff check .
-python -m ruff format .
-```
+## Validation and delivery
 
-If needed, apply automatic fixes:
+Use the smallest meaningful checks from the [testing guide](../tests/testing_guide.md)
+or existing [Just recipes](../justfile). Use markers declared in
+[pyproject.toml](../pyproject.toml), targeted Ruff checks without unrelated
+formatting, and the existing frontend npm scripts. Keep offline tests independent
+of live services and credentials.
 
-```bash
-python -m ruff check . --fix
-```
-
-## Testing Expectations
-Choose the smallest meaningful validation first, then expand scope when needed.
-
-- Targeted pytest run:
-
-```bash
-python -m pytest path/to/test_file.py -q
-```
-
-- Marker-based runs:
-
-```bash
-python -m pytest -m ui_suites
-python -m pytest -m api_suites
-```
-
-- Full pytest run for cross-cutting changes:
-
-```bash
-python -m pytest
-```
-
-For Robot Framework changes, run the impacted suite first:
-
-```bash
-python -m robot --outputdir temps/test-results-robot robot_tests/calculator/
-```
-
-Optional dry run for keyword wiring:
-
-```bash
-python -m robot --dryrun --outputdir temps/test-results-robot robot_tests/ui_suites/
-```
-
-## Project-Specific Conventions
-- Do not edit files under temps/ unless explicitly requested.
-- Prefer stable selectors and shared helpers for UI automation.
-- Keep Robot keyword names descriptive and consistent.
-- Preserve line length and formatting conventions already configured in pyproject.toml.
-
-## Security and Secrets
-- Never hardcode secrets, credentials, API keys, or tokens.
-- Use environment variables for sensitive configuration.
-- Avoid exposing sensitive values in logs, examples, or test data.
-
-## Dependency and Import Hygiene
-- Keep imports clean and remove unused imports.
-- Prefer standard library and existing project modules first.
-- Add third-party packages only when necessary and justify in PR notes.
-
-## Pull Request Quality Bar
-When proposing changes, include:
-- What changed and why.
-- Files modified.
-- Commands run for validation.
-- Test outcomes (pass, fail, or not run).
-- Known limitations or follow-up work.
-
-## Guidance for Copilot Responses
-When generating code in this repository, Copilot should:
-- Follow existing patterns before inventing new structure.
-- Produce minimal diffs that solve the requested problem.
-- Suggest targeted tests for changed behavior.
-- Call out assumptions when requirements are ambiguous.
-- Prefer safe, deterministic behavior over clever shortcuts.
+For documentation-only edits, verify paths/commands and run `git diff --check`.
+Report changed files, reasons, validation commands and outcomes, compatibility
+impact, and limitations. Do not claim checks passed unless they ran.
