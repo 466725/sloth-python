@@ -56,7 +56,7 @@ npx playwright install chromium
 ## Running Tests
 
 | Script | Purpose |
-|---|---|
+| --- | --- |
 | `npm test` | Run all Playwright tests headlessly and generate an HTML report |
 | `npm run test:ui` | Open Playwright UI mode for debugging |
 | `npm run test:headed` | Run tests in a visible browser |
@@ -136,7 +136,7 @@ Screenshots and videos are captured on failure only. Traces are recorded on the 
 This package and [`apps/dsa-web-cypress-tests`](../dsa-web-cypress-tests/Readme.md) both test the same dsa-web application but use different frameworks:
 
 | Feature | Playwright (this package) | Cypress |
-|---|---|---|
+| --- | --- | --- |
 | Test runner | `@playwright/test` | Cypress 16 |
 | Server startup | Auto-starts backend + frontend | Manual `BASE_URL` |
 | Locale | Chinese `zh-CN` | Default |
