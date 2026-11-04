@@ -227,6 +227,11 @@ The active `.github/workflows/ci.yml` workflow currently has two jobs:
 | `smoke-test` | Pushes and pull requests to `main` or `master` | Runs selected pytest and Robot Framework smoke suites. |
 | `regression-test` | Scheduled runs and manual dispatch | Installs Playwright browsers, then runs broader pytest and Robot Framework suites. |
 
+The root [`.gitlab-ci.yml`](.gitlab-ci.yml) mirrors these test jobs for GitLab:
+main/master pushes and merge requests run smoke, scheduled pipelines run
+regression, and UI-created pipelines run both. Runner and schedule setup is
+documented in the [GitLab CI guide](tests/testing_guide.md#gitlab-ci).
+
 The workflow also runs on a schedule and supports manual dispatch. If the PR
 already has relevant CI results, reference them. If CI does not cover the
 changed behavior, or local and CI environments differ materially, state what

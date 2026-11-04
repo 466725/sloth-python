@@ -1,0 +1,104 @@
+# Mirrors .github/workflows/ci.yml; configure the nightly schedule in GitLab.
+workflow:
+  auto_cancel:
+    on_new_commit: interruptible
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && ($CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master")'
+    - if: '$CI_PIPELINE_SOURCE == "push" && ($CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master")'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web"'
+    - when: never
+
+stages:
+  - test
+
+variables:
+  ALLURE_VERSION: "2.27.0"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.cache/ms-playwright"
+
+default:
+  image: python:3.14-bookworm
+  interruptible: true
+  cache: &pip_cache
+    key:
+      prefix: pip-python314-bookworm
+      files:
+        - requirements.txt
+    paths:
+      - .cache/pip/
+  before_script:
+    - python --version
+    - python -m pip install --upgrade pip
+    - python -m pip install -r requirements.txt
+
+smoke-test:
+  stage: test
+  timeout: 25 minutes
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+  script:
+    - python -m pytest -m "unit or api" --tb=short
+    - >-
+      python -m robot --outputdir temps/test-results-robot
+      tests/robot_tests/api_suites
+      tests/robot_tests/test_basics.robot
+      tests/robot_tests/test_data_driven.robot
+      tests/robot_tests/test_data_driven_with_csv.robot
+      tests/robot_tests/test_keyword_driven.robot
+  artifacts:
+    when: always
+    name: "smoke-results-$CI_PIPELINE_ID-$CI_JOB_ID"
+    expire_in: 14 days
+    paths:
+      - temps/test-results-pytest/
+      - temps/test-results-robot/
+
+regression-test:
+  stage: test
+  timeout: 60 minutes
+  variables:
+    PW_HEADLESS: "1"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web"'
+  cache:
+    - *pip_cache
+    - key:
+        prefix: playwright-python314-bookworm
+        files:
+          - requirements.txt
+      paths:
+        - .cache/ms-playwright/
+  script:
+    # Also install OS libraries on a browser-cache hit, as GitHub CI does.
+    - python -m playwright install --with-deps
+    # GitHub's Ubuntu runner has Java; the Python container needs it for Allure.
+    - apt-get update
+    - apt-get install --yes --no-install-recommends ca-certificates curl default-jre-headless
+    - >-
+      curl --fail --silent --show-error --location
+      "https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.tgz"
+      --output /tmp/allure.tgz
+    - tar -xzf /tmp/allure.tgz -C /tmp
+    - python -m pytest -m "not ai" --tb=short --maxfail=5
+    - python -m robot --outputdir temps/test-results-robot tests/robot_tests/
+  after_script:
+    # Runs after test failures too; report generation must not hide test failures.
+    - |
+      if [ -x "/tmp/allure-${ALLURE_VERSION}/bin/allure" ] && [ -d temps/test-results-pytest ]; then
+        if ! "/tmp/allure-${ALLURE_VERSION}/bin/allure" generate temps/test-results-pytest -o allure-report --clean; then
+          echo "WARNING: Allure report generation failed; raw test artifacts are still uploaded." >&2
+        fi
+      else
+        echo "WARNING: Allure CLI or pytest results are unavailable; skipping HTML report generation." >&2
+      fi
+  artifacts:
+    when: always
+    name: "regression-results-$CI_PIPELINE_ID-$CI_JOB_ID"
+    expire_in: 21 days
+    paths:
+      - temps/test-results-pytest/
+      - temps/artifacts/playwright/
+      - allure-report/
+      - temps/test-results-robot/log.html
+      - temps/test-results-robot/report.html
+      - temps/test-results-robot/output.xml

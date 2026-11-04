@@ -286,6 +286,45 @@ with `not ai` and all suites under `tests/robot_tests/`. Use those selections
 when reproducing CI locally. The browser suites described above are run
 separately from those CI jobs.
 
+### GitLab CI
+
+The root [`.gitlab-ci.yml`](../.gitlab-ci.yml) mirrors
+[GitHub CI](../.github/workflows/ci.yml): Python 3.14, pip installation from
+`requirements.txt`, the same pytest/Robot selections, 25/60-minute timeouts,
+and always-uploaded artifacts retained for 14/21 days. It uses the
+`python:3.14-bookworm` container and requires a Linux Docker or Kubernetes
+GitLab Runner with outbound access to package, browser, and Allure downloads.
+The container must permit package installation; no privileged Docker mode is
+needed. Set the runner's maximum timeout to at least 60 minutes.
+
+| GitLab event | Jobs |
+| --- | --- |
+| Push to `main` or `master` | Smoke |
+| Merge request targeting `main` or `master` | Smoke |
+| **Build > Pipelines > New pipeline** (`web` source) | Smoke and regression |
+| Pipeline schedule (`schedule` source) | Regression only |
+
+Other branch pushes, tags, and pipeline sources do not create pipelines.
+Interruptible jobs are canceled when GitLab supersedes them with a newer commit.
+Pip and Playwright caches are keyed by `requirements.txt`; regression installs
+browser OS dependencies even on cache hits. Java and Allure are installed before
+tests so `after_script` can generate the HTML report after a test failure.
+Report-generation failure emits a warning without overriding the test result.
+Download test artifacts from the job page.
+
+GitLab schedules cannot be declared in YAML. Create a schedule under
+**Build > Pipeline schedules** with cron `0 2 * * *`, timezone **UTC**, and the
+desired `main` or `master` branch to match GitHub's nightly 02:00 UTC run.
+Configure any required external-service credentials as masked/protected GitLab
+CI/CD variables, not in the YAML. As with GitHub CI, some regression suites need
+external services; the pipeline does not provision MySQL or provider accounts.
+
+GitHub's contributor-welcome workflow is platform-specific and is not part of
+this GitLab test pipeline. Neither platform's current CI runs the separate DSA
+Web npm suites, publishes images, deploys, or creates version tags. The GitHub
+workflows remain unchanged. To disable GitLab CI, remove the root configuration
+and disable its schedules; this does not affect GitHub Actions.
+
 Performance test assets live in `tests/performance/`. They are not part of the
 pytest, Robot, Vitest, Playwright, or Cypress commands above; follow the setup
 and environment requirements of JMeter, Postman, or LoadRunner before running
