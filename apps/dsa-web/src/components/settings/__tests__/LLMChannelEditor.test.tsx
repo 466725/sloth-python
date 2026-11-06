@@ -1,7 +1,29 @@
 import { useState } from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LLMChannelEditor } from '../LLMChannelEditor';
+import { UiLanguageProvider, useUiLanguage } from '../../../contexts/UiLanguageContext';
+import { UI_LANGUAGE_STORAGE_KEY } from '../../../utils/uiLanguage';
+import { LLM_CHANNEL_TEXT, LLM_DIAGNOSTIC_TEXT } from '../../../locales/llmChannelText';
+
+function LanguageControls() {
+  const { setLanguage } = useUiLanguage();
+  return (
+    <>
+      <button onClick={() => setLanguage('en')}>English</button>
+      <button onClick={() => setLanguage('zh')}>Chinese</button>
+    </>
+  );
+}
+
+const localizedChannelItems = [
+  { key: 'LLM_CHANNELS', value: 'openai' },
+  { key: 'LLM_OPENAI_PROTOCOL', value: 'openai' },
+  { key: 'LLM_OPENAI_BASE_URL', value: 'https://api.openai.com/v1' },
+  { key: 'LLM_OPENAI_ENABLED', value: 'true' },
+  { key: 'LLM_OPENAI_API_KEY', value: 'test-key' },
+  { key: 'LLM_OPENAI_MODELS', value: 'gpt-4o-mini' },
+];
 
 const {
   update,
@@ -26,6 +48,155 @@ describe('LLMChannelEditor', () => {
     update.mockReset();
     testLLMChannel.mockReset();
     discoverLLMChannelModels.mockReset();
+    localStorage.removeItem(UI_LANGUAGE_STORAGE_KEY);
+  });
+
+  afterEach(() => {
+    localStorage.removeItem(UI_LANGUAGE_STORAGE_KEY);
+  });
+
+  it('keeps English text and diagnostics complete', () => {
+    expect(Object.keys(LLM_CHANNEL_TEXT.en).sort()).toEqual(Object.keys(LLM_CHANNEL_TEXT.zh).sort());
+    for (const section of ['stages', 'errors', 'hints', 'reasons'] as const) {
+      expect(Object.keys(LLM_DIAGNOSTIC_TEXT.en[section]).sort()).toEqual(Object.keys(LLM_DIAGNOSTIC_TEXT.zh[section]).sort());
+    }
+    expect(JSON.stringify([LLM_CHANNEL_TEXT.en, LLM_DIAGNOSTIC_TEXT.en])).not.toMatch(/\p{Script=Han}/u);
+  });
+
+  it('renders the empty editor in persisted English without Chinese text', () => {
+    localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'en');
+    const { container } = render(
+      <UiLanguageProvider>
+        <LLMChannelEditor items={[]} configVersion="v1" maskToken="******" onSaved={() => {}} />
+      </UiLanguageProvider>,
+    );
+
+    expect(screen.getByRole('heading', { name: 'AI model configuration' })).toBeInTheDocument();
+    expect(screen.getByText('Quick add channel')).toBeInTheDocument();
+    expect(screen.getByText('No channels yet')).toBeInTheDocument();
+    expect(screen.getByText('Runtime parameters')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save AI configuration' })).toBeDisabled();
+    expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
+  });
+
+  it('updates expanded controls and help when toggling languages without losing edits', async () => {
+    localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'zh');
+    const { container } = render(
+      <UiLanguageProvider>
+        <LanguageControls />
+        <LLMChannelEditor items={localizedChannelItems} configVersion="v1" maskToken="******" onSaved={() => {}} />
+      </UiLanguageProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /OpenAI 官方/i }));
+    fireEvent.change(screen.getByLabelText('API Key'), { target: { value: 'edited-key' } });
+    fireEvent.change(screen.getByRole('combobox', { name: '主模型' }), { target: { value: 'openai/gpt-4o-mini' } });
+    fireEvent.click(screen.getByRole('button', { name: 'English' }));
+
+    expect(screen.getByLabelText('Channel name')).toHaveValue('openai');
+    expect(screen.getByLabelText('API Key')).toHaveValue('edited-key');
+    expect(screen.getByRole('combobox', { name: 'Protocol' })).toHaveValue('openai');
+    expect(screen.getByRole('combobox', { name: 'Primary model' })).toHaveValue('openai/gpt-4o-mini');
+    expect(screen.getByRole('combobox', { name: 'Agent primary model' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Vision model' })).toBeInTheDocument();
+    expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
+
+    fireEvent.click(screen.getByRole('button', { name: 'View Channel name configuration help' }));
+    const help = await screen.findByRole('dialog');
+    expect(within(help).getByRole('link', { name: 'LLM configuration guide' })).toBeInTheDocument();
+    expect(help.textContent).not.toMatch(/\p{Script=Han}/u);
+    fireEvent.click(within(help).getByRole('button', { name: 'Close configuration help' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
+    expect(screen.getByLabelText('渠道名称')).toHaveValue('openai');
+    expect(screen.getByLabelText('API Key')).toHaveValue('edited-key');
+    expect(screen.getByRole('combobox', { name: '主模型' })).toHaveValue('openai/gpt-4o-mini');
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it('retranslates discovery results and connection errors without repeating requests', async () => {
+    localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'en');
+    discoverLLMChannelModels.mockResolvedValue({ success: true, models: ['gpt-4o-mini'], latencyMs: 80 });
+    testLLMChannel.mockResolvedValue({
+      success: false,
+      message: 'Provider rejected the key',
+      errorCode: 'auth',
+      stage: 'chat_completion',
+      resolvedModel: 'openai/gpt-4o-mini',
+      details: { reason: 'api_key_rejected' },
+    });
+    render(
+      <UiLanguageProvider>
+        <LanguageControls />
+        <LLMChannelEditor items={localizedChannelItems} configVersion="v1" maskToken="******" onSaved={() => {}} />
+      </UiLanguageProvider>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /OpenAI Official/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Discover models' }));
+    expect(await screen.findByText('Discovered 1 models · 80 ms')).toBeInTheDocument();
+    expect(screen.getByLabelText('Manual models (comma-separated)')).toHaveValue('gpt-4o-mini');
+    fireEvent.click(screen.getByRole('button', { name: 'Test connection' }));
+    expect(await screen.findByText(/Chat completion · Authentication failed: Provider rejected the key/)).toBeInTheDocument();
+    expect(screen.getByText(/The provider rejected the API Key/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
+    expect(screen.getByText('已获取 1 个模型 · 80 ms')).toBeInTheDocument();
+    expect(screen.getByText(/聊天调用 · 鉴权失败/)).toBeInTheDocument();
+    expect(screen.getByText(/服务商拒绝了当前 API Key/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'English' }));
+    expect(screen.getByText('Discovered 1 models · 80 ms')).toBeInTheDocument();
+    expect(discoverLLMChannelModels).toHaveBeenCalledTimes(1);
+    expect(testLLMChannel).toHaveBeenCalledTimes(1);
+  });
+
+  it('localizes capability and save feedback while preserving saved configuration', async () => {
+    localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'en');
+    testLLMChannel.mockResolvedValue({
+      success: true,
+      capabilityResults: {
+        json: { status: 'passed', message: 'JSON supported' },
+        tools: { status: 'skipped', message: 'Tools unsupported', errorCode: 'capability_unsupported', details: { reason: 'capability_unsupported' } },
+      },
+    });
+    update.mockResolvedValue({ warnings: [] });
+    const onSaved = vi.fn();
+    render(
+      <UiLanguageProvider>
+        <LanguageControls />
+        <LLMChannelEditor items={localizedChannelItems} configVersion="v1" maskToken="******" onSaved={onSaved} />
+      </UiLanguageProvider>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /OpenAI Official/i }));
+    fireEvent.click(screen.getByLabelText('JSON'));
+    fireEvent.click(screen.getByLabelText('Tools'));
+    fireEvent.click(screen.getByRole('button', { name: 'Check capabilities' }));
+    expect(await screen.findByText('Capability checks complete: 1 passed / 0 failed / 1 skipped')).toBeInTheDocument();
+    expect(screen.getByText('JSON Passed')).toBeInTheDocument();
+    expect(screen.getByText('Tools Skipped')).toBeInTheDocument();
+    expect(testLLMChannel).toHaveBeenCalledWith(expect.objectContaining({ capabilityChecks: ['json', 'tools'] }));
+    fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
+    expect(screen.getByText('能力检测完成：1 通过 / 0 失败 / 1 跳过')).toBeInTheDocument();
+    expect(screen.getByText('JSON 通过')).toBeInTheDocument();
+    expect(screen.getByText('Tools 跳过')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'English' }));
+    fireEvent.change(screen.getByLabelText('API Key'), { target: { value: 'edited-key' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save AI configuration' }));
+    expect(await screen.findByText('AI configuration saved')).toBeInTheDocument();
+    expect(onSaved).toHaveBeenCalledWith(expect.arrayContaining([{ key: 'LLM_OPENAI_API_KEY', value: 'edited-key' }]));
+    fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
+    expect(screen.getByText('AI 配置已保存')).toBeInTheDocument();
+    expect(update).toHaveBeenCalledTimes(1);
+  });
+
+  it('localizes advanced YAML routing notices and the channel-only save button', () => {
+    localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'en');
+    const { container } = render(
+      <UiLanguageProvider>
+        <LLMChannelEditor items={[...localizedChannelItems, { key: 'LITELLM_CONFIG', value: './routing.yaml' }]} configVersion="v1" maskToken="******" onSaved={() => {}} />
+      </UiLanguageProvider>,
+    );
+    expect(screen.getByText(/Advanced model routing YAML is configured/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save channel configuration' })).toBeInTheDocument();
+    expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
   });
 
   it('renders API Key input with controlled visibility', async () => {
