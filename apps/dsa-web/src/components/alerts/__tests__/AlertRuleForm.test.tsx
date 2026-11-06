@@ -1,8 +1,13 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AlertRuleForm } from '../AlertRuleForm';
-import { UiLanguageProvider } from '../../../contexts/UiLanguageContext';
+import { UiLanguageProvider, useUiLanguage } from '../../../contexts/UiLanguageContext';
 import { UI_LANGUAGE_STORAGE_KEY } from '../../../utils/uiLanguage';
+
+function LanguageControls() {
+  const { setLanguage } = useUiLanguage();
+  return <button onClick={() => setLanguage('en')}>English</button>;
+}
 
 describe('AlertRuleForm', () => {
   const onSubmit = vi.fn();
@@ -91,6 +96,26 @@ describe('AlertRuleForm', () => {
     fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '3' } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
     expect(screen.getByRole('alert')).toHaveTextContent('股票代码格式不正确');
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it.each(['stockCode', 'threshold'])('retranslates an existing %s validation error without resetting inputs', (kind) => {
+    window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'zh');
+    render(
+      <UiLanguageProvider>
+        <LanguageControls />
+        <AlertRuleForm onSubmit={onSubmit} />
+      </UiLanguageProvider>,
+    );
+    const target = kind === 'stockCode' ? 'invalid-code' : 'aapl';
+    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: target } });
+    fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '-2' } });
+    fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
+    expect(screen.getByRole('alert')).toHaveTextContent(kind === 'stockCode' ? '股票代码格式不正确' : '涨跌幅阈值（%）必须是大于 0 的数字');
+    fireEvent.click(screen.getByRole('button', { name: 'English' }));
+    expect(screen.getByRole('alert')).toHaveTextContent(kind === 'stockCode' ? 'Invalid stock code format' : 'Change threshold (%) must be a number greater than 0');
+    expect(screen.getByLabelText('Symbol')).toHaveValue(target);
+    expect(screen.getByLabelText('Change threshold (%)')).toHaveValue(-2);
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
