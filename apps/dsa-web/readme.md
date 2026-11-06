@@ -54,6 +54,11 @@ feedback. Switching between English and Chinese preserves unsaved edits and
 does not repeat provider requests. Messages returned by the backend or provider
 remain in their original language.
 
+The Alert Center also follows the sidebar language for its page title, trigger
+history, market-phase labels, notification attempts, validation and local
+create/test feedback. Language changes preserve form drafts and loaded records
+without repeating API calls. Rule names and backend diagnostics remain unchanged.
+
 ## Workflows and shared features
 
 ### Analysis and reports
