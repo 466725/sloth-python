@@ -5,10 +5,37 @@ import {
   LLM_PROVIDER_TEMPLATES,
   MODEL_PLACEHOLDERS_BY_PROTOCOL,
   getProviderTemplate,
+  getProviderCapabilityMeta,
   isKnownProviderTemplate,
 } from '../llmProviderTemplates';
 
 describe('llmProviderTemplates', () => {
+  it('localizes every preset and capability without changing provider configuration', () => {
+    for (const template of LLM_PROVIDER_TEMPLATES) {
+      const localized = getProviderTemplate(template.channelId, 'en');
+      expect(localized).toMatchObject({
+        channelId: template.channelId,
+        protocol: template.protocol,
+        baseUrl: template.baseUrl,
+        placeholderModels: template.placeholderModels,
+        capabilities: template.capabilities,
+        officialSources: template.officialSources,
+      });
+      expect(localized?.label).not.toMatch(/\p{Script=Han}/u);
+      if (template.configHint) {
+        expect(localized?.configHint).toBeTruthy();
+        expect(localized?.configHint).not.toMatch(/\p{Script=Han}/u);
+      }
+      for (const capability of template.capabilities) {
+        const metadata = getProviderCapabilityMeta(capability, 'en');
+        expect(metadata.label).not.toMatch(/\p{Script=Han}/u);
+        expect(metadata.hint).not.toMatch(/\p{Script=Han}/u);
+        expect(getProviderCapabilityMeta(capability, 'zh')).toEqual(LLM_PROVIDER_CAPABILITY_LABELS[capability]);
+      }
+      expect(getProviderTemplate(template.channelId, 'zh')).toBe(template);
+    }
+  });
+
   it('keeps provider template order aligned with the existing preset dropdown order', () => {
     expect(LLM_PROVIDER_TEMPLATES.map((template) => template.channelId)).toEqual([
       'aihubmix',
