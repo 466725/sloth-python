@@ -48,6 +48,12 @@ Open <http://localhost:5173>. Vite proxies `/api` requests to `http://127.0.0.1:
 | `/usage` | Token Usage | Track LLM token usage |
 | `/settings` | Settings | Configure LLM providers, notifications, data sources, and runtime options |
 
+The sidebar language switch applies to the AI model settings editor, including
+provider presets, runtime controls, configuration help and local test/save
+feedback. Switching between English and Chinese preserves unsaved edits and
+does not repeat provider requests. Messages returned by the backend or provider
+remain in their original language.
+
 ## Workflows and shared features
 
 ### Analysis and reports
