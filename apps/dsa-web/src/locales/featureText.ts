@@ -43,3 +43,106 @@ export const ALERT_FORM_TEXT = {
 export const ALERT_TARGET_SCOPE_OPTIONS: Record<UiLanguage, Array<Option<AlertTargetScope>>> = { zh: Object.entries(ALERT_SCOPE_LABELS.zh).map(([value, label]) => ({ value: value as AlertTargetScope, label })), en: Object.entries(ALERT_SCOPE_LABELS.en).map(([value, label]) => ({ value: value as AlertTargetScope, label })) };
 export const ALERT_SEVERITY_OPTIONS: Record<UiLanguage, Array<Option<'info' | 'warning' | 'critical'>>> = { zh: Object.entries(ALERT_SEVERITY_LABELS.zh).map(([value, label]) => ({ value: value as 'info' | 'warning' | 'critical', label })), en: Object.entries(ALERT_SEVERITY_LABELS.en).map(([value, label]) => ({ value: value as 'info' | 'warning' | 'critical', label })) };
 export const ALERT_CHANGE_DIRECTION_OPTIONS: Record<UiLanguage, Array<Option<'up' | 'down'>>> = { zh: [{ value: 'up', label: '上涨达到' }, { value: 'down', label: '下跌达到' }], en: [{ value: 'up', label: 'Rises by' }, { value: 'down', label: 'Falls by' }] };
+
+export const ALERT_PAGE_TEXT = {
+  zh: {
+    documentTitle: '告警中心 - DSA',
+    title: '告警中心',
+    description: '管理单标的和自选股涨跌幅告警，执行一次性测试，并查看后台评估任务记录的触发历史与邮件通知诊断。',
+    createdTitle: '创建成功',
+    createdMessage: '已创建告警规则「{name}」',
+    close: '关闭',
+    testResult: '测试结果',
+    status: '状态',
+    triggered: '触发',
+    observedValue: '观察值',
+    yes: '是',
+    no: '否',
+    batchSummary: '评估 {evaluated} · 触发 {triggered} · 降级 {degraded} · 跳过 {skipped}',
+    notificationTitle: '通知尝试记录',
+    notificationSubtitle: '通知结果',
+    loadingNotifications: '正在加载通知尝试记录',
+    noNotifications: '暂无通知尝试记录',
+    noNotificationsDescription: '当前没有可展示的通知尝试明细；告警触发仍会按已配置通知渠道发送。',
+    channel: '渠道',
+    errorCode: '错误码',
+    latency: '耗时',
+    time: '时间',
+    diagnostics: '诊断',
+  },
+  en: {
+    documentTitle: 'Alert Center - DSA',
+    title: 'Alert Center',
+    description: 'Manage price-change alerts for individual symbols and watchlists, run one-time tests, and review trigger history and notification diagnostics from background evaluations.',
+    createdTitle: 'Rule created',
+    createdMessage: 'Created alert rule "{name}"',
+    close: 'Close',
+    testResult: 'Test result',
+    status: 'Status',
+    triggered: 'Triggered',
+    observedValue: 'Observed value',
+    yes: 'Yes',
+    no: 'No',
+    batchSummary: 'Evaluated {evaluated} · Triggered {triggered} · Degraded {degraded} · Skipped {skipped}',
+    notificationTitle: 'Notification attempts',
+    notificationSubtitle: 'Notification results',
+    loadingNotifications: 'Loading notification attempts',
+    noNotifications: 'No notification attempts',
+    noNotificationsDescription: 'No notification attempt details are available yet. Triggered alerts still use the configured notification channels.',
+    channel: 'Channel',
+    errorCode: 'Error code',
+    latency: 'Latency',
+    time: 'Time',
+    diagnostics: 'Diagnostics',
+  },
+} as const;
+
+export const ALERT_HISTORY_TEXT = {
+  zh: {
+    title: '触发历史',
+    subtitle: '评估记录',
+    loading: '正在加载触发历史',
+    emptyTitle: '暂无触发历史',
+    emptyDescription: '后台评估会记录 triggered、skipped、degraded 和 failed 状态；正常未触发不会写入历史。',
+    status: '状态',
+    phaseQuality: '阶段 / 质量',
+    target: '目标',
+    observedValue: '观察值',
+    threshold: '阈值',
+    dataSource: '数据源',
+    dataTime: '数据时间',
+    reason: '原因',
+    quality: '质量：{quality}',
+  },
+  en: {
+    title: 'Trigger history',
+    subtitle: 'Evaluation records',
+    loading: 'Loading trigger history',
+    emptyTitle: 'No trigger history',
+    emptyDescription: 'Background evaluations record triggered, skipped, degraded and failed statuses. Normal non-triggering evaluations are not recorded.',
+    status: 'Status',
+    phaseQuality: 'Phase / quality',
+    target: 'Target',
+    observedValue: 'Observed value',
+    threshold: 'Threshold',
+    dataSource: 'Data source',
+    dataTime: 'Data time',
+    reason: 'Reason',
+    quality: 'Quality: {quality}',
+  },
+} as const;
+
+export const ALERT_TRIGGER_STATUS_LABELS: Record<UiLanguage, Record<string, string>> = {
+  zh: { triggered: '已触发', skipped: '已跳过', degraded: '降级', failed: '失败' },
+  en: { triggered: 'Triggered', skipped: 'Skipped', degraded: 'Degraded', failed: 'Failed' },
+};
+
+export const ALERT_NOTIFICATION_CHANNEL_LABELS: Record<UiLanguage, Record<string, string>> = {
+  zh: { __cooldown__: '业务冷却', __cooldown_read_failed__: '冷却读取失败', __noise_suppressed__: '通知降噪', __no_channel__: '无可用渠道', __dispatch__: '通知调度', __context__: '会话渠道' },
+  en: { __cooldown__: 'Alert cooldown', __cooldown_read_failed__: 'Cooldown read failed', __noise_suppressed__: 'Notification noise suppression', __no_channel__: 'No available channel', __dispatch__: 'Notification dispatch', __context__: 'Session channel' },
+};
+
+export const ALERT_NOTIFICATION_STATUS_LABELS = {
+  zh: { success: '成功', cooldown_active: '冷却抑制', cooldown_read_failed: '冷却读取失败', noise_suppressed: '降噪抑制', no_channel: '无渠道', failed: '失败' },
+  en: { success: 'Success', cooldown_active: 'Suppressed by cooldown', cooldown_read_failed: 'Cooldown read failed', noise_suppressed: 'Suppressed as noise', no_channel: 'No channel', failed: 'Failed' },
+} as const;
