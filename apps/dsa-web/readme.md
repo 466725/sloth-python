@@ -79,6 +79,13 @@ strategies can be selected explicitly; custom strategies and experimental
 multi-agent modes depend on the backend configuration. Provider setup is covered
 in the [LLM provider guide](../../ai_stock/llm/llm-providers.md).
 
+The sidebar language switch applies to Ask controls, built-in strategy labels
+and descriptions, quick questions, conversation dates, local feedback and
+Markdown export headings. Switching languages preserves drafts, strategy
+selections and conversation content without restarting requests. Saved titles,
+user messages, AI responses, provider progress and custom skill metadata remain
+in their original language; the UI switch does not translate existing answers.
+
 ### Backtesting and decision signals
 
 Backtesting evaluates historical rules against available market data. Results
