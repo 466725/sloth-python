@@ -1,11 +1,14 @@
 import type { Message } from '../stores/agentChatStore';
+import type { UiLanguage } from '../i18n/uiText';
+import { CHAT_TEXT, getChatSkillName } from '../locales/chatText';
 
 /**
  * Format chat messages as Markdown for export.
  */
-export function formatSessionAsMarkdown(messages: Message[]): string {
+export function formatSessionAsMarkdown(messages: Message[], language: UiLanguage = 'zh'): string {
+  const text = CHAT_TEXT[language];
   const now = new Date();
-  const timeStr = now.toLocaleString('zh-CN', {
+  const timeStr = now.toLocaleString(language === 'en' ? 'en-US' : 'zh-CN', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -14,16 +17,17 @@ export function formatSessionAsMarkdown(messages: Message[]): string {
   });
 
   const lines: string[] = [
-    '# 问股会话',
+    text.sessionHeading,
     '',
-    `生成时间: ${timeStr}`,
+    `${text.generatedAt}: ${timeStr}`,
     '',
   ];
 
   for (const msg of messages) {
-    const heading = msg.role === 'user' ? '## 用户' : '## AI';
+    const heading = msg.role === 'user' ? text.userHeading : '## AI';
     if (msg.role === 'assistant' && msg.skillName) {
-      lines.push(`${heading} (${msg.skillName})`);
+      const skillLabel = msg.skillName.split('、').map((name) => getChatSkillName(name, language)).join(language === 'en' ? ', ' : '、');
+      lines.push(`${heading} (${skillLabel})`);
     } else {
       lines.push(heading);
     }
@@ -39,14 +43,14 @@ export function formatSessionAsMarkdown(messages: Message[]): string {
  * Trigger browser download of session as .md file.
  * Revokes object URL after download to prevent memory leak.
  */
-export function downloadSession(messages: Message[]): void {
-  const content = formatSessionAsMarkdown(messages);
+export function downloadSession(messages: Message[], language: UiLanguage = 'zh'): void {
+  const content = formatSessionAsMarkdown(messages, language);
   const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
   const now = new Date();
   const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
   const pad = (n: number) => n.toString().padStart(2, '0');
   const timeStr = pad(now.getHours()) + pad(now.getMinutes());
-  const filename = `问股会话_${dateStr}_${timeStr}.md`;
+  const filename = `${CHAT_TEXT[language].sessionFilename}_${dateStr}_${timeStr}.md`;
 
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
