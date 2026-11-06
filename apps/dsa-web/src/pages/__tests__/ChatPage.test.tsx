@@ -1,11 +1,34 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router-dom';
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createParsedApiError } from '../../api/error';
 import { historyApi } from '../../api/history';
 import type { Message } from '../../stores/agentChatStore';
 import ChatPage from '../ChatPage';
 import { extractStockCodeFromMessage, extractStockCodesFromMessage } from '../../utils/chatStockCode';
+import { UiLanguageProvider, useUiLanguage } from '../../contexts/UiLanguageContext';
+import { UI_LANGUAGE_STORAGE_KEY } from '../../utils/uiLanguage';
+import { CHAT_TEXT, CHAT_QUICK_QUESTIONS, getChatSkillText } from '../../locales/chatText';
+
+function LanguageControls() {
+  const { setLanguage } = useUiLanguage();
+  return (
+    <>
+      <button onClick={() => setLanguage('en')}>English</button>
+      <button onClick={() => setLanguage('zh')}>Chinese</button>
+    </>
+  );
+}
+
+function renderLocalizedChat(language: 'en' | 'zh' = 'en', path = '/chat') {
+  localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, language);
+  return render(
+    <UiLanguageProvider>
+      <LanguageControls />
+      <MemoryRouter initialEntries={[path]}><ChatPage /></MemoryRouter>
+    </UiLanguageProvider>,
+  );
+}
 
 function createDeferred<T>() {
   let resolve!: (value: T) => void;
@@ -144,6 +167,7 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
+  localStorage.removeItem(UI_LANGUAGE_STORAGE_KEY);
   vi.clearAllMocks();
   mockStoreState.messages = [];
   mockStoreState.loading = false;
@@ -194,7 +218,190 @@ beforeEach(() => {
   mockFormatSessionAsMarkdown.mockReturnValue('# exported session');
 });
 
+afterEach(() => {
+  localStorage.removeItem(UI_LANGUAGE_STORAGE_KEY);
+});
+
 describe('ChatPage', () => {
+  it('renders the empty Ask interface and built-in strategies in persisted English', async () => {
+    mockStoreState.sessions = [];
+    mockGetSkills.mockResolvedValue({
+      skills: [
+        { id: 'bull_trend', name: '默认多头趋势', description: '默认个股分析优先策略' },
+        { id: 'chan_theory', name: '缠论', description: '缠论结构' },
+      ],
+      default_skill_id: 'bull_trend',
+    });
+    const { container } = renderLocalizedChat();
+    expect(await screen.findByRole('checkbox', { name: 'Default bullish trend' })).toBeChecked();
+    expect(screen.getByRole('heading', { name: 'Ask' })).toBeInTheDocument();
+    expect(screen.getByText('No conversation history')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Analyze Moutai with Chan theory' })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: /Context compression/ })).toBeInTheDocument();
+    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', CHAT_TEXT.en.placeholder);
+    expect(document.title).toBe('Ask - DSA');
+    expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
+    fireEvent.mouseEnter(screen.getByRole('checkbox', { name: 'Chan theory' }).closest('label')!);
+    expect(screen.getByText(/Use Chan theory strokes/)).toBeInTheDocument();
+    expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
+  });
+
+  it('translates all built-in skill labels and preserves custom skill metadata', () => {
+    expect(Object.keys(CHAT_TEXT.en).sort()).toEqual(Object.keys(CHAT_TEXT.zh).sort());
+    expect(CHAT_QUICK_QUESTIONS.en.map((question) => question.skill)).toEqual(CHAT_QUICK_QUESTIONS.zh.map((question) => question.skill));
+    const ids = [
+      'bull_trend', 'ma_golden_cross', 'shrink_pullback', 'volume_breakout', 'hot_theme',
+      'box_oscillation', 'event_driven', 'growth_quality', 'bottom_volume',
+      'expectation_repricing', 'chan_theory', 'wave_theory', 'dragon_head',
+      'emotion_cycle', 'one_yang_three_yin', 'stock-analyzer',
+    ];
+    for (const id of ids) {
+      const original = { id, name: '策略', description: '说明' };
+      const translated = getChatSkillText(original, 'en');
+      expect(translated.name).not.toMatch(/\p{Script=Han}/u);
+      expect(translated.description).not.toMatch(/\p{Script=Han}/u);
+      expect(getChatSkillText(original, 'zh')).toBe(original);
+    }
+    const custom = { id: 'custom', name: '自定义策略', description: '自定义说明' };
+    expect(getChatSkillText(custom, 'en')).toBe(custom);
+    expect(getChatSkillText({ ...custom, id: 'constructor' }, 'en').name).toBe(custom.name);
+  });
+
+  it('updates controls, dates, badges and mobile selectors while preserving conversations and drafts', async () => {
+    mockStoreState.messages = [
+      { id: 'user-local', role: 'user', content: '请分析茅台' },
+      { id: 'assistant-local', role: 'assistant', content: '原始中文回复', skillName: '默认多头趋势' },
+    ];
+    mockGetSkills.mockResolvedValue({
+      skills: [
+        { id: 'bull_trend', name: '默认多头趋势', description: '趋势说明' },
+        { id: 'chan_theory', name: '缠论', description: '缠论说明' },
+      ],
+      default_skill_id: 'bull_trend',
+    });
+    renderLocalizedChat();
+    const draft = screen.getByRole('textbox');
+    fireEvent.change(draft, { target: { value: 'My unsent question' } });
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Chan theory' }));
+    expect(screen.getByLabelText('Skills Default bullish trend')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Switch to conversation 请简要分析 600519' })).toBeInTheDocument();
+    expect(screen.getByText('2 messages')).toBeInTheDocument();
+    expect(screen.getByText(new Date('2026-03-15T09:05:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }))).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Expand strategy selection' }));
+    expect(screen.getByRole('button', { name: 'Collapse strategy selection' })).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
+    expect(draft).toHaveValue('My unsent question');
+    expect(screen.getByRole('checkbox', { name: '缠论' })).toBeChecked();
+    expect(screen.getByRole('button', { name: '收起策略选择' })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByLabelText('技能 默认多头趋势')).toBeInTheDocument();
+    expect(document.title).toBe('问股 - DSA');
+    fireEvent.click(screen.getByRole('button', { name: 'English' }));
+    expect(screen.getByRole('checkbox', { name: 'Chan theory' })).toBeChecked();
+    expect(screen.getByText('请分析茅台')).toBeInTheDocument();
+    expect(screen.getByText('原始中文回复')).toBeInTheDocument();
+    expect(mockGetSkills).toHaveBeenCalledTimes(1);
+    expect(mockGetSystemConfig).toHaveBeenCalledTimes(1);
+    expect(mockLoadInitialSession).toHaveBeenCalledTimes(1);
+    expect(mockStartStream).not.toHaveBeenCalled();
+    expect(mockUpdateSystemConfig).not.toHaveBeenCalled();
+  });
+
+  it('sends English quick examples with the original skill ids and canonical metadata', async () => {
+    mockGetSkills.mockResolvedValue({
+      skills: [{ id: 'chan_theory', name: '缠论', description: '缠论说明' }],
+      default_skill_id: 'chan_theory',
+    });
+    renderLocalizedChat();
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Chan theory' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Analyze Moutai with Chan theory' }));
+    expect(mockStartStream).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Analyze Moutai with Chan theory', skills: ['chan_theory'] }),
+      { skillNames: ['缠论'], skillName: '缠论' },
+    );
+  });
+
+  it('localizes exports, notification feedback and deletion without changing message content', async () => {
+    mockStoreState.messages = [
+      { id: 'user-local', role: 'user', content: '请分析茅台' },
+      { id: 'assistant-local', role: 'assistant', content: '原始中文回复', skillName: '默认多头趋势' },
+    ];
+    renderLocalizedChat();
+    fireEvent.click(screen.getByRole('button', { name: 'Export conversation as Markdown' }));
+    expect(mockDownloadSession).toHaveBeenCalledWith(mockStoreState.messages, 'en');
+    fireEvent.click(screen.getByRole('button', { name: 'Send to configured notification bots/email' }));
+    expect(await screen.findByText('Sent to notification channels')).toBeInTheDocument();
+    expect(mockFormatSessionAsMarkdown).toHaveBeenCalledWith(mockStoreState.messages, 'en');
+    expect(mockSendChat).toHaveBeenCalledWith('# exported session');
+    fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
+    expect(screen.getByText('已发送到通知渠道')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'English' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete conversation 请简要分析 600519' }));
+    expect(screen.getByText(CHAT_TEXT.en.deleteMessage)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(mockDeleteChatSession).not.toHaveBeenCalled();
+    expect(screen.getByText('原始中文回复')).toBeInTheDocument();
+    expect(mockSendChat).toHaveBeenCalledTimes(1);
+  });
+
+  it('localizes history loading and thinking details without replacing provider messages', async () => {
+    mockStoreState.sessionsLoading = true;
+    mockStoreState.messages = [{
+      id: 'assistant-local',
+      role: 'assistant',
+      content: 'Original answer',
+      thinkingSteps: [
+        { type: 'thinking', step: 1 },
+        { type: 'tool_done', tool: 'quote', duration: 1.5, success: true },
+        { type: 'generating' },
+        { type: 'thinking', message: '服务商进度' },
+      ],
+    }];
+    renderLocalizedChat();
+    expect(screen.getByText('Loading conversations...')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Thinking process.*1 tool calls/ }));
+    expect(screen.getByText('Step 1: thinking')).toBeInTheDocument();
+    expect(screen.getByText('Generate analysis')).toBeInTheDocument();
+    expect(screen.getByText('服务商进度')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
+    expect(screen.getByText('第 1 步：思考')).toBeInTheDocument();
+    expect(screen.getByText('生成分析')).toBeInTheDocument();
+    expect(screen.getByText('Original answer')).toBeInTheDocument();
+  });
+
+  it('localizes follow-up prompts and watchlist feedback without repeating the action on toggle', async () => {
+    mockAddToWatchlist.mockResolvedValue(['AAPL']);
+    renderLocalizedChat('en', '/chat?stock=AAPL&name=Apple');
+    expect(screen.getByRole('textbox')).toHaveValue('Please analyze Apple(AAPL) in depth');
+    fireEvent.click(await screen.findByRole('button', { name: 'Add to watchlist' }));
+    expect(await screen.findByText('Added AAPL to watchlist')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
+    expect(screen.getByText('已加入自选 AAPL')).toBeInTheDocument();
+    expect(screen.getByRole('textbox')).toHaveValue('Please analyze Apple(AAPL) in depth');
+    fireEvent.click(screen.getByRole('button', { name: 'English' }));
+    expect(screen.getByRole('button', { name: 'Remove from watchlist' })).toBeInTheDocument();
+    expect(mockAddToWatchlist).toHaveBeenCalledTimes(1);
+  });
+
+  it('updates context compression controls and saving feedback without repeating the save', async () => {
+    const save = createDeferred<{ configVersion: string }>();
+    mockUpdateSystemConfig.mockReturnValue(save.promise);
+    renderLocalizedChat();
+    const compression = await screen.findByRole('checkbox', { name: /Context compression/ });
+    await waitFor(() => expect(compression).toBeEnabled());
+    fireEvent.click(compression);
+    expect(screen.getByText('Saving...')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
+    expect(screen.getByText('保存中...')).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: /上下文压缩/ })).toBeChecked();
+    fireEvent.click(screen.getByRole('button', { name: 'English' }));
+    save.resolve({ configVersion: 'cfg-v2' });
+    expect(await screen.findByText('Enabled')).toBeInTheDocument();
+    expect(mockUpdateSystemConfig).toHaveBeenCalledTimes(1);
+    expect(mockUpdateSystemConfig).toHaveBeenCalledWith(expect.objectContaining({
+      items: [{ key: 'AGENT_CONTEXT_COMPRESSION_ENABLED', value: 'true' }],
+    }));
+  });
+
   it('renders a fixed workspace shell with independent session and message viewports', async () => {
     render(
       <MemoryRouter initialEntries={['/chat']}>
@@ -354,7 +561,7 @@ describe('ChatPage', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: '导出会话为 Markdown 文件' }));
 
-    expect(mockDownloadSession).toHaveBeenCalledWith(mockStoreState.messages);
+    expect(mockDownloadSession).toHaveBeenCalledWith(mockStoreState.messages, 'zh');
     expect(mockFormatSessionAsMarkdown).not.toHaveBeenCalled();
   });
 
@@ -611,7 +818,7 @@ describe('ChatPage', () => {
     fireEvent.click(await screen.findByRole('button', { name: '发送到已配置的通知机器人/邮箱' }));
 
     await waitFor(() => {
-      expect(mockFormatSessionAsMarkdown).toHaveBeenCalledWith(mockStoreState.messages);
+      expect(mockFormatSessionAsMarkdown).toHaveBeenCalledWith(mockStoreState.messages, 'zh');
       expect(mockSendChat).toHaveBeenCalledWith('# exported markdown');
     });
 
