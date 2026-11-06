@@ -28,7 +28,14 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
   const [enabled, setEnabled] = useState(true);
   const [changeDirection, setChangeDirection] = useState<AlertDirection>('up');
   const [changePct, setChangePct] = useState('');
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<
+    { kind: 'stockCode'; message?: string } | { kind: 'threshold' } | null
+  >(null);
+  const formErrorMessage = formError?.kind === 'stockCode'
+    ? language === 'en' ? text.invalidStockCode : formError.message ?? text.invalidStockCode
+    : formError?.kind === 'threshold'
+      ? formatUiText(text.positiveNumber, { label: text.changePctThreshold })
+      : null;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -36,14 +43,14 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
     if (targetScope === 'single_symbol') {
       const validation = validateStockCode(target);
       if (!validation.valid) {
-        setFormError(language === 'en' ? text.invalidStockCode : (validation.message ?? text.invalidStockCode));
+        setFormError({ kind: 'stockCode', message: validation.message });
         return;
       }
       resolvedTarget = validation.normalized;
     }
     const parsedChangePct = Number(changePct);
     if (!Number.isFinite(parsedChangePct) || parsedChangePct <= 0) {
-      setFormError(formatUiText(text.positiveNumber, { label: text.changePctThreshold }));
+      setFormError({ kind: 'threshold' });
       return;
     }
     setFormError(null);
@@ -139,7 +146,7 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
           />
           <Button type="submit" isLoading={isSubmitting} loadingText={text.creating}>{text.create}</Button>
         </div>
-        {formError ? <p role="alert" className="text-sm text-danger">{formError}</p> : null}
+        {formErrorMessage ? <p role="alert" className="text-sm text-danger">{formErrorMessage}</p> : null}
       </form>
     </Card>
   );
