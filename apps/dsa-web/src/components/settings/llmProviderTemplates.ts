@@ -1,3 +1,5 @@
+import type { UiLanguage } from '../../i18n/uiText';
+
 export type ChannelProtocol = 'openai' | 'deepseek' | 'gemini' | 'anthropic' | 'vertex_ai' | 'ollama';
 export type LLMProviderCapability =
   | 'openai-compatible'
@@ -214,11 +216,43 @@ export const LLM_PROVIDER_TEMPLATE_BY_ID: Record<string, LLMProviderTemplate> = 
   LLM_PROVIDER_TEMPLATES.map((template) => [template.channelId, template]),
 );
 
-export function getProviderTemplate(channelId: string): LLMProviderTemplate | undefined {
+const EN_PROVIDER_TEXT: Record<string, { label: string; configHint?: string }> = {
+  aihubmix: { label: 'AIHubmix (aggregator)' },
+  anspire: { label: 'Anspire Open (models + search)', configHint: 'The same ANSPIRE_API_KEYS can be used for search and LLM channels. Models and gateways are examples; availability depends on account permissions and the console. Test the connection first.' },
+  deepseek: { label: 'DeepSeek Official' },
+  dashscope: { label: 'Qwen (DashScope)' },
+  zhipu: { label: 'Zhipu GLM' },
+  moonshot: { label: 'Moonshot (Kimi)' },
+  minimax: { label: 'MiniMax Official' },
+  volcengine: { label: 'Volcengine Ark (Doubao)', configHint: 'Do not mix online inference endpoints/regions with Coding Plan endpoints.' },
+  siliconflow: { label: 'SiliconFlow', configHint: 'Model listings and visibility depend on account permissions and the API Key.' },
+  openrouter: { label: 'OpenRouter', configHint: 'Model listings and visibility depend on account permissions and the API Key.' },
+  gemini: { label: 'Gemini Official' },
+  anthropic: { label: 'Anthropic Official' },
+  openai: { label: 'OpenAI Official' },
+  ollama: { label: 'Ollama (local)', configHint: 'The local machine, Docker or self-hosted runner must be able to reach the Ollama service.' },
+  custom: { label: 'Custom channel' },
+};
+
+const EN_CAPABILITY_LABELS: typeof LLM_PROVIDER_CAPABILITY_LABELS = {
+  'openai-compatible': { label: 'OpenAI Compatible', hint: 'Use the OpenAI-compatible endpoint as the Base URL; do not append /chat/completions.' },
+  aggregator: { label: 'Aggregator', hint: 'Model visibility, routing and prices may vary with account permissions and platform policies.' },
+  'official-api': { label: 'Official API', hint: 'Use the official provider protocol or compatibility endpoint.' },
+  'model-discovery': { label: 'Model discovery', hint: 'Model discovery via /models depends on account permissions and the API Key.' },
+  vision: { label: 'Vision reference', hint: 'This provider is commonly used for Vision; actual capabilities depend on the account and model.' },
+  'local-runtime': { label: 'Local runtime', hint: 'The running environment must be able to access the local service.' },
+};
+
+export function getProviderCapabilityMeta(capability: LLMProviderCapability, language: UiLanguage) {
+  return (language === 'en' ? EN_CAPABILITY_LABELS : LLM_PROVIDER_CAPABILITY_LABELS)[capability];
+}
+
+export function getProviderTemplate(channelId: string, language: UiLanguage = 'zh'): LLMProviderTemplate | undefined {
   if (!Object.prototype.hasOwnProperty.call(LLM_PROVIDER_TEMPLATE_BY_ID, channelId)) {
     return undefined;
   }
-  return LLM_PROVIDER_TEMPLATE_BY_ID[channelId];
+  const template = LLM_PROVIDER_TEMPLATE_BY_ID[channelId];
+  return language === 'en' ? { ...template, ...EN_PROVIDER_TEXT[channelId] } : template;
 }
 
 export function isKnownProviderTemplate(channelId: string): boolean {
