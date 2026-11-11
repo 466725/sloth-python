@@ -602,9 +602,9 @@ def _save_reused_market_review_report(
     title = (
         "# 🎯 Market Review"
         if str(getattr(config, "report_language", "zh")).strip().lower() == "en"
-        else "# 🎯 Market Review"
+        else "# 🎯 大盘复盘"
     )
-    if not any(body.startswith(item) for item in ("# 🎯 Market Review",)):
+    if not any(body.startswith(item) for item in ("# 🎯 Market Review", "# 🎯 大盘复盘")):
         body = f"{title}\n\n{body}"
     try:
         date_str = datetime.now().strftime('%Y%m%d')
