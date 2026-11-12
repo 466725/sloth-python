@@ -50,8 +50,8 @@ application documentation that owns them.
   browser test setup and coverage.
 - [Utilities guide](utils/readme.md) — shared configuration, database helpers,
   browser testing, logging, integrations, and AI test generation.
-- [Load runner best practices](tests/performance/load_runner/load_runner_best_practices.md)
-  — performance test asset guidance.
+- [Performance testing guide](tests/performance/load_test-guide.md) —
+  inventory and usage guidance for JMeter, Locust, Postman, and LoadRunner assets.
 - [Playwright locator strategy](<tests/pytest_tests/ui_suites/tangerine/Playwright Locator Strategy Guide.md>)
   — locator selection guidance for UI automation.
 - [JSON locator tradeoffs](tests/pytest_tests/ui_suites/locators/Json_locator_pros_and_cons.md)
