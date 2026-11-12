@@ -15,7 +15,7 @@ configuration.
 | Vitest | `apps/dsa-web/src/` and `apps/dsa-web/tests/` | DSA Web unit and component tests |
 | Playwright | `apps/dsa-web-playwright-tests/e2e/` | DSA Web browser end-to-end tests; starts the backend and Vite server |
 | Cypress | `apps/dsa-web-cypress-tests/e2e/` | DSA Web browser end-to-end tests against a running app |
-| Performance assets | `tests/performance/` | JMeter, Postman, and LoadRunner scenarios; these require their respective tools and environment setup |
+| Performance assets | `tests/performance/` | JMeter, Locust, Postman, and LoadRunner assets; see the [performance testing guide](performance/load_test-guide.md) |
 
 ## Just workflows
 
@@ -328,8 +328,8 @@ and disable its schedules; this does not affect GitHub Actions.
 Performance test assets live in `tests/performance/`. They are not part of the
 pytest, Robot, Vitest, Playwright, or Cypress commands above; follow the setup
 and environment requirements of JMeter, Locust, Postman, or LoadRunner before
-running them. See the [load runner guide](performance/load_runner/load_runner_best_practices.md)
-for scenario-design practices.
+running them. See the [performance testing guide](performance/load_test-guide.md)
+for the asset inventory, setup, and scenario guidance.
 
 ### Cineplex Locust scenario
 
