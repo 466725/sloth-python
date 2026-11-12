@@ -926,6 +926,21 @@ class MainScheduleModeTestCase(unittest.TestCase):
         refresh.assert_called_once_with(config)
         pipeline.run.assert_called_once()
 
+    def test_save_reused_market_review_report_uses_english_title(self) -> None:
+        notifier = MagicMock()
+        config = _DummyConfig(report_language="en")
+
+        main._save_reused_market_review_report(
+            notifier,
+            "## Detailed market context",
+            config=config,
+            trigger_source="cli",
+            region="us",
+        )
+
+        saved_content = notifier.save_report_to_file.call_args.args[0]
+        self.assertTrue(saved_content.startswith("# 🎯 Market Review\n\n"))
+
     def test_run_full_analysis_still_runs_market_review_for_merge_disabled_with_reused_context(self) -> None:
         args = self._make_args()
         target_date = date(2026, 3, 26)
