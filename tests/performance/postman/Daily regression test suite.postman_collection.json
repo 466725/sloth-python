@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "6910a1e7-037d-4d6c-b191-7a4f952003d5",
     "name": "Daily regression test suite",
-    "description": "All Cineplex api supposed to be here, and could be run as a test suite on daily basis.\n\nFor connect related API, please refer to: User Story 41864",
+    "description": "All netflix api supposed to be here, and could be run as a test suite on daily basis.\n\nFor connect related API, please refer to: User Story 41864",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "1431261"
   },
@@ -42,9 +42,7 @@
             {
               "listen": "prerequest",
               "script": {
-                "exec": [
-                  ""
-                ],
+                "exec": [""],
                 "type": "text/javascript"
               }
             }
@@ -65,13 +63,11 @@
               "raw": "{\n\t\"ApplicationKey\": \"{{application_key}}\"\n}"
             },
             "url": {
-              "raw": "{{connect_url}}/ClientServices/CineplexClientServicesWeb/CreateApplicationSession",
-              "host": [
-                "{{connect_url}}"
-              ],
+              "raw": "{{connect_url}}/ClientServices/netflixClientServicesWeb/CreateApplicationSession",
+              "host": ["{{connect_url}}"],
               "path": [
                 "ClientServices",
-                "CineplexClientServicesWeb",
+                "netflixClientServicesWeb",
                 "CreateApplicationSession"
               ]
             }
@@ -84,9 +80,7 @@
             {
               "listen": "prerequest",
               "script": {
-                "exec": [
-                  ""
-                ],
+                "exec": [""],
                 "type": "text/javascript"
               }
             },
@@ -142,15 +136,9 @@
               "raw": "{\n    \"SessionToken\": \"{{session_token}}\",\n    \"Password\": \"{{password}}\",\n    \"Email\": \"{{username}}\",\n    \"Source\": \"1\",\n    \"LanguageType\": \"1\"\n}"
             },
             "url": {
-              "raw": "{{connect_url}}/ClientServices/CineplexClientServicesWeb/Login",
-              "host": [
-                "{{connect_url}}"
-              ],
-              "path": [
-                "ClientServices",
-                "CineplexClientServicesWeb",
-                "Login"
-              ]
+              "raw": "{{connect_url}}/ClientServices/netflixClientServicesWeb/Login",
+              "host": ["{{connect_url}}"],
+              "path": ["ClientServices", "netflixClientServicesWeb", "Login"]
             }
           },
           "response": []
@@ -181,9 +169,7 @@
             {
               "listen": "prerequest",
               "script": {
-                "exec": [
-                  ""
-                ],
+                "exec": [""],
                 "type": "text/javascript"
               }
             }
@@ -204,13 +190,11 @@
               "raw": "{\r\n\t\"LanguageType\":\"1\",\r\n\t\"SessionToken\":\"{{session_token}}\",\r\n    \"UserSessionToken\":\"{{session_token_1}}\"\r\n}"
             },
             "url": {
-              "raw": "{{connect_url}}/ClientServices/CineplexClientServicesWeb/GetLoginStatus",
-              "host": [
-                "{{connect_url}}"
-              ],
+              "raw": "{{connect_url}}/ClientServices/netflixClientServicesWeb/GetLoginStatus",
+              "host": ["{{connect_url}}"],
               "path": [
                 "ClientServices",
-                "CineplexClientServicesWeb",
+                "netflixClientServicesWeb",
                 "GetLoginStatus"
               ]
             }
@@ -259,7 +243,7 @@
                   "    pm.expect((jsonBody.message === \"NotFound\") || (jsonBody.message === \"Successful\")).to.be.true;",
                   "});",
                   "",
-                  "//User Story 33807: Create Versioning in Cineplex.com",
+                  "//User Story 33807: Create Versioning in netflix.com",
                   "pm.test(\"Response apiVersionNumber same with api_version\", function(){",
                   "    pm.expect(pm.request.url.getPath().has('v' + jsonBody.apiVersionNumber)).eql(true);",
                   "});"
@@ -278,10 +262,8 @@
               }
             ],
             "url": {
-              "raw": "{{cineplex_url}}/movies/{{api_version}}/{{movie_id}}/allavailabletheatres/dates",
-              "host": [
-                "{{cineplex_url}}"
-              ],
+              "raw": "{{netflix_url}}/movies/{{api_version}}/{{movie_id}}/allavailabletheatres/dates",
+              "host": ["{{netflix_url}}"],
               "path": [
                 "movies",
                 "{{api_version}}",
@@ -290,7 +272,7 @@
                 "dates"
               ]
             },
-            "description": "https://apis.cineplex.com/uat/cpx/movies/v1/29373/AvailableTheatres/Dates?Language=en-us&Request.Location.Range=50&Request.Skip=0&Request.Take=2147483647"
+            "description": "https://apis.netflix.com/uat/cpx/movies/v1/29373/AvailableTheatres/Dates?Language=en-us&Request.Location.Range=50&Request.Skip=0&Request.Take=2147483647"
           },
           "response": []
         },
@@ -315,7 +297,7 @@
                   "    pm.expect(jsonBody.dates.length >= 0).to.be.true;",
                   "});",
                   "",
-                  "//User Story 33807: Create Versioning in Cineplex.com",
+                  "//User Story 33807: Create Versioning in netflix.com",
                   "pm.test(\"Response apiVersionNumber same with api_version\", function(){",
                   "    pm.expect(pm.request.url.getPath().has('v' + jsonBody.apiVersionNumber)).eql(true);",
                   "});"
@@ -334,10 +316,8 @@
               }
             ],
             "url": {
-              "raw": "{{cineplex_url}}/movies/{{api_version}}/{{movie_id}}/availabledates",
-              "host": [
-                "{{cineplex_url}}"
-              ],
+              "raw": "{{netflix_url}}/movies/{{api_version}}/{{movie_id}}/availabledates",
+              "host": ["{{netflix_url}}"],
               "path": [
                 "movies",
                 "{{api_version}}",
@@ -345,7 +325,7 @@
                 "availabledates"
               ]
             },
-            "description": "https://apis.cineplex.com/uat/cpx/movies/v1/29373/AvailableTheatres/Dates?Language=en-us&Request.Location.Range=50&Request.Skip=0&Request.Take=2147483647"
+            "description": "https://apis.netflix.com/uat/cpx/movies/v1/29373/AvailableTheatres/Dates?Language=en-us&Request.Location.Range=50&Request.Skip=0&Request.Take=2147483647"
           },
           "response": []
         },
@@ -381,7 +361,7 @@
                   "    });",
                   "}",
                   "",
-                  "//User Story 33807: Create Versioning in Cineplex.com",
+                  "//User Story 33807: Create Versioning in netflix.com",
                   "pm.test(\"Response apiVersionNumber same with api_version\", function(){",
                   "    pm.expect(pm.request.url.getPath().has('v' + jsonBody.apiVersionNumber)).eql(true);",
                   "});"
@@ -400,15 +380,9 @@
               }
             ],
             "url": {
-              "raw": "{{cineplex_url}}/movies/{{api_version}}/{{movie_id}}?language={{language}}",
-              "host": [
-                "{{cineplex_url}}"
-              ],
-              "path": [
-                "movies",
-                "{{api_version}}",
-                "{{movie_id}}"
-              ],
+              "raw": "{{netflix_url}}/movies/{{api_version}}/{{movie_id}}?language={{language}}",
+              "host": ["{{netflix_url}}"],
+              "path": ["movies", "{{api_version}}", "{{movie_id}}"],
               "query": [
                 {
                   "key": "language",
@@ -467,7 +441,7 @@
                   "\t\tpm.expect(jsonBody.message).eql(\"Successful\");",
                   "\t});",
                   "",
-                  "    //User Story 33807: Create Versioning in Cineplex.com",
+                  "    //User Story 33807: Create Versioning in netflix.com",
                   "    pm.test(\"Response apiVersionNumber same with api_version\", function(){",
                   "        pm.expect(pm.request.url.getPath().has('v' + jsonBody.apiVersionNumber)).eql(true);",
                   "    });",
@@ -495,15 +469,9 @@
               }
             ],
             "url": {
-              "raw": "{{cineplex_url}}/theatres/{{api_version}}/all?language={{language}}",
-              "host": [
-                "{{cineplex_url}}"
-              ],
-              "path": [
-                "theatres",
-                "{{api_version}}",
-                "all"
-              ],
+              "raw": "{{netflix_url}}/theatres/{{api_version}}/all?language={{language}}",
+              "host": ["{{netflix_url}}"],
+              "path": ["theatres", "{{api_version}}", "all"],
               "query": [
                 {
                   "key": "language",
@@ -531,7 +499,7 @@
                   "    pm.expect(jsonBody.message).eql(\"Successful\");",
                   "});",
                   "",
-                  "//User Story 33807: Create Versioning in Cineplex.com",
+                  "//User Story 33807: Create Versioning in netflix.com",
                   "pm.test(\"Response apiVersionNumber same with api_version\", function(){",
                   "    pm.expect(pm.request.url.getPath().has('v' + jsonBody.apiVersionNumber)).eql(true);",
                   "});"
@@ -549,15 +517,9 @@
               }
             ],
             "url": {
-              "raw": "{{cineplex_url}}/theatres/{{api_version}}/?language={{language}}",
-              "host": [
-                "{{cineplex_url}}"
-              ],
-              "path": [
-                "theatres",
-                "{{api_version}}",
-                ""
-              ],
+              "raw": "{{netflix_url}}/theatres/{{api_version}}/?language={{language}}",
+              "host": ["{{netflix_url}}"],
+              "path": ["theatres", "{{api_version}}", ""],
               "query": [
                 {
                   "key": "language",
@@ -585,7 +547,7 @@
                   "    pm.expect(jsonBody.message).eql(\"Successful\");",
                   "});",
                   "",
-                  "//User Story 33807: Create Versioning in Cineplex.com",
+                  "//User Story 33807: Create Versioning in netflix.com",
                   "pm.test(\"Response apiVersionNumber same with api_version\", function(){",
                   "    pm.expect(pm.request.url.getPath().has('v' + jsonBody.apiVersionNumber)).eql(true);",
                   "});"
@@ -603,15 +565,9 @@
               }
             ],
             "url": {
-              "raw": "{{cineplex_url}}/theatres/{{api_version}}/{{theatre_id}}?language={{language}}",
-              "host": [
-                "{{cineplex_url}}"
-              ],
-              "path": [
-                "theatres",
-                "{{api_version}}",
-                "{{theatre_id}}"
-              ],
+              "raw": "{{netflix_url}}/theatres/{{api_version}}/{{theatre_id}}?language={{language}}",
+              "host": ["{{netflix_url}}"],
+              "path": ["theatres", "{{api_version}}", "{{theatre_id}}"],
               "query": [
                 {
                   "key": "language",
@@ -668,9 +624,7 @@
             {
               "listen": "test",
               "script": {
-                "exec": [
-                  ""
-                ],
+                "exec": [""],
                 "type": "text/javascript"
               }
             }
@@ -690,14 +644,9 @@
               }
             ],
             "url": {
-              "raw": "{{cineplex_url}}/showtimes/{{api_version}}?date={{timestamp}}&locationId={{theatre_id}}&filmId={{movie_id}}&language={{language}}",
-              "host": [
-                "{{cineplex_url}}"
-              ],
-              "path": [
-                "showtimes",
-                "{{api_version}}"
-              ],
+              "raw": "{{netflix_url}}/showtimes/{{api_version}}?date={{timestamp}}&locationId={{theatre_id}}&filmId={{movie_id}}&language={{language}}",
+              "host": ["{{netflix_url}}"],
+              "path": ["showtimes", "{{api_version}}"],
               "query": [
                 {
                   "key": "date",
@@ -741,9 +690,7 @@
             {
               "listen": "test",
               "script": {
-                "exec": [
-                  ""
-                ],
+                "exec": [""],
                 "type": "text/javascript"
               }
             }
@@ -768,15 +715,9 @@
               }
             ],
             "url": {
-              "raw": "{{cineplex_url}}/showtimes/{{api_version}}/showtimesoneposter?date={{timestamp}}&locationId={{theatre_id}}&filmId={{movie_id}}&language={{language}}\n",
-              "host": [
-                "{{cineplex_url}}"
-              ],
-              "path": [
-                "showtimes",
-                "{{api_version}}",
-                "showtimesoneposter"
-              ],
+              "raw": "{{netflix_url}}/showtimes/{{api_version}}/showtimesoneposter?date={{timestamp}}&locationId={{theatre_id}}&filmId={{movie_id}}&language={{language}}\n",
+              "host": ["{{netflix_url}}"],
+              "path": ["showtimes", "{{api_version}}", "showtimesoneposter"],
               "query": [
                 {
                   "key": "date",
@@ -827,7 +768,7 @@
               "    pm.expect(jsonBody.message).not.to.be.undefined;",
               "});",
               "",
-              "//User Story 33807: Create Versioning in Cineplex.com",
+              "//User Story 33807: Create Versioning in netflix.com",
               "pm.test(\"Response apiVersionNumber same with api_version\", function(){",
               "    pm.expect(pm.request.url.getPath().has('v' + jsonBody.apiVersionNumber)).eql(true);",
               "});"
