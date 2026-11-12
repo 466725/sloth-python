@@ -327,9 +327,31 @@ and disable its schedules; this does not affect GitHub Actions.
 
 Performance test assets live in `tests/performance/`. They are not part of the
 pytest, Robot, Vitest, Playwright, or Cypress commands above; follow the setup
-and environment requirements of JMeter, Postman, or LoadRunner before running
-them. See the [load runner guide](performance/load_runner/load_runner_best_practices.md)
+and environment requirements of JMeter, Locust, Postman, or LoadRunner before
+running them. See the [load runner guide](performance/load_runner/load_runner_best_practices.md)
 for scenario-design practices.
+
+### Cineplex Locust scenario
+
+The Locust translation is
+[`theatre_movie_showtime_test.py`](performance/locust/theatre_movie_showtime_test.py).
+Install Locust separately (`python -m pip install locust`) and set the API
+credentials and film ID in the environment; the scenario does not embed
+credentials. For example, in PowerShell:
+
+```powershell
+$env:CINEPLEX_SESSION_TOKEN = "<session-token>"
+$env:CINEPLEX_SUBSCRIPTION_KEY = "<subscription-key>"
+$env:CINEPLEX_FILM_ID = "<film-id>"
+python -m locust -f tests/performance/locust/theatre_movie_showtime_test.py --headless --users 1 --spawn-rate 1 --run-time 60s
+```
+
+`CINEPLEX_API_HOST` defaults to `https://apis.cineplex.com`, and
+`CINEPLEX_SHOWTIME_DATE` defaults to the date in the JMeter script
+(`2022-03-02`). Override either variable when needed. Locust repeats the
+workflow during the run, while the JMeter thread group is configured for one
+loop; adjust `--run-time`, `--users`, and `--spawn-rate` to suit the intended
+test.
 
 For framework-specific details, see the [Playwright package guide](../apps/dsa-web-playwright-tests/Readme.md)
 and [Cypress package guide](../apps/dsa-web-cypress-tests/Readme.md).
