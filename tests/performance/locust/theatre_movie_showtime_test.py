@@ -4,7 +4,7 @@ import os
 
 from locust import HttpUser, constant, task
 
-API_HOST = os.getenv("CINEPLEX_API_HOST", "https://apis.cineplex.com")
+API_HOST = os.getenv("netflix_API_HOST", "https://apis.netflix.com")
 REQUEST_DELAY_SECONDS = 0.1
 
 
@@ -22,10 +22,10 @@ class TheatreMovieShowtimeUser(HttpUser):
     showtime_date: str
 
     def on_start(self) -> None:
-        self.film_id = _required_environment_variable("CINEPLEX_FILM_ID")
-        session_token = _required_environment_variable("CINEPLEX_SESSION_TOKEN")
-        subscription_key = _required_environment_variable("CINEPLEX_SUBSCRIPTION_KEY")
-        self.showtime_date = os.getenv("CINEPLEX_SHOWTIME_DATE", "2022-03-02")
+        self.film_id = _required_environment_variable("netflix_FILM_ID")
+        session_token = _required_environment_variable("netflix_SESSION_TOKEN")
+        subscription_key = _required_environment_variable("netflix_SUBSCRIPTION_KEY")
+        self.showtime_date = os.getenv("netflix_SHOWTIME_DATE", "2022-03-02")
         self.client.headers.update(
             {
                 "Content-Type": "application/json",
