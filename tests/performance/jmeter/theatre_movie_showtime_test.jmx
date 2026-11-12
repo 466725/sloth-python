@@ -29,7 +29,7 @@
       </ThreadGroup>
       <hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="theatres">
-          <stringProp name="HTTPSampler.domain">apis.cineplex.com</stringProp>
+          <stringProp name="HTTPSampler.domain">apis.netflix.com</stringProp>
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.path">/uat/cpx/theatrical/api/v1/theatres</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -60,7 +60,7 @@
           <hashTree/>
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="movies - en">
-          <stringProp name="HTTPSampler.domain">apis.cineplex.com</stringProp>
+          <stringProp name="HTTPSampler.domain">apis.netflix.com</stringProp>
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.path">/uat/cpx/theatrical/api/v1/movies?language=en</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -91,7 +91,7 @@
           <hashTree/>
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="showtimes - threatres - film">
-          <stringProp name="HTTPSampler.domain">apis.cineplex.com</stringProp>
+          <stringProp name="HTTPSampler.domain">apis.netflix.com</stringProp>
           <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.path">/uat/cpx/theatrical/api/v1/showtimes/theatres?filmId=${film_id}</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
@@ -141,7 +141,7 @@
         </ForeachController>
         <hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="showtimes - location &amp; date" enabled="true">
-            <stringProp name="HTTPSampler.domain">apis.cineplex.com</stringProp>
+            <stringProp name="HTTPSampler.domain">apis.netflix.com</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/uat/cpx/theatrical/api/v1/showtimes?locationId=${theatre_id_var}&amp;date=2022-03-02</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
