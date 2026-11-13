@@ -6,7 +6,7 @@ requirements = [
 
   # AI, LLM & Language Models
   "anthropic",
-  "openai>=2.20.0,<3.0.0",
+  "openai>=3.49.0,<4.0.0",
   "litellm!=1.82.7,!=1.82.8,>=1.108.1,<2.0.0",
   "mcp",
   "tiktoken>=0.14.0,<0.15.0",
