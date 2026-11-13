@@ -72,7 +72,7 @@ requirements = [
   # Browser & UI Automation
   "playwright",
   "pygame; python_version < \"3.14\"",
-  "Appium-Python-Client>=6.0.8",
+  "Appium-Python-Client>=6.1.4",
 
   # Testing & QA
   "pytest",
