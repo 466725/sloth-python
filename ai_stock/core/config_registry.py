@@ -3369,11 +3369,16 @@ def get_category_definitions() -> List[Dict[str, Any]]:
     return deepcopy(_CATEGORY_DEFINITIONS)
 
 
+# Read from .env at runtime; not exposed in the Web settings editor.
+RUNTIME_ONLY_SETTING_KEYS = frozenset({"STOCK_LIST"})
+
+
 def get_registered_field_keys() -> List[str]:
     """Return supported settings shared by schema and configuration values."""
     return [
         key for key, definition in _FIELD_DEFINITIONS.items()
         if not is_retired_notification_key(key)
+        and key not in RUNTIME_ONLY_SETTING_KEYS
         and (
             definition["category"] != "notification"
             or key in EMAIL_NOTIFICATION_SETTING_KEYS
