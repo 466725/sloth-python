@@ -50,7 +50,6 @@ requirements = [
   # Database & ORM
   "sqlalchemy>=2.0.55",
   "mysql-connector-python",
-  "openpyxl>=3.1.5",
 
   # Scheduling & Time
   "schedule>=1.2.2",
