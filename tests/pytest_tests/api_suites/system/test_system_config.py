@@ -43,14 +43,13 @@ class TestGetSystemConfig(BaseAPITest):
         assert body["items"]
         assert any(item["schema"] for item in body["items"])
 
-    def test_exposes_the_configured_watchlist(self, api_client: TestClient) -> None:
-        """Values come from the isolated ``.env`` rather than the real one."""
+    def test_omits_runtime_only_watchlist(self, api_client: TestClient, api_env) -> None:
+        """The runtime-only watchlist stays out of the config editor payload."""
         body = self.assert_ok(api_client.get(self.ENDPOINT))
         items = {item["key"]: item for item in body["items"]}
 
-        assert items["STOCK_LIST"]["value"] == "600519,000858"
-        assert items["STOCK_LIST"]["raw_value_exists"] is True
-        assert items["STOCK_LIST"]["is_masked"] is False
+        assert "STOCK_LIST" not in items
+        assert api_env.read_env()["STOCK_LIST"] == "600519,000858"
 
     def test_omits_schema_when_not_requested(self, api_client: TestClient) -> None:
         """``include_schema=false`` returns a lighter payload."""
