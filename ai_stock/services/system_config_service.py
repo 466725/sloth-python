@@ -230,6 +230,7 @@ class SystemConfigService:
         kept only as editor support data for channels declared in LLM_CHANNELS.
         """
         keys = set(registered_keys)
+        keys.discard("STOCK_LIST")
         channel_names = {
             segment.strip().upper()
             for segment in config_map.get("LLM_CHANNELS", "").split(",")
