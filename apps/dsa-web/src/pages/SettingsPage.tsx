@@ -15,7 +15,6 @@ import {
   EmptyState,
 } from "../components/common";
 import {
-  IntelligentImport,
   LLMChannelEditor,
   NotificationTestPanel,
   SettingsCategoryNav,
@@ -867,25 +866,6 @@ const SettingsPage: React.FC = () => {
                     />
                   ) : null}
                 </div>
-              </SettingsSectionCard>
-            ) : null}
-            {activeCategory === "base" ? (
-              <SettingsSectionCard
-                title={t("settings.intelligentImport")}
-                description={t("settings.intelligentImportDescription")}
-              >
-                <IntelligentImport
-                  stockListValue={
-                    (activeItems.find((i) => i.key === "STOCK_LIST")
-                      ?.value as string) ?? ""
-                  }
-                  configVersion={configVersion}
-                  maskToken={maskToken}
-                  onMerged={async () => {
-                    await refreshAfterExternalSave(["STOCK_LIST"]);
-                  }}
-                  disabled={isSaving || isLoading}
-                />
               </SettingsSectionCard>
             ) : null}
             {activeCategory === "ai_model" ? (

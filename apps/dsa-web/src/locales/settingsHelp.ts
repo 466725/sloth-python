@@ -13,23 +13,6 @@ export interface SettingsHelpContent {
 type SettingsHelpMap = Record<string, SettingsHelpContent>;
 
 const settingsHelpZhCN: SettingsHelpMap = {
-  'settings.base.STOCK_LIST': {
-    title: '自选股列表',
-    summary: '配置需要分析的股票代码列表，是手动分析、定时任务和通知报告的基础输入。',
-    usage: '多个股票代码使用英文逗号分隔。A 股可直接填写 6 位代码，港股可使用 hk 前缀，美股可填写 ticker。',
-    valueNotes: [
-      '定时模式每次触发前会重新读取当前保存的 STOCK_LIST。',
-      '如果命令行临时传入 --stocks，只影响本次手动运行，不会锁定后续计划任务。',
-      '邮件分组里的 STOCK_GROUP_N 应写成 STOCK_LIST 的子集，只影响邮件收件人，不改变分析范围。',
-    ],
-    impact: [
-      '影响主分析任务、市场报告中的个股范围、通知推送内容和历史报告记录。',
-    ],
-    notes: [
-      '股票代码之间不要使用中文逗号。',
-      '修改后保存配置即可供后续任务读取。',
-    ],
-  },
   'settings.ai_model.LITELLM_MODEL': {
     title: '主模型',
     summary: '指定普通分析流程默认使用的 LLM 模型。',
@@ -861,18 +844,6 @@ const settingsHelpZhCN: SettingsHelpMap = {
 };
 
 const settingsHelpEnUS: SettingsHelpMap = {
-  'settings.base.STOCK_LIST': {
-    title: 'Watchlist',
-    summary: 'Defines the stock codes used by analysis jobs and notification reports.',
-    usage: 'Separate symbols with commas. A-shares can use six-digit codes, HK stocks can use the hk prefix, and US stocks can use ticker symbols.',
-    valueNotes: [
-      'Scheduled mode rereads the saved STOCK_LIST before each run.',
-      'A temporary --stocks argument only affects that manual run.',
-      'STOCK_GROUP_N should be a subset of STOCK_LIST and only affects grouped email routing.',
-    ],
-    impact: ['Affects analysis scope, notification content, and saved history reports.'],
-    notes: ['Use English commas between symbols.', 'Save the setting before later tasks can read it.'],
-  },
   'settings.ai_model.LITELLM_MODEL': {
     title: 'Primary Model',
     summary: 'Selects the default LLM model for regular analysis flows.',

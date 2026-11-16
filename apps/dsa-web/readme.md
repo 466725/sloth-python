@@ -102,13 +102,12 @@ The [Alert Center](#alert-center) supports percentage price-change rules for a
 single symbol or the configured watchlist. Alert evaluation and email delivery
 are described in that guide and the [email notification guide](#email-notifications).
 
-### Import and symbol lookup
+### Symbol lookup
 
-Smart import accepts images, CSV/Excel files, and clipboard content. Image
-recognition requires a configured vision-capable model. Review recognized names,
-codes, and market suffixes before submitting. Autocomplete searches the local
-catalog by symbol, name, alias, full pinyin, or pinyin initials; see the
-[stock autocomplete catalog guide](#stock-autocomplete-catalog).
+Autocomplete searches the local catalog by symbol, name, alias, full pinyin, or
+pinyin initials; see the [stock autocomplete catalog guide](#stock-autocomplete-catalog).
+Configure the analysis stock list in the repository's `.env` file using
+`STOCK_LIST`.
 
 ### Access and troubleshooting
 

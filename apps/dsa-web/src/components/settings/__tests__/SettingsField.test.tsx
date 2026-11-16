@@ -10,14 +10,14 @@ describe('SettingsField', () => {
     render(
       <SettingsField
         item={{
-          key: 'STOCK_LIST',
-          value: '600519',
+          key: 'LITELLM_MODEL',
+          value: 'openai/gpt-4o',
           rawValueExists: true,
           isMasked: false,
           schema: {
-            key: 'STOCK_LIST',
-            title: 'Stock List',
-            category: 'base',
+            key: 'LITELLM_MODEL',
+            title: 'Primary Model',
+            category: 'ai_model',
             dataType: 'string',
             uiControl: 'text',
             isSensitive: false,
@@ -28,13 +28,13 @@ describe('SettingsField', () => {
             displayOrder: 1,
           },
         }}
-        value="600519"
+        value="openai/gpt-4o"
         onChange={vi.fn()}
       />
     );
 
-    expect(screen.getByLabelText('自选股列表')).toBeInTheDocument();
-    expect(screen.queryByLabelText('Stock List')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('主模型')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Primary Model')).not.toBeInTheDocument();
   });
 
   it('renders sensitive field metadata and validation errors', () => {
@@ -362,23 +362,23 @@ describe('SettingsField', () => {
     render(
       <SettingsField
         item={{
-          key: 'STOCK_LIST',
-          value: '600519,300750',
+          key: 'LITELLM_MODEL',
+          value: 'openai/gpt-4o',
           rawValueExists: true,
           isMasked: false,
           schema: {
-            key: 'STOCK_LIST',
-            category: 'base',
-            dataType: 'array',
-            uiControl: 'textarea',
+            key: 'LITELLM_MODEL',
+            category: 'ai_model',
+            dataType: 'string',
+            uiControl: 'text',
             isSensitive: false,
             isRequired: false,
             isEditable: true,
             options: [],
             validation: {},
             displayOrder: 1,
-            helpKey: 'settings.base.STOCK_LIST',
-            examples: ['STOCK_LIST=600519,300750,002594'],
+            helpKey: 'settings.ai_model.LITELLM_MODEL',
+            examples: ['LITELLM_MODEL=openai/gpt-4o'],
             docs: [
               {
                 label: '完整指南',
@@ -388,15 +388,15 @@ describe('SettingsField', () => {
             warningCodes: [],
           },
         }}
-        value="600519,300750"
+        value="openai/gpt-4o"
         onChange={() => undefined}
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: '查看 自选股列表 配置说明' }));
+    fireEvent.click(screen.getByRole('button', { name: '查看 主模型 配置说明' }));
 
-    expect(screen.getByRole('dialog', { name: '自选股列表' })).toBeInTheDocument();
-    expect(screen.getByText('STOCK_LIST=600519,300750,002594')).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: '主模型' })).toBeInTheDocument();
+    expect(screen.getByText('LITELLM_MODEL=openai/gpt-4o')).toBeInTheDocument();
     const docLink = screen.getByRole('link', { name: /完整指南/ });
     expect(docLink).toHaveAttribute('href', 'https://example.com/full-guide');
 

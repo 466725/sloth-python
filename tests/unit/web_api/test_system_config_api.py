@@ -97,14 +97,13 @@ class SystemConfigApiTestCase(unittest.TestCase):
         self.assertEqual(item_map["LLM_USAGE_HMAC_KEY_VERSION"]["value"], "test-v1")
         self.assertFalse(item_map["LLM_USAGE_HMAC_KEY_VERSION"]["is_masked"])
 
-    def test_get_config_schema_includes_help_metadata(self) -> None:
+    def test_get_config_schema_uses_env_for_stock_list(self) -> None:
         payload = system_config.get_system_config(include_schema=True, service=self.service).model_dump(by_alias=True)
         item_map = {item["key"]: item for item in payload["items"]}
-        stock_schema = item_map["STOCK_LIST"]["schema"]
 
-        self.assertEqual(stock_schema["help_key"], "settings.base.STOCK_LIST")
-        self.assertTrue(stock_schema["examples"])
-        self.assertTrue(stock_schema["docs"])
+        self.assertNotIn("STOCK_LIST", item_map)
+        self.assertNotIn("base", {category["category"] for category in self.service.get_schema()["categories"]})
+        self.assertIn("STOCK_LIST=600519,000001", self.env_path.read_text(encoding="utf-8"))
 
     def test_get_config_schema_includes_notification_noise_fields(self) -> None:
         payload = system_config.get_system_config(include_schema=True, service=self.service).model_dump(by_alias=True)
@@ -150,7 +149,7 @@ class SystemConfigApiTestCase(unittest.TestCase):
                 reload_now=False,
                 items=[
                     {"key": "GEMINI_API_KEY", "value": "new-secret-value"},
-                    {"key": "STOCK_LIST", "value": "600519,300750"},
+                    {"key": "LOG_LEVEL", "value": "DEBUG"},
                 ],
             ),
             service=self.service,
@@ -160,7 +159,7 @@ class SystemConfigApiTestCase(unittest.TestCase):
         self.assertEqual(payload["skipped_masked_count"], 0)
 
         env_content = self.env_path.read_text(encoding="utf-8")
-        self.assertIn("STOCK_LIST=600519,300750", env_content)
+        self.assertIn("LOG_LEVEL=DEBUG", env_content)
         self.assertIn("GEMINI_API_KEY=new-secret-value", env_content)
 
     def test_put_config_returns_conflict_when_version_is_stale(self) -> None:
@@ -168,7 +167,7 @@ class SystemConfigApiTestCase(unittest.TestCase):
             system_config.update_system_config(
                 request=UpdateSystemConfigRequest(
                     config_version="stale-version",
-                    items=[{"key": "STOCK_LIST", "value": "600519"}],
+                    items=[{"key": "LOG_LEVEL", "value": "DEBUG"}],
                 ),
                 service=self.service,
             )
@@ -180,7 +179,7 @@ class SystemConfigApiTestCase(unittest.TestCase):
         self.env_path.write_text(
             "\n".join(
                 [
-                    "# Base settings",
+                    "# Runtime settings",
                     "STOCK_LIST=600519,000001",
                     "",
                     "# Secrets",
@@ -197,16 +196,16 @@ class SystemConfigApiTestCase(unittest.TestCase):
                 config_version=current["config_version"],
                 mask_token="******",
                 reload_now=False,
-                items=[{"key": "STOCK_LIST", "value": "600519,300750"}],
+                items=[{"key": "LOG_LEVEL", "value": "DEBUG"}],
             ),
             service=self.service,
         ).model_dump()
 
         self.assertTrue(payload["success"])
         env_content = self.env_path.read_text(encoding="utf-8")
-        self.assertIn("# Base settings\n", env_content)
+        self.assertIn("# Runtime settings\n", env_content)
         self.assertIn("\n\n# Secrets\n", env_content)
-        self.assertIn("STOCK_LIST=600519,300750\n", env_content)
+        self.assertIn("LOG_LEVEL=DEBUG\n", env_content)
 
     def test_put_config_returns_startup_only_schedule_warning(self) -> None:
         current = system_config.get_system_config(include_schema=False, service=self.service).model_dump()

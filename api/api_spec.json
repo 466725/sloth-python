@@ -1407,123 +1407,6 @@
         }
       }
     },
-    "/api/v1/stocks/extract-from-image": {
-      "post": {
-        "tags": [
-          "Stocks"
-        ],
-        "summary": "从图片提取股票代码",
-        "description": "上传截图/图片，通过 Vision LLM 提取股票代码。支持 JPEG、PNG、WebP、GIF，最大 5MB。",
-        "operationId": "extract_from_image_api_v1_stocks_extract_from_image_post",
-        "parameters": [
-          {
-            "name": "include_raw",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "是否在结果中包含原始 LLM 响应",
-              "default": false,
-              "title": "Include Raw"
-            },
-            "description": "是否在结果中包含原始 LLM 响应"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/Body_extract_from_image_api_v1_stocks_extract_from_image_post"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "提取的股票代码",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExtractFromImageResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "图片无效",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "服务器错误",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/stocks/parse-import": {
-      "post": {
-        "tags": [
-          "Stocks"
-        ],
-        "summary": "解析 CSV/Excel/剪贴板",
-        "description": "上传 CSV/Excel 文件或粘贴文本，自动解析股票代码。文件上限 2MB，文本上限 100KB。",
-        "operationId": "parse_import_api_v1_stocks_parse_import_post",
-        "responses": {
-          "200": {
-            "description": "解析结果",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExtractFromImageResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "未提供数据或解析失败",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "服务器错误",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/stocks/watchlist": {
       "get": {
         "tags": [
@@ -7993,25 +7876,6 @@
           "message": "已提交 1 个任务，1 个重复跳过"
         }
       },
-      "Body_extract_from_image_api_v1_stocks_extract_from_image_post": {
-        "properties": {
-          "file": {
-            "anyOf": [
-              {
-                "type": "string",
-                "contentMediaType": "application/octet-stream"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "File",
-            "description": "图片文件（表单字段名 file）"
-          }
-        },
-        "type": "object",
-        "title": "Body_extract_from_image_api_v1_stocks_extract_from_image_post"
-      },
       "CallTypeBreakdown": {
         "properties": {
           "call_type": {
@@ -9992,81 +9856,6 @@
         ],
         "title": "ExportSystemConfigResponse",
         "description": "Export payload for raw `.env` backups."
-      },
-      "ExtractFromImageResponse": {
-        "properties": {
-          "codes": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Codes",
-            "description": "提取的股票代码（已去重，向后兼容）"
-          },
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/ExtractItem"
-            },
-            "type": "array",
-            "title": "Items",
-            "description": "提取结果明细（代码+名称+置信度）"
-          },
-          "raw_text": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Raw Text",
-            "description": "原始 LLM 响应（调试用）"
-          }
-        },
-        "type": "object",
-        "required": [
-          "codes"
-        ],
-        "title": "ExtractFromImageResponse",
-        "description": "图片股票代码提取响应"
-      },
-      "ExtractItem": {
-        "properties": {
-          "code": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Code",
-            "description": "股票代码，None 表示解析失败"
-          },
-          "name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Name",
-            "description": "股票名称（如有）"
-          },
-          "confidence": {
-            "type": "string",
-            "title": "Confidence",
-            "description": "置信度：high/medium/low",
-            "default": "medium"
-          }
-        },
-        "type": "object",
-        "title": "ExtractItem",
-        "description": "单条提取结果（代码、名称、置信度）"
       },
       "HTTPValidationError": {
         "properties": {
@@ -13868,7 +13657,6 @@
           "category": {
             "type": "string",
             "enum": [
-              "base",
               "data_source",
               "ai_model",
               "notification",

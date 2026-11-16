@@ -31,15 +31,15 @@ const sampleConfig = {
   maskToken: '******',
   items: [
     {
-      key: 'STOCK_LIST',
-      value: 'SH600000',
+      key: 'LOG_LEVEL',
+      value: 'INFO',
       rawValueExists: true,
       isMasked: false,
       schema: {
-        key: 'STOCK_LIST',
-        category: 'base',
+        key: 'LOG_LEVEL',
+        category: 'system',
         dataType: 'string',
-        uiControl: 'textarea',
+        uiControl: 'text',
         isSensitive: false,
         isRequired: false,
         isEditable: true,
@@ -255,18 +255,18 @@ describe('useSystemConfig', () => {
   });
 
   it('preserves unrelated runtime model fields when saving non-runtime config keys', async () => {
-    const stockUpdatedConfig = {
+    const updatedConfig = {
       ...sampleLlmConfig,
       items: sampleLlmConfig.items.map((item) => {
-        if (item.key === 'STOCK_LIST') {
-          return { ...item, value: 'SH600000,SH600519' };
+        if (item.key === 'LOG_LEVEL') {
+          return { ...item, value: 'DEBUG' };
         }
         return item;
       }),
     };
 
     getConfig.mockResolvedValueOnce(sampleLlmConfig);
-    getConfig.mockResolvedValueOnce(stockUpdatedConfig);
+    getConfig.mockResolvedValueOnce(updatedConfig);
 
     const { result } = renderHook(() => useSystemConfig());
 
@@ -279,7 +279,7 @@ describe('useSystemConfig', () => {
     });
 
     act(() => {
-      result.current.setDraftValue('STOCK_LIST', 'SH600000,SH600519');
+      result.current.setDraftValue('LOG_LEVEL', 'DEBUG');
     });
 
     expect(result.current.hasDirty).toBe(true);
@@ -291,14 +291,14 @@ describe('useSystemConfig', () => {
 
     expect(validate).toHaveBeenCalledTimes(1);
     expect(validate).toHaveBeenCalledWith({
-      items: [{ key: 'STOCK_LIST', value: 'SH600000,SH600519' }],
+      items: [{ key: 'LOG_LEVEL', value: 'DEBUG' }],
     });
     expect(update).toHaveBeenCalledTimes(1);
     expect(update).toHaveBeenCalledWith({
       configVersion: 'v1',
       maskToken: '******',
       reloadNow: true,
-      items: [{ key: 'STOCK_LIST', value: 'SH600000,SH600519' }],
+      items: [{ key: 'LOG_LEVEL', value: 'DEBUG' }],
     });
 
     expect(result.current.serverItems.find((item) => item.key === 'LITELLM_MODEL')?.value).toBe('gpt-5.0');

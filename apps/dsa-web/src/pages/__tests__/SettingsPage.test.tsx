@@ -75,11 +75,6 @@ vi.mock('../../utils/constants', async () => {
 });
 
 vi.mock('../../components/settings', () => ({
-  IntelligentImport: ({ onMerged }: { onMerged: (value: string) => void }) => (
-    <button type="button" onClick={() => onMerged('SZ000001,SZ000002')}>
-      merge stock list
-    </button>
-  ),
   LLMChannelEditor: ({
     items,
     onSaved,
@@ -210,9 +205,8 @@ function createDesktopRuntime(overrides: Record<string, unknown> = {}) {
   };
 }
 
-const baseCategories = [
+const settingsCategories = [
   { category: 'system', title: 'System', description: '系统设置', displayOrder: 1, fields: [] },
-  { category: 'base', title: 'Base', description: '基础配置', displayOrder: 2, fields: [] },
   { category: 'ai_model', title: 'AI', description: '模型配置', displayOrder: 3, fields: [] },
   { category: 'notification', title: 'Notification', description: '通知配置', displayOrder: 4, fields: [] },
   { category: 'agent', title: 'Agent', description: 'Agent 配置', displayOrder: 5, fields: [] },
@@ -249,29 +243,9 @@ type ConfigOverride = Partial<ConfigState>;
 
 function buildSystemConfigState(overrides: ConfigOverride = {}) {
   return {
-    categories: baseCategories,
+    categories: settingsCategories,
     itemsByCategory: {
       system: [],
-      base: [
-        {
-          key: 'STOCK_LIST',
-          value: 'SH600000',
-          rawValueExists: true,
-          isMasked: false,
-          schema: {
-            key: 'STOCK_LIST',
-            category: 'base',
-            dataType: 'string',
-            uiControl: 'textarea',
-            isSensitive: false,
-            isRequired: false,
-            isEditable: true,
-            options: [],
-            validation: {},
-            displayOrder: 1,
-          },
-        },
-      ],
       ai_model: [
         {
           key: 'LLM_CHANNELS',
@@ -710,15 +684,12 @@ describe('SettingsPage', () => {
     expect(save).not.toHaveBeenCalled();
   });
 
-  it('refreshes server state after intelligent import merges stock list', async () => {
-    useSystemConfigMock.mockReturnValue(buildSystemConfigState({ activeCategory: 'base' }));
-
+  it('does not render the removed base settings or stock import controls', () => {
     render(<SettingsPage />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'merge stock list' }));
-
-    expect(refreshAfterExternalSave).toHaveBeenCalledWith(['STOCK_LIST']);
-    expect(load).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: /Base settings|基础设置/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Smart import|智能导入/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Images, CSV\/Excel files, and clipboard text/)).not.toBeInTheDocument();
   });
 
   it('refreshes server state after llm channel editor saves', async () => {

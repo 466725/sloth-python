@@ -300,9 +300,6 @@ was validated locally and what remains uncovered.
     consumers remain compatible.
   - Failure of one notification channel should not break the main analysis
     flow unless fail-fast behavior is explicitly required.
-  - When changing `EXTRACT_PROMPT` in
-    `ai_stock/services/image_stock_extractor.py`, include the complete updated
-    prompt in the PR description.
 - **Workflows, releases, and packaging**
   - For changes to automatic tags, releases, Docker publishing, or scheduled
     analysis, assess trigger conditions, artifact paths, permissions, and

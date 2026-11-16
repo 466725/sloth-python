@@ -556,7 +556,7 @@ Open `http://127.0.0.1:8000`; the interactive API reference is at `/docs`. For a
 
 Docker Compose defines separate server and analyzer services. Start the Web/API service with `docker compose -f docker/docker-compose.yml up -d server`; use the `analyzer` service for scheduled analysis. Persist the database, reports, and writable configuration file if settings must survive container replacement. See [`docker/docker-compose.yml`](docker/docker-compose.yml).
 
-`STOCK_LIST` controls the analysis universe. Search and market-data sources use provider keys and fallbacks configured through environment variables or Web Settings. Email is the supported notification transport; configure it only if report or alert delivery is needed. Detailed feature behavior is in the [LLM provider guide](ai_stock/llm/llm-providers.md) and [DSA Web feature guides](apps/dsa-web/readme.md#web-workflows).
+`STOCK_LIST` in `.env` controls the analysis universe. Search and market-data sources use provider keys and fallbacks configured through environment variables or Web Settings. Email is the supported notification transport; configure it only if report or alert delivery is needed. Detailed feature behavior is in the [LLM provider guide](ai_stock/llm/llm-providers.md) and [DSA Web feature guides](apps/dsa-web/readme.md#web-workflows).
 
 The Web/API service has no built-in authentication. Keep it on a trusted private network or place it behind an authenticated HTTPS reverse proxy; do not expose it directly to the public Internet.
 

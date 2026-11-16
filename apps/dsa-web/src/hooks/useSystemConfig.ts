@@ -71,7 +71,7 @@ export function useSystemConfig() {
 
   // UI state
   const [draftValues, setDraftValues] = useState<Record<string, string>>({});
-  const [activeCategory, setActiveCategory] = useState<string>('base');
+  const [activeCategory, setActiveCategory] = useState<string>('');
   const [validationIssues, setValidationIssues] = useState<ConfigValidationIssue[]>([]);
   const [toast, setToast] = useState<ToastState>(null);
 
@@ -204,7 +204,7 @@ export function useSystemConfig() {
         return nextDraft;
       });
 
-      const defaultCategory = sorted[0]?.schema?.category || 'base';
+      const defaultCategory = sorted[0]?.schema?.category || '';
       setActiveCategory((current) => {
         const exists = sorted.some((item) => item.schema?.category === current);
         return exists ? current : defaultCategory;

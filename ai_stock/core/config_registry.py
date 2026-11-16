@@ -22,12 +22,6 @@ SCHEMA_VERSION = "2026-10-05"
 
 _CATEGORY_DEFINITIONS: List[Dict[str, Any]] = [
     {
-        "category": "base",
-        "title": "Base Settings",
-        "description": "Watchlist and foundational application settings.",
-        "display_order": 10,
-    },
-    {
         "category": "ai_model",
         "title": "AI Model",
         "description": "Model providers, model names, and inference parameters.",
@@ -115,36 +109,6 @@ EMAIL_NOTIFICATION_SETTING_KEYS = frozenset(
 )
 
 _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
-    "STOCK_LIST": {
-        "title": "Stock List",
-        "description": "Comma-separated watchlist stock codes.",
-        "category": "base",
-        "data_type": "array",
-        "ui_control": "textarea",
-        "is_sensitive": False,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": "600519,300750,002594",
-        "options": [],
-        "validation": {"min_items": 1},
-        "display_order": 10,
-        "help_key": "settings.base.STOCK_LIST",
-        "examples": [
-            "STOCK_LIST=600519,300750,002594",
-            "STOCK_LIST=600519,hk00700,AAPL",
-        ],
-        "docs": [
-            {
-                "label": "完整指南：环境变量完整列表",
-                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#环境变量完整列表",
-            },
-            {
-                "label": "Stock autocomplete catalog",
-                "href": "https://github.com/466725/sloth-python/blob/main/apps/dsa-web/readme.md#stock-autocomplete-catalog",
-            },
-        ],
-        "warning_codes": [],
-    },
     # ------------------------------------------------------------------
     # AI Model – LiteLLM unified config
     # ------------------------------------------------------------------
@@ -3484,8 +3448,6 @@ def _is_sensitive_key(key: str) -> bool:
 
 
 def _infer_category(key: str) -> str:
-    if key == "STOCK_LIST":
-        return "base"
     if key.startswith("BACKTEST_"):
         return "backtest"
     if key.startswith(("GEMINI_", "OPENAI_", "ANTHROPIC_", "LITELLM_", "AIHUBMIX_", "DEEPSEEK_", "LLM_")):
