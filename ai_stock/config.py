@@ -410,6 +410,36 @@ def _is_moonshot_endpoint(base_url: str | None) -> bool:
     )
 
 
+def _is_minimax_model(
+    model: str,
+    model_list: list[dict[str, Any]] | None = None,
+) -> bool:
+    """Return whether a model or configured router alias resolves to MiniMax."""
+    normalized = (model or "").strip()
+    if not normalized:
+        return False
+    wire_model = resolve_litellm_wire_model(normalized, model_list)
+    for candidate in (normalized.lower(), wire_model.strip().lower()):
+        parts = candidate.split("/")
+        if any(part == "minimax" or part.startswith(("minimax-", "minimax_")) for part in parts):
+            return True
+        if any(part == "abab" or re.match(r"^abab\d", part) for part in parts):
+            return True
+    return False
+
+
+def _is_minimax_endpoint(base_url: str | None) -> bool:
+    """Recognize MiniMax API domains used by its model and search services."""
+    try:
+        hostname = (urlparse(base_url or "").hostname or "").lower().rstrip(".")
+    except ValueError:
+        return False
+    return any(
+        hostname == domain or hostname.endswith(f".{domain}")
+        for domain in ("minimax.io", "minimaxi.com", "minimax.chat")
+    )
+
+
 def normalize_llm_channel_model(model: str, protocol: Optional[str], base_url: Optional[str] = None) -> str:
     """Attach a provider prefix when the model omits it."""
     normalized_model = model.strip()
@@ -427,7 +457,6 @@ def normalize_llm_channel_model(model: str, protocol: Optional[str], base_url: O
         prefix = raw_prefix.lower()
         canonical_prefix = canonicalize_llm_channel_protocol(prefix)
         known_providers = _MANAGED_LITELLM_KEY_PROVIDERS | set(SUPPORTED_LLM_CHANNEL_PROTOCOLS) | {
-            "minimax",
             "cohere", "huggingface", "bedrock", "sagemaker", "azure",
             "replicate", "together_ai", "palm", "text-completion-openai",
             "command-r", "groq", "cerebras", "fireworks_ai", "friendliai",
@@ -619,6 +648,9 @@ def get_effective_agent_models_to_try(config: "Config") -> List[str]:
         if _is_moonshot_model(dedupe_key, model_list):
             logger.error("Skipping unsupported Moonshot/Kimi Agent model route")
             continue
+        if _is_minimax_model(dedupe_key, model_list):
+            logger.error("Skipping unsupported MiniMax Agent model route")
+            continue
         if dedupe_key in seen:
             continue
         seen.add(dedupe_key)
@@ -694,6 +726,7 @@ class Config:
     unsupported_ollama_configuration: bool = False
     unsupported_zhipu_configuration: bool = False
     unsupported_moonshot_configuration: bool = False
+    unsupported_minimax_configuration: bool = False
 
     # Multi-key support: each list is parsed from *_API_KEYS (comma-separated) with single-key fallback
     gemini_api_keys: List[str] = field(default_factory=list)
@@ -728,7 +761,6 @@ class Config:
     # === 搜索引擎配置（支持多 Key 负载均衡）===
     anspire_api_keys: List[str] = field(default_factory=list)  # Anspire Search API Keys
     bocha_api_keys: List[str] = field(default_factory=list)  # Bocha API Keys
-    minimax_api_keys: List[str] = field(default_factory=list)  # MiniMax API Keys
     tavily_api_keys: List[str] = field(default_factory=list)  # Tavily API Keys
     brave_api_keys: List[str] = field(default_factory=list)  # Brave Search API Keys
     serpapi_keys: List[str] = field(default_factory=list)  # SerpAPI Keys
@@ -1089,6 +1121,10 @@ class Config:
             name.startswith(("MOONSHOT_", "KIMI_")) and str(value or "").strip()
             for name, value in os.environ.items()
         )
+        unsupported_minimax_configuration = any(
+            name.startswith("MINIMAX_") and str(value or "").strip()
+            for name, value in os.environ.items()
+        )
         
         # === LiteLLM multi-key parsing ===
         # GEMINI_API_KEYS (comma-separated) > GEMINI_API_KEY (single)
@@ -1121,6 +1157,10 @@ class Config:
         if _is_moonshot_endpoint(openai_base_url):
             logger.warning("Moonshot's endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
             unsupported_moonshot_configuration = True
+            openai_base_url = None
+        if _is_minimax_endpoint(openai_base_url):
+            logger.warning("MiniMax's endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
+            unsupported_minimax_configuration = True
             openai_base_url = None
 
         # DEEPSEEK_API_KEYS > DEEPSEEK_API_KEY (independent from OpenAI-compatible layer)
@@ -1206,6 +1246,7 @@ class Config:
         blocked_yaml_model_names: set[str] = set()
         blocked_zhipu_model_names: set[str] = set()
         blocked_moonshot_model_names: set[str] = set()
+        blocked_minimax_model_names: set[str] = set()
 
         # Priority 1: LITELLM_CONFIG (standard LiteLLM YAML config file)
         if litellm_config_path:
@@ -1214,6 +1255,7 @@ class Config:
                 blocked_model_names=blocked_yaml_model_names,
                 blocked_zhipu_model_names=blocked_zhipu_model_names,
                 blocked_moonshot_model_names=blocked_moonshot_model_names,
+                blocked_minimax_model_names=blocked_minimax_model_names,
             )
             if blocked_yaml_model_names:
                 unsupported_ollama_configuration = True
@@ -1221,6 +1263,8 @@ class Config:
                 unsupported_zhipu_configuration = True
             if blocked_moonshot_model_names:
                 unsupported_moonshot_configuration = True
+            if blocked_minimax_model_names:
+                unsupported_minimax_configuration = True
             if llm_model_list:
                 llm_models_source = "litellm_config"
 
@@ -1282,6 +1326,26 @@ class Config:
             if len(supported_fallbacks) != len(litellm_fallback_models):
                 logger.warning("Moonshot/Kimi fallback models are unsupported and have been ignored")
                 litellm_fallback_models = supported_fallbacks
+        if any(
+            _is_minimax_model(model, llm_model_list) or model in blocked_minimax_model_names
+            for model in configured_models
+            if model
+        ):
+            unsupported_minimax_configuration = True
+            if (
+                _is_minimax_model(litellm_model, llm_model_list)
+                or litellm_model in blocked_minimax_model_names
+            ):
+                logger.warning("MiniMax primary model is unsupported and has been ignored")
+                litellm_model = ""
+            supported_fallbacks = [
+                model for model in litellm_fallback_models
+                if not _is_minimax_model(model, llm_model_list)
+                and model not in blocked_minimax_model_names
+            ]
+            if len(supported_fallbacks) != len(litellm_fallback_models):
+                logger.warning("MiniMax fallback models are unsupported and have been ignored")
+                litellm_fallback_models = supported_fallbacks
 
         # Priority 2: LLM_CHANNELS (env var based channel config)
         if not llm_model_list:
@@ -1325,6 +1389,13 @@ class Config:
                         or any(_is_moonshot_model(model) for model in raw_models)
                     ):
                         unsupported_moonshot_configuration = True
+                    if (
+                        channel_name == "minimax"
+                        or raw_protocol == "minimax"
+                        or _is_minimax_endpoint(raw_base_url)
+                        or any(_is_minimax_model(model) for model in raw_models)
+                    ):
+                        unsupported_minimax_configuration = True
                 llm_channels = cls._parse_llm_channels(_channels_str)
                 llm_model_list = cls._channels_to_model_list(llm_channels)
                 if llm_model_list:
@@ -1397,6 +1468,14 @@ class Config:
             logger.warning("Moonshot/Kimi Agent model is unsupported and has been ignored")
             unsupported_moonshot_configuration = True
             agent_litellm_model = ""
+        if (
+            _is_minimax_model(agent_litellm_model, llm_model_list)
+            or agent_model_raw.strip() in blocked_minimax_model_names
+            or agent_litellm_model in blocked_minimax_model_names
+        ):
+            logger.warning("MiniMax Agent model is unsupported and has been ignored")
+            unsupported_minimax_configuration = True
+            agent_litellm_model = ""
         vision_model = os.getenv('VISION_MODEL') or os.getenv('OPENAI_VISION_MODEL') or ""
         if _is_ollama_model(vision_model, llm_model_list) or vision_model in blocked_yaml_model_names:
             logger.warning("Ollama vision model is unsupported and has been ignored")
@@ -1415,6 +1494,13 @@ class Config:
         ):
             logger.warning("Moonshot/Kimi vision model is unsupported and has been ignored")
             unsupported_moonshot_configuration = True
+            vision_model = ""
+        if (
+            _is_minimax_model(vision_model, llm_model_list)
+            or vision_model in blocked_minimax_model_names
+        ):
+            logger.warning("MiniMax vision model is unsupported and has been ignored")
+            unsupported_minimax_configuration = True
             vision_model = ""
         agent_context_compression_profile = normalize_agent_context_compression_profile(
             os.getenv('AGENT_CONTEXT_COMPRESSION_PROFILE')
@@ -1441,9 +1527,6 @@ class Config:
         bocha_keys_str = os.getenv('BOCHA_API_KEYS', '')
         bocha_api_keys = [k.strip() for k in bocha_keys_str.split(',') if k.strip()]
 
-        minimax_keys_str = os.getenv('MINIMAX_API_KEYS', '')
-        minimax_api_keys = [k.strip() for k in minimax_keys_str.split(',') if k.strip()]
-        
         tavily_keys_str = os.getenv('TAVILY_API_KEYS', '')
         tavily_api_keys = [k.strip() for k in tavily_keys_str.split(',') if k.strip()]
         
@@ -1542,6 +1625,7 @@ class Config:
             unsupported_ollama_configuration=unsupported_ollama_configuration,
             unsupported_zhipu_configuration=unsupported_zhipu_configuration,
             unsupported_moonshot_configuration=unsupported_moonshot_configuration,
+            unsupported_minimax_configuration=unsupported_minimax_configuration,
             gemini_api_keys=gemini_api_keys,
             openai_api_keys=openai_api_keys,
             deepseek_api_keys=deepseek_api_keys,
@@ -1568,7 +1652,6 @@ class Config:
             vision_provider_priority=os.getenv('VISION_PROVIDER_PRIORITY', 'gemini,openai'),
             anspire_api_keys=anspire_api_keys,
             bocha_api_keys=bocha_api_keys,
-            minimax_api_keys=minimax_api_keys,
             tavily_api_keys=tavily_api_keys,
             brave_api_keys=brave_api_keys,
             serpapi_keys=serpapi_keys,
@@ -1823,6 +1906,7 @@ class Config:
         blocked_model_names: Optional[set[str]] = None,
         blocked_zhipu_model_names: Optional[set[str]] = None,
         blocked_moonshot_model_names: set[str] | None = None,
+        blocked_minimax_model_names: set[str] | None = None,
     ) -> List[Dict[str, Any]]:
         """Parse a standard LiteLLM config YAML file into Router model_list.
 
@@ -1908,6 +1992,19 @@ class Config:
                     blocked_moonshot_model_names.add(model_name)
                 _logger.warning(
                     "LITELLM_CONFIG: Moonshot/Kimi deployment %r is unsupported and has been ignored",
+                    model_name,
+                )
+                continue
+            if (
+                _is_minimax_model(model)
+                or _is_minimax_model(model_name)
+                or custom_provider == "minimax"
+                or _is_minimax_endpoint(api_base)
+            ):
+                if blocked_minimax_model_names is not None:
+                    blocked_minimax_model_names.add(model_name)
+                _logger.warning(
+                    "LITELLM_CONFIG: MiniMax deployment %r is unsupported and has been ignored",
                     model_name,
                 )
                 continue
@@ -1998,6 +2095,17 @@ class Config:
             supported_raw_models = [model for model in raw_models if not _is_moonshot_model(model)]
             if len(supported_raw_models) != len(raw_models):
                 _logger.warning("Moonshot/Kimi models in LLM channel '%s' are unsupported and have been ignored", ch_name)
+                raw_models = supported_raw_models
+            if (
+                ch_lower == "minimax"
+                or protocol_raw.strip().lower() == "minimax"
+                or _is_minimax_endpoint(base_url)
+            ):
+                _logger.warning("LLM channel '%s' uses an unsupported MiniMax route and was skipped", ch_name)
+                continue
+            supported_raw_models = [model for model in raw_models if not _is_minimax_model(model)]
+            if len(supported_raw_models) != len(raw_models):
+                _logger.warning("MiniMax models in LLM channel '%s' are unsupported and have been ignored", ch_name)
                 raw_models = supported_raw_models
             if not raw_models and ch_lower == "anspire":
                 anspire_model = (
@@ -2406,7 +2514,6 @@ class Config:
         return bool(
             self.anspire_api_keys
             or self.bocha_api_keys
-            or self.minimax_api_keys
             or self.tavily_api_keys
             or self.brave_api_keys
             or self.serpapi_keys
@@ -2510,6 +2617,16 @@ class Config:
                     "Moonshot/Kimi model routes are not supported. Remove Moonshot/Kimi "
                     "from LITELLM_MODEL, LLM_CHANNELS, LITELLM_CONFIG, fallback, Agent, "
                     "vision, and legacy Moonshot settings."
+                ),
+                field="LLM_PROVIDER",
+            ))
+        if self.unsupported_minimax_configuration:
+            issues.append(ConfigIssue(
+                severity="error",
+                message=(
+                    "MiniMax model and search routes are not supported. Remove MiniMax "
+                    "from LITELLM_MODEL, LLM_CHANNELS, LITELLM_CONFIG, fallback, Agent, "
+                    "vision, and legacy MiniMax settings."
                 ),
                 field="LLM_PROVIDER",
             ))
@@ -2693,7 +2810,7 @@ class Config:
         if not self.has_search_capability_enabled():
             issues.append(ConfigIssue(
                 severity="info",
-                message="未配置搜索引擎能力 (Bocha/MiniMax/Tavily/Brave/SerpAPI/SearXNG)，新闻搜索功能将不可用",
+                message="未配置搜索引擎能力 (Bocha/Tavily/Brave/SerpAPI/SearXNG)，新闻搜索功能将不可用",
                 field="BOCHA_API_KEYS",
             ))
 

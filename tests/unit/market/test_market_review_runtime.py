@@ -29,7 +29,6 @@ class TestMarketReviewRuntimeCompatibility(unittest.TestCase):
             anspire_api_keys=None,
             brave_api_keys=None,
             serpapi_api_keys=None,
-            minimax_api_keys=None,
             searxng_base_urls=None,
             searxng_public_instances_enabled=True,
             news_max_age_days=3,
