@@ -9,7 +9,7 @@ PyYAML>=6.0.3,<7
 # ===================================
 anthropic
 openai>=2.20.0,<3.0.0
-litellm!=1.82.7,!=1.82.8,>=1.105.1,<2.0.0
+litellm!=1.82.7,!=1.82.8,>=1.109.1,<2.0.0
 mcp
 tiktoken>=0.14.0,<0.15.0
 voyageai
@@ -95,7 +95,7 @@ jinja2>=3.1.6
 # ===================================
 playwright
 pygame; python_version < "3.14"
-Appium-Python-Client>=6.0.8
+Appium-Python-Client>=6.1.6
 
 # ===================================
 # Testing & QA
