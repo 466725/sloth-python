@@ -578,22 +578,22 @@ class SystemConfigApiTestCase(unittest.TestCase):
                     "retryable": False,
                     "details": {"model_count": 2},
                     "resolved_protocol": "openai",
-                    "models": ["qwen-plus", "qwen-turbo"],
+                    "models": ["doubao-plus", "doubao-turbo"],
                     "latency_ms": 88,
                 },
         ) as mock_discover:
             payload = system_config.discover_llm_channel_models(
                 request=DiscoverLLMChannelModelsRequest(
-                    name="dashscope",
+                    name="volcengine",
                     protocol="openai",
-                    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+                    base_url="https://ark.cn-beijing.volces.com/api/v3",
                     api_key="sk-test",
                 ),
                 service=self.service,
             ).model_dump()
 
         self.assertTrue(payload["success"])
-        self.assertEqual(payload["models"], ["qwen-plus", "qwen-turbo"])
+        self.assertEqual(payload["models"], ["doubao-plus", "doubao-turbo"])
         self.assertEqual(payload["stage"], "model_discovery")
         mock_discover.assert_called_once()
 

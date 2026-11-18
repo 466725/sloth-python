@@ -41,7 +41,6 @@ describe('llmProviderTemplates', () => {
       'aihubmix',
       'anspire',
       'deepseek',
-      'dashscope',
       'volcengine',
       'siliconflow',
       'openrouter',

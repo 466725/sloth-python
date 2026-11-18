@@ -82,17 +82,6 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     officialSources: [{ label: 'DeepSeek API Docs', url: 'https://api-docs.deepseek.com/' }],
   },
   {
-    channelId: 'dashscope',
-    label: '通义千问（Dashscope）',
-    protocol: 'openai',
-    baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-    placeholderModels: 'qwen3.6-plus,qwen3.6-flash',
-    capabilities: ['openai-compatible', 'model-discovery'],
-    officialSources: [
-      { label: 'DashScope Text Generation', url: 'https://help.aliyun.com/zh/model-studio/text-generation-model/' },
-    ],
-  },
-  {
     channelId: 'volcengine',
     label: '火山方舟（豆包）',
     protocol: 'openai',
@@ -164,7 +153,6 @@ const EN_PROVIDER_TEXT: Record<string, { label: string; configHint?: string }> =
   aihubmix: { label: 'AIHubmix (aggregator)' },
   anspire: { label: 'Anspire Open (models + search)', configHint: 'The same ANSPIRE_API_KEYS can be used for search and LLM channels. Models and gateways are examples; availability depends on account permissions and the console. Test the connection first.' },
   deepseek: { label: 'DeepSeek Official' },
-  dashscope: { label: 'Qwen (DashScope)' },
   volcengine: { label: 'Volcengine Ark (Doubao)', configHint: 'Do not mix online inference endpoints/regions with Coding Plan endpoints.' },
   siliconflow: { label: 'SiliconFlow', configHint: 'Model listings and visibility depend on account permissions and the API Key.' },
   openrouter: { label: 'OpenRouter', configHint: 'Model listings and visibility depend on account permissions and the API Key.' },

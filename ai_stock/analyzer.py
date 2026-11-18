@@ -34,6 +34,7 @@ from ai_stock.config import (
     _is_ollama_model,
     _is_moonshot_model,
     _is_minimax_model,
+    _is_dashscope_model,
     _is_zhipu_model,
     extra_litellm_params,
     get_api_keys_for_model,
@@ -2591,6 +2592,9 @@ class GeminiAnalyzer:
                 continue
             if _is_minimax_model(model, config.llm_model_list):
                 logger.error("Skipping unsupported MiniMax model route")
+                continue
+            if _is_dashscope_model(model, config.llm_model_list):
+                logger.error("Skipping unsupported Alibaba DashScope model route")
                 continue
             supported_models_to_try.append(model)
         models_to_try = supported_models_to_try
