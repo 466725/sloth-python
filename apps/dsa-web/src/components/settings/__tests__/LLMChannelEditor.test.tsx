@@ -1102,12 +1102,12 @@ describe('LLMChannelEditor', () => {
     render(
       <LLMChannelEditor
         items={[
-          { key: 'LLM_CHANNELS', value: 'dashscope' },
-          { key: 'LLM_DASHSCOPE_PROTOCOL', value: 'openai' },
-          { key: 'LLM_DASHSCOPE_BASE_URL', value: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
-          { key: 'LLM_DASHSCOPE_ENABLED', value: 'true' },
-          { key: 'LLM_DASHSCOPE_API_KEY', value: 'sk-test' },
-          { key: 'LLM_DASHSCOPE_MODELS', value: 'openai/custom-model-1' },
+          { key: 'LLM_CHANNELS', value: 'volcengine' },
+          { key: 'LLM_VOLCENGINE_PROTOCOL', value: 'openai' },
+          { key: 'LLM_VOLCENGINE_BASE_URL', value: 'https://ark.cn-beijing.volces.com/api/v3' },
+          { key: 'LLM_VOLCENGINE_ENABLED', value: 'true' },
+          { key: 'LLM_VOLCENGINE_API_KEY', value: 'sk-test' },
+          { key: 'LLM_VOLCENGINE_MODELS', value: 'openai/custom-model-1' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -1115,7 +1115,7 @@ describe('LLMChannelEditor', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /通义千问/i }));
+    fireEvent.click(screen.getByRole('button', { name: /火山方舟/i }));
     fireEvent.click(screen.getByRole('button', { name: '获取模型' }));
 
     const checkbox = await screen.findByLabelText('custom-model-1');
@@ -1140,12 +1140,12 @@ describe('LLMChannelEditor', () => {
     render(
       <LLMChannelEditor
         items={[
-          { key: 'LLM_CHANNELS', value: 'dashscope' },
-          { key: 'LLM_DASHSCOPE_PROTOCOL', value: 'openai' },
-          { key: 'LLM_DASHSCOPE_BASE_URL', value: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
-          { key: 'LLM_DASHSCOPE_ENABLED', value: 'true' },
-          { key: 'LLM_DASHSCOPE_API_KEY', value: 'sk-test' },
-          { key: 'LLM_DASHSCOPE_MODELS', value: 'unknown/custom-model-1' },
+          { key: 'LLM_CHANNELS', value: 'volcengine' },
+          { key: 'LLM_VOLCENGINE_PROTOCOL', value: 'openai' },
+          { key: 'LLM_VOLCENGINE_BASE_URL', value: 'https://ark.cn-beijing.volces.com/api/v3' },
+          { key: 'LLM_VOLCENGINE_ENABLED', value: 'true' },
+          { key: 'LLM_VOLCENGINE_API_KEY', value: 'sk-test' },
+          { key: 'LLM_VOLCENGINE_MODELS', value: 'unknown/custom-model-1' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -1153,7 +1153,7 @@ describe('LLMChannelEditor', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /通义千问/i }));
+    fireEvent.click(screen.getByRole('button', { name: /火山方舟/i }));
     fireEvent.click(screen.getByRole('button', { name: '获取模型' }));
 
     const checkbox = await screen.findByLabelText('custom-model-1');
@@ -1167,7 +1167,7 @@ describe('LLMChannelEditor', () => {
       message: 'LLM channel model discovery succeeded',
       error: null,
       resolvedProtocol: 'openai',
-      models: ['qwen-plus', 'qwen-turbo'],
+      models: ['doubao-seed-1-6-251015', 'doubao-seed-1-6-thinking-251015'],
       latencyMs: 88,
     });
     update.mockResolvedValue({
@@ -1176,19 +1176,19 @@ describe('LLMChannelEditor', () => {
       appliedCount: 1,
       skippedMaskedCount: 0,
       reloadTriggered: true,
-      updatedKeys: ['LLM_DASHSCOPE_MODELS'],
+      updatedKeys: ['LLM_VOLCENGINE_MODELS'],
       warnings: [],
     });
 
     render(
       <LLMChannelEditor
         items={[
-          { key: 'LLM_CHANNELS', value: 'dashscope' },
-          { key: 'LLM_DASHSCOPE_PROTOCOL', value: 'openai' },
-          { key: 'LLM_DASHSCOPE_BASE_URL', value: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
-          { key: 'LLM_DASHSCOPE_ENABLED', value: 'true' },
-          { key: 'LLM_DASHSCOPE_API_KEY', value: 'sk-test' },
-          { key: 'LLM_DASHSCOPE_MODELS', value: 'qwen-old' },
+          { key: 'LLM_CHANNELS', value: 'volcengine' },
+          { key: 'LLM_VOLCENGINE_PROTOCOL', value: 'openai' },
+          { key: 'LLM_VOLCENGINE_BASE_URL', value: 'https://ark.cn-beijing.volces.com/api/v3' },
+          { key: 'LLM_VOLCENGINE_ENABLED', value: 'true' },
+          { key: 'LLM_VOLCENGINE_API_KEY', value: 'sk-test' },
+          { key: 'LLM_VOLCENGINE_MODELS', value: 'doubao-old' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -1196,23 +1196,23 @@ describe('LLMChannelEditor', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /Dashscope/i }));
+    fireEvent.click(screen.getByRole('button', { name: /火山方舟/i }));
     fireEvent.click(screen.getByRole('button', { name: '获取模型' }));
 
-    const qwenPlusCheckbox = await screen.findByLabelText('qwen-plus');
-    fireEvent.click(qwenPlusCheckbox);
+    const doubaoCheckbox = await screen.findByLabelText('doubao-seed-1-6-251015');
+    fireEvent.click(doubaoCheckbox);
 
     await waitFor(() => {
-      expect(screen.getByLabelText('手动模型（逗号分隔）')).toHaveValue('qwen-old,qwen-plus');
+      expect(screen.getByLabelText('手动模型（逗号分隔）')).toHaveValue('doubao-old,doubao-seed-1-6-251015');
     });
 
     expect(discoverLLMChannelModels).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: 'dashscope',
+        name: 'volcengine',
         protocol: 'openai',
-        baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+        baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
         apiKey: 'sk-test',
-        models: ['qwen-old'],
+        models: ['doubao-old'],
       }),
     );
 
@@ -1225,7 +1225,7 @@ describe('LLMChannelEditor', () => {
     const updatePayload = update.mock.calls[0][0];
     expect(updatePayload.items).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ key: 'LLM_DASHSCOPE_MODELS', value: 'qwen-old,qwen-plus' }),
+        expect.objectContaining({ key: 'LLM_VOLCENGINE_MODELS', value: 'doubao-old,doubao-seed-1-6-251015' }),
       ]),
     );
   });
@@ -1651,7 +1651,7 @@ describe('LLMChannelEditor', () => {
         message: 'LLM channel model discovery succeeded',
         error: null,
         resolvedProtocol: 'openai',
-        models: ['dashscope-plus'],
+        models: ['doubao-plus'],
         latencyMs: 30,
       });
 
@@ -1664,11 +1664,11 @@ describe('LLMChannelEditor', () => {
           { key: 'LLM_OPENAI_ENABLED', value: 'true' },
           { key: 'LLM_OPENAI_API_KEY', value: 'open-key' },
           { key: 'LLM_OPENAI_MODELS', value: 'gpt-old' },
-          { key: 'LLM_DASHSCOPE_PROTOCOL', value: 'openai' },
-          { key: 'LLM_DASHSCOPE_BASE_URL', value: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
-          { key: 'LLM_DASHSCOPE_ENABLED', value: 'true' },
-          { key: 'LLM_DASHSCOPE_API_KEY', value: 'dash-key' },
-          { key: 'LLM_DASHSCOPE_MODELS', value: 'dash-old' },
+          { key: 'LLM_VOLCENGINE_PROTOCOL', value: 'openai' },
+          { key: 'LLM_VOLCENGINE_BASE_URL', value: 'https://ark.cn-beijing.volces.com/api/v3' },
+          { key: 'LLM_VOLCENGINE_ENABLED', value: 'true' },
+          { key: 'LLM_VOLCENGINE_API_KEY', value: 'volc-key' },
+          { key: 'LLM_VOLCENGINE_MODELS', value: 'doubao-old' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -1682,12 +1682,12 @@ describe('LLMChannelEditor', () => {
     renderResult.rerender(
       <LLMChannelEditor
         items={[
-          { key: 'LLM_CHANNELS', value: 'dashscope' },
-          { key: 'LLM_DASHSCOPE_PROTOCOL', value: 'openai' },
-          { key: 'LLM_DASHSCOPE_BASE_URL', value: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
-          { key: 'LLM_DASHSCOPE_ENABLED', value: 'true' },
-          { key: 'LLM_DASHSCOPE_API_KEY', value: 'dash-key' },
-          { key: 'LLM_DASHSCOPE_MODELS', value: 'dash-old' },
+          { key: 'LLM_CHANNELS', value: 'volcengine' },
+          { key: 'LLM_VOLCENGINE_PROTOCOL', value: 'openai' },
+          { key: 'LLM_VOLCENGINE_BASE_URL', value: 'https://ark.cn-beijing.volces.com/api/v3' },
+          { key: 'LLM_VOLCENGINE_ENABLED', value: 'true' },
+          { key: 'LLM_VOLCENGINE_API_KEY', value: 'volc-key' },
+          { key: 'LLM_VOLCENGINE_MODELS', value: 'doubao-old' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -1695,13 +1695,13 @@ describe('LLMChannelEditor', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /通义千问/i }));
+    fireEvent.click(screen.getByRole('button', { name: /火山方舟/i }));
     fireEvent.click(screen.getByRole('button', { name: '获取模型' }));
 
-    const dashModelCheckbox = await screen.findByLabelText('dashscope-plus');
-    fireEvent.click(dashModelCheckbox);
+    const doubaoModelCheckbox = await screen.findByLabelText('doubao-plus');
+    fireEvent.click(doubaoModelCheckbox);
 
-    expect(screen.getByLabelText('手动模型（逗号分隔）')).toHaveValue('dash-old,dashscope-plus');
+    expect(screen.getByLabelText('手动模型（逗号分隔）')).toHaveValue('doubao-old,doubao-plus');
 
     resolvePendingFirst({
       success: true,
@@ -1713,7 +1713,7 @@ describe('LLMChannelEditor', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByLabelText('手动模型（逗号分隔）')).toHaveValue('dash-old,dashscope-plus');
+      expect(screen.getByLabelText('手动模型（逗号分隔）')).toHaveValue('doubao-old,doubao-plus');
     });
     expect(screen.queryByLabelText('stale-openai')).not.toBeInTheDocument();
   });
@@ -1729,12 +1729,12 @@ describe('LLMChannelEditor', () => {
     render(
       <LLMChannelEditor
         items={[
-          { key: 'LLM_CHANNELS', value: 'dashscope' },
-          { key: 'LLM_DASHSCOPE_PROTOCOL', value: 'openai' },
-          { key: 'LLM_DASHSCOPE_BASE_URL', value: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
-          { key: 'LLM_DASHSCOPE_ENABLED', value: 'true' },
-          { key: 'LLM_DASHSCOPE_API_KEY', value: 'dash-key' },
-          { key: 'LLM_DASHSCOPE_MODELS', value: 'qwen-old' },
+          { key: 'LLM_CHANNELS', value: 'volcengine' },
+          { key: 'LLM_VOLCENGINE_PROTOCOL', value: 'openai' },
+          { key: 'LLM_VOLCENGINE_BASE_URL', value: 'https://ark.cn-beijing.volces.com/api/v3' },
+          { key: 'LLM_VOLCENGINE_ENABLED', value: 'true' },
+          { key: 'LLM_VOLCENGINE_API_KEY', value: 'volc-key' },
+          { key: 'LLM_VOLCENGINE_MODELS', value: 'doubao-old' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -1742,12 +1742,12 @@ describe('LLMChannelEditor', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /Dashscope/i }));
+    fireEvent.click(screen.getByRole('button', { name: /火山方舟/i }));
     fireEvent.click(screen.getByRole('button', { name: '获取模型' }));
 
     const baseUrlInput = screen.getByLabelText('Base URL');
     fireEvent.change(baseUrlInput, {
-      target: { value: 'https://dashscope.aliyuncs.com/compatible-mode/v2' },
+      target: { value: 'https://ark.cn-beijing.volces.com/api/v2' },
     });
 
     resolvePendingFirst({
@@ -1760,7 +1760,7 @@ describe('LLMChannelEditor', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByLabelText('模型（逗号分隔）')).toHaveValue('qwen-old');
+      expect(screen.getByLabelText('模型（逗号分隔）')).toHaveValue('doubao-old');
       expect(screen.queryByLabelText('stale-openai')).not.toBeInTheDocument();
     });
   });

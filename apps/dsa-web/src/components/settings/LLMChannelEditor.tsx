@@ -1214,6 +1214,7 @@ function parseChannelsFromItems(
         && !isUnsupportedZhipuChannel(name, protocol, baseUrl, models)
         && !isUnsupportedMoonshotChannel(name, protocol, baseUrl, models)
         && !isUnsupportedMiniMaxChannel(name, protocol, baseUrl, models)
+        && !isUnsupportedDashScopeChannel(name, protocol, baseUrl, models)
       );
     });
 
@@ -1361,6 +1362,32 @@ function isMiniMaxEndpoint(baseUrl: string): boolean {
     const hostname = new URL(baseUrl).hostname.toLowerCase().replace(/\.$/, '');
     return ['minimax.io', 'minimaxi.com', 'minimax.chat'].some(
       (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isUnsupportedDashScopeChannel(
+  name: string,
+  protocol: string,
+  baseUrl: string,
+  models: string[],
+): boolean {
+  return (
+    name.trim().toLowerCase() === 'dashscope'
+    || protocol.trim().toLowerCase() === 'dashscope'
+    || isDashScopeEndpoint(baseUrl)
+    || models.some((model) => model.trim().toLowerCase().split('/').includes('dashscope'))
+  );
+}
+
+function isDashScopeEndpoint(baseUrl: string): boolean {
+  try {
+    const hostname = new URL(baseUrl).hostname.toLowerCase().replace(/\.$/, '');
+    return (
+      hostname.endsWith('.dashscope.aliyuncs.com')
+      || (hostname.startsWith('dashscope') && hostname.endsWith('.aliyuncs.com'))
     );
   } catch {
     return false;

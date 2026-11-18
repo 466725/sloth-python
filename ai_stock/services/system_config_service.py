@@ -28,6 +28,8 @@ from ai_stock.config import (
     _is_moonshot_model,
     _is_minimax_endpoint,
     _is_minimax_model,
+    _is_dashscope_endpoint,
+    _is_dashscope_model,
     _is_zhipu_endpoint,
     _is_zhipu_model,
     _uses_direct_env_provider,
@@ -2292,6 +2294,8 @@ class SystemConfigService:
             return False
         if normalized == "minimax":
             return False
+        if normalized == "dashscope":
+            return False
         if normalized == "gemini" or normalized == "vertex_ai":
             return cls._has_any_config_value(effective_map, ("GEMINI_API_KEYS", "GEMINI_API_KEY"))
         if normalized == "deepseek":
@@ -2302,6 +2306,7 @@ class SystemConfigService:
                 _is_ollama_endpoint(base_url)
                 or _is_moonshot_endpoint(base_url)
                 or _is_minimax_endpoint(base_url)
+                or _is_dashscope_endpoint(base_url)
             ):
                 return False
             if cls._has_any_config_value(effective_map, ("OPENAI_API_KEYS", "OPENAI_API_KEY", "AIHUBMIX_KEY")):
@@ -2370,6 +2375,12 @@ class SystemConfigService:
                 or _is_minimax_endpoint(base_url)
             ):
                 continue
+            if (
+                name.lower() == "dashscope"
+                or raw_protocol.lower() == "dashscope"
+                or _is_dashscope_endpoint(base_url)
+            ):
+                continue
             raw_models = [model for model in raw_models if not _is_ollama_model(model)]
             if name.lower() == "anspire" and not base_url:
                 base_url = (
@@ -2396,6 +2407,7 @@ class SystemConfigService:
             raw_models = [model for model in raw_models if not _is_zhipu_model(model)]
             raw_models = [model for model in raw_models if not _is_moonshot_model(model)]
             raw_models = [model for model in raw_models if not _is_minimax_model(model)]
+            raw_models = [model for model in raw_models if not _is_dashscope_model(model)]
             resolved_protocol = resolve_llm_channel_protocol(
                 protocol,
                 base_url=base_url,
@@ -2442,6 +2454,7 @@ class SystemConfigService:
         blocked_zhipu_model_names: Set[str] = set()
         blocked_moonshot_model_names: set[str] = set()
         blocked_minimax_model_names: set[str] = set()
+        blocked_dashscope_model_names: set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
             Config._parse_litellm_yaml(
@@ -2450,6 +2463,7 @@ class SystemConfigService:
                 blocked_zhipu_model_names=blocked_zhipu_model_names,
                 blocked_moonshot_model_names=blocked_moonshot_model_names,
                 blocked_minimax_model_names=blocked_minimax_model_names,
+                blocked_dashscope_model_names=blocked_dashscope_model_names,
             )
         yaml_models = self._collect_yaml_models_from_map(effective_map)
         channel_models = self._collect_setup_channel_models(effective_map)
@@ -2463,6 +2477,8 @@ class SystemConfigService:
                 return "", "Moonshot/Kimi models are not supported; select a supported model."
             if _is_minimax_model(explicit_model) or explicit_model in blocked_minimax_model_names:
                 return "", "MiniMax models are not supported; select a supported model."
+            if _is_dashscope_model(explicit_model) or explicit_model in blocked_dashscope_model_names:
+                return "", "Alibaba DashScope models are not supported; select a supported model."
             if _uses_direct_env_provider(explicit_model):
                 return explicit_model, "explicit"
             has_direct_source = self._has_setup_runtime_source_for_model(explicit_model, effective_map)
@@ -2522,6 +2538,7 @@ class SystemConfigService:
         blocked_zhipu_model_names: Set[str] = set()
         blocked_moonshot_model_names: set[str] = set()
         blocked_minimax_model_names: set[str] = set()
+        blocked_dashscope_model_names: set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
             Config._parse_litellm_yaml(
@@ -2530,6 +2547,7 @@ class SystemConfigService:
                 blocked_zhipu_model_names=blocked_zhipu_model_names,
                 blocked_moonshot_model_names=blocked_moonshot_model_names,
                 blocked_minimax_model_names=blocked_minimax_model_names,
+                blocked_dashscope_model_names=blocked_dashscope_model_names,
             )
         if not agent_model_raw:
             if primary_check["status"] == "configured":
@@ -2600,6 +2618,19 @@ class SystemConfigService:
                 True,
                 "needs_action",
                 "MiniMax models are not supported.",
+                "Select a supported Agent model.",
+            )
+        if (
+            _is_dashscope_model(agent_model)
+            or agent_model_raw in blocked_dashscope_model_names
+        ):
+            return self._setup_check(
+                "llm_agent",
+                "Agent 渠道",
+                "agent",
+                True,
+                "needs_action",
+                "Alibaba DashScope models are not supported.",
                 "Select a supported Agent model.",
             )
         if _uses_direct_env_provider(agent_model):
@@ -3293,6 +3324,8 @@ class SystemConfigService:
         for name in normalized_names:
             prefix = f"LLM_{name.upper()}"
             protocol_value = (effective_map.get(f"{prefix}_PROTOCOL") or "").strip()
+            if protocol_value.lower() == "dashscope":
+                continue
             if name.lower() == "anspire" and not protocol_value:
                 protocol_value = "openai"
             base_url_value = (effective_map.get(f"{prefix}_BASE_URL") or "").strip()
@@ -3361,6 +3394,11 @@ class SystemConfigService:
                 continue
 
             base_url_value = (effective_map.get(f"{prefix}_BASE_URL") or "").strip()
+            if (
+                name.lower() == "dashscope"
+                or _is_dashscope_endpoint(base_url_value)
+            ):
+                continue
             if name.lower() == "anspire" and not base_url_value:
                 base_url_value = (
                     effective_map.get("ANSPIRE_LLM_BASE_URL")
@@ -3381,6 +3419,7 @@ class SystemConfigService:
                         or ANSPIRE_LLM_MODEL_DEFAULT
                     ).strip()
                 ]
+            raw_models = [model for model in raw_models if not _is_dashscope_model(model)]
             resolved_protocol = resolve_llm_channel_protocol(protocol_value, base_url=base_url_value, models=raw_models, channel_name=name)
             for model in raw_models:
                 normalized_model = normalize_llm_channel_model(model, resolved_protocol, base_url_value)
@@ -3450,6 +3489,7 @@ class SystemConfigService:
         blocked_zhipu_model_names: Set[str] = set()
         blocked_moonshot_model_names: set[str] = set()
         blocked_minimax_model_names: set[str] = set()
+        blocked_dashscope_model_names: set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
             Config._parse_litellm_yaml(
@@ -3458,12 +3498,14 @@ class SystemConfigService:
                 blocked_zhipu_model_names=blocked_zhipu_model_names,
                 blocked_moonshot_model_names=blocked_moonshot_model_names,
                 blocked_minimax_model_names=blocked_minimax_model_names,
+                blocked_dashscope_model_names=blocked_dashscope_model_names,
             )
 
         channel_uses_ollama = False
         channel_uses_zhipu = False
         channel_uses_moonshot = False
         channel_uses_minimax = False
+        channel_uses_dashscope = False
         for name in SystemConfigService._split_csv(effective_map.get("LLM_CHANNELS") or ""):
             prefix = f"LLM_{name.strip().upper()}"
             protocol = (effective_map.get(f"{prefix}_PROTOCOL") or "").strip().lower()
@@ -3497,6 +3539,13 @@ class SystemConfigService:
                 or any(_is_minimax_model(model) for model in models)
             ):
                 channel_uses_minimax = True
+            if (
+                name.strip().lower() == "dashscope"
+                or protocol == "dashscope"
+                or _is_dashscope_endpoint(base_url)
+                or any(_is_dashscope_model(model) for model in models)
+            ):
+                channel_uses_dashscope = True
 
         selected_models = [
             (key, (effective_map.get(key) or "").strip())
@@ -3561,6 +3610,21 @@ class SystemConfigService:
                 effective_map.get("LITELLM_FALLBACK_MODELS") or ""
             )
             if _is_minimax_model(model) or model in blocked_minimax_model_names
+        )
+        unsupported_dashscope_models = [
+            (key, model)
+            for key, model in selected_models
+            if model and (
+                _is_dashscope_model(model)
+                or model in blocked_dashscope_model_names
+            )
+        ]
+        unsupported_dashscope_models.extend(
+            ("LITELLM_FALLBACK_MODELS", model)
+            for model in SystemConfigService._split_csv(
+                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
+            )
+            if _is_dashscope_model(model) or model in blocked_dashscope_model_names
         )
         if (
             any(
@@ -3633,6 +3697,25 @@ class SystemConfigService:
                     "key": fields or ("LLM_CHANNELS" if channel_uses_minimax else "LLM_PROVIDER"),
                     "code": "unsupported_provider",
                     "message": "MiniMax model and search routes are not supported. Select another provider and remove MiniMax settings.",
+                }
+            )
+        if (
+            any(
+                key.startswith(("DASHSCOPE_", "LLM_DASHSCOPE_"))
+                and str(value or "").strip()
+                for key, value in effective_map.items()
+            )
+            or _is_dashscope_endpoint(effective_map.get("OPENAI_BASE_URL"))
+            or bool(blocked_dashscope_model_names)
+            or channel_uses_dashscope
+            or unsupported_dashscope_models
+        ):
+            fields = ", ".join(dict.fromkeys(key for key, _ in unsupported_dashscope_models))
+            issues.append(
+                {
+                    "key": fields or ("LLM_CHANNELS" if channel_uses_dashscope else "LLM_PROVIDER"),
+                    "code": "unsupported_provider",
+                    "message": "Alibaba DashScope model routes are not supported. Select another provider and remove DashScope settings.",
                 }
             )
 
@@ -3951,6 +4034,22 @@ class SystemConfigService:
                     "key": protocol_key,
                     "code": "unsupported_provider",
                     "message": "MiniMax model routes are not supported.",
+                    "severity": "error",
+                    "expected": "a supported LLM provider",
+                    "actual": protocol_value or channel_name,
+                }
+            )
+        if (
+            channel_name.strip().lower() == "dashscope"
+            or protocol_value.strip().lower() == "dashscope"
+            or _is_dashscope_endpoint(base_url_value)
+            or any(_is_dashscope_model(model) for model in model_values)
+        ):
+            issues.append(
+                {
+                    "key": protocol_key,
+                    "code": "unsupported_provider",
+                    "message": "Alibaba DashScope model routes are not supported.",
                     "severity": "error",
                     "expected": "a supported LLM provider",
                     "actual": protocol_value or channel_name,
