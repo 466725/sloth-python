@@ -359,7 +359,7 @@ def normalize_litellm_usage(
             cache_field_observed = True
             capability = "supported"
         provider_min_cache_tokens = 1024
-    elif provider_name in {"glm", _OPENAI_COMPATIBLE_PROVIDER}:
+    elif provider_name == _OPENAI_COMPATIBLE_PROVIDER:
         cached = _nested_int(usage, ("prompt_tokens_details", "cached_tokens"))
         if cached is not None:
             cache_read = cached
@@ -899,8 +899,6 @@ def _infer_provider(model: str, provider: Optional[str]) -> str:
 
     if normalized_model.startswith("openai/~") or "openrouter" in route_text:
         return "openrouter"
-    if normalized_provider in {"zhipu", "bigmodel", "glm"}:
-        return "glm"
     if normalized_provider in {"anthropic", "gemini", "vertex_ai", "deepseek", "stepfun"}:
         return normalized_provider
     if normalized_provider == _OPENAI_LITELLM_PROVIDER:
@@ -908,8 +906,6 @@ def _infer_provider(model: str, provider: Optional[str]) -> str:
     if normalized_model.startswith("openai/"):
         return "openai" if _is_native_openai_model(normalized_model) else _OPENAI_COMPATIBLE_PROVIDER
 
-    if _is_glm_model(normalized_model):
-        return "glm"
     if "stepfun" in normalized_model or normalized_model.startswith("step/"):
         return "stepfun"
     if normalized_model.startswith("anthropic/"):
@@ -921,17 +917,6 @@ def _infer_provider(model: str, provider: Optional[str]) -> str:
     if "/" in normalized_model:
         return normalized_model.split("/", 1)[0]
     return normalized_provider or "unknown"
-
-
-def _is_glm_model(normalized_model: str) -> bool:
-    if not normalized_model:
-        return False
-    return (
-        normalized_model.startswith("glm")
-        or normalized_model.startswith("zhipu/")
-        or normalized_model.startswith("bigmodel/")
-        or "/glm" in normalized_model
-    )
 
 
 def _is_native_openai_model(model: str) -> bool:

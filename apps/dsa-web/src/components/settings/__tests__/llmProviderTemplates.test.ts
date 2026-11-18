@@ -42,7 +42,6 @@ describe('llmProviderTemplates', () => {
       'anspire',
       'deepseek',
       'dashscope',
-      'zhipu',
       'moonshot',
       'minimax',
       'volcengine',
