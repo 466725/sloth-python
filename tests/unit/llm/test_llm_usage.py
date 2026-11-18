@@ -405,38 +405,6 @@ class TestLLMUsageNormalizer(unittest.TestCase):
         self.assertIsNone(usage["provider_min_cache_tokens"])
         self.assertEqual(usage["normalized_cache_eligible_input_tokens"], 1500)
 
-    def test_glm_cached_tokens_use_openai_shape(self):
-        usage = normalize_litellm_usage(
-            {
-                "prompt_tokens": 1200,
-                "completion_tokens": 80,
-                "total_tokens": 1280,
-                "prompt_tokens_details": {"cached_tokens": 1200},
-            },
-            model="zhipu/glm-4.5",
-        )
-
-        self.assertEqual(usage["normalized_cache_read_tokens"], 1200)
-        self.assertEqual(usage["cache_capability"], "supported")
-        self.assertEqual(usage["cache_observation"], "full_hit")
-
-    def test_zhipu_provider_alias_uses_glm_cache_shape(self):
-        usage = normalize_litellm_usage(
-            {
-                "prompt_tokens": 1200,
-                "completion_tokens": 80,
-                "total_tokens": 1280,
-                "prompt_tokens_details": {"cached_tokens": 1200},
-            },
-            model="zhipu/glm-4.5",
-            provider="zhipu",
-        )
-
-        self.assertEqual(usage["normalized_cache_read_tokens"], 1200)
-        self.assertEqual(usage["cache_capability"], "supported")
-        self.assertEqual(usage["cache_observation"], "full_hit")
-        self.assertIsNone(usage["provider_min_cache_tokens"])
-
     def test_anthropic_official_cache_breakdown_sums_total_input(self):
         usage = normalize_litellm_usage(
             {

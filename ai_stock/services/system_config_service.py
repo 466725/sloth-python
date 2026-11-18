@@ -24,6 +24,8 @@ from ai_stock.config import (
     _get_litellm_provider,
     _is_ollama_endpoint,
     _is_ollama_model,
+    _is_zhipu_endpoint,
+    _is_zhipu_model,
     _uses_direct_env_provider,
     canonicalize_llm_channel_protocol,
     channel_allows_empty_api_key,
@@ -2280,6 +2282,8 @@ class SystemConfigService:
     @classmethod
     def _provider_has_setup_credentials(cls, provider: str, effective_map: Dict[str, str]) -> bool:
         normalized = canonicalize_llm_channel_protocol(provider)
+        if normalized in {"zhipu", "bigmodel", "zai", "glm"}:
+            return False
         if normalized == "gemini" or normalized == "vertex_ai":
             return cls._has_any_config_value(effective_map, ("GEMINI_API_KEYS", "GEMINI_API_KEY"))
         if normalized == "deepseek":
@@ -2336,6 +2340,12 @@ class SystemConfigService:
                 or _is_ollama_endpoint(base_url)
             ):
                 continue
+            if (
+                name.lower() in {"zhipu", "bigmodel", "zai", "glm"}
+                or raw_protocol.lower() in {"zhipu", "bigmodel", "zai", "glm"}
+                or _is_zhipu_endpoint(base_url)
+            ):
+                continue
             raw_models = [model for model in raw_models if not _is_ollama_model(model)]
             if name.lower() == "anspire" and not base_url:
                 base_url = (
@@ -2359,6 +2369,7 @@ class SystemConfigService:
                     ).strip()
                 ]
             raw_models = [model for model in raw_models if not _is_ollama_model(model)]
+            raw_models = [model for model in raw_models if not _is_zhipu_model(model)]
             resolved_protocol = resolve_llm_channel_protocol(
                 protocol,
                 base_url=base_url,
@@ -2402,11 +2413,13 @@ class SystemConfigService:
     def _resolve_setup_primary_model(self, effective_map: Dict[str, str]) -> Tuple[str, str]:
         explicit_model = (effective_map.get("LITELLM_MODEL") or "").strip()
         blocked_yaml_model_names: Set[str] = set()
+        blocked_zhipu_model_names: Set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
             Config._parse_litellm_yaml(
                 config_path,
                 blocked_model_names=blocked_yaml_model_names,
+                blocked_zhipu_model_names=blocked_zhipu_model_names,
             )
         yaml_models = self._collect_yaml_models_from_map(effective_map)
         channel_models = self._collect_setup_channel_models(effective_map)
@@ -2414,6 +2427,8 @@ class SystemConfigService:
         if explicit_model:
             if _is_ollama_model(explicit_model) or explicit_model in blocked_yaml_model_names:
                 return "", "Ollama models are not supported; select a supported model."
+            if _is_zhipu_model(explicit_model) or explicit_model in blocked_zhipu_model_names:
+                return "", "Zhipu GLM models are not supported; select a supported model."
             if _uses_direct_env_provider(explicit_model):
                 return explicit_model, "explicit"
             has_direct_source = self._has_setup_runtime_source_for_model(explicit_model, effective_map)
@@ -2470,11 +2485,13 @@ class SystemConfigService:
     ) -> Dict[str, Any]:
         agent_model_raw = (effective_map.get("AGENT_LITELLM_MODEL") or "").strip()
         blocked_yaml_model_names: Set[str] = set()
+        blocked_zhipu_model_names: Set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
             Config._parse_litellm_yaml(
                 config_path,
                 blocked_model_names=blocked_yaml_model_names,
+                blocked_zhipu_model_names=blocked_zhipu_model_names,
             )
         if not agent_model_raw:
             if primary_check["status"] == "configured":
@@ -2509,6 +2526,16 @@ class SystemConfigService:
                 True,
                 "needs_action",
                 "Ollama models are not supported.",
+                "Select a supported Agent model.",
+            )
+        if _is_zhipu_model(agent_model) or agent_model_raw in blocked_zhipu_model_names:
+            return self._setup_check(
+                "llm_agent",
+                "Agent 渠道",
+                "agent",
+                True,
+                "needs_action",
+                "Zhipu GLM models are not supported.",
                 "Select a supported Agent model.",
             )
         if _uses_direct_env_provider(agent_model):
@@ -3356,14 +3383,17 @@ class SystemConfigService:
         issues: List[Dict[str, Any]] = []
 
         blocked_yaml_model_names: Set[str] = set()
+        blocked_zhipu_model_names: Set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
             Config._parse_litellm_yaml(
                 config_path,
                 blocked_model_names=blocked_yaml_model_names,
+                blocked_zhipu_model_names=blocked_zhipu_model_names,
             )
 
         channel_uses_ollama = False
+        channel_uses_zhipu = False
         for name in SystemConfigService._split_csv(effective_map.get("LLM_CHANNELS") or ""):
             prefix = f"LLM_{name.strip().upper()}"
             protocol = (effective_map.get(f"{prefix}_PROTOCOL") or "").strip().lower()
@@ -3376,7 +3406,13 @@ class SystemConfigService:
                 or any(_is_ollama_model(model) for model in models)
             ):
                 channel_uses_ollama = True
-                break
+            if (
+                name.strip().lower() in {"zhipu", "bigmodel", "zai", "glm"}
+                or protocol in {"zhipu", "bigmodel", "zai", "glm"}
+                or _is_zhipu_endpoint(base_url)
+                or any(_is_zhipu_model(model) for model in models)
+            ):
+                channel_uses_zhipu = True
 
         selected_models = [
             (key, (effective_map.get(key) or "").strip())
@@ -3397,6 +3433,21 @@ class SystemConfigService:
             )
             if _is_ollama_model(model) or model in blocked_yaml_model_names
         )
+        unsupported_zhipu_models = [
+            (key, model)
+            for key, model in selected_models
+            if model and (
+                _is_zhipu_model(model)
+                or model in blocked_zhipu_model_names
+            )
+        ]
+        unsupported_zhipu_models.extend(
+            ("LITELLM_FALLBACK_MODELS", model)
+            for model in SystemConfigService._split_csv(
+                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
+            )
+            if _is_zhipu_model(model) or model in blocked_zhipu_model_names
+        )
         if (
             any(
                 key.startswith("OLLAMA_") and str(value or "").strip()
@@ -3413,6 +3464,25 @@ class SystemConfigService:
                     "key": fields or ("LLM_CHANNELS" if channel_uses_ollama else "LLM_PROVIDER"),
                     "code": "unsupported_provider",
                     "message": "Ollama model routes are not supported. Select another provider and remove Ollama settings.",
+                }
+            )
+        if (
+            any(
+                key.startswith(("ZHIPU_", "BIGMODEL_", "ZAI_", "GLM_"))
+                and str(value or "").strip()
+                for key, value in effective_map.items()
+            )
+            or _is_zhipu_endpoint(effective_map.get("OPENAI_BASE_URL"))
+            or bool(blocked_zhipu_model_names)
+            or channel_uses_zhipu
+            or unsupported_zhipu_models
+        ):
+            fields = ", ".join(dict.fromkeys(key for key, _model in unsupported_zhipu_models))
+            issues.append(
+                {
+                    "key": fields or ("LLM_CHANNELS" if channel_uses_zhipu else "LLM_PROVIDER"),
+                    "code": "unsupported_provider",
+                    "message": "Zhipu GLM model routes are not supported. Select another provider and remove Zhipu settings.",
                 }
             )
 
@@ -3683,6 +3753,22 @@ class SystemConfigService:
                     "key": protocol_key,
                     "code": "unsupported_provider",
                     "message": "Ollama model routes are not supported.",
+                    "severity": "error",
+                    "expected": "a supported LLM provider",
+                    "actual": protocol_value or channel_name,
+                }
+            )
+        if (
+            channel_name.strip().lower() in {"zhipu", "bigmodel", "zai", "glm"}
+            or protocol_value.strip().lower() in {"zhipu", "bigmodel", "zai", "glm"}
+            or _is_zhipu_endpoint(base_url_value)
+            or any(_is_zhipu_model(model) for model in model_values)
+        ):
+            issues.append(
+                {
+                    "key": protocol_key,
+                    "code": "unsupported_provider",
+                    "message": "Zhipu GLM model routes are not supported.",
                     "severity": "error",
                     "expected": "a supported LLM provider",
                     "actual": protocol_value or channel_name,

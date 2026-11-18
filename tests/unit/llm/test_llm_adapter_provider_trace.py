@@ -413,35 +413,6 @@ def test_parse_litellm_response_without_provider_usage_keeps_usage_empty() -> No
     assert parsed.usage == {}
 
 
-def test_parse_litellm_response_maps_zhipu_usage_to_glm_cache_shape() -> None:
-    adapter = LLMToolAdapter.__new__(LLMToolAdapter)
-    adapter._config = SimpleNamespace(llm_model_list=[])
-    response = SimpleNamespace(
-        choices=[
-            SimpleNamespace(
-                message=SimpleNamespace(
-                    content="ok",
-                    reasoning_content=None,
-                    tool_calls=[],
-                )
-            )
-        ],
-        usage=SimpleNamespace(
-            prompt_tokens=1200,
-            completion_tokens=80,
-            total_tokens=1280,
-            prompt_tokens_details={"cached_tokens": 1200},
-        ),
-    )
-
-    parsed = adapter._parse_litellm_response(response, "zhipu/glm-4.5")
-
-    assert parsed.provider == "zhipu"
-    assert parsed.usage["normalized_cache_read_tokens"] == 1200
-    assert parsed.usage["cache_capability"] == "supported"
-    assert parsed.usage["cache_observation"] == "full_hit"
-
-
 def test_parse_litellm_response_hmac_covers_tool_call_wire_messages(monkeypatch) -> None:
     monkeypatch.setenv("LLM_USAGE_HMAC_SECRET", "agent-tool-secret")
     adapter = LLMToolAdapter.__new__(LLMToolAdapter)

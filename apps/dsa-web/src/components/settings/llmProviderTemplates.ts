@@ -93,15 +93,6 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     ],
   },
   {
-    channelId: 'zhipu',
-    label: '智谱 GLM',
-    protocol: 'openai',
-    baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
-    placeholderModels: 'glm-5.1,glm-4.7-flash',
-    capabilities: ['openai-compatible'],
-    officialSources: [{ label: 'Zhipu Model Overview', url: 'https://docs.bigmodel.cn/cn/guide/start/model-overview' }],
-  },
-  {
     channelId: 'moonshot',
     label: 'Moonshot（月之暗面）',
     protocol: 'openai',
@@ -195,7 +186,6 @@ const EN_PROVIDER_TEXT: Record<string, { label: string; configHint?: string }> =
   anspire: { label: 'Anspire Open (models + search)', configHint: 'The same ANSPIRE_API_KEYS can be used for search and LLM channels. Models and gateways are examples; availability depends on account permissions and the console. Test the connection first.' },
   deepseek: { label: 'DeepSeek Official' },
   dashscope: { label: 'Qwen (DashScope)' },
-  zhipu: { label: 'Zhipu GLM' },
   moonshot: { label: 'Moonshot (Kimi)' },
   minimax: { label: 'MiniMax Official' },
   volcengine: { label: 'Volcengine Ark (Doubao)', configHint: 'Do not mix online inference endpoints/regions with Coding Plan endpoints.' },

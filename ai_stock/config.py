@@ -350,6 +350,36 @@ def _is_ollama_endpoint(base_url: Optional[str]) -> bool:
         return False
 
 
+def _is_zhipu_model(model: str, model_list: Optional[List[Dict[str, Any]]] = None) -> bool:
+    """Return whether a model or configured router alias resolves to Zhipu GLM."""
+    normalized = (model or "").strip()
+    if not normalized:
+        return False
+    wire_model = resolve_litellm_wire_model(normalized, model_list).strip().lower()
+    for candidate in (normalized.lower(), wire_model):
+        provider, separator, model_name = candidate.partition("/")
+        if provider in {"zhipu", "bigmodel", "zai"}:
+            return True
+        if (
+            candidate.startswith(("glm", "zhipu-", "bigmodel-", "zai-"))
+            or (separator and model_name.startswith("glm"))
+        ):
+            return True
+    return False
+
+
+def _is_zhipu_endpoint(base_url: Optional[str]) -> bool:
+    """Recognize Zhipu's API domains so they cannot be selected as generic channels."""
+    try:
+        hostname = (urlparse(base_url or "").hostname or "").lower().rstrip(".")
+    except ValueError:
+        return False
+    return any(
+        hostname == domain or hostname.endswith(f".{domain}")
+        for domain in ("bigmodel.cn", "z.ai")
+    )
+
+
 def normalize_llm_channel_model(model: str, protocol: Optional[str], base_url: Optional[str] = None) -> str:
     """Attach a provider prefix when the model omits it."""
     normalized_model = model.strip()
@@ -566,6 +596,9 @@ def get_effective_agent_models_to_try(config: "Config") -> List[str]:
         if _is_ollama_model(dedupe_key, model_list):
             logger.error("Skipping unsupported Ollama Agent model route")
             continue
+        if _is_zhipu_model(dedupe_key, model_list):
+            logger.error("Skipping unsupported Zhipu GLM Agent model route")
+            continue
         if dedupe_key in seen:
             continue
         seen.add(dedupe_key)
@@ -639,6 +672,7 @@ class Config:
     # Pre-built LiteLLM Router model_list (populated from channels, YAML, or legacy keys)
     llm_model_list: List[Dict[str, Any]] = field(default_factory=list)
     unsupported_ollama_configuration: bool = False
+    unsupported_zhipu_configuration: bool = False
 
     # Multi-key support: each list is parsed from *_API_KEYS (comma-separated) with single-key fallback
     gemini_api_keys: List[str] = field(default_factory=list)
@@ -1025,6 +1059,11 @@ class Config:
             name.startswith("OLLAMA_") and str(value or "").strip()
             for name, value in os.environ.items()
         )
+        unsupported_zhipu_configuration = any(
+            name.startswith(("ZHIPU_", "BIGMODEL_", "ZAI_", "GLM_"))
+            and str(value or "").strip()
+            for name, value in os.environ.items()
+        )
         
         # === LiteLLM multi-key parsing ===
         # GEMINI_API_KEYS (comma-separated) > GEMINI_API_KEY (single)
@@ -1049,6 +1088,10 @@ class Config:
         if _is_ollama_endpoint(openai_base_url):
             logger.warning("Ollama's default endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
             unsupported_ollama_configuration = True
+            openai_base_url = None
+        if _is_zhipu_endpoint(openai_base_url):
+            logger.warning("Zhipu's endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
+            unsupported_zhipu_configuration = True
             openai_base_url = None
 
         # DEEPSEEK_API_KEYS > DEEPSEEK_API_KEY (independent from OpenAI-compatible layer)
@@ -1132,15 +1175,19 @@ class Config:
         llm_channel_names: List[str] = []
         llm_model_list: List[Dict[str, Any]] = []
         blocked_yaml_model_names: set[str] = set()
+        blocked_zhipu_model_names: set[str] = set()
 
         # Priority 1: LITELLM_CONFIG (standard LiteLLM YAML config file)
         if litellm_config_path:
             llm_model_list = cls._parse_litellm_yaml(
                 litellm_config_path,
                 blocked_model_names=blocked_yaml_model_names,
+                blocked_zhipu_model_names=blocked_zhipu_model_names,
             )
             if blocked_yaml_model_names:
                 unsupported_ollama_configuration = True
+            if blocked_zhipu_model_names:
+                unsupported_zhipu_configuration = True
             if llm_model_list:
                 llm_models_source = "litellm_config"
 
@@ -1161,6 +1208,26 @@ class Config:
             ]
             if len(supported_fallbacks) != len(litellm_fallback_models):
                 logger.warning("Ollama fallback models are unsupported and have been ignored")
+                litellm_fallback_models = supported_fallbacks
+        if any(
+            _is_zhipu_model(model, llm_model_list) or model in blocked_zhipu_model_names
+            for model in configured_models
+            if model
+        ):
+            unsupported_zhipu_configuration = True
+            if (
+                _is_zhipu_model(litellm_model, llm_model_list)
+                or litellm_model in blocked_zhipu_model_names
+            ):
+                logger.warning("Zhipu GLM primary model is unsupported and has been ignored")
+                litellm_model = ""
+            supported_fallbacks = [
+                model for model in litellm_fallback_models
+                if not _is_zhipu_model(model, llm_model_list)
+                and model not in blocked_zhipu_model_names
+            ]
+            if len(supported_fallbacks) != len(litellm_fallback_models):
+                logger.warning("Zhipu GLM fallback models are unsupported and have been ignored")
                 litellm_fallback_models = supported_fallbacks
 
         # Priority 2: LLM_CHANNELS (env var based channel config)
@@ -1191,6 +1258,13 @@ class Config:
                         or any(_is_ollama_model(model) for model in raw_models)
                     ):
                         unsupported_ollama_configuration = True
+                    if (
+                        channel_name in {"zhipu", "bigmodel", "zai", "glm"}
+                        or raw_protocol in {"zhipu", "bigmodel", "zai", "glm"}
+                        or _is_zhipu_endpoint(raw_base_url)
+                        or any(_is_zhipu_model(model) for model in raw_models)
+                    ):
+                        unsupported_zhipu_configuration = True
                 llm_channels = cls._parse_llm_channels(_channels_str)
                 llm_model_list = cls._channels_to_model_list(llm_channels)
                 if llm_model_list:
@@ -1247,10 +1321,25 @@ class Config:
             logger.warning("Ollama Agent model is unsupported and has been ignored")
             unsupported_ollama_configuration = True
             agent_litellm_model = ""
+        if (
+            _is_zhipu_model(agent_litellm_model, llm_model_list)
+            or agent_model_raw.strip() in blocked_zhipu_model_names
+            or agent_litellm_model in blocked_zhipu_model_names
+        ):
+            logger.warning("Zhipu GLM Agent model is unsupported and has been ignored")
+            unsupported_zhipu_configuration = True
+            agent_litellm_model = ""
         vision_model = os.getenv('VISION_MODEL') or os.getenv('OPENAI_VISION_MODEL') or ""
         if _is_ollama_model(vision_model, llm_model_list) or vision_model in blocked_yaml_model_names:
             logger.warning("Ollama vision model is unsupported and has been ignored")
             unsupported_ollama_configuration = True
+            vision_model = ""
+        if (
+            _is_zhipu_model(vision_model, llm_model_list)
+            or vision_model in blocked_zhipu_model_names
+        ):
+            logger.warning("Zhipu GLM vision model is unsupported and has been ignored")
+            unsupported_zhipu_configuration = True
             vision_model = ""
         agent_context_compression_profile = normalize_agent_context_compression_profile(
             os.getenv('AGENT_CONTEXT_COMPRESSION_PROFILE')
@@ -1376,6 +1465,7 @@ class Config:
             llm_channel_names=llm_channel_names,
             llm_model_list=llm_model_list,
             unsupported_ollama_configuration=unsupported_ollama_configuration,
+            unsupported_zhipu_configuration=unsupported_zhipu_configuration,
             gemini_api_keys=gemini_api_keys,
             openai_api_keys=openai_api_keys,
             deepseek_api_keys=deepseek_api_keys,
@@ -1655,6 +1745,7 @@ class Config:
         config_path: str,
         *,
         blocked_model_names: Optional[set[str]] = None,
+        blocked_zhipu_model_names: Optional[set[str]] = None,
     ) -> List[Dict[str, Any]]:
         """Parse a standard LiteLLM config YAML file into Router model_list.
 
@@ -1714,6 +1805,19 @@ class Config:
                     blocked_model_names.add(model_name)
                 _logger.warning(
                     "LITELLM_CONFIG: Ollama deployment %r is unsupported and has been ignored",
+                    model_name,
+                )
+                continue
+            if (
+                _is_zhipu_model(model)
+                or _is_zhipu_model(model_name)
+                or custom_provider in {"zhipu", "bigmodel", "zai", "glm"}
+                or _is_zhipu_endpoint(api_base)
+            ):
+                if blocked_zhipu_model_names is not None:
+                    blocked_zhipu_model_names.add(model_name)
+                _logger.warning(
+                    "LITELLM_CONFIG: Zhipu GLM deployment %r is unsupported and has been ignored",
                     model_name,
                 )
                 continue
@@ -1782,6 +1886,17 @@ class Config:
             supported_raw_models = [model for model in raw_models if not _is_ollama_model(model)]
             if len(supported_raw_models) != len(raw_models):
                 _logger.warning("Ollama models in LLM channel '%s' are unsupported and have been ignored", ch_name)
+                raw_models = supported_raw_models
+            if (
+                ch_lower in {"zhipu", "bigmodel", "zai", "glm"}
+                or protocol_raw.strip().lower() in {"zhipu", "bigmodel", "zai", "glm"}
+                or _is_zhipu_endpoint(base_url)
+            ):
+                _logger.warning("LLM channel '%s' uses an unsupported Zhipu GLM route and was skipped", ch_name)
+                continue
+            supported_raw_models = [model for model in raw_models if not _is_zhipu_model(model)]
+            if len(supported_raw_models) != len(raw_models):
+                _logger.warning("Zhipu GLM models in LLM channel '%s' are unsupported and have been ignored", ch_name)
                 raw_models = supported_raw_models
             if not raw_models and ch_lower == "anspire":
                 anspire_model = (
@@ -2274,6 +2389,16 @@ class Config:
                     "Ollama model routes are not supported. Remove Ollama from "
                     "LITELLM_MODEL, LLM_CHANNELS, LITELLM_CONFIG, fallback, Agent, "
                     "vision, and legacy Ollama settings."
+                ),
+                field="LLM_PROVIDER",
+            ))
+        if self.unsupported_zhipu_configuration:
+            issues.append(ConfigIssue(
+                severity="error",
+                message=(
+                    "Zhipu GLM model routes are not supported. Remove Zhipu/GLM from "
+                    "LITELLM_MODEL, LLM_CHANNELS, LITELLM_CONFIG, fallback, Agent, "
+                    "vision, and legacy Zhipu settings."
                 ),
                 field="LLM_PROVIDER",
             ))

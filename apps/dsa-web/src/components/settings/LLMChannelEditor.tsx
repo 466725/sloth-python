@@ -1210,7 +1210,10 @@ function parseChannelsFromItems(
       const protocol = itemMap.get(`LLM_${upperName}_PROTOCOL`) || '';
       const baseUrl = itemMap.get(`LLM_${upperName}_BASE_URL`) || '';
       const models = splitModels(itemMap.get(`LLM_${upperName}_MODELS`) || '');
-      return !isUnsupportedOllamaChannel(name, protocol, baseUrl, models);
+      return (
+        !isUnsupportedOllamaChannel(name, protocol, baseUrl, models)
+        && !isUnsupportedZhipuChannel(name, protocol, baseUrl, models)
+      );
     });
 
   return channelNames.map((name, index) => {
@@ -1248,6 +1251,49 @@ function isUnsupportedOllamaChannel(
 function isOllamaEndpoint(baseUrl: string): boolean {
   try {
     return new URL(baseUrl).port === '11434';
+  } catch {
+    return false;
+  }
+}
+
+function isUnsupportedZhipuChannel(
+  name: string,
+  protocol: string,
+  baseUrl: string,
+  models: string[],
+): boolean {
+  const channelName = name.trim().toLowerCase();
+  return (
+    ['zhipu', 'bigmodel', 'zai', 'glm'].includes(channelName)
+    || ['zhipu', 'bigmodel', 'zai', 'glm'].includes(protocol.trim().toLowerCase())
+    || isZhipuEndpoint(baseUrl)
+    || models.some((model) => {
+      const normalized = model.trim().toLowerCase();
+      const modelName = normalized.includes('/') ? normalized.split('/', 2)[1] : normalized;
+      return (
+        ['zhipu', 'bigmodel', 'zai'].includes(normalized)
+        || normalized.startsWith('zhipu-')
+        || normalized.startsWith('bigmodel-')
+        || normalized.startsWith('zai-')
+        || normalized.startsWith('zhipu/')
+        || normalized.startsWith('bigmodel/')
+        || normalized.startsWith('zai/')
+        || normalized.startsWith('glm')
+        || modelName.startsWith('glm')
+      );
+    })
+  );
+}
+
+function isZhipuEndpoint(baseUrl: string): boolean {
+  try {
+    const hostname = new URL(baseUrl).hostname.toLowerCase().replace(/\.$/, '');
+    return (
+      hostname === 'bigmodel.cn'
+      || hostname.endsWith('.bigmodel.cn')
+      || hostname === 'z.ai'
+      || hostname.endsWith('.z.ai')
+    );
   } catch {
     return false;
   }

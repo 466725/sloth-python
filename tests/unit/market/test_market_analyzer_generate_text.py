@@ -747,43 +747,6 @@ class TestAnalyzerGenerateText:
         assert usage["cache_observation"] == "zero_hit"
         assert usage["messages_hmac"] and len(usage["messages_hmac"]) == 64
 
-    def test_call_litellm_stream_resolves_glm_alias_for_usage_normalization(self):
-        analyzer = self._make_analyzer()
-        analyzer._config_override = SimpleNamespace(
-            litellm_model="glm-router",
-            litellm_fallback_models=[],
-            llm_model_list=[
-                {
-                    "model_name": "glm-router",
-                    "litellm_params": {"model": "zhipu/glm-4.5"},
-                }
-            ],
-        )
-
-        def stream_response():
-            yield SimpleNamespace(
-                choices=[SimpleNamespace(delta=SimpleNamespace(content="ok"))],
-                usage=SimpleNamespace(
-                    prompt_tokens=1200,
-                    completion_tokens=80,
-                    total_tokens=1280,
-                    prompt_tokens_details={"cached_tokens": 1200},
-                ),
-            )
-
-        with patch.object(analyzer, "_dispatch_litellm_completion", return_value=stream_response()):
-            text, model_used, usage = analyzer._call_litellm(
-                "prompt",
-                {"max_tokens": 128, "temperature": 0.2},
-                stream=True,
-            )
-
-        assert text == "ok"
-        assert model_used == "glm-router"
-        assert usage["normalized_cache_read_tokens"] == 1200
-        assert usage["cache_capability"] == "supported"
-        assert usage["cache_observation"] == "full_hit"
-
     def test_call_litellm_stream_uses_openai_wire_model_for_alias_usage_threshold(self):
         analyzer = self._make_analyzer()
         analyzer._config_override = SimpleNamespace(
