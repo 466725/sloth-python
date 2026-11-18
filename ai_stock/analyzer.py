@@ -31,6 +31,7 @@ from ai_stock.agent.provider_trace import resolved_model_provider_identity
 from ai_stock.agent.skills.defaults import CORE_TRADING_SKILL_POLICY_ZH
 from ai_stock.config import (
     Config,
+    _is_ollama_model,
     extra_litellm_params,
     get_api_keys_for_model,
     get_config,
@@ -2572,7 +2573,17 @@ class GeminiAnalyzer:
         requested_temperature = generation_config.get('temperature', 0.7)
 
         models_to_try = [config.litellm_model] + (config.litellm_fallback_models or [])
-        models_to_try = [m for m in models_to_try if m]
+        supported_models_to_try: List[str] = []
+        for model in models_to_try:
+            if not model:
+                continue
+            if _is_ollama_model(model, config.llm_model_list):
+                logger.error("Skipping unsupported Ollama model route")
+                continue
+            supported_models_to_try.append(model)
+        models_to_try = supported_models_to_try
+        if not models_to_try:
+            logger.error("No supported LLM models are configured; Ollama routes are disabled")
 
         use_channel_router = self._has_channel_config(config)
 

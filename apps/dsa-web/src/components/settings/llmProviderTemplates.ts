@@ -1,13 +1,12 @@
 import type { UiLanguage } from '../../i18n/uiText';
 
-export type ChannelProtocol = 'openai' | 'deepseek' | 'gemini' | 'vertex_ai' | 'ollama';
+export type ChannelProtocol = 'openai' | 'deepseek' | 'gemini' | 'vertex_ai';
 export type LLMProviderCapability =
   | 'openai-compatible'
   | 'aggregator'
   | 'official-api'
   | 'model-discovery'
-  | 'vision'
-  | 'local-runtime';
+  | 'vision';
 
 export interface LLMProviderTemplate {
   channelId: string;
@@ -43,10 +42,6 @@ export const LLM_PROVIDER_CAPABILITY_LABELS: Record<LLMProviderCapability, { lab
   vision: {
     label: 'Vision 提示',
     hint: '模板提示该 provider 常用于 Vision 场景；具体模型能力仍以账号和模型列表为准。',
-  },
-  'local-runtime': {
-    label: '本地运行',
-    hint: '需要当前运行环境能访问对应本地服务。',
   },
 };
 
@@ -181,16 +176,6 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     officialSources: [{ label: 'OpenAI Models', url: 'https://platform.openai.com/docs/models' }],
   },
   {
-    channelId: 'ollama',
-    label: 'Ollama（本地）',
-    protocol: 'ollama',
-    baseUrl: 'http://127.0.0.1:11434',
-    placeholderModels: 'llama3.2,qwen2.5',
-    capabilities: ['local-runtime'],
-    configHint: '需要本机、Docker 或 self-hosted runner 能访问 Ollama 服务。',
-    officialSources: [{ label: 'Ollama API', url: 'https://github.com/ollama/ollama/blob/main/docs/api.md' }],
-  },
-  {
     channelId: 'custom',
     label: '自定义渠道',
     protocol: 'openai',
@@ -218,7 +203,6 @@ const EN_PROVIDER_TEXT: Record<string, { label: string; configHint?: string }> =
   openrouter: { label: 'OpenRouter', configHint: 'Model listings and visibility depend on account permissions and the API Key.' },
   gemini: { label: 'Gemini Official' },
   openai: { label: 'OpenAI Official' },
-  ollama: { label: 'Ollama (local)', configHint: 'The local machine, Docker or self-hosted runner must be able to reach the Ollama service.' },
   custom: { label: 'Custom channel' },
 };
 
@@ -228,7 +212,6 @@ const EN_CAPABILITY_LABELS: typeof LLM_PROVIDER_CAPABILITY_LABELS = {
   'official-api': { label: 'Official API', hint: 'Use the official provider protocol or compatibility endpoint.' },
   'model-discovery': { label: 'Model discovery', hint: 'Model discovery via /models depends on account permissions and the API Key.' },
   vision: { label: 'Vision reference', hint: 'This provider is commonly used for Vision; actual capabilities depend on the account and model.' },
-  'local-runtime': { label: 'Local runtime', hint: 'The running environment must be able to access the local service.' },
 };
 
 export function getProviderCapabilityMeta(capability: LLMProviderCapability, language: UiLanguage) {
@@ -252,5 +235,4 @@ export const MODEL_PLACEHOLDERS_BY_PROTOCOL: Record<ChannelProtocol, string> = {
   deepseek: 'deepseek-v4-flash,deepseek-v4-pro',
   gemini: 'gemini-3.1-pro-preview,gemini-3-flash-preview',
   vertex_ai: 'gemini-3.1-pro-preview',
-  ollama: 'llama3.2,qwen2.5',
 };

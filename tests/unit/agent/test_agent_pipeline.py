@@ -451,7 +451,7 @@ class TestAgentResultConversion(unittest.TestCase):
             success=True,
             content="LLM returned text but no dashboard JSON",
             dashboard=None,
-            provider="ollama",
+            provider="test-provider",
         )
         trend_result = TrendAnalysisResult(
             code="600519",
@@ -537,7 +537,7 @@ class TestAgentResultConversion(unittest.TestCase):
                 "trend_prediction": "看多",
                 "sentiment_score": 74,
             },
-            provider="ollama",
+            provider="test-provider",
         )
 
         result = pipeline._agent_result_to_analysis_result(
@@ -1005,7 +1005,7 @@ class TestAgentResultConversion(unittest.TestCase):
                     success=True,
                     content="LLM returned text but no dashboard JSON",
                     dashboard=None,
-                    provider="ollama",
+                    provider="test-provider",
                 )
                 trend_result = TrendAnalysisResult(
                     code="600519",

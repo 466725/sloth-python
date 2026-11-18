@@ -24,6 +24,9 @@ Configuration precedence is **YAML → Channels → legacy provider settings**.
 YAML takes precedence only when its path can be read and it contains a usable
 `model_list`; otherwise DSA falls back to the next configuration source. The
 configuration loader does not rewrite or remove lower-priority settings.
+Native Ollama protocol settings and `ollama/` model routes are unsupported and
+ignored. Remove them from existing `.env` files and LiteLLM YAML, then select a
+supported model.
 Legacy Anthropic settings are no longer shown or used for automatic provider
 selection. Existing environment files are not changed; select another provider
 and update the primary, Agent, fallback, and vision models if needed.
@@ -60,8 +63,8 @@ LLM_GEMINI_MODELS=gemini-3.1-pro-preview
 LITELLM_MODEL=deepseek/deepseek-v4-flash
 ```
 
-Use the provider's protocol for its native integration (`deepseek`, `gemini`,
-or `ollama`), and use `openai` for OpenAI-compatible endpoints.
+Use the provider's protocol for its native integration (`deepseek` or `gemini`),
+and use `openai` for OpenAI-compatible endpoints.
 For a custom OpenAI-compatible service:
 
 ```dotenv
@@ -76,13 +79,13 @@ LITELLM_MODEL=openai/model-a
 Keep API keys and headers containing credentials in a private `.env` file or
 secret store; do not commit real values. A channel may use `LLM_<CHANNEL>_API_KEY`
 or `LLM_<CHANNEL>_API_KEYS`. Set `LLM_<CHANNEL>_ENABLED=false` to skip a channel.
-The local Ollama endpoint usually needs no API key; the host running DSA must be
-able to reach the configured Ollama URL.
+Local OpenAI-compatible endpoints may not need an API key; the host running DSA
+must be able to reach the configured URL.
 
 The [`.env.example` file](../../.env.example) is a compact starter template. The
 provider and channel examples in this guide cover additional options such as
 AIHubmix, Anspire Open, Moonshot/Kimi, DashScope, Zhipu, MiniMax, MiMo,
-Volcengine, SiliconFlow, OpenRouter, and Ollama. Treat model IDs and regional
+Volcengine, SiliconFlow, and OpenRouter. Treat model IDs and regional
 endpoints as starting points, and verify them with the provider before use.
 
 ## Provider reference
@@ -105,7 +108,6 @@ They are not an exhaustive list of models or a compatibility certification.
 | Volcengine Ark / Doubao | `volcengine` | `openai` | `https://ark.cn-beijing.volces.com/api/v3` (region-specific) |
 | SiliconFlow | `siliconflow` | `openai` | `https://api.siliconflow.cn/v1` |
 | OpenRouter | `openrouter` | `openai` | `https://openrouter.ai/api/v1` |
-| Ollama | `ollama` | `ollama` | `http://127.0.0.1:11434` |
 
 Provider-specific model names and available endpoints change. Use the provider
 documentation and account console as the source of truth. Useful references
@@ -139,7 +141,7 @@ read from the file.
 
 | Diagnostic / symptom | Common cause | What to check |
 | --- | --- | --- |
-| `missing_api_key` | No non-empty API key was resolved. | Check the provider key or channel key settings. Local Ollama may not require one. |
+| `missing_api_key` | No non-empty API key was resolved. | Check the provider key or channel key settings. Local compatible endpoints may not require one. |
 | `api_key_rejected` | Provider rejected the key or account. | Check key value, project/organization, model permissions, and regional restrictions. |
 | `model_access_denied` or `model_not_found` | Model is disabled, unavailable to the account, or incorrectly named. | Check the exact model ID and account access in the provider console. |
 | `insufficient_balance`, `quota_exceeded`, or `rate_limit` | Billing, quota, or request-rate limit. | Check account balance, project limits, RPM/TPM, and concurrency; retry after adjusting usage if appropriate. |

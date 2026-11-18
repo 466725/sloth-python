@@ -22,6 +22,8 @@ from ai_stock.config import (
     SUPPORTED_LLM_CHANNEL_PROTOCOLS,
     Config,
     _get_litellm_provider,
+    _is_ollama_endpoint,
+    _is_ollama_model,
     _uses_direct_env_provider,
     canonicalize_llm_channel_protocol,
     channel_allows_empty_api_key,
@@ -2230,7 +2232,6 @@ class SystemConfigService:
             "AGENT_LITELLM_MODEL",
             "VISION_MODEL",
             "OPENAI_BASE_URL",
-            "OLLAMA_API_BASE",
             "FEISHU_STREAM_ENABLED",
         }:
             return True
@@ -2239,7 +2240,6 @@ class SystemConfigService:
             "GEMINI_",
             "OPENAI_",
             "DEEPSEEK_",
-            "OLLAMA_",
             "FEISHU_",
             "EMAIL_",
             "DINGTALK_",
@@ -2280,13 +2280,14 @@ class SystemConfigService:
     @classmethod
     def _provider_has_setup_credentials(cls, provider: str, effective_map: Dict[str, str]) -> bool:
         normalized = canonicalize_llm_channel_protocol(provider)
-        if normalized == "ollama":
-            return True
         if normalized == "gemini" or normalized == "vertex_ai":
             return cls._has_any_config_value(effective_map, ("GEMINI_API_KEYS", "GEMINI_API_KEY"))
         if normalized == "deepseek":
             return cls._has_any_config_value(effective_map, ("DEEPSEEK_API_KEYS", "DEEPSEEK_API_KEY"))
         if normalized == "openai":
+            base_url = (effective_map.get("OPENAI_BASE_URL") or "").strip()
+            if _is_ollama_endpoint(base_url):
+                return False
             if cls._has_any_config_value(effective_map, ("OPENAI_API_KEYS", "OPENAI_API_KEY", "AIHUBMIX_KEY")):
                 return True
             if (
@@ -2294,7 +2295,6 @@ class SystemConfigService:
                 and cls._has_any_config_value(effective_map, ("ANSPIRE_API_KEYS",))
             ):
                 return True
-            base_url = (effective_map.get("OPENAI_BASE_URL") or "").strip()
             return channel_allows_empty_api_key("openai", base_url)
 
         env_prefix = normalized.upper().replace("-", "_")
@@ -2328,12 +2328,21 @@ class SystemConfigService:
                 continue
 
             base_url = (effective_map.get(f"{prefix}_BASE_URL") or "").strip()
+            raw_protocol = (effective_map.get(f"{prefix}_PROTOCOL") or "").strip()
+            raw_models = cls._split_csv(effective_map.get(f"{prefix}_MODELS") or "")
+            if (
+                name.lower() == "ollama"
+                or raw_protocol.lower() == "ollama"
+                or _is_ollama_endpoint(base_url)
+            ):
+                continue
+            raw_models = [model for model in raw_models if not _is_ollama_model(model)]
             if name.lower() == "anspire" and not base_url:
                 base_url = (
                     effective_map.get("ANSPIRE_LLM_BASE_URL")
                     or ANSPIRE_LLM_BASE_URL_DEFAULT
                 ).strip()
-            protocol = (effective_map.get(f"{prefix}_PROTOCOL") or "").strip()
+            protocol = raw_protocol
             if name.lower() == "anspire" and not protocol:
                 protocol = "openai"
             api_key = (
@@ -2342,7 +2351,6 @@ class SystemConfigService:
             )
             if name.lower() == "anspire" and not api_key:
                 api_key = (effective_map.get("ANSPIRE_API_KEYS") or "").strip()
-            raw_models = cls._split_csv(effective_map.get(f"{prefix}_MODELS") or "")
             if name.lower() == "anspire" and not raw_models:
                 raw_models = [
                     (
@@ -2350,6 +2358,7 @@ class SystemConfigService:
                         or ANSPIRE_LLM_MODEL_DEFAULT
                     ).strip()
                 ]
+            raw_models = [model for model in raw_models if not _is_ollama_model(model)]
             resolved_protocol = resolve_llm_channel_protocol(
                 protocol,
                 base_url=base_url,
@@ -2388,17 +2397,23 @@ class SystemConfigService:
                 or ANSPIRE_LLM_MODEL_DEFAULT
             ).strip()
             return model if "/" in model else f"openai/{model}"
-        if (effective_map.get("OLLAMA_API_BASE") or "").strip():
-            model = (effective_map.get("OLLAMA_MODEL") or "").strip()
-            return model if model.startswith("ollama/") else (f"ollama/{model}" if model else "ollama/local")
         return ""
 
     def _resolve_setup_primary_model(self, effective_map: Dict[str, str]) -> Tuple[str, str]:
         explicit_model = (effective_map.get("LITELLM_MODEL") or "").strip()
+        blocked_yaml_model_names: Set[str] = set()
+        config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
+        if config_path:
+            Config._parse_litellm_yaml(
+                config_path,
+                blocked_model_names=blocked_yaml_model_names,
+            )
         yaml_models = self._collect_yaml_models_from_map(effective_map)
         channel_models = self._collect_setup_channel_models(effective_map)
 
         if explicit_model:
+            if _is_ollama_model(explicit_model) or explicit_model in blocked_yaml_model_names:
+                return "", "Ollama models are not supported; select a supported model."
             if _uses_direct_env_provider(explicit_model):
                 return explicit_model, "explicit"
             has_direct_source = self._has_setup_runtime_source_for_model(explicit_model, effective_map)
@@ -2454,6 +2469,13 @@ class SystemConfigService:
         primary_check: Dict[str, Any],
     ) -> Dict[str, Any]:
         agent_model_raw = (effective_map.get("AGENT_LITELLM_MODEL") or "").strip()
+        blocked_yaml_model_names: Set[str] = set()
+        config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
+        if config_path:
+            Config._parse_litellm_yaml(
+                config_path,
+                blocked_model_names=blocked_yaml_model_names,
+            )
         if not agent_model_raw:
             if primary_check["status"] == "configured":
                 return self._setup_check(
@@ -2479,6 +2501,16 @@ class SystemConfigService:
             or self._collect_setup_channel_models(effective_map)
         )
         agent_model = normalize_agent_litellm_model(agent_model_raw, configured_models=configured_models)
+        if _is_ollama_model(agent_model) or agent_model_raw in blocked_yaml_model_names:
+            return self._setup_check(
+                "llm_agent",
+                "Agent 渠道",
+                "agent",
+                True,
+                "needs_action",
+                "Ollama models are not supported.",
+                "Select a supported Agent model.",
+            )
         if _uses_direct_env_provider(agent_model):
             return self._setup_check(
                 "llm_agent",
@@ -2600,7 +2632,7 @@ class SystemConfigService:
     def _is_safe_base_url(value: str) -> bool:
         """Block link-local and cloud metadata addresses to prevent SSRF.
 
-        Allows localhost / private-LAN addresses (e.g. Ollama on 192.168.x.x)
+        Allows localhost / private-LAN addresses for custom local integrations,
         but blocks 169.254.x.x (AWS/Azure/GCP/Alibaba instance-metadata service)
         and other known metadata hostnames.
         """
@@ -3323,6 +3355,67 @@ class SystemConfigService:
         """Validate selected primary/fallback/vision models against configured channels."""
         issues: List[Dict[str, Any]] = []
 
+        blocked_yaml_model_names: Set[str] = set()
+        config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
+        if config_path:
+            Config._parse_litellm_yaml(
+                config_path,
+                blocked_model_names=blocked_yaml_model_names,
+            )
+
+        channel_uses_ollama = False
+        for name in SystemConfigService._split_csv(effective_map.get("LLM_CHANNELS") or ""):
+            prefix = f"LLM_{name.strip().upper()}"
+            protocol = (effective_map.get(f"{prefix}_PROTOCOL") or "").strip().lower()
+            base_url = (effective_map.get(f"{prefix}_BASE_URL") or "").strip()
+            models = SystemConfigService._split_csv(effective_map.get(f"{prefix}_MODELS") or "")
+            if (
+                name.strip().lower() == "ollama"
+                or protocol == "ollama"
+                or _is_ollama_endpoint(base_url)
+                or any(_is_ollama_model(model) for model in models)
+            ):
+                channel_uses_ollama = True
+                break
+
+        selected_models = [
+            (key, (effective_map.get(key) or "").strip())
+            for key in ("LITELLM_MODEL", "AGENT_LITELLM_MODEL", "VISION_MODEL")
+        ]
+        unsupported_models = [
+            (key, model)
+            for key, model in selected_models
+            if model and (
+                _is_ollama_model(model)
+                or model in blocked_yaml_model_names
+            )
+        ]
+        unsupported_models.extend(
+            ("LITELLM_FALLBACK_MODELS", model)
+            for model in SystemConfigService._split_csv(
+                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
+            )
+            if _is_ollama_model(model) or model in blocked_yaml_model_names
+        )
+        if (
+            any(
+                key.startswith("OLLAMA_") and str(value or "").strip()
+                for key, value in effective_map.items()
+            )
+            or _is_ollama_endpoint(effective_map.get("OPENAI_BASE_URL"))
+            or bool(blocked_yaml_model_names)
+            or channel_uses_ollama
+            or unsupported_models
+        ):
+            fields = ", ".join(dict.fromkeys(key for key, _model in unsupported_models))
+            issues.append(
+                {
+                    "key": fields or ("LLM_CHANNELS" if channel_uses_ollama else "LLM_PROVIDER"),
+                    "code": "unsupported_provider",
+                    "message": "Ollama model routes are not supported. Select another provider and remove Ollama settings.",
+                }
+            )
+
         available_models = (
             SystemConfigService._collect_yaml_models_from_map(effective_map)
             or SystemConfigService._collect_llm_channel_models_from_map(effective_map)
@@ -3580,6 +3673,21 @@ class SystemConfigService:
         api_key_key = f"{field_prefix}_API_KEY" if field_prefix != "test_channel" else "api_key"
 
         normalized_protocol = canonicalize_llm_channel_protocol(protocol_value)
+        if (
+            channel_name.strip().lower() == "ollama"
+            or _is_ollama_endpoint(base_url_value)
+            or any(_is_ollama_model(model) for model in model_values)
+        ):
+            issues.append(
+                {
+                    "key": protocol_key,
+                    "code": "unsupported_provider",
+                    "message": "Ollama model routes are not supported.",
+                    "severity": "error",
+                    "expected": "a supported LLM provider",
+                    "actual": protocol_value or channel_name,
+                }
+            )
         if normalized_protocol and normalized_protocol not in SUPPORTED_LLM_CHANNEL_PROTOCOLS:
             issues.append(
                 {
