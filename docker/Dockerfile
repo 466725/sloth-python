@@ -3,7 +3,7 @@
 # ===================================
 # 多阶段构建：前端打包 + 后端运行
 
-FROM node:20-slim AS web-builder
+FROM node:24-slim AS web-builder
 
 WORKDIR /app/apps/dsa-web
 

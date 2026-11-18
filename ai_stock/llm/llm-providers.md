@@ -24,6 +24,9 @@ Configuration precedence is **YAML → Channels → legacy provider settings**.
 YAML takes precedence only when its path can be read and it contains a usable
 `model_list`; otherwise DSA falls back to the next configuration source. The
 configuration loader does not rewrite or remove lower-priority settings.
+Legacy Anthropic settings are no longer shown or used for automatic provider
+selection. Existing environment files are not changed; select another provider
+and update the primary, Agent, fallback, and vision models if needed.
 
 Channels are the recommended option for most users and can be managed in the
 Web app's **AI Model Configuration** settings. Use **Quick Add Channel** to
@@ -58,7 +61,7 @@ LITELLM_MODEL=deepseek/deepseek-v4-flash
 ```
 
 Use the provider's protocol for its native integration (`deepseek`, `gemini`,
-`anthropic`, or `ollama`), and use `openai` for OpenAI-compatible endpoints.
+or `ollama`), and use `openai` for OpenAI-compatible endpoints.
 For a custom OpenAI-compatible service:
 
 ```dotenv
@@ -94,7 +97,6 @@ They are not an exhaustive list of models or a compatibility certification.
 | Anspire Open | `anspire` | `openai` | `https://open-gateway.anspire.cn/v6` |
 | DeepSeek | `deepseek` | `deepseek` | `https://api.deepseek.com` |
 | Google Gemini | `gemini` | `gemini` | Provider default; normally leave blank |
-| Anthropic Claude | `anthropic` | `anthropic` | Provider default; normally leave blank |
 | Moonshot / Kimi | `moonshot` | `openai` | `https://api.moonshot.cn/v1` |
 | Alibaba DashScope | `dashscope` | `openai` | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
 | Zhipu GLM | `zhipu` | `openai` | `https://open.bigmodel.cn/api/paas/v4` |
@@ -123,7 +125,7 @@ and the [LiteLLM YAML configuration reference](https://docs.litellm.ai/docs/prox
   ending in `/v1` or `/api/v3`. Do not append `/chat/completions` unless the
   provider's integration specifically requires it.
 - For native LiteLLM providers, use their provider prefix (such as
-  `gemini/model`, `anthropic/model`, or `deepseek/model`) and provider-specific
+  `gemini/model` or `deepseek/model`) and provider-specific
   settings.
 
 For custom aliases, YAML `model_name` is the alias selected by

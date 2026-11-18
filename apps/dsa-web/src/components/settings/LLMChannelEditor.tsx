@@ -22,14 +22,12 @@ const PROTOCOL_OPTIONS: Array<{ value: ChannelProtocol; label: string }> = [
   { value: 'openai', label: 'OpenAI Compatible' },
   { value: 'deepseek', label: 'DeepSeek' },
   { value: 'gemini', label: 'Gemini' },
-  { value: 'anthropic', label: 'Anthropic' },
   { value: 'vertex_ai', label: 'Vertex AI' },
   { value: 'ollama', label: 'Ollama' },
 ];
 
 const KNOWN_MODEL_PREFIXES = new Set([
   'openai',
-  'anthropic',
   'gemini',
   'vertex_ai',
   'deepseek',
@@ -534,7 +532,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
             disabled={busy}
             onChange={(e) => onUpdate(index, 'baseUrl', e.target.value)}
             placeholder={
-              channel.protocol === 'gemini' || channel.protocol === 'anthropic'
+              channel.protocol === 'gemini'
                 ? text.officialUrlPlaceholder
                 : preset?.baseUrl || 'https://api.example.com/v1'
             }
@@ -820,9 +818,6 @@ function normalizeProtocol(value: string): ChannelProtocol {
   if (normalized === 'vertex' || normalized === 'vertexai') {
     return 'vertex_ai';
   }
-  if (normalized === 'claude') {
-    return 'anthropic';
-  }
   if (normalized === 'google') {
     return 'gemini';
   }
@@ -831,9 +826,6 @@ function normalizeProtocol(value: string): ChannelProtocol {
   }
   if (normalized === 'gemini') {
     return 'gemini';
-  }
-  if (normalized === 'anthropic') {
-    return 'anthropic';
   }
   if (normalized === 'vertex_ai') {
     return 'vertex_ai';
@@ -934,7 +926,6 @@ function toggleModelSelection(models: string, targetModel: string, protocol: Cha
 const PROTOCOL_ALIASES: Record<string, string> = {
   vertexai: 'vertex_ai',
   vertex: 'vertex_ai',
-  claude: 'anthropic',
   google: 'gemini',
   openai_compatible: 'openai',
   openai_compat: 'openai',
@@ -1075,11 +1066,10 @@ function getFirstCapabilityHint(
   return undefined;
 }
 
-const MANAGED_PROVIDERS = new Set(['gemini', 'vertex_ai', 'anthropic', 'openai', 'deepseek']);
+const MANAGED_PROVIDERS = new Set(['gemini', 'vertex_ai', 'openai', 'deepseek']);
 const LEGACY_PROVIDER_KEYS: Record<string, string[]> = {
   gemini: ['GEMINI_API_KEYS', 'GEMINI_API_KEY'],
   vertex_ai: ['GEMINI_API_KEYS', 'GEMINI_API_KEY'],
-  anthropic: ['ANTHROPIC_API_KEYS', 'ANTHROPIC_API_KEY'],
   openai: ['OPENAI_API_KEYS', 'AIHUBMIX_KEY', 'OPENAI_API_KEY'],
   deepseek: ['DEEPSEEK_API_KEYS', 'DEEPSEEK_API_KEY'],
 };
@@ -1171,7 +1161,6 @@ function resolveTemperatureFromItems(itemMap: Map<string, string>): string {
   const providerTemperatureEnv: Record<string, string> = {
     gemini: 'GEMINI_TEMPERATURE',
     vertex_ai: 'GEMINI_TEMPERATURE',
-    anthropic: 'ANTHROPIC_TEMPERATURE',
     openai: 'OPENAI_TEMPERATURE',
     deepseek: 'OPENAI_TEMPERATURE',
   };
@@ -1181,7 +1170,7 @@ function resolveTemperatureFromItems(itemMap: Map<string, string>): string {
     if (val) return val;
   }
 
-  for (const envName of ['GEMINI_TEMPERATURE', 'ANTHROPIC_TEMPERATURE', 'OPENAI_TEMPERATURE']) {
+  for (const envName of ['GEMINI_TEMPERATURE', 'OPENAI_TEMPERATURE']) {
     const val = itemMap.get(envName);
     if (val) return val;
   }

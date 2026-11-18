@@ -128,11 +128,10 @@ class TestAgentConfig(unittest.TestCase):
             ),
             (
                 {
-                    "ANTHROPIC_API_KEY": "anthropic-test-key",
-                    "ANTHROPIC_MODEL": "claude-3-5-sonnet-20241022",
+                    "DEEPSEEK_API_KEY": "deepseek-test-key",
                     "AGENT_LITELLM_MODEL": "",
                 },
-                ["anthropic/claude-3-5-sonnet-20241022"],
+                ["deepseek/deepseek-chat"],
             ),
         ]
 

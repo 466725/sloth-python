@@ -24,8 +24,6 @@ def has_configured_llm_runtime(config: Config) -> bool:
     for field in (
         "gemini_api_key",
         "gemini_api_keys",
-        "anthropic_api_key",
-        "anthropic_api_keys",
         "deepseek_api_key",
         "deepseek_api_keys",
         "openai_api_key",

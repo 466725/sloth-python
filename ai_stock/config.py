@@ -58,8 +58,8 @@ class ConfigIssue:
         return self.message
 
 
-_MANAGED_LITELLM_KEY_PROVIDERS = {"gemini", "vertex_ai", "anthropic", "openai", "deepseek"}
-SUPPORTED_LLM_CHANNEL_PROTOCOLS = ("openai", "anthropic", "gemini", "vertex_ai", "deepseek", "ollama")
+_MANAGED_LITELLM_KEY_PROVIDERS = {"gemini", "vertex_ai", "openai", "deepseek"}
+SUPPORTED_LLM_CHANNEL_PROTOCOLS = ("openai", "gemini", "vertex_ai", "deepseek", "ollama")
 _FALSEY_ENV_VALUES = {"0", "false", "no", "off"}
 # Fallback defaults used when ANSPIRE_API_KEYS is reused as legacy OpenAI-compatible source.
 # These are compatibility examples; actual availability should be validated by Anspire console/model entitlement.
@@ -285,7 +285,6 @@ def canonicalize_llm_channel_protocol(value: Optional[str]) -> str:
     aliases = {
         "openai_compatible": "openai",
         "openai_compat": "openai",
-        "claude": "anthropic",
         "google": "gemini",
         "vertex": "vertex_ai",
         "vertexai": "vertex_ai",
@@ -463,7 +462,6 @@ def resolve_unified_llm_temperature(model: str) -> float:
     provider_temperature_env = {
         "gemini": "GEMINI_TEMPERATURE",
         "vertex_ai": "GEMINI_TEMPERATURE",
-        "anthropic": "ANTHROPIC_TEMPERATURE",
         "openai": "OPENAI_TEMPERATURE",
         "deepseek": "OPENAI_TEMPERATURE",
     }
@@ -476,7 +474,7 @@ def resolve_unified_llm_temperature(model: str) -> float:
             except (ValueError, TypeError):
                 pass
 
-    for env_name in ("GEMINI_TEMPERATURE", "ANTHROPIC_TEMPERATURE", "OPENAI_TEMPERATURE"):
+    for env_name in ("GEMINI_TEMPERATURE", "OPENAI_TEMPERATURE"):
         env_value = os.getenv(env_name)
         if env_value and env_value.strip():
             try:
@@ -624,7 +622,6 @@ class Config:
 
     # Multi-key support: each list is parsed from *_API_KEYS (comma-separated) with single-key fallback
     gemini_api_keys: List[str] = field(default_factory=list)
-    anthropic_api_keys: List[str] = field(default_factory=list)
     openai_api_keys: List[str] = field(default_factory=list)
     deepseek_api_keys: List[str] = field(default_factory=list)
 
@@ -639,13 +636,7 @@ class Config:
     gemini_max_retries: int = 5  # 最大重试次数
     gemini_retry_delay: float = 5.0  # 重试基础延时（秒）
 
-    # Anthropic Claude API（备选，当 Gemini 不可用时使用）
-    anthropic_api_key: Optional[str] = None
-    anthropic_model: str = "claude-sonnet-4-6"  # Claude model name
-    anthropic_temperature: float = 0.7  # Anthropic temperature (0.0-1.0, default 0.7)
-    anthropic_max_tokens: int = 8192  # Max tokens for Anthropic responses
-
-    # OpenAI 兼容 API（备选，当 Gemini/Anthropic 不可用时使用）
+    # OpenAI 兼容 API（备选，当 Gemini 不可用时使用）
     openai_api_key: Optional[str] = None
     openai_base_url: Optional[str] = None  # 如: https://api.openai.com/v1
     openai_model: str = "gpt-5.5"  # OpenAI 兼容模型名称
@@ -657,7 +648,7 @@ class Config:
     # Fallback chain: VISION_MODEL → OPENAI_VISION_MODEL → gemini/gemini-2.0-flash
     vision_model: str = ""
     # VISION_PROVIDER_PRIORITY: comma-separated provider order for Vision fallback.
-    vision_provider_priority: str = "gemini,anthropic,openai"
+    vision_provider_priority: str = "gemini,openai"
 
     # === 搜索引擎配置（支持多 Key 负载均衡）===
     anspire_api_keys: List[str] = field(default_factory=list)  # Anspire Search API Keys
@@ -1018,13 +1009,6 @@ class Config:
         if not gemini_api_keys and _single_gemini:
             gemini_api_keys = [_single_gemini]
 
-        # ANTHROPIC_API_KEYS > ANTHROPIC_API_KEY
-        _anthropic_keys_raw = os.getenv('ANTHROPIC_API_KEYS', '')
-        anthropic_api_keys = [k.strip() for k in _anthropic_keys_raw.split(',') if k.strip()]
-        _single_anthropic = os.getenv('ANTHROPIC_API_KEY', '').strip()
-        if not anthropic_api_keys and _single_anthropic:
-            anthropic_api_keys = [_single_anthropic]
-
         # OPENAI_API_KEYS > AIHUBMIX_KEY > OPENAI_API_KEY
         _aihubmix = os.getenv('AIHUBMIX_KEY', '').strip()
         _openai_keys_raw = os.getenv('OPENAI_API_KEYS', '')
@@ -1087,11 +1071,8 @@ class Config:
             _openai_model_name = _openai_model_env or 'gpt-5.5'
         if not litellm_model:
             _gemini_model_name = os.getenv('GEMINI_MODEL', 'gemini-3.1-pro-preview').strip()
-            _anthropic_model_name = os.getenv('ANTHROPIC_MODEL', 'claude-sonnet-4-6').strip()
             if gemini_api_keys:
                 litellm_model = f'gemini/{_gemini_model_name}'
-            elif anthropic_api_keys:
-                litellm_model = f'anthropic/{_anthropic_model_name}'
             elif deepseek_api_keys:
                 litellm_model = 'deepseek/deepseek-chat'
                 inferred_legacy_deepseek_model = True
@@ -1145,7 +1126,7 @@ class Config:
         # Priority 3: Legacy env vars → auto-build model_list (backward compatible)
         if not llm_model_list:
             llm_model_list = cls._legacy_keys_to_model_list(
-                gemini_api_keys, anthropic_api_keys, openai_api_keys,
+                gemini_api_keys, openai_api_keys,
                 openai_base_url,
                 deepseek_api_keys,
             )
@@ -1309,7 +1290,6 @@ class Config:
             llm_channel_names=llm_channel_names,
             llm_model_list=llm_model_list,
             gemini_api_keys=gemini_api_keys,
-            anthropic_api_keys=anthropic_api_keys,
             openai_api_keys=openai_api_keys,
             deepseek_api_keys=deepseek_api_keys,
             gemini_api_key=os.getenv('GEMINI_API_KEY'),
@@ -1319,13 +1299,9 @@ class Config:
             gemini_request_delay=parse_env_float(os.getenv('GEMINI_REQUEST_DELAY'), 2.0, field_name='GEMINI_REQUEST_DELAY', minimum=0.0),
             gemini_max_retries=parse_env_int(os.getenv('GEMINI_MAX_RETRIES'), 5, field_name='GEMINI_MAX_RETRIES', minimum=0),
             gemini_retry_delay=parse_env_float(os.getenv('GEMINI_RETRY_DELAY'), 5.0, field_name='GEMINI_RETRY_DELAY', minimum=0.0),
-            anthropic_api_key=os.getenv('ANTHROPIC_API_KEY'),
-            anthropic_model=os.getenv('ANTHROPIC_MODEL', 'claude-sonnet-4-6'),
-            anthropic_temperature=parse_env_float(os.getenv('ANTHROPIC_TEMPERATURE'), 0.7, field_name='ANTHROPIC_TEMPERATURE'),
-            anthropic_max_tokens=parse_env_int(os.getenv('ANTHROPIC_MAX_TOKENS'), 8192, field_name='ANTHROPIC_MAX_TOKENS', minimum=1),
             # AIHubmix is the preferred OpenAI-compatible provider (one key, all models, no VPN required).
             # Within the OpenAI-compatible layer: AIHUBMIX_KEY takes priority over OPENAI_API_KEY.
-            # Overall provider fallback order: Gemini > Anthropic > OpenAI-compatible (incl. AIHubmix).
+            # Overall provider fallback order: Gemini > DeepSeek > OpenAI-compatible (incl. AIHubmix).
             # base_url is auto-set to aihubmix.com/v1 when AIHUBMIX_KEY is used and no explicit
             # OPENAI_BASE_URL override is provided.
             # Model names match upstream (e.g. gemini-3.1-pro-preview, gpt-5.5, deepseek-v4-flash).
@@ -1340,7 +1316,7 @@ class Config:
                 or os.getenv('OPENAI_VISION_MODEL')
                 or ""
             ),
-            vision_provider_priority=os.getenv('VISION_PROVIDER_PRIORITY', 'gemini,anthropic,openai'),
+            vision_provider_priority=os.getenv('VISION_PROVIDER_PRIORITY', 'gemini,openai'),
             anspire_api_keys=anspire_api_keys,
             bocha_api_keys=bocha_api_keys,
             minimax_api_keys=minimax_api_keys,
@@ -1645,7 +1621,7 @@ class Config:
             LLM_AIHUBMIX_PROTOCOL=openai
             LLM_AIHUBMIX_BASE_URL=https://aihubmix.com/v1
             LLM_AIHUBMIX_API_KEY=sk-xxx           (or LLM_AIHUBMIX_API_KEYS=k1,k2)
-            LLM_AIHUBMIX_MODELS=gpt-5.5,claude-sonnet-4-6
+            LLM_AIHUBMIX_MODELS=gpt-5.5,gemini-3.1-pro-preview
             LLM_AIHUBMIX_ENABLED=true
         """
         import logging
@@ -1775,7 +1751,6 @@ class Config:
     def _legacy_keys_to_model_list(
         cls,
         gemini_keys: List[str],
-        anthropic_keys: List[str],
         openai_keys: List[str],
         openai_base_url: Optional[str],
         deepseek_keys: Optional[List[str]] = None,
@@ -1800,14 +1775,6 @@ class Config:
                 model_list.append({
                     'model_name': '__legacy_gemini__',
                     'litellm_params': {'model': '__legacy_gemini__', 'api_key': k},
-                })
-
-        # Anthropic keys
-        for k in anthropic_keys:
-            if k and len(k) >= 8:
-                model_list.append({
-                    'model_name': '__legacy_anthropic__',
-                    'litellm_params': {'model': '__legacy_anthropic__', 'api_key': k},
                 })
 
         # OpenAI-compatible keys
@@ -2248,7 +2215,7 @@ class Config:
                     severity="error",
                     message=(
                         "未配置任何可用的 AI 模型接入。请至少配置 ANSPIRE_API_KEYS、"
-                        "AIHUBMIX_KEY、GEMINI_API_KEY、ANTHROPIC_API_KEY、"
+                        "AIHUBMIX_KEY、GEMINI_API_KEY、"
                         "OPENAI_API_KEY 或 DEEPSEEK_API_KEY 中的一个，或配置 "
                         "LITELLM_CONFIG / LLM_CHANNELS 可用模型渠道。"
                     ),
@@ -2273,8 +2240,6 @@ class Config:
             provider = _get_litellm_provider(model)
             if provider in {"gemini", "vertex_ai"}:
                 return any(k and len(k) >= 8 for k in (self.gemini_api_keys or []))
-            if provider == "anthropic":
-                return any(k and len(k) >= 8 for k in (self.anthropic_api_keys or []))
             if provider == "deepseek":
                 return any(k and len(k) >= 8 for k in (self.deepseek_api_keys or []))
             if provider == "openai":
@@ -2444,7 +2409,6 @@ class Config:
             _VISION_KEY_MAP = {
                 "gemini": self.gemini_api_keys,
                 "vertex_ai": self.gemini_api_keys,
-                "anthropic": self.anthropic_api_keys,
                 "openai": self.openai_api_keys,
                 "deepseek": self.deepseek_api_keys,
             }
@@ -2525,8 +2489,6 @@ def get_api_keys_for_model(model: str, config: Config) -> List[str]:
     provider = _get_litellm_provider(model)
     if provider in {"gemini", "vertex_ai"}:
         return [k for k in config.gemini_api_keys if k and len(k) >= 8]
-    if provider == "anthropic":
-        return [k for k in config.anthropic_api_keys if k and len(k) >= 8]
     if provider == "deepseek":
         return [k for k in config.deepseek_api_keys if k and len(k) >= 8]
     if provider == "openai":

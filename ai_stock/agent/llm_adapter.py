@@ -320,7 +320,7 @@ def resolve_fallback_litellm_wire_models(
 class LLMToolAdapter:
     """Unified adapter for tool-calling via LiteLLM.
 
-    Supports all providers (Gemini, Anthropic, OpenAI, DeepSeek, etc.) through
+    Supports providers (Gemini, OpenAI, DeepSeek, etc.) through
     a single litellm.completion() interface with optional Router for multi-key
     load balancing.
     """

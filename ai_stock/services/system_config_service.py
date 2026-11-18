@@ -120,7 +120,7 @@ class SystemConfigService:
         "LLM_TIMEOUT_SEC",
         "LLM_MAX_TOKENS",
     }
-    _REMOVED_CONFIG_KEY_PREFIXES: Tuple[str, ...] = ("ALPHASIFT_",)
+    _REMOVED_CONFIG_KEY_PREFIXES: Tuple[str, ...] = ("ALPHASIFT_", "ANTHROPIC_")
     _NOTIFICATION_TEST_CHANNELS: Tuple[str, ...] = ("email",)
     _NOTIFICATION_TEST_KEY_MAP: Dict[str, Tuple[str, str]] = {
         "EMAIL_SENDER": ("email_sender", "string"),
@@ -2238,7 +2238,6 @@ class SystemConfigService:
             "LLM_",
             "GEMINI_",
             "OPENAI_",
-            "ANTHROPIC_",
             "DEEPSEEK_",
             "OLLAMA_",
             "FEISHU_",
@@ -2285,8 +2284,6 @@ class SystemConfigService:
             return True
         if normalized == "gemini" or normalized == "vertex_ai":
             return cls._has_any_config_value(effective_map, ("GEMINI_API_KEYS", "GEMINI_API_KEY"))
-        if normalized == "anthropic":
-            return cls._has_any_config_value(effective_map, ("ANTHROPIC_API_KEYS", "ANTHROPIC_API_KEY"))
         if normalized == "deepseek":
             return cls._has_any_config_value(effective_map, ("DEEPSEEK_API_KEYS", "DEEPSEEK_API_KEY"))
         if normalized == "openai":
@@ -2376,9 +2373,6 @@ class SystemConfigService:
         if cls._has_any_config_value(effective_map, ("GEMINI_API_KEYS", "GEMINI_API_KEY")):
             model = (effective_map.get("GEMINI_MODEL") or "gemini-3.1-pro-preview").strip()
             return model if "/" in model else f"gemini/{model}"
-        if cls._has_any_config_value(effective_map, ("ANTHROPIC_API_KEYS", "ANTHROPIC_API_KEY")):
-            model = (effective_map.get("ANTHROPIC_MODEL") or "claude-sonnet-4-6").strip()
-            return model if "/" in model else f"anthropic/{model}"
         if cls._has_any_config_value(effective_map, ("DEEPSEEK_API_KEYS", "DEEPSEEK_API_KEY")):
             return "deepseek/deepseek-chat"
         if cls._has_any_config_value(effective_map, ("OPENAI_API_KEYS", "OPENAI_API_KEY", "AIHUBMIX_KEY")):
@@ -3298,11 +3292,6 @@ class SystemConfigService:
             return bool(
                 (effective_map.get("GEMINI_API_KEYS") or "").strip()
                 or (effective_map.get("GEMINI_API_KEY") or "").strip()
-            )
-        if normalized_provider == "anthropic":
-            return bool(
-                (effective_map.get("ANTHROPIC_API_KEYS") or "").strip()
-                or (effective_map.get("ANTHROPIC_API_KEY") or "").strip()
             )
         if normalized_provider == "deepseek":
             return bool(

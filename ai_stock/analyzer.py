@@ -5,7 +5,7 @@ A股自选股智能分析系统 - AI分析层
 ===================================
 
 职责：
-1. 封装 LLM 调用逻辑（通过 LiteLLM 统一调用 Gemini/Anthropic/OpenAI 等）
+1. 封装 LLM 调用逻辑（通过 LiteLLM 统一调用 Gemini/OpenAI 等）
 2. 结合技术面和消息面生成分析报告
 3. 解析 LLM 响应为结构化 AnalysisResult
 """
@@ -2752,7 +2752,7 @@ class GeminiAnalyzer:
 
         External callers (e.g. MarketAnalyzer) must use this method instead of
         calling _call_litellm() directly or accessing private attributes such as
-        _litellm_available, _router, _model, _use_openai, or _use_anthropic.
+        _litellm_available, _router, _model, or _use_openai.
 
         Args:
             prompt:      Text prompt to send to the LLM.
@@ -2841,7 +2841,7 @@ class GeminiAnalyzer:
                 operation_advice='Hold' if report_language == "en" else '持有',
                 confidence_level='Low' if report_language == "en" else '低',
                 analysis_summary='AI analysis is unavailable because no API key is configured.' if report_language == "en" else 'AI 分析功能未启用（未配置 API Key）',
-                risk_warning='Configure an LLM API key (GEMINI_API_KEY/ANTHROPIC_API_KEY/OPENAI_API_KEY) and retry.' if report_language == "en" else '请配置 LLM API Key（GEMINI_API_KEY/ANTHROPIC_API_KEY/OPENAI_API_KEY）后重试',
+                risk_warning='Configure an LLM API key (GEMINI_API_KEY/OPENAI_API_KEY) and retry.' if report_language == "en" else '请配置 LLM API Key（GEMINI_API_KEY/OPENAI_API_KEY）后重试',
                 success=False,
                 error_message='LLM API key is not configured' if report_language == "en" else 'LLM API Key 未配置',
                 model_used=None,

@@ -30,7 +30,6 @@ def _make_config(**kwargs) -> Config:
         llm_model_list=[{"model_name": "gemini/gemini-2.0-flash", "litellm_params": {"model": "gemini/gemini-2.0-flash", "api_key": "sk-test"}}],
         litellm_model="gemini/gemini-2.0-flash",
         gemini_api_keys=[],
-        anthropic_api_keys=[],
         openai_api_keys=[],
         deepseek_api_keys=[],
         bocha_api_keys=[],
@@ -44,7 +43,6 @@ def _make_config(**kwargs) -> Config:
         llm_channels=[],
         litellm_config_path=None,
         gemini_api_key=None,
-        anthropic_api_key=None,
         openai_api_key=None,
         openai_base_url=None,
         openai_vision_model=None,
@@ -155,6 +153,38 @@ class TestValidateStructuredStockList:
 # ---------------------------------------------------------------------------
 
 class TestValidateStructuredLLM:
+    @pytest.mark.parametrize(
+        ("keys", "expected_model", "expected_placeholder"),
+        [
+            ({"GEMINI_API_KEY": "gemini-test-key"}, "gemini/gemini-3.1-pro-preview", "__legacy_gemini__"),
+            ({"DEEPSEEK_API_KEY": "deepseek-test-key"}, "deepseek/deepseek-chat", "__legacy_deepseek__"),
+            ({"OPENAI_API_KEY": "openai-test-key"}, "openai/gpt-5.5", "__legacy_openai__"),
+        ],
+    )
+    @patch("ai_stock.config.setup_env")
+    def test_legacy_provider_selection_ignores_removed_provider(
+        self, _mock_setup_env, keys, expected_model, expected_placeholder
+    ):
+        with patch.dict(
+            "os.environ",
+            {"ANTHROPIC_API_KEY": "old-test-key", "ANTHROPIC_TEMPERATURE": "0.1", **keys},
+            clear=True,
+        ):
+            cfg = Config._load_from_env()
+
+        assert cfg.litellm_model == expected_model
+        assert cfg.llm_temperature == 0.7
+        assert [model["model_name"] for model in cfg.llm_model_list] == [expected_placeholder]
+        assert cfg.vision_provider_priority == "gemini,openai"
+
+    @patch("ai_stock.config.setup_env")
+    def test_removed_provider_key_alone_does_not_configure_llm(self, _mock_setup_env):
+        with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "old-test-key"}, clear=True):
+            cfg = Config._load_from_env()
+
+        assert cfg.litellm_model == ""
+        assert cfg.llm_model_list == []
+
     def test_no_llm_is_error(self):
         """Empty llm_model_list must produce an error regardless of legacy keys."""
         cfg = _make_config(llm_model_list=[])
@@ -166,7 +196,6 @@ class TestValidateStructuredLLM:
             llm_model_list=[],
             litellm_model="",
             gemini_api_keys=[],
-            anthropic_api_keys=[],
             openai_api_keys=[],
             deepseek_api_keys=[],
             anspire_api_keys=[],
@@ -216,7 +245,6 @@ class TestValidateStructuredLLM:
             llm_model_list=channel_model_list,
             litellm_model="openai/gpt-4o-mini",
             gemini_api_keys=[],
-            anthropic_api_keys=[],
             openai_api_keys=[],
             deepseek_api_keys=[],
         )
@@ -233,7 +261,6 @@ class TestValidateStructuredLLM:
             litellm_model="gemini/gemini-2.5-flash",
             litellm_config_path="/tmp/litellm.yaml",
             gemini_api_keys=[],
-            anthropic_api_keys=[],
             openai_api_keys=[],
         )
         issues = cfg.validate_structured()
@@ -257,7 +284,6 @@ class TestValidateStructuredLLM:
             llm_model_list=model_list,
             deepseek_api_keys=["sk-ds"],
             gemini_api_keys=[],
-            anthropic_api_keys=[],
             openai_api_keys=[],
         )
         issues = cfg.validate_structured()
@@ -456,7 +482,6 @@ class TestVisionKeyValidation:
         cfg = _make_config(
             vision_model="gemini/gemini-2.0-flash",
             gemini_api_keys=[],
-            anthropic_api_keys=[],
             openai_api_keys=[],
             deepseek_api_keys=[],
         )
@@ -479,7 +504,6 @@ class TestVisionKeyValidation:
         cfg = _make_config(
             vision_model="gemini/gemini-2.0-flash",
             gemini_api_keys=["x"],
-            anthropic_api_keys=[],
             openai_api_keys=[],
             deepseek_api_keys=[],
         )
@@ -495,10 +519,9 @@ class TestVisionKeyValidation:
             ],
             litellm_model="openai/gpt-4o",
             vision_model="openai/gpt-4o",
-            vision_provider_priority="gemini,anthropic",  # openai excluded from priority
+            vision_provider_priority="gemini",  # openai excluded from priority
             openai_api_keys=["sk-openai-validkey-xyz"],
             gemini_api_keys=[],
-            anthropic_api_keys=[],
             deepseek_api_keys=[],
         )
         issues = cfg.validate_structured()

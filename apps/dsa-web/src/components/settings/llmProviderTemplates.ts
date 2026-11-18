@@ -1,6 +1,6 @@
 import type { UiLanguage } from '../../i18n/uiText';
 
-export type ChannelProtocol = 'openai' | 'deepseek' | 'gemini' | 'anthropic' | 'vertex_ai' | 'ollama';
+export type ChannelProtocol = 'openai' | 'deepseek' | 'gemini' | 'vertex_ai' | 'ollama';
 export type LLMProviderCapability =
   | 'openai-compatible'
   | 'aggregator'
@@ -56,7 +56,7 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     label: 'AIHubmix（聚合平台）',
     protocol: 'openai',
     baseUrl: 'https://aihubmix.com/v1',
-    placeholderModels: 'gpt-5.5,claude-sonnet-4-6,gemini-3.1-pro-preview',
+    placeholderModels: 'gpt-5.5,gemini-3.1-pro-preview',
     capabilities: ['openai-compatible', 'aggregator'],
     officialSources: [{ label: 'AIHubmix', url: 'https://aihubmix.com/' }],
   },
@@ -155,7 +155,7 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     label: 'OpenRouter',
     protocol: 'openai',
     baseUrl: 'https://openrouter.ai/api/v1',
-    placeholderModels: '~anthropic/claude-sonnet-latest,~openai/gpt-latest',
+    placeholderModels: '~openai/gpt-latest',
     capabilities: ['openai-compatible', 'aggregator', 'model-discovery'],
     configHint: '模型列表和模型可见性依赖账号权限与 API Key。',
     officialSources: [
@@ -170,17 +170,6 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     placeholderModels: 'gemini-3.1-pro-preview,gemini-3-flash-preview',
     capabilities: ['official-api', 'vision'],
     officialSources: [{ label: 'Gemini Models', url: 'https://ai.google.dev/gemini-api/docs/models' }],
-  },
-  {
-    channelId: 'anthropic',
-    label: 'Anthropic 官方',
-    protocol: 'anthropic',
-    baseUrl: '',
-    placeholderModels: 'claude-sonnet-4-6,claude-opus-4-7',
-    capabilities: ['official-api'],
-    officialSources: [
-      { label: 'Anthropic Models', url: 'https://docs.anthropic.com/en/docs/about-claude/models/all-models' },
-    ],
   },
   {
     channelId: 'openai',
@@ -228,7 +217,6 @@ const EN_PROVIDER_TEXT: Record<string, { label: string; configHint?: string }> =
   siliconflow: { label: 'SiliconFlow', configHint: 'Model listings and visibility depend on account permissions and the API Key.' },
   openrouter: { label: 'OpenRouter', configHint: 'Model listings and visibility depend on account permissions and the API Key.' },
   gemini: { label: 'Gemini Official' },
-  anthropic: { label: 'Anthropic Official' },
   openai: { label: 'OpenAI Official' },
   ollama: { label: 'Ollama (local)', configHint: 'The local machine, Docker or self-hosted runner must be able to reach the Ollama service.' },
   custom: { label: 'Custom channel' },
@@ -263,7 +251,6 @@ export const MODEL_PLACEHOLDERS_BY_PROTOCOL: Record<ChannelProtocol, string> = {
   openai: 'gpt-5.5,qwen3.6-plus',
   deepseek: 'deepseek-v4-flash,deepseek-v4-pro',
   gemini: 'gemini-3.1-pro-preview,gemini-3-flash-preview',
-  anthropic: 'claude-sonnet-4-6,claude-opus-4-7',
   vertex_ai: 'gemini-3.1-pro-preview',
   ollama: 'llama3.2,qwen2.5',
 };

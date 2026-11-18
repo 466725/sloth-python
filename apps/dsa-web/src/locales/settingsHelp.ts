@@ -149,7 +149,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
     usage: '通常以 /v1 结尾；官方接口、中转网关和本地兼容服务的地址各不相同。',
     valueNotes: [
       'Base URL 必须与 API Key 所属服务匹配。',
-      'Gemini、Anthropic 等官方 SDK 路径通常不需要填 OPENAI_BASE_URL。',
+      'Gemini 官方 SDK 路径通常不需要填 OPENAI_BASE_URL。',
     ],
     impact: ['影响 OpenAI-compatible legacy 配置路径下的模型请求。'],
     notes: ['渠道模式下优先维护各渠道自己的 LLM_<NAME>_BASE_URL。'],
@@ -385,7 +385,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
   'settings.llm_channel.protocol': {
     title: '渠道协议',
     summary: '声明该渠道使用哪类兼容协议。',
-    usage: 'OpenAI Compatible 适合大多数中转和兼容服务；官方 Gemini/Anthropic/DeepSeek 可选择对应协议。',
+    usage: 'OpenAI Compatible 适合大多数中转和兼容服务；官方 Gemini/DeepSeek 可选择对应协议。',
     valueNotes: ['协议会影响模型名前缀归一、连接测试和模型发现方式。'],
     impact: ['影响请求适配器、模型列表解析和运行时模型引用。'],
     notes: ['协议与 Base URL、API Key 所属服务必须匹配。'],
@@ -959,7 +959,7 @@ const settingsHelpEnUS: SettingsHelpMap = {
     title: 'OpenAI-compatible Base URL',
     summary: 'Sets the endpoint root for an OpenAI-compatible service.',
     usage: 'Often ends with /v1. Official APIs, gateways, and local services use different URLs.',
-    valueNotes: ['The Base URL must match the API key provider.', 'Gemini or Anthropic official paths usually do not use OPENAI_BASE_URL.'],
+    valueNotes: ['The Base URL must match the API key provider.', 'The Gemini official path usually does not use OPENAI_BASE_URL.'],
     impact: ['Affects legacy OpenAI-compatible model calls.'],
     notes: ['In channel mode, prefer each channel-specific LLM_<NAME>_BASE_URL.'],
   },
@@ -1180,7 +1180,7 @@ const settingsHelpEnUS: SettingsHelpMap = {
   'settings.llm_channel.protocol': {
     title: 'Channel Protocol',
     summary: 'Declares which compatibility protocol the channel uses.',
-    usage: 'OpenAI Compatible fits most gateways. Official Gemini, Anthropic, and DeepSeek can use their protocol.',
+    usage: 'OpenAI Compatible fits most gateways. Official Gemini and DeepSeek can use their protocol.',
     valueNotes: ['Protocol affects model prefix normalization, connection tests, and discovery.'],
     impact: ['Affects request adapters, model parsing, and runtime model references.'],
     notes: ['Protocol, Base URL, and API Key must belong to the same service.'],

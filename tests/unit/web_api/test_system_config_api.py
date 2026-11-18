@@ -105,6 +105,20 @@ class SystemConfigApiTestCase(unittest.TestCase):
         self.assertNotIn("base", {category["category"] for category in self.service.get_schema()["categories"]})
         self.assertIn("STOCK_LIST=600519,000001", self.env_path.read_text(encoding="utf-8"))
 
+    def test_removed_provider_fields_are_hidden_without_changing_saved_config(self) -> None:
+        self._rewrite_env(
+            "ANTHROPIC_API_KEY=old-key-value",
+            "ANTHROPIC_MODEL=old-model",
+            "GEMINI_API_KEY=secret-key-value",
+        )
+
+        for include_schema in (True, False):
+            payload = self.service.get_config(include_schema=include_schema)
+            keys = {item["key"] for item in payload["items"]}
+            self.assertFalse(any(key.startswith("ANTHROPIC_") for key in keys))
+            self.assertIn("GEMINI_API_KEY", keys)
+        self.assertIn("ANTHROPIC_API_KEY=old-key-value", self.env_path.read_text(encoding="utf-8"))
+
     def test_get_config_schema_includes_notification_noise_fields(self) -> None:
         payload = system_config.get_system_config(include_schema=True, service=self.service).model_dump(by_alias=True)
         item_map = {item["key"]: item for item in payload["items"]}

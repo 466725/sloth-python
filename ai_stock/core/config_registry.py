@@ -114,7 +114,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
     # ------------------------------------------------------------------
     "LITELLM_MODEL": {
         "title": "Primary Model",
-        "description": "Primary model in provider/model format (e.g. gemini/gemini-3.1-pro-preview, deepseek/deepseek-v4-flash, anthropic/claude-sonnet-4-6). If empty, it is auto-inferred from available API keys or channel declarations.",
+        "description": "Primary model in provider/model format (e.g. gemini/gemini-3.1-pro-preview, deepseek/deepseek-v4-flash). If empty, it is auto-inferred from available API keys or channel declarations.",
         "category": "ai_model",
         "data_type": "string",
         "ui_control": "text",
@@ -187,7 +187,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
     },
     "LITELLM_FALLBACK_MODELS": {
         "title": "Fallback Models",
-        "description": "Comma-separated fallback models tried when the primary model fails (e.g. anthropic/claude-sonnet-4-6,openai/gpt-5.4-mini). Useful for cross-provider redundancy.",
+        "description": "Comma-separated fallback models tried when the primary model fails (e.g. gemini/gemini-3-flash-preview,openai/gpt-5.4-mini). Useful for cross-provider redundancy.",
         "category": "ai_model",
         "data_type": "string",
         "ui_control": "text",
@@ -1090,92 +1090,6 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "options": [],
         "validation": {"min": 0.0, "max": 2.0},
         "display_order": 62,
-    },
-    "ANTHROPIC_API_KEY": {
-        "title": "Anthropic API Key",
-        "description": "Anthropic Claude API key (from https://console.anthropic.com).",
-        "category": "ai_model",
-        "data_type": "string",
-        "ui_control": "password",
-        "is_sensitive": True,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": None,
-        "options": [],
-        "validation": {},
-        "display_order": 35,
-        "help_key": "settings.ai_model.provider_keys",
-        "examples": [
-            "ANTHROPIC_API_KEY=sk-ant-xxxx",
-            "LITELLM_MODEL=anthropic/claude-sonnet-4-6",
-        ],
-        "docs": [
-            {
-                "label": "LLM 配置指南",
-                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
-            },
-            {
-                "label": "LLM 服务商配置速查",
-                "href": "https://github.com/466725/sloth-python/blob/main/ai_stock/llm/llm-providers.md",
-            },
-        ],
-        "warning_codes": ["secret_value"],
-    },
-    "ANTHROPIC_API_KEYS": {
-        "title": "Anthropic API Keys (Multi)",
-        "description": "Comma-separated Anthropic API keys for load balancing. Takes priority over ANTHROPIC_API_KEY.",
-        "category": "ai_model",
-        "data_type": "string",
-        "ui_control": "password",
-        "is_sensitive": True,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": None,
-        "options": [],
-        "validation": {"multi_value": True, "delimiter": ","},
-        "display_order": 35,
-    },
-    "ANTHROPIC_MODEL": {
-        "title": "Anthropic Model",
-        "description": "Claude 模型名称（如 claude-sonnet-4-6）。",
-        "category": "ai_model",
-        "data_type": "string",
-        "ui_control": "text",
-        "is_sensitive": False,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": "claude-sonnet-4-6",
-        "options": [],
-        "validation": {},
-        "display_order": 36,
-    },
-    "ANTHROPIC_TEMPERATURE": {
-        "title": "Anthropic Temperature",
-        "description": "温度参数，范围 [0.0, 1.0]。",
-        "category": "ai_model",
-        "data_type": "number",
-        "ui_control": "number",
-        "is_sensitive": False,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": "0.7",
-        "options": [],
-        "validation": {"min": 0.0, "max": 1.0},
-        "display_order": 37,
-    },
-    "ANTHROPIC_MAX_TOKENS": {
-        "title": "Anthropic Max Tokens",
-        "description": "Anthropic API 响应最大 token 数（默认 8192）。",
-        "category": "ai_model",
-        "data_type": "number",
-        "ui_control": "number",
-        "is_sensitive": False,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": "8192",
-        "options": [],
-        "validation": {"min": 256, "max": 8192},
-        "display_order": 38,
     },
     "REPORT_SUMMARY_ONLY": {
         "title": "Report Summary Only",
@@ -3242,41 +3156,6 @@ _FIELD_HELP_METADATA: Dict[str, Dict[str, Any]] = {
         "docs": _DOC_LLM_CONFIG,
         "warning_codes": ["legacy_provider_setting"],
     },
-    "ANTHROPIC_API_KEYS": {
-        "help_key": "settings.ai_model.provider_keys",
-        "examples": [
-            "ANTHROPIC_API_KEYS=sk-ant-xxxx,sk-ant-yyyy",
-            "LITELLM_MODEL=anthropic/claude-sonnet-4-6",
-        ],
-        "docs": _DOC_LLM_CONFIG,
-        "warning_codes": ["secret_value", "comma_separated_keys"],
-    },
-    "ANTHROPIC_MODEL": {
-        "help_key": "settings.ai_model.legacy_provider_params",
-        "examples": [
-            "ANTHROPIC_MODEL=claude-sonnet-4-6",
-            "LITELLM_MODEL=anthropic/claude-sonnet-4-6",
-        ],
-        "docs": _DOC_LLM_CONFIG,
-        "warning_codes": ["legacy_provider_setting"],
-    },
-    "ANTHROPIC_TEMPERATURE": {
-        "help_key": "settings.ai_model.legacy_provider_params",
-        "examples": [
-            "ANTHROPIC_TEMPERATURE=0.7",
-            "LLM_TEMPERATURE=0.7",
-        ],
-        "docs": _DOC_LLM_CONFIG,
-        "warning_codes": ["legacy_provider_setting"],
-    },
-    "ANTHROPIC_MAX_TOKENS": {
-        "help_key": "settings.ai_model.legacy_provider_params",
-        "examples": [
-            "ANTHROPIC_MAX_TOKENS=8192",
-        ],
-        "docs": _DOC_LLM_CONFIG,
-        "warning_codes": ["legacy_provider_setting"],
-    },
     "TICKFLOW_API_KEY": {
         "help_key": "settings.data_source.TICKFLOW_API_KEY",
         "examples": [
@@ -3473,7 +3352,7 @@ def _is_sensitive_key(key: str) -> bool:
 def _infer_category(key: str) -> str:
     if key.startswith("BACKTEST_"):
         return "backtest"
-    if key.startswith(("GEMINI_", "OPENAI_", "ANTHROPIC_", "LITELLM_", "AIHUBMIX_", "DEEPSEEK_", "LLM_")):
+    if key.startswith(("GEMINI_", "OPENAI_", "LITELLM_", "AIHUBMIX_", "DEEPSEEK_", "LLM_")):
         return "ai_model"
     if key.endswith("_PRIORITY") or key.startswith(
         (

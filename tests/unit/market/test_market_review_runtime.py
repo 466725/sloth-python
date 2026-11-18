@@ -22,8 +22,6 @@ class TestMarketReviewRuntimeCompatibility(unittest.TestCase):
             gemini_api_keys=[],
             openai_api_key=None,
             openai_api_keys=[],
-            anthropic_api_key=None,
-            anthropic_api_keys=[],
             deepseek_api_key=None,
             deepseek_api_keys=[],
             bocha_api_keys=None,
@@ -116,13 +114,11 @@ class TestMarketReviewRuntimeCompatibility(unittest.TestCase):
         test_configs = [
             ("openai_api_key", {"openai_api_key": "openai-key"}),
             ("openai_api_keys", {"openai_api_keys": ["openai-key"]}),
-            ("anthropic_api_key", {"anthropic_api_key": "anthropic-key"}),
-            ("anthropic_api_keys", {"anthropic_api_keys": ["anthropic-key"]}),
             ("deepseek_api_key", {"deepseek_api_key": "deepseek-key"}),
             ("deepseek_api_keys", {"deepseek_api_keys": ["deepseek-key"]}),
             ("gemini_api_key", {"gemini_api_key": "gemini-key"}),
             ("gemini_api_keys", {"gemini_api_keys": ["gemini-key"]}),
-            ("litellm_model", {"litellm_model": "claude-3-5-sonnet"}),
+            ("litellm_model", {"litellm_model": "openai/gpt-4.1"}),
             ("llm_model_list", {"llm_model_list": [{"model_name": "openai/gpt-4.1", "litellm_params": {"model": "openai/gpt-4.1"}}]}),
         ]
 
@@ -132,8 +128,6 @@ class TestMarketReviewRuntimeCompatibility(unittest.TestCase):
                 setattr(config, key, updates[key])
                 config.openai_api_key = updates.get("openai_api_key", base.openai_api_key)
                 config.openai_api_keys = updates.get("openai_api_keys", base.openai_api_keys)
-                config.anthropic_api_key = updates.get("anthropic_api_key", base.anthropic_api_key)
-                config.anthropic_api_keys = updates.get("anthropic_api_keys", base.anthropic_api_keys)
                 config.deepseek_api_key = updates.get("deepseek_api_key", base.deepseek_api_key)
                 config.deepseek_api_keys = updates.get("deepseek_api_keys", base.deepseek_api_keys)
                 config.gemini_api_key = updates.get("gemini_api_key", base.gemini_api_key)

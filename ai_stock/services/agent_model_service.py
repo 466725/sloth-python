@@ -10,7 +10,6 @@ from ai_stock.config import get_effective_agent_models_to_try, get_effective_age
 
 _PLACEHOLDER_TO_PROVIDER = {
     "__legacy_gemini__": "gemini",
-    "__legacy_anthropic__": "anthropic",
     "__legacy_openai__": "openai",
     "__legacy_deepseek__": "deepseek",
 }

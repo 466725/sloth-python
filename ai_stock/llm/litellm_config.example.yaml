@@ -43,16 +43,10 @@ model_list:
       model: gemini/gemini-3.1-pro-preview
       api_key: os.environ/GEMINI_API_KEY
 
-  # Anthropic official API (optional example).
-  # - model_name: anthropic/claude-sonnet-4-6
-  #   litellm_params:
-  #     model: anthropic/claude-sonnet-4-6
-  #     api_key: os.environ/ANTHROPIC_API_KEY
-
   # OpenRouter via its OpenAI-compatible endpoint (optional example).
-  # - model_name: openai/~anthropic/claude-sonnet-latest
+  # - model_name: openai/~openai/gpt-latest
   #   litellm_params:
-  #     model: openai/~anthropic/claude-sonnet-latest
+  #     model: openai/~openai/gpt-latest
   #     api_key: os.environ/OPENROUTER_API_KEY
   #     api_base: https://openrouter.ai/api/v1
 

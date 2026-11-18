@@ -49,7 +49,6 @@ describe('llmProviderTemplates', () => {
       'siliconflow',
       'openrouter',
       'gemini',
-      'anthropic',
       'openai',
       'ollama',
       'custom',
@@ -63,6 +62,11 @@ describe('llmProviderTemplates', () => {
     for (const template of LLM_PROVIDER_TEMPLATES) {
       expect(LLM_PROVIDER_TEMPLATE_BY_ID[template.channelId]).toBe(template);
     }
+  });
+
+  it('does not offer the removed provider', () => {
+    expect(getProviderTemplate('anthropic')).toBeUndefined();
+    expect(MODEL_PLACEHOLDERS_BY_PROTOCOL).not.toHaveProperty('anthropic');
   });
 
   it('exposes safe helpers for known, custom, and unknown channel ids', () => {
@@ -123,7 +127,6 @@ describe('llmProviderTemplates', () => {
       openai: 'gpt-5.5,qwen3.6-plus',
       deepseek: 'deepseek-v4-flash,deepseek-v4-pro',
       gemini: 'gemini-3.1-pro-preview,gemini-3-flash-preview',
-      anthropic: 'claude-sonnet-4-6,claude-opus-4-7',
       vertex_ai: 'gemini-3.1-pro-preview',
       ollama: 'llama3.2,qwen2.5',
     });
