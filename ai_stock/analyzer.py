@@ -32,6 +32,7 @@ from ai_stock.agent.skills.defaults import CORE_TRADING_SKILL_POLICY_ZH
 from ai_stock.config import (
     Config,
     _is_ollama_model,
+    _is_moonshot_model,
     _is_zhipu_model,
     extra_litellm_params,
     get_api_keys_for_model,
@@ -2583,6 +2584,9 @@ class GeminiAnalyzer:
                 continue
             if _is_zhipu_model(model, config.llm_model_list):
                 logger.error("Skipping unsupported Zhipu GLM model route")
+                continue
+            if _is_moonshot_model(model, config.llm_model_list):
+                logger.error("Skipping unsupported Moonshot/Kimi model route")
                 continue
             supported_models_to_try.append(model)
         models_to_try = supported_models_to_try

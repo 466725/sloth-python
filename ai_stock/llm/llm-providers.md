@@ -84,7 +84,7 @@ must be able to reach the configured URL.
 
 The [`.env.example` file](../../.env.example) is a compact starter template. The
 provider and channel examples in this guide cover additional options such as
-AIHubmix, Anspire Open, Moonshot/Kimi, DashScope, MiniMax, MiMo,
+AIHubmix, Anspire Open, DashScope, MiniMax, MiMo,
 Volcengine, SiliconFlow, and OpenRouter. Treat model IDs and regional
 endpoints as starting points, and verify them with the provider before use.
 
@@ -100,7 +100,6 @@ They are not an exhaustive list of models or a compatibility certification.
 | Anspire Open | `anspire` | `openai` | `https://open-gateway.anspire.cn/v6` |
 | DeepSeek | `deepseek` | `deepseek` | `https://api.deepseek.com` |
 | Google Gemini | `gemini` | `gemini` | Provider default; normally leave blank |
-| Moonshot / Kimi | `moonshot` | `openai` | `https://api.moonshot.cn/v1` |
 | Alibaba DashScope | `dashscope` | `openai` | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
 | MiniMax | `minimax` | `openai` | `https://api.minimax.io/v1` |
 | Xiaomi MiMo | `mimo` | `openai` | Use the endpoint from the provider console |

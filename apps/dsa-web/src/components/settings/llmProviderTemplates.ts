@@ -93,15 +93,6 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     ],
   },
   {
-    channelId: 'moonshot',
-    label: 'Moonshot（月之暗面）',
-    protocol: 'openai',
-    baseUrl: 'https://api.moonshot.cn/v1',
-    placeholderModels: 'kimi-k2.6,kimi-k2.5',
-    capabilities: ['openai-compatible'],
-    officialSources: [{ label: 'Kimi Platform Docs', url: 'https://platform.kimi.com/docs/models' }],
-  },
-  {
     channelId: 'minimax',
     label: 'MiniMax 官方',
     protocol: 'openai',
@@ -186,7 +177,6 @@ const EN_PROVIDER_TEXT: Record<string, { label: string; configHint?: string }> =
   anspire: { label: 'Anspire Open (models + search)', configHint: 'The same ANSPIRE_API_KEYS can be used for search and LLM channels. Models and gateways are examples; availability depends on account permissions and the console. Test the connection first.' },
   deepseek: { label: 'DeepSeek Official' },
   dashscope: { label: 'Qwen (DashScope)' },
-  moonshot: { label: 'Moonshot (Kimi)' },
   minimax: { label: 'MiniMax Official' },
   volcengine: { label: 'Volcengine Ark (Doubao)', configHint: 'Do not mix online inference endpoints/regions with Coding Plan endpoints.' },
   siliconflow: { label: 'SiliconFlow', configHint: 'Model listings and visibility depend on account permissions and the API Key.' },

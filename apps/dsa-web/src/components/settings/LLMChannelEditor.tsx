@@ -1213,6 +1213,7 @@ function parseChannelsFromItems(
       return (
         !isUnsupportedOllamaChannel(name, protocol, baseUrl, models)
         && !isUnsupportedZhipuChannel(name, protocol, baseUrl, models)
+        && !isUnsupportedMoonshotChannel(name, protocol, baseUrl, models)
       );
     });
 
@@ -1293,6 +1294,40 @@ function isZhipuEndpoint(baseUrl: string): boolean {
       || hostname.endsWith('.bigmodel.cn')
       || hostname === 'z.ai'
       || hostname.endsWith('.z.ai')
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isUnsupportedMoonshotChannel(
+  name: string,
+  protocol: string,
+  baseUrl: string,
+  models: string[],
+): boolean {
+  const providerNames = ['moonshot', 'moonshotai', 'kimi'];
+  return (
+    providerNames.includes(name.trim().toLowerCase())
+    || providerNames.includes(protocol.trim().toLowerCase())
+    || isMoonshotEndpoint(baseUrl)
+    || models.some((model) =>
+      model.trim().toLowerCase().split('/').some((part) =>
+        providerNames.includes(part)
+        || part.startsWith('kimi-')
+        || part.startsWith('kimi_')
+        || part.startsWith('moonshot-')
+        || part.startsWith('moonshot_')
+      )
+    )
+  );
+}
+
+function isMoonshotEndpoint(baseUrl: string): boolean {
+  try {
+    const hostname = new URL(baseUrl).hostname.toLowerCase().replace(/\.$/, '');
+    return ['moonshot.cn', 'moonshot.ai', 'kimi.com', 'kimi.ai'].some(
+      (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
     );
   } catch {
     return false;
