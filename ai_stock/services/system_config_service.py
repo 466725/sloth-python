@@ -24,6 +24,8 @@ from ai_stock.config import (
     _get_litellm_provider,
     _is_ollama_endpoint,
     _is_ollama_model,
+    _is_moonshot_endpoint,
+    _is_moonshot_model,
     _is_zhipu_endpoint,
     _is_zhipu_model,
     _uses_direct_env_provider,
@@ -2284,13 +2286,15 @@ class SystemConfigService:
         normalized = canonicalize_llm_channel_protocol(provider)
         if normalized in {"zhipu", "bigmodel", "zai", "glm"}:
             return False
+        if normalized in {"moonshot", "moonshotai", "kimi"}:
+            return False
         if normalized == "gemini" or normalized == "vertex_ai":
             return cls._has_any_config_value(effective_map, ("GEMINI_API_KEYS", "GEMINI_API_KEY"))
         if normalized == "deepseek":
             return cls._has_any_config_value(effective_map, ("DEEPSEEK_API_KEYS", "DEEPSEEK_API_KEY"))
         if normalized == "openai":
             base_url = (effective_map.get("OPENAI_BASE_URL") or "").strip()
-            if _is_ollama_endpoint(base_url):
+            if _is_ollama_endpoint(base_url) or _is_moonshot_endpoint(base_url):
                 return False
             if cls._has_any_config_value(effective_map, ("OPENAI_API_KEYS", "OPENAI_API_KEY", "AIHUBMIX_KEY")):
                 return True
@@ -2346,6 +2350,12 @@ class SystemConfigService:
                 or _is_zhipu_endpoint(base_url)
             ):
                 continue
+            if (
+                name.lower() in {"moonshot", "moonshotai", "kimi"}
+                or raw_protocol.lower() in {"moonshot", "moonshotai", "kimi"}
+                or _is_moonshot_endpoint(base_url)
+            ):
+                continue
             raw_models = [model for model in raw_models if not _is_ollama_model(model)]
             if name.lower() == "anspire" and not base_url:
                 base_url = (
@@ -2370,6 +2380,7 @@ class SystemConfigService:
                 ]
             raw_models = [model for model in raw_models if not _is_ollama_model(model)]
             raw_models = [model for model in raw_models if not _is_zhipu_model(model)]
+            raw_models = [model for model in raw_models if not _is_moonshot_model(model)]
             resolved_protocol = resolve_llm_channel_protocol(
                 protocol,
                 base_url=base_url,
@@ -2414,12 +2425,14 @@ class SystemConfigService:
         explicit_model = (effective_map.get("LITELLM_MODEL") or "").strip()
         blocked_yaml_model_names: Set[str] = set()
         blocked_zhipu_model_names: Set[str] = set()
+        blocked_moonshot_model_names: set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
             Config._parse_litellm_yaml(
                 config_path,
                 blocked_model_names=blocked_yaml_model_names,
                 blocked_zhipu_model_names=blocked_zhipu_model_names,
+                blocked_moonshot_model_names=blocked_moonshot_model_names,
             )
         yaml_models = self._collect_yaml_models_from_map(effective_map)
         channel_models = self._collect_setup_channel_models(effective_map)
@@ -2429,6 +2442,8 @@ class SystemConfigService:
                 return "", "Ollama models are not supported; select a supported model."
             if _is_zhipu_model(explicit_model) or explicit_model in blocked_zhipu_model_names:
                 return "", "Zhipu GLM models are not supported; select a supported model."
+            if _is_moonshot_model(explicit_model) or explicit_model in blocked_moonshot_model_names:
+                return "", "Moonshot/Kimi models are not supported; select a supported model."
             if _uses_direct_env_provider(explicit_model):
                 return explicit_model, "explicit"
             has_direct_source = self._has_setup_runtime_source_for_model(explicit_model, effective_map)
@@ -2486,12 +2501,14 @@ class SystemConfigService:
         agent_model_raw = (effective_map.get("AGENT_LITELLM_MODEL") or "").strip()
         blocked_yaml_model_names: Set[str] = set()
         blocked_zhipu_model_names: Set[str] = set()
+        blocked_moonshot_model_names: set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
             Config._parse_litellm_yaml(
                 config_path,
                 blocked_model_names=blocked_yaml_model_names,
                 blocked_zhipu_model_names=blocked_zhipu_model_names,
+                blocked_moonshot_model_names=blocked_moonshot_model_names,
             )
         if not agent_model_raw:
             if primary_check["status"] == "configured":
@@ -2536,6 +2553,19 @@ class SystemConfigService:
                 True,
                 "needs_action",
                 "Zhipu GLM models are not supported.",
+                "Select a supported Agent model.",
+            )
+        if (
+            _is_moonshot_model(agent_model)
+            or agent_model_raw in blocked_moonshot_model_names
+        ):
+            return self._setup_check(
+                "llm_agent",
+                "Agent 渠道",
+                "agent",
+                True,
+                "needs_action",
+                "Moonshot/Kimi models are not supported.",
                 "Select a supported Agent model.",
             )
         if _uses_direct_env_provider(agent_model):
@@ -3384,16 +3414,19 @@ class SystemConfigService:
 
         blocked_yaml_model_names: Set[str] = set()
         blocked_zhipu_model_names: Set[str] = set()
+        blocked_moonshot_model_names: set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
             Config._parse_litellm_yaml(
                 config_path,
                 blocked_model_names=blocked_yaml_model_names,
                 blocked_zhipu_model_names=blocked_zhipu_model_names,
+                blocked_moonshot_model_names=blocked_moonshot_model_names,
             )
 
         channel_uses_ollama = False
         channel_uses_zhipu = False
+        channel_uses_moonshot = False
         for name in SystemConfigService._split_csv(effective_map.get("LLM_CHANNELS") or ""):
             prefix = f"LLM_{name.strip().upper()}"
             protocol = (effective_map.get(f"{prefix}_PROTOCOL") or "").strip().lower()
@@ -3413,6 +3446,13 @@ class SystemConfigService:
                 or any(_is_zhipu_model(model) for model in models)
             ):
                 channel_uses_zhipu = True
+            if (
+                name.strip().lower() in {"moonshot", "moonshotai", "kimi"}
+                or protocol in {"moonshot", "moonshotai", "kimi"}
+                or _is_moonshot_endpoint(base_url)
+                or any(_is_moonshot_model(model) for model in models)
+            ):
+                channel_uses_moonshot = True
 
         selected_models = [
             (key, (effective_map.get(key) or "").strip())
@@ -3447,6 +3487,21 @@ class SystemConfigService:
                 effective_map.get("LITELLM_FALLBACK_MODELS") or ""
             )
             if _is_zhipu_model(model) or model in blocked_zhipu_model_names
+        )
+        unsupported_moonshot_models = [
+            (key, model)
+            for key, model in selected_models
+            if model and (
+                _is_moonshot_model(model)
+                or model in blocked_moonshot_model_names
+            )
+        ]
+        unsupported_moonshot_models.extend(
+            ("LITELLM_FALLBACK_MODELS", model)
+            for model in SystemConfigService._split_csv(
+                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
+            )
+            if _is_moonshot_model(model) or model in blocked_moonshot_model_names
         )
         if (
             any(
@@ -3483,6 +3538,24 @@ class SystemConfigService:
                     "key": fields or ("LLM_CHANNELS" if channel_uses_zhipu else "LLM_PROVIDER"),
                     "code": "unsupported_provider",
                     "message": "Zhipu GLM model routes are not supported. Select another provider and remove Zhipu settings.",
+                }
+            )
+        if (
+            any(
+                key.startswith(("MOONSHOT_", "KIMI_")) and str(value or "").strip()
+                for key, value in effective_map.items()
+            )
+            or _is_moonshot_endpoint(effective_map.get("OPENAI_BASE_URL"))
+            or bool(blocked_moonshot_model_names)
+            or channel_uses_moonshot
+            or unsupported_moonshot_models
+        ):
+            fields = ", ".join(dict.fromkeys(key for key, _model in unsupported_moonshot_models))
+            issues.append(
+                {
+                    "key": fields or ("LLM_CHANNELS" if channel_uses_moonshot else "LLM_PROVIDER"),
+                    "code": "unsupported_provider",
+                    "message": "Moonshot/Kimi model routes are not supported. Select another provider and remove Moonshot settings.",
                 }
             )
 
@@ -3769,6 +3842,22 @@ class SystemConfigService:
                     "key": protocol_key,
                     "code": "unsupported_provider",
                     "message": "Zhipu GLM model routes are not supported.",
+                    "severity": "error",
+                    "expected": "a supported LLM provider",
+                    "actual": protocol_value or channel_name,
+                }
+            )
+        if (
+            channel_name.strip().lower() in {"moonshot", "moonshotai", "kimi"}
+            or protocol_value.strip().lower() in {"moonshot", "moonshotai", "kimi"}
+            or _is_moonshot_endpoint(base_url_value)
+            or any(_is_moonshot_model(model) for model in model_values)
+        ):
+            issues.append(
+                {
+                    "key": protocol_key,
+                    "code": "unsupported_provider",
+                    "message": "Moonshot/Kimi model routes are not supported.",
                     "severity": "error",
                     "expected": "a supported LLM provider",
                     "actual": protocol_value or channel_name,

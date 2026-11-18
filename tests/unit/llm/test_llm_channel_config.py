@@ -16,7 +16,6 @@ from ai_stock.config import (
     Config,
     get_effective_agent_models_to_try,
     get_effective_agent_primary_model,
-    get_fixed_litellm_temperature,
     normalize_litellm_temperature,
 )
 from ai_stock.llm.generation_params import (
@@ -309,93 +308,6 @@ class LLMChannelConfigTestCase(unittest.TestCase):
             config = Config._load_from_env()
 
         self.assertAlmostEqual(config.llm_temperature, 0.25)
-
-    @patch("ai_stock.config.setup_env")
-    @patch.object(Config, "_parse_litellm_yaml", return_value=[])
-    def test_kimi_k26_keeps_raw_configured_temperature(self, _mock_parse_yaml, _mock_setup_env) -> None:
-        env = {
-            "OPENAI_API_KEY": "sk-test-value",
-            "OPENAI_MODEL": "kimi-k2.6",
-            "LLM_TEMPERATURE": "0.7",
-        }
-
-        with patch.dict(os.environ, env, clear=True):
-            config = Config._load_from_env()
-
-        self.assertEqual(config.litellm_model, "openai/kimi-k2.6")
-        self.assertAlmostEqual(config.llm_temperature, 0.7)
-
-    def test_kimi_k26_temperature_normalization_handles_provider_wrappers(self) -> None:
-        self.assertAlmostEqual(get_fixed_litellm_temperature("moonshot/kimi-k2.6"), 1.0)
-        self.assertAlmostEqual(normalize_litellm_temperature("openai/moonshot/kimi-k2.6", 0.2), 1.0)
-        self.assertAlmostEqual(normalize_litellm_temperature("openai/kimi-k2.6-preview", 0.2), 1.0)
-        self.assertAlmostEqual(
-            normalize_litellm_temperature(
-                "openai/kimi-k2.6-preview",
-                0.2,
-                request_overrides={"extra_body": {"thinking": {"type": "disabled"}}},
-            ),
-            0.6,
-        )
-        self.assertAlmostEqual(normalize_litellm_temperature("openai/gpt-4o-mini", 0.2), 0.2)
-
-    def test_kimi_k26_temperature_normalization_resolves_litellm_yaml_alias(self) -> None:
-        model_list = [
-            {
-                "model_name": "kimi_router",
-                "litellm_params": {
-                    "model": "openai/kimi-k2.6",
-                    "api_key": "sk-yaml-value",
-                },
-            }
-        ]
-
-        self.assertAlmostEqual(get_fixed_litellm_temperature("kimi_router", model_list=model_list), 1.0)
-        self.assertAlmostEqual(
-            normalize_litellm_temperature("kimi_router", 0.2, model_list=model_list),
-            1.0,
-        )
-
-    def test_kimi_k26_temperature_normalization_uses_non_thinking_yaml_alias_temperature(self) -> None:
-        model_list = [
-            {
-                "model_name": "kimi_router",
-                "litellm_params": {
-                    "model": "openai/kimi-k2.6",
-                    "api_key": "sk-yaml-value",
-                    "extra_body": {"thinking": {"type": "disabled"}},
-                },
-            }
-        ]
-
-        self.assertAlmostEqual(
-            get_fixed_litellm_temperature("kimi_router", model_list=model_list),
-            0.6,
-        )
-        self.assertAlmostEqual(
-            normalize_litellm_temperature("kimi_router", 0.2, model_list=model_list),
-            0.6,
-        )
-
-    def test_kimi_k26_temperature_normalization_uses_non_thinking_yaml_wire_model_without_model_name(self) -> None:
-        model_list = [
-            {
-                "litellm_params": {
-                    "model": "openai/kimi-k2.6",
-                    "api_key": "sk-yaml-value",
-                    "extra_body": {"thinking": {"type": "disabled"}},
-                },
-            }
-        ]
-
-        self.assertAlmostEqual(
-            get_fixed_litellm_temperature("openai/kimi-k2.6", model_list=model_list),
-            0.6,
-        )
-        self.assertAlmostEqual(
-            normalize_litellm_temperature("openai/kimi-k2.6", 0.2, model_list=model_list),
-            0.6,
-        )
 
     def test_gpt5_family_temperature_is_omitted_at_request_build_time(self) -> None:
         directive = resolve_litellm_temperature_directive("openai/gpt5.5-ferr")
