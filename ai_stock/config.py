@@ -59,7 +59,7 @@ class ConfigIssue:
 
 
 _MANAGED_LITELLM_KEY_PROVIDERS = {"gemini", "vertex_ai", "openai", "deepseek"}
-SUPPORTED_LLM_CHANNEL_PROTOCOLS = ("openai", "gemini", "vertex_ai", "deepseek", "ollama")
+SUPPORTED_LLM_CHANNEL_PROTOCOLS = ("openai", "gemini", "vertex_ai", "deepseek")
 _FALSEY_ENV_VALUES = {"0", "false", "no", "off"}
 # Fallback defaults used when ANSPIRE_API_KEYS is reused as legacy OpenAI-compatible source.
 # These are compatibility examples; actual availability should be validated by Anspire console/model entitlement.
@@ -321,7 +321,6 @@ def resolve_llm_channel_protocol(
         parsed = urlparse(base_url)
         if parsed.hostname in {"127.0.0.1", "localhost", "0.0.0.0"}:
             # Default to openai for local servers (vLLM, LM Studio, LocalAI, etc.).
-            # Ollama users should set PROTOCOL=ollama explicitly or name the channel "ollama".
             return "openai"
         return "openai"
 
@@ -330,11 +329,25 @@ def resolve_llm_channel_protocol(
 
 def channel_allows_empty_api_key(protocol: Optional[str], base_url: Optional[str]) -> bool:
     """Return True when a channel can run without an API key."""
-    resolved_protocol = resolve_llm_channel_protocol(protocol, base_url=base_url)
-    if resolved_protocol == "ollama":
-        return True
     parsed = urlparse(base_url or "")
     return parsed.hostname in {"127.0.0.1", "localhost", "0.0.0.0"}
+
+
+def _is_ollama_model(model: str, model_list: Optional[List[Dict[str, Any]]] = None) -> bool:
+    """Return whether a model or configured router alias resolves to Ollama."""
+    normalized = (model or "").strip()
+    if not normalized:
+        return False
+    wire_model = resolve_litellm_wire_model(normalized, model_list)
+    return wire_model.split("/", 1)[0].strip().lower() == "ollama"
+
+
+def _is_ollama_endpoint(base_url: Optional[str]) -> bool:
+    """Recognize Ollama's default endpoint so it cannot be selected as a generic channel."""
+    try:
+        return urlparse(base_url or "").port == 11434
+    except ValueError:
+        return False
 
 
 def normalize_llm_channel_model(model: str, protocol: Optional[str], base_url: Optional[str] = None) -> str:
@@ -497,7 +510,11 @@ def _get_litellm_provider(model: str) -> str:
 def _uses_direct_env_provider(model: str) -> bool:
     """Whether runtime handles the model via direct litellm env/provider resolution."""
     provider = _get_litellm_provider(model)
-    return bool(provider) and provider not in _MANAGED_LITELLM_KEY_PROVIDERS
+    return (
+        bool(provider)
+        and provider not in _MANAGED_LITELLM_KEY_PROVIDERS
+        and provider.lower() != "ollama"
+    )
 
 
 def normalize_agent_litellm_model(
@@ -531,9 +548,8 @@ def get_effective_agent_primary_model(config: "Config") -> str:
 
 def get_effective_agent_models_to_try(config: "Config") -> List[str]:
     """Return Agent model try-order: primary + global fallbacks (deduped)."""
-    configured_router_models = set(
-        get_configured_llm_models(getattr(config, "llm_model_list", []) or [])
-    )
+    model_list = getattr(config, "llm_model_list", []) or []
+    configured_router_models = set(get_configured_llm_models(model_list))
     raw_models = [get_effective_agent_primary_model(config)] + (
         getattr(config, "litellm_fallback_models", []) or []
     )
@@ -547,6 +563,9 @@ def get_effective_agent_models_to_try(config: "Config") -> List[str]:
             normalized_model,
             configured_models=configured_router_models,
         )
+        if _is_ollama_model(dedupe_key, model_list):
+            logger.error("Skipping unsupported Ollama Agent model route")
+            continue
         if dedupe_key in seen:
             continue
         seen.add(dedupe_key)
@@ -619,6 +638,7 @@ class Config:
     llm_channel_names: List[str] = field(default_factory=list)
     # Pre-built LiteLLM Router model_list (populated from channels, YAML, or legacy keys)
     llm_model_list: List[Dict[str, Any]] = field(default_factory=list)
+    unsupported_ollama_configuration: bool = False
 
     # Multi-key support: each list is parsed from *_API_KEYS (comma-separated) with single-key fallback
     gemini_api_keys: List[str] = field(default_factory=list)
@@ -1000,6 +1020,11 @@ class Config:
             for c in stock_list_str.split(',')
             if (c or "").strip()
         ]
+
+        unsupported_ollama_configuration = any(
+            name.startswith("OLLAMA_") and str(value or "").strip()
+            for name, value in os.environ.items()
+        )
         
         # === LiteLLM multi-key parsing ===
         # GEMINI_API_KEYS (comma-separated) > GEMINI_API_KEY (single)
@@ -1021,6 +1046,10 @@ class Config:
         openai_base_url = os.getenv('OPENAI_BASE_URL') or (
             'https://aihubmix.com/v1' if _aihubmix else None
         )
+        if _is_ollama_endpoint(openai_base_url):
+            logger.warning("Ollama's default endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
+            unsupported_ollama_configuration = True
+            openai_base_url = None
 
         # DEEPSEEK_API_KEYS > DEEPSEEK_API_KEY (independent from OpenAI-compatible layer)
         _deepseek_keys_raw = os.getenv('DEEPSEEK_API_KEYS', '')
@@ -1102,12 +1131,37 @@ class Config:
         llm_channels: List[Dict[str, Any]] = []
         llm_channel_names: List[str] = []
         llm_model_list: List[Dict[str, Any]] = []
+        blocked_yaml_model_names: set[str] = set()
 
         # Priority 1: LITELLM_CONFIG (standard LiteLLM YAML config file)
         if litellm_config_path:
-            llm_model_list = cls._parse_litellm_yaml(litellm_config_path)
+            llm_model_list = cls._parse_litellm_yaml(
+                litellm_config_path,
+                blocked_model_names=blocked_yaml_model_names,
+            )
+            if blocked_yaml_model_names:
+                unsupported_ollama_configuration = True
             if llm_model_list:
                 llm_models_source = "litellm_config"
+
+        configured_models = [litellm_model, *litellm_fallback_models]
+        if any(
+            _is_ollama_model(model, llm_model_list) or model in blocked_yaml_model_names
+            for model in configured_models
+            if model
+        ):
+            unsupported_ollama_configuration = True
+            if _is_ollama_model(litellm_model, llm_model_list) or litellm_model in blocked_yaml_model_names:
+                logger.warning("Ollama primary model is unsupported and has been ignored")
+                litellm_model = ""
+            supported_fallbacks = [
+                model for model in litellm_fallback_models
+                if not _is_ollama_model(model, llm_model_list)
+                and model not in blocked_yaml_model_names
+            ]
+            if len(supported_fallbacks) != len(litellm_fallback_models):
+                logger.warning("Ollama fallback models are unsupported and have been ignored")
+                litellm_fallback_models = supported_fallbacks
 
         # Priority 2: LLM_CHANNELS (env var based channel config)
         if not llm_model_list:
@@ -1118,6 +1172,25 @@ class Config:
                     for ch in _channels_str.split(',')
                     if ch.strip()
                 ]
+                for channel_name in llm_channel_names:
+                    channel_prefix = f"LLM_{channel_name.upper()}"
+                    enabled_raw = os.getenv(f"{channel_prefix}_ENABLED")
+                    if not parse_env_bool(enabled_raw, default=True):
+                        continue
+                    raw_protocol = os.getenv(f"{channel_prefix}_PROTOCOL", "").strip().lower()
+                    raw_base_url = os.getenv(f"{channel_prefix}_BASE_URL", "").strip()
+                    raw_models = [
+                        model.strip()
+                        for model in os.getenv(f"{channel_prefix}_MODELS", "").split(",")
+                        if model.strip()
+                    ]
+                    if (
+                        channel_name == "ollama"
+                        or raw_protocol == "ollama"
+                        or _is_ollama_endpoint(raw_base_url)
+                        or any(_is_ollama_model(model) for model in raw_models)
+                    ):
+                        unsupported_ollama_configuration = True
                 llm_channels = cls._parse_llm_channels(_channels_str)
                 llm_model_list = cls._channels_to_model_list(llm_channels)
                 if llm_model_list:
@@ -1150,7 +1223,6 @@ class Config:
                 if _ch.get('models'):
                     litellm_model = _ch['models'][0]
                     break
-
         # Auto-infer LITELLM_FALLBACK_MODELS from channels when not explicitly set
         if not litellm_fallback_models and llm_channels and litellm_model:
             _all_ch_models: List[str] = []
@@ -1162,10 +1234,24 @@ class Config:
                 if m not in _seen and not _seen.add(m)  # type: ignore[func-returns-value]
             ]
 
+        agent_model_raw = os.getenv('AGENT_LITELLM_MODEL', '')
         agent_litellm_model = normalize_agent_litellm_model(
-            os.getenv('AGENT_LITELLM_MODEL', ''),
+            agent_model_raw,
             configured_models=set(get_configured_llm_models(llm_model_list)),
         )
+        if (
+            _is_ollama_model(agent_litellm_model, llm_model_list)
+            or agent_model_raw.strip() in blocked_yaml_model_names
+            or agent_litellm_model in blocked_yaml_model_names
+        ):
+            logger.warning("Ollama Agent model is unsupported and has been ignored")
+            unsupported_ollama_configuration = True
+            agent_litellm_model = ""
+        vision_model = os.getenv('VISION_MODEL') or os.getenv('OPENAI_VISION_MODEL') or ""
+        if _is_ollama_model(vision_model, llm_model_list) or vision_model in blocked_yaml_model_names:
+            logger.warning("Ollama vision model is unsupported and has been ignored")
+            unsupported_ollama_configuration = True
+            vision_model = ""
         agent_context_compression_profile = normalize_agent_context_compression_profile(
             os.getenv('AGENT_CONTEXT_COMPRESSION_PROFILE')
         )
@@ -1289,6 +1375,7 @@ class Config:
             llm_channels=llm_channels,
             llm_channel_names=llm_channel_names,
             llm_model_list=llm_model_list,
+            unsupported_ollama_configuration=unsupported_ollama_configuration,
             gemini_api_keys=gemini_api_keys,
             openai_api_keys=openai_api_keys,
             deepseek_api_keys=deepseek_api_keys,
@@ -1311,11 +1398,7 @@ class Config:
             openai_vision_model=os.getenv('OPENAI_VISION_MODEL') or None,
             openai_temperature=parse_env_float(os.getenv('OPENAI_TEMPERATURE'), 0.7, field_name='OPENAI_TEMPERATURE'),
             # Vision model: VISION_MODEL > OPENAI_VISION_MODEL (alias) > default
-            vision_model=(
-                os.getenv('VISION_MODEL')
-                or os.getenv('OPENAI_VISION_MODEL')
-                or ""
-            ),
+            vision_model=vision_model,
             vision_provider_priority=os.getenv('VISION_PROVIDER_PRIORITY', 'gemini,openai'),
             anspire_api_keys=anspire_api_keys,
             bocha_api_keys=bocha_api_keys,
@@ -1567,7 +1650,12 @@ class Config:
         )
     
     @classmethod
-    def _parse_litellm_yaml(cls, config_path: str) -> List[Dict[str, Any]]:
+    def _parse_litellm_yaml(
+        cls,
+        config_path: str,
+        *,
+        blocked_model_names: Optional[set[str]] = None,
+    ) -> List[Dict[str, Any]]:
         """Parse a standard LiteLLM config YAML file into Router model_list.
 
         Supports the ``os.environ/VAR_NAME`` syntax for secret references.
@@ -1609,8 +1697,34 @@ class Config:
                     env_name = val.split('/', 1)[1]
                     params[key] = os.getenv(env_name, '')
 
-        _logger.info(f"LITELLM_CONFIG: loaded {len(model_list)} model deployment(s) from {path}")
-        return model_list
+        supported_model_list = []
+        for entry in model_list:
+            params = entry.get("litellm_params", {}) or {}
+            model = str(params.get("model") or "")
+            model_name = str(entry.get("model_name") or model)
+            api_base = str(params.get("api_base") or params.get("base_url") or "")
+            custom_provider = str(params.get("custom_llm_provider") or "").strip().lower()
+            if (
+                _is_ollama_model(model)
+                or _is_ollama_model(model_name)
+                or custom_provider == "ollama"
+                or _is_ollama_endpoint(api_base)
+            ):
+                if blocked_model_names is not None:
+                    blocked_model_names.add(model_name)
+                _logger.warning(
+                    "LITELLM_CONFIG: Ollama deployment %r is unsupported and has been ignored",
+                    model_name,
+                )
+                continue
+            supported_model_list.append(entry)
+
+        _logger.info(
+            "LITELLM_CONFIG: loaded %s supported model deployment(s) from %s",
+            len(supported_model_list),
+            path,
+        )
+        return supported_model_list
 
     @classmethod
     def _parse_llm_channels(cls, channels_str: str) -> List[Dict[str, Any]]:
@@ -1662,6 +1776,13 @@ class Config:
             # Models
             models_raw = os.getenv(f'LLM_{ch_upper}_MODELS', '')
             raw_models = [m.strip() for m in models_raw.split(',') if m.strip()]
+            if ch_lower == "ollama" or protocol_raw.strip().lower() == "ollama" or _is_ollama_endpoint(base_url):
+                _logger.warning("LLM channel '%s' uses an unsupported local-model route and was skipped", ch_name)
+                continue
+            supported_raw_models = [model for model in raw_models if not _is_ollama_model(model)]
+            if len(supported_raw_models) != len(raw_models):
+                _logger.warning("Ollama models in LLM channel '%s' are unsupported and have been ignored", ch_name)
+                raw_models = supported_raw_models
             if not raw_models and ch_lower == "anspire":
                 anspire_model = (
                     os.getenv('ANSPIRE_LLM_MODEL') or ANSPIRE_LLM_MODEL_DEFAULT
@@ -2145,6 +2266,17 @@ class Config:
             primary environment variable / field name it relates to.
         """
         issues: List[ConfigIssue] = []
+
+        if self.unsupported_ollama_configuration:
+            issues.append(ConfigIssue(
+                severity="error",
+                message=(
+                    "Ollama model routes are not supported. Remove Ollama from "
+                    "LITELLM_MODEL, LLM_CHANNELS, LITELLM_CONFIG, fallback, Agent, "
+                    "vision, and legacy Ollama settings."
+                ),
+                field="LLM_PROVIDER",
+            ))
 
         # --- Stock list ---
         if not self.stock_list:

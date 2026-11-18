@@ -129,7 +129,6 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "examples": [
             "LITELLM_MODEL=deepseek/deepseek-v4-flash",
             "LITELLM_MODEL=gemini/gemini-3.1-pro-preview",
-            "LITELLM_MODEL=ollama/qwen3:8b",
         ],
         "docs": [
             {

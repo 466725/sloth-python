@@ -50,7 +50,6 @@ describe('llmProviderTemplates', () => {
       'openrouter',
       'gemini',
       'openai',
-      'ollama',
       'custom',
     ]);
   });
@@ -64,9 +63,11 @@ describe('llmProviderTemplates', () => {
     }
   });
 
-  it('does not offer the removed provider', () => {
+  it('does not offer removed providers', () => {
     expect(getProviderTemplate('anthropic')).toBeUndefined();
     expect(MODEL_PLACEHOLDERS_BY_PROTOCOL).not.toHaveProperty('anthropic');
+    expect(getProviderTemplate('ollama')).toBeUndefined();
+    expect(MODEL_PLACEHOLDERS_BY_PROTOCOL).not.toHaveProperty('ollama');
   });
 
   it('exposes safe helpers for known, custom, and unknown channel ids', () => {
@@ -86,7 +87,6 @@ describe('llmProviderTemplates', () => {
   it('only defines static provider-template capabilities for P2 UI hints', () => {
     expect(Object.keys(LLM_PROVIDER_CAPABILITY_LABELS).sort()).toEqual([
       'aggregator',
-      'local-runtime',
       'model-discovery',
       'official-api',
       'openai-compatible',
@@ -109,7 +109,6 @@ describe('llmProviderTemplates', () => {
   });
 
   it('keeps focused config hints on providers with common setup pitfalls', () => {
-    expect(LLM_PROVIDER_TEMPLATE_BY_ID.ollama.configHint).toContain('Ollama 服务');
     expect(LLM_PROVIDER_TEMPLATE_BY_ID.siliconflow.configHint).toContain('API Key');
     expect(LLM_PROVIDER_TEMPLATE_BY_ID.openrouter.configHint).toContain('API Key');
     expect(LLM_PROVIDER_TEMPLATE_BY_ID.openai.configHint).toBeUndefined();
@@ -128,7 +127,6 @@ describe('llmProviderTemplates', () => {
       deepseek: 'deepseek-v4-flash,deepseek-v4-pro',
       gemini: 'gemini-3.1-pro-preview,gemini-3-flash-preview',
       vertex_ai: 'gemini-3.1-pro-preview',
-      ollama: 'llama3.2,qwen2.5',
     });
   });
 });

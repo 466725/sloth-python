@@ -23,7 +23,6 @@ const PROTOCOL_OPTIONS: Array<{ value: ChannelProtocol; label: string }> = [
   { value: 'deepseek', label: 'DeepSeek' },
   { value: 'gemini', label: 'Gemini' },
   { value: 'vertex_ai', label: 'Vertex AI' },
-  { value: 'ollama', label: 'Ollama' },
 ];
 
 const KNOWN_MODEL_PREFIXES = new Set([
@@ -32,7 +31,6 @@ const KNOWN_MODEL_PREFIXES = new Set([
   'vertex_ai',
   'deepseek',
   'minimax',
-  'ollama',
   'cohere',
   'huggingface',
   'bedrock',
@@ -378,6 +376,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
   );
   const modelCount = selectedModels.length;
   const hasKey = channel.apiKey.length > 0;
+  const isLocalEndpoint = isLocalEndpointUrl(channel.baseUrl);
   const statusVariant = testState?.status === 'success'
     ? 'success'
     : testState?.status === 'error'
@@ -453,7 +452,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
               </span>
             </Tooltip>
           ) : null}
-          {!hasKey && channel.protocol !== 'ollama' ? <Badge variant="warning">{text.missingKey}</Badge> : null}
+          {!hasKey && !isLocalEndpoint ? <Badge variant="warning">{text.missingKey}</Badge> : null}
           {testState?.status !== 'idle' ? (
             <Badge variant={statusVariant}>
               {testState?.status === 'success' ? text.connectionOK : testState?.status === 'error' ? text.connectionFailed : text.testing}
@@ -599,7 +598,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
             value={channel.apiKey}
             disabled={busy}
             onChange={(e) => onUpdate(index, 'apiKey', e.target.value)}
-            placeholder={channel.protocol === 'ollama' ? text.localKeyPlaceholder : text.keyPlaceholder}
+            placeholder={isLocalEndpoint ? text.localKeyPlaceholder : text.keyPlaceholder}
           />
           </div>
 
@@ -665,7 +664,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
                 label={discoveredModels.length > 0 ? text.manualModels : text.models}
                 fieldKey="LLM_CHANNEL_MODELS"
                 helpKey="settings.llm_channel.models"
-                examples={['LLM_DEEPSEEK_MODELS=deepseek-v4-flash,deepseek-v4-pro', 'LLM_OLLAMA_MODELS=qwen3:8b,llama3.1:8b']}
+                examples={['LLM_DEEPSEEK_MODELS=deepseek-v4-flash,deepseek-v4-pro']}
               />
             <Input
               id={modelsInputId}
@@ -829,9 +828,6 @@ function normalizeProtocol(value: string): ChannelProtocol {
   }
   if (normalized === 'vertex_ai') {
     return 'vertex_ai';
-  }
-  if (normalized === 'ollama') {
-    return 'ollama';
   }
   return 'openai';
 }
@@ -1208,7 +1204,14 @@ function parseChannelsFromItems(
   const channelNames = (itemMap.get('LLM_CHANNELS') || '')
     .split(',')
     .map((segment) => segment.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter((name) => {
+      const upperName = name.toUpperCase();
+      const protocol = itemMap.get(`LLM_${upperName}_PROTOCOL`) || '';
+      const baseUrl = itemMap.get(`LLM_${upperName}_BASE_URL`) || '';
+      const models = splitModels(itemMap.get(`LLM_${upperName}_MODELS`) || '');
+      return !isUnsupportedOllamaChannel(name, protocol, baseUrl, models);
+    });
 
   return channelNames.map((name, index) => {
     const upperName = name.toUpperCase();
@@ -1226,6 +1229,36 @@ function parseChannelsFromItems(
       enabled: parseEnabled(itemMap.get(`LLM_${upperName}_ENABLED`)),
     };
   });
+}
+
+function isUnsupportedOllamaChannel(
+  name: string,
+  protocol: string,
+  baseUrl: string,
+  models: string[],
+): boolean {
+  return (
+    name.trim().toLowerCase() === 'ollama'
+    || protocol.trim().toLowerCase() === 'ollama'
+    || models.some((model) => model.trim().toLowerCase().startsWith('ollama/'))
+    || isOllamaEndpoint(baseUrl)
+  );
+}
+
+function isOllamaEndpoint(baseUrl: string): boolean {
+  try {
+    return new URL(baseUrl).port === '11434';
+  } catch {
+    return false;
+  }
+}
+
+function isLocalEndpointUrl(baseUrl: string): boolean {
+  try {
+    return ['localhost', '127.0.0.1', '0.0.0.0'].includes(new URL(baseUrl).hostname);
+  } catch {
+    return false;
+  }
 }
 
 function channelsToUpdateItems(

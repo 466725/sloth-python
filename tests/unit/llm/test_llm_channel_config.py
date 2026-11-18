@@ -2,6 +2,7 @@
 """Tests for env-based LLM channel parsing."""
 
 import os
+import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
@@ -210,22 +211,90 @@ class LLMChannelConfigTestCase(unittest.TestCase):
 
     @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
-    def test_local_ollama_channel_can_skip_api_key(self, _mock_parse_yaml, _mock_setup_env) -> None:
+    def test_ollama_channel_is_rejected(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
             "LLM_CHANNELS": "local",
             "LLM_LOCAL_PROTOCOL": "ollama",
             "LLM_LOCAL_BASE_URL": "http://127.0.0.1:11434",
             "LLM_LOCAL_API_KEY": "",
-            "LLM_LOCAL_MODELS": "llama3.2",
+            "LLM_LOCAL_MODELS": "qwen3:8b",
         }
 
         with patch.dict(os.environ, env, clear=True):
             config = Config._load_from_env()
 
-        self.assertEqual(config.llm_models_source, "llm_channels")
-        params = config.llm_model_list[0]["litellm_params"]
-        self.assertEqual(params["model"], "ollama/llama3.2")
-        self.assertNotIn("api_key", params)
+        self.assertEqual(config.llm_channels, [])
+        self.assertEqual(config.llm_model_list, [])
+        self.assertTrue(config.unsupported_ollama_configuration)
+        self.assertTrue(
+            any(issue.field == "LLM_PROVIDER" for issue in config.validate_structured())
+        )
+
+    @patch("ai_stock.config.setup_env")
+    @patch.object(Config, "_parse_litellm_yaml", return_value=[])
+    def test_ollama_model_prefixes_are_removed_from_channel_routes(
+        self, _mock_parse_yaml, _mock_setup_env
+    ) -> None:
+        env = {
+            "LLM_CHANNELS": "primary",
+            "LLM_PRIMARY_PROTOCOL": "openai",
+            "LLM_PRIMARY_BASE_URL": "https://api.example.com/v1",
+            "LLM_PRIMARY_API_KEY": "sk-test-value",
+            "LLM_PRIMARY_MODELS": "ollama/qwen3:8b,gpt-5.5",
+        }
+
+        with patch.dict(os.environ, env, clear=True):
+            config = Config._load_from_env()
+
+        self.assertEqual(config.llm_channels[0]["models"], ["openai/gpt-5.5"])
+        self.assertTrue(config.unsupported_ollama_configuration)
+
+    @patch("ai_stock.config.setup_env")
+    def test_ollama_routes_in_yaml_and_model_selection_are_rejected(self, _mock_setup_env) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config_path = os.path.join(temp_dir, "litellm.yaml")
+            with open(config_path, "w", encoding="utf-8") as config_file:
+                config_file.write(
+                    "model_list:\n"
+                    "  - model_name: local-alias\n"
+                    "    litellm_params:\n"
+                    "      model: ollama/qwen3:8b\n"
+                    "      api_base: http://127.0.0.1:11434\n"
+                )
+            env = {
+                "LITELLM_CONFIG": config_path,
+                "LITELLM_MODEL": "local-alias",
+                "LITELLM_FALLBACK_MODELS": "ollama/qwen3:8b",
+                "AGENT_LITELLM_MODEL": "ollama/qwen3:8b",
+                "VISION_MODEL": "ollama/qwen3:8b",
+            }
+
+            with patch.dict(os.environ, env, clear=True):
+                config = Config._load_from_env()
+
+        self.assertEqual(config.llm_model_list, [])
+        self.assertEqual(config.litellm_model, "")
+        self.assertEqual(config.litellm_fallback_models, [])
+        self.assertEqual(config.agent_litellm_model, "")
+        self.assertEqual(config.vision_model, "")
+        self.assertTrue(config.unsupported_ollama_configuration)
+
+    def test_system_config_rejects_ollama_routes_and_channel_checks(self) -> None:
+        issues = SystemConfigService._validate_llm_runtime_selection(
+            {"LITELLM_MODEL": "ollama/qwen3:8b"}
+        )
+        self.assertTrue(any(issue["code"] == "unsupported_provider" for issue in issues))
+
+        channel_issues, _protocol = SystemConfigService._validate_llm_channel_connection(
+            channel_name="local",
+            protocol_value="openai",
+            base_url_value="http://127.0.0.1:11434",
+            api_key_value="",
+            model_values=["qwen3:8b"],
+            field_prefix="test_channel",
+            require_base_url=False,
+        )
+        self.assertTrue(any(issue["code"] == "unsupported_provider" for issue in channel_issues))
 
     @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
@@ -363,7 +432,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
     @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_local_openai_compatible_channel_defaults_to_openai_protocol(self, _mock_parse_yaml, _mock_setup_env) -> None:
-        """Localhost channels without explicit protocol should default to openai, not ollama."""
+        """Localhost OpenAI-compatible channels without a protocol default to openai."""
         env = {
             "LLM_CHANNELS": "local",
             "LLM_LOCAL_BASE_URL": "http://127.0.0.1:8000/v1",

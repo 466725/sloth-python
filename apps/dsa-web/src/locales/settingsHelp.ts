@@ -16,7 +16,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
   'settings.ai_model.LITELLM_MODEL': {
     title: '主模型',
     summary: '指定普通分析流程默认使用的 LLM 模型。',
-    usage: '推荐使用 provider/model 格式，例如 deepseek/deepseek-v4-flash、gemini/gemini-3.1-pro-preview 或 ollama/qwen3:8b。',
+    usage: '推荐使用 provider/model 格式，例如 deepseek/deepseek-v4-flash 或 gemini/gemini-3.1-pro-preview。',
     valueNotes: [
       '系统配置优先级为 LITELLM_CONFIG > LLM_CHANNELS > legacy provider keys。',
       '如果留空，系统会尝试根据已配置的 API Key 或渠道声明自动推断。',
@@ -27,7 +27,6 @@ const settingsHelpZhCN: SettingsHelpMap = {
     ],
     notes: [
       '无 provider 前缀时，LiteLLM 可能无法判断应该使用哪组 API Key。',
-      'Ollama 本地模型应配合 OLLAMA_API_BASE 或 Ollama 渠道使用，不要误用 OPENAI_BASE_URL。',
     ],
   },
   'settings.ai_model.LLM_CHANNELS': {
@@ -402,7 +401,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
     title: 'API Key',
     summary: '该渠道调用模型服务所需的访问密钥。',
     usage: '单个 Key 直接填写；多个 Key 使用英文逗号分隔。',
-    valueNotes: ['本地 Ollama 等无需鉴权的服务可留空。'],
+    valueNotes: ['无需鉴权的本地兼容服务可留空。'],
     impact: ['影响连接测试、模型发现、运行时调用和 Key 轮换。'],
     notes: ['不要在截图、日志或 issue 中暴露真实 Key。'],
   },
@@ -847,7 +846,7 @@ const settingsHelpEnUS: SettingsHelpMap = {
   'settings.ai_model.LITELLM_MODEL': {
     title: 'Primary Model',
     summary: 'Selects the default LLM model for regular analysis flows.',
-    usage: 'Use provider/model format, such as deepseek/deepseek-v4-flash, gemini/gemini-3.1-pro-preview, or ollama/qwen3:8b.',
+    usage: 'Use provider/model format, such as deepseek/deepseek-v4-flash or gemini/gemini-3.1-pro-preview.',
     valueNotes: [
       'Runtime priority is LITELLM_CONFIG > LLM_CHANNELS > legacy provider keys.',
       'When empty, the system tries to infer a model from available API keys or channels.',
@@ -856,7 +855,6 @@ const settingsHelpEnUS: SettingsHelpMap = {
     impact: ['Affects regular stock analysis, market review, report generation, and Agent calls without a dedicated model.'],
     notes: [
       'Without a provider prefix, LiteLLM may not know which API key to use.',
-      'For Ollama, use OLLAMA_API_BASE or an Ollama channel instead of OPENAI_BASE_URL.',
     ],
   },
   'settings.ai_model.LLM_CHANNELS': {
@@ -1197,7 +1195,7 @@ const settingsHelpEnUS: SettingsHelpMap = {
     title: 'API Key',
     summary: 'Credential used by this channel.',
     usage: 'Use one key directly, or multiple keys separated by English commas.',
-    valueNotes: ['Local unauthenticated services such as Ollama can leave it empty.'],
+    valueNotes: ['Unauthenticated local compatible services can leave it empty.'],
     impact: ['Affects connection tests, discovery, runtime calls, and key rotation.'],
     notes: ['Do not expose real keys in screenshots, logs, or issues.'],
   },
