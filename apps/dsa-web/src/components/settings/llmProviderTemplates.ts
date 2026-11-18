@@ -60,7 +60,7 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     label: 'Anspire Open（一站式模型+搜索）',
     protocol: 'openai',
     baseUrl: 'https://open-gateway.anspire.cn/v6',
-    placeholderModels: 'Doubao-Seed-2.0-lite,Doubao-Seed-2.0-pro,qwen3.5-flash,MiniMax-M2.7',
+    placeholderModels: 'Doubao-Seed-2.0-lite,Doubao-Seed-2.0-pro,qwen3.5-flash',
     capabilities: ['openai-compatible'],
     configHint:
       '同一 ANSPIRE_API_KEYS 可复用到搜索与 LLM 渠道。以下模型与网关为配置示例，实际可用性请以账号权限和控制台为准；建议先点“测试连接”确认。',
@@ -90,18 +90,6 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     capabilities: ['openai-compatible', 'model-discovery'],
     officialSources: [
       { label: 'DashScope Text Generation', url: 'https://help.aliyun.com/zh/model-studio/text-generation-model/' },
-    ],
-  },
-  {
-    channelId: 'minimax',
-    label: 'MiniMax 官方',
-    protocol: 'openai',
-    baseUrl: 'https://api.minimax.io/v1',
-    placeholderModels: 'MiniMax-M3,MiniMax-M2.7,MiniMax-M2.7-highspeed',
-    capabilities: ['openai-compatible'],
-    officialSources: [
-      { label: 'MiniMax OpenAI API', url: 'https://platform.minimax.io/docs/api-reference/text-chat' },
-      { label: 'MiniMax Models', url: 'https://platform.minimax.io/docs/api-reference/models/openai/list-models' },
     ],
   },
   {
@@ -177,7 +165,6 @@ const EN_PROVIDER_TEXT: Record<string, { label: string; configHint?: string }> =
   anspire: { label: 'Anspire Open (models + search)', configHint: 'The same ANSPIRE_API_KEYS can be used for search and LLM channels. Models and gateways are examples; availability depends on account permissions and the console. Test the connection first.' },
   deepseek: { label: 'DeepSeek Official' },
   dashscope: { label: 'Qwen (DashScope)' },
-  minimax: { label: 'MiniMax Official' },
   volcengine: { label: 'Volcengine Ark (Doubao)', configHint: 'Do not mix online inference endpoints/regions with Coding Plan endpoints.' },
   siliconflow: { label: 'SiliconFlow', configHint: 'Model listings and visibility depend on account permissions and the API Key.' },
   openrouter: { label: 'OpenRouter', configHint: 'Model listings and visibility depend on account permissions and the API Key.' },

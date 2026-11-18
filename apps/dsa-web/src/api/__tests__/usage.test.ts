@@ -33,7 +33,7 @@ describe('usageApi', () => {
         ],
         by_model: [
           {
-            model: 'minimax/MiniMax-M3',
+            model: 'openai/gpt-5.5',
             calls: 1,
             prompt_tokens: 10,
             completion_tokens: 40,
@@ -46,7 +46,7 @@ describe('usageApi', () => {
             id: 7,
             called_at: '2026-06-14T09:30:00',
             call_type: 'analysis',
-            model: 'minimax/MiniMax-M3',
+            model: 'openai/gpt-5.5',
             stock_code: '600519',
             prompt_tokens: 10,
             completion_tokens: 40,

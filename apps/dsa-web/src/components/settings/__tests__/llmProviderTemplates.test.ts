@@ -42,7 +42,6 @@ describe('llmProviderTemplates', () => {
       'anspire',
       'deepseek',
       'dashscope',
-      'minimax',
       'volcengine',
       'siliconflow',
       'openrouter',
@@ -71,13 +70,13 @@ describe('llmProviderTemplates', () => {
   it('exposes safe helpers for known, custom, and unknown channel ids', () => {
     expect(getProviderTemplate('openrouter')).toBe(LLM_PROVIDER_TEMPLATE_BY_ID.openrouter);
     expect(getProviderTemplate('custom')).toBe(LLM_PROVIDER_TEMPLATE_BY_ID.custom);
-    expect(getProviderTemplate('minimax2')).toBeUndefined();
+    expect(getProviderTemplate('unknown-provider')).toBeUndefined();
     expect(getProviderTemplate('constructor')).toBeUndefined();
     expect(getProviderTemplate('toString')).toBeUndefined();
 
     expect(isKnownProviderTemplate('openrouter')).toBe(true);
     expect(isKnownProviderTemplate('custom')).toBe(false);
-    expect(isKnownProviderTemplate('minimax2')).toBe(false);
+    expect(isKnownProviderTemplate('unknown-provider')).toBe(false);
     expect(isKnownProviderTemplate('constructor')).toBe(false);
     expect(isKnownProviderTemplate('toString')).toBe(false);
   });

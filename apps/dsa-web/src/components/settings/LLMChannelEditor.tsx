@@ -30,7 +30,6 @@ const KNOWN_MODEL_PREFIXES = new Set([
   'gemini',
   'vertex_ai',
   'deepseek',
-  'minimax',
   'cohere',
   'huggingface',
   'bedrock',
@@ -1214,6 +1213,7 @@ function parseChannelsFromItems(
         !isUnsupportedOllamaChannel(name, protocol, baseUrl, models)
         && !isUnsupportedZhipuChannel(name, protocol, baseUrl, models)
         && !isUnsupportedMoonshotChannel(name, protocol, baseUrl, models)
+        && !isUnsupportedMiniMaxChannel(name, protocol, baseUrl, models)
       );
     });
 
@@ -1327,6 +1327,39 @@ function isMoonshotEndpoint(baseUrl: string): boolean {
   try {
     const hostname = new URL(baseUrl).hostname.toLowerCase().replace(/\.$/, '');
     return ['moonshot.cn', 'moonshot.ai', 'kimi.com', 'kimi.ai'].some(
+      (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isUnsupportedMiniMaxChannel(
+  name: string,
+  protocol: string,
+  baseUrl: string,
+  models: string[],
+): boolean {
+  return (
+    name.trim().toLowerCase() === 'minimax'
+    || protocol.trim().toLowerCase() === 'minimax'
+    || isMiniMaxEndpoint(baseUrl)
+    || models.some((model) =>
+      model.trim().toLowerCase().split('/').some((part) =>
+        part === 'minimax'
+        || part.startsWith('minimax-')
+        || part.startsWith('minimax_')
+        || part === 'abab'
+        || /^abab\d/.test(part)
+      )
+    )
+  );
+}
+
+function isMiniMaxEndpoint(baseUrl: string): boolean {
+  try {
+    const hostname = new URL(baseUrl).hostname.toLowerCase().replace(/\.$/, '');
+    return ['minimax.io', 'minimaxi.com', 'minimax.chat'].some(
       (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
     );
   } catch {
