@@ -32,7 +32,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
   'settings.ai_model.LLM_CHANNELS': {
     title: 'LLM 渠道列表',
     summary: '声明多个模型渠道，用于多 provider、多 Key、备用模型和可视化渠道管理。',
-    usage: '填写逗号分隔的渠道名，例如 deepseek,aihubmix；每个渠道再配置 LLM_<NAME>_BASE_URL、LLM_<NAME>_API_KEY(S)、LLM_<NAME>_MODELS 等字段。',
+    usage: '填写逗号分隔的渠道名，例如 deepseek,anspire；每个渠道再配置 LLM_<NAME>_BASE_URL、LLM_<NAME>_API_KEY(S)、LLM_<NAME>_MODELS 等字段。',
     valueNotes: [
       '启用渠道模式后，同层运行时优先读取渠道配置。',
       '在 Docker 或 GitHub Actions 中显式注入的环境变量会覆盖 Web 设置页写入的 .env。',
@@ -860,7 +860,7 @@ const settingsHelpEnUS: SettingsHelpMap = {
   'settings.ai_model.LLM_CHANNELS': {
     title: 'LLM Channels',
     summary: 'Declares model channels for multiple providers, keys, fallbacks, and visual channel management.',
-    usage: 'Use comma-separated names such as deepseek,aihubmix; then configure LLM_<NAME>_BASE_URL, LLM_<NAME>_API_KEY(S), and LLM_<NAME>_MODELS for each channel.',
+    usage: 'Use comma-separated names such as deepseek,anspire; then configure LLM_<NAME>_BASE_URL, LLM_<NAME>_API_KEY(S), and LLM_<NAME>_MODELS for each channel.',
     valueNotes: [
       'Once channel mode is active, runtime selection reads channel configuration first.',
       'Environment variables injected by Docker or GitHub Actions can override values saved from the Web settings page.',

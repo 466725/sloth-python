@@ -522,6 +522,15 @@ def _is_siliconflow_endpoint(base_url: str | None) -> bool:
     )
 
 
+def _is_aihubmix_endpoint(base_url: str | None) -> bool:
+    """Recognize legacy AIHubmix API hosts."""
+    try:
+        hostname = (urlparse(base_url or "").hostname or "").lower().rstrip(".")
+    except ValueError:
+        return False
+    return hostname == "aihubmix.com" or hostname.endswith(".aihubmix.com")
+
+
 def _is_openrouter_model(
     model: str,
     model_list: list[dict[str, Any]] | None = None,
@@ -848,6 +857,7 @@ class Config:
     unsupported_dashscope_configuration: bool = False
     unsupported_volcengine_configuration: bool = False
     unsupported_siliconflow_configuration: bool = False
+    unsupported_aihubmix_configuration: bool = False
     unsupported_openrouter_configuration: bool = False
 
     # Multi-key support: each list is parsed from *_API_KEYS (comma-separated) with single-key fallback
@@ -1260,6 +1270,11 @@ class Config:
             and str(value or "").strip()
             for name, value in os.environ.items()
         )
+        unsupported_aihubmix_configuration = any(
+            name.startswith(("AIHUBMIX_", "LLM_AIHUBMIX_"))
+            for name, value in os.environ.items()
+            if str(value or "").strip()
+        )
         unsupported_openrouter_configuration = any(
             name.startswith(("OPENROUTER_", "LLM_OPENROUTER_")) and str(value or "").strip()
             for name, value in os.environ.items()
@@ -1273,18 +1288,14 @@ class Config:
         if not gemini_api_keys and _single_gemini:
             gemini_api_keys = [_single_gemini]
 
-        # OPENAI_API_KEYS > AIHUBMIX_KEY > OPENAI_API_KEY
-        _aihubmix = os.getenv('AIHUBMIX_KEY', '').strip()
+        # OPENAI_API_KEYS > OPENAI_API_KEY
         _openai_keys_raw = os.getenv('OPENAI_API_KEYS', '')
         openai_api_keys = [k.strip() for k in _openai_keys_raw.split(',') if k.strip()]
         if not openai_api_keys:
             _single_openai = os.getenv('OPENAI_API_KEY', '').strip()
-            _fallback_key = _aihubmix or _single_openai
-            if _fallback_key:
-                openai_api_keys = [_fallback_key]
-        openai_base_url = os.getenv('OPENAI_BASE_URL') or (
-            'https://aihubmix.com/v1' if _aihubmix else None
-        )
+            if _single_openai:
+                openai_api_keys = [_single_openai]
+        openai_base_url = os.getenv('OPENAI_BASE_URL') or None
         if _is_ollama_endpoint(openai_base_url):
             logger.warning("Ollama's default endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
             unsupported_ollama_configuration = True
@@ -1312,6 +1323,10 @@ class Config:
         if _is_siliconflow_endpoint(openai_base_url):
             logger.warning("SiliconFlow's endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
             unsupported_siliconflow_configuration = True
+            openai_base_url = None
+        if _is_aihubmix_endpoint(openai_base_url):
+            logger.warning("AIHubmix's endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
+            unsupported_aihubmix_configuration = True
             openai_base_url = None
         if _is_openrouter_endpoint(openai_base_url):
             logger.warning("OpenRouter's endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
@@ -1405,6 +1420,7 @@ class Config:
         blocked_dashscope_model_names: set[str] = set()
         blocked_volcengine_model_names: set[str] = set()
         blocked_siliconflow_model_names: set[str] = set()
+        blocked_aihubmix_model_names: set[str] = set()
         blocked_openrouter_model_names: set[str] = set()
 
         # Priority 1: LITELLM_CONFIG (standard LiteLLM YAML config file)
@@ -1418,6 +1434,7 @@ class Config:
                 blocked_dashscope_model_names=blocked_dashscope_model_names,
                 blocked_volcengine_model_names=blocked_volcengine_model_names,
                 blocked_siliconflow_model_names=blocked_siliconflow_model_names,
+                blocked_aihubmix_model_names=blocked_aihubmix_model_names,
                 blocked_openrouter_model_names=blocked_openrouter_model_names,
             )
             if blocked_yaml_model_names:
@@ -1434,12 +1451,26 @@ class Config:
                 unsupported_volcengine_configuration = True
             if blocked_siliconflow_model_names:
                 unsupported_siliconflow_configuration = True
+            if blocked_aihubmix_model_names:
+                unsupported_aihubmix_configuration = True
             if blocked_openrouter_model_names:
                 unsupported_openrouter_configuration = True
             if llm_model_list:
                 llm_models_source = "litellm_config"
 
         configured_models = [litellm_model, *litellm_fallback_models]
+        if any(model in blocked_aihubmix_model_names for model in configured_models if model):
+            unsupported_aihubmix_configuration = True
+            if litellm_model in blocked_aihubmix_model_names:
+                logger.warning("AIHubmix primary model route is unsupported and has been ignored")
+                litellm_model = ""
+            supported_fallbacks = [
+                model for model in litellm_fallback_models
+                if model not in blocked_aihubmix_model_names
+            ]
+            if len(supported_fallbacks) != len(litellm_fallback_models):
+                logger.warning("AIHubmix fallback model routes are unsupported and have been ignored")
+                litellm_fallback_models = supported_fallbacks
         if any(
             _is_ollama_model(model, llm_model_list) or model in blocked_yaml_model_names
             for model in configured_models
@@ -1674,6 +1705,12 @@ class Config:
                     ):
                         unsupported_siliconflow_configuration = True
                     if (
+                        channel_name == "aihubmix"
+                        or raw_protocol == "aihubmix"
+                        or _is_aihubmix_endpoint(raw_base_url)
+                    ):
+                        unsupported_aihubmix_configuration = True
+                    if (
                         channel_name == "openrouter"
                         or raw_protocol == "openrouter"
                         or _is_openrouter_endpoint(raw_base_url)
@@ -1784,6 +1821,10 @@ class Config:
             logger.warning("SiliconFlow Agent model is unsupported and has been ignored")
             unsupported_siliconflow_configuration = True
             agent_litellm_model = ""
+        if agent_litellm_model in blocked_aihubmix_model_names:
+            logger.warning("AIHubmix Agent model route is unsupported and has been ignored")
+            unsupported_aihubmix_configuration = True
+            agent_litellm_model = ""
         if (
             _is_openrouter_model(agent_litellm_model, llm_model_list)
             or agent_model_raw.strip() in blocked_openrouter_model_names
@@ -1838,6 +1879,10 @@ class Config:
         ):
             logger.warning("SiliconFlow vision model is unsupported and has been ignored")
             unsupported_siliconflow_configuration = True
+            vision_model = ""
+        if vision_model in blocked_aihubmix_model_names:
+            logger.warning("AIHubmix vision model route is unsupported and has been ignored")
+            unsupported_aihubmix_configuration = True
             vision_model = ""
         if (
             _is_openrouter_model(vision_model, llm_model_list)
@@ -1973,6 +2018,7 @@ class Config:
             unsupported_dashscope_configuration=unsupported_dashscope_configuration,
             unsupported_volcengine_configuration=unsupported_volcengine_configuration,
             unsupported_siliconflow_configuration=unsupported_siliconflow_configuration,
+            unsupported_aihubmix_configuration=unsupported_aihubmix_configuration,
             unsupported_openrouter_configuration=unsupported_openrouter_configuration,
             gemini_api_keys=gemini_api_keys,
             openai_api_keys=openai_api_keys,
@@ -1984,11 +2030,6 @@ class Config:
             gemini_request_delay=parse_env_float(os.getenv('GEMINI_REQUEST_DELAY'), 2.0, field_name='GEMINI_REQUEST_DELAY', minimum=0.0),
             gemini_max_retries=parse_env_int(os.getenv('GEMINI_MAX_RETRIES'), 5, field_name='GEMINI_MAX_RETRIES', minimum=0),
             gemini_retry_delay=parse_env_float(os.getenv('GEMINI_RETRY_DELAY'), 5.0, field_name='GEMINI_RETRY_DELAY', minimum=0.0),
-            # AIHubmix is the preferred OpenAI-compatible provider (one key, all models, no VPN required).
-            # Within the OpenAI-compatible layer: AIHUBMIX_KEY takes priority over OPENAI_API_KEY.
-            # Overall provider fallback order: Gemini > DeepSeek > OpenAI-compatible (incl. AIHubmix).
-            # base_url is auto-set to aihubmix.com/v1 when AIHUBMIX_KEY is used and no explicit
-            # OPENAI_BASE_URL override is provided.
             # Model names match upstream (e.g. gemini-3.1-pro-preview, gpt-5.5, deepseek-v4-flash).
             openai_api_key=openai_api_keys[0] if openai_api_keys else None,
             openai_base_url=openai_base_url,
@@ -2258,6 +2299,7 @@ class Config:
         blocked_dashscope_model_names: set[str] | None = None,
         blocked_volcengine_model_names: set[str] | None = None,
         blocked_siliconflow_model_names: set[str] | None = None,
+        blocked_aihubmix_model_names: set[str] | None = None,
         blocked_openrouter_model_names: set[str] | None = None,
     ) -> List[Dict[str, Any]]:
         """Parse a standard LiteLLM config YAML file into Router model_list.
@@ -2318,6 +2360,17 @@ class Config:
                     blocked_model_names.add(model_name)
                 _logger.warning(
                     "LITELLM_CONFIG: Ollama deployment %r is unsupported and has been ignored",
+                    model_name,
+                )
+                continue
+            if (
+                custom_provider == "aihubmix"
+                or _is_aihubmix_endpoint(api_base)
+            ):
+                if blocked_aihubmix_model_names is not None:
+                    blocked_aihubmix_model_names.add(model_name)
+                _logger.warning(
+                    "LITELLM_CONFIG: AIHubmix deployment %r is unsupported and has been ignored",
                     model_name,
                 )
                 continue
@@ -2426,12 +2479,12 @@ class Config:
         """Parse LLM_CHANNELS env var and per-channel env vars.
 
         Format:
-            LLM_CHANNELS=aihubmix,deepseek,gemini
-            LLM_AIHUBMIX_PROTOCOL=openai
-            LLM_AIHUBMIX_BASE_URL=https://aihubmix.com/v1
-            LLM_AIHUBMIX_API_KEY=sk-xxx           (or LLM_AIHUBMIX_API_KEYS=k1,k2)
-            LLM_AIHUBMIX_MODELS=gpt-5.5,gemini-3.1-pro-preview
-            LLM_AIHUBMIX_ENABLED=true
+            LLM_CHANNELS=anspire,deepseek,gemini
+            LLM_ANSPIRE_PROTOCOL=openai
+            LLM_ANSPIRE_BASE_URL=https://open-gateway.anspire.cn/v6
+            LLM_ANSPIRE_API_KEY=sk-xxx            (or LLM_ANSPIRE_API_KEYS=k1,k2)
+            LLM_ANSPIRE_MODELS=Doubao-Seed-2.0-lite
+            LLM_ANSPIRE_ENABLED=true
         """
         import logging
         _logger = logging.getLogger(__name__)
@@ -2545,6 +2598,13 @@ class Config:
                 _logger.warning("SiliconFlow models in LLM channel '%s' are unsupported and have been ignored", ch_name)
                 raw_models = supported_raw_models
             if (
+                ch_lower == "aihubmix"
+                or protocol_raw.strip().lower() == "aihubmix"
+                or _is_aihubmix_endpoint(base_url)
+            ):
+                _logger.warning("LLM channel '%s' uses an unsupported AIHubmix route and was skipped", ch_name)
+                continue
+            if (
                 ch_lower == "openrouter"
                 or protocol_raw.strip().lower() == "openrouter"
                 or _is_openrouter_endpoint(base_url)
@@ -2627,10 +2687,7 @@ class Config:
                         litellm_params['api_key'] = api_key
                     if ch['base_url']:
                         litellm_params['api_base'] = ch['base_url']
-                    # Auto-inject aihubmix sponsored header
                     headers = dict(ch.get('extra_headers') or {})
-                    if ch['base_url'] and 'aihubmix.com' in ch['base_url']:
-                        headers.setdefault('APP-Code', 'GPIJ3886')
                     if headers:
                         litellm_params['extra_headers'] = headers
 
@@ -2676,8 +2733,6 @@ class Config:
                 params: Dict[str, Any] = {'model': '__legacy_openai__', 'api_key': k}
                 if openai_base_url:
                     params['api_base'] = openai_base_url
-                if openai_base_url and 'aihubmix.com' in openai_base_url:
-                    params['extra_headers'] = {'APP-Code': 'GPIJ3886'}
                 model_list.append({
                     'model_name': '__legacy_openai__',
                     'litellm_params': params,
@@ -3048,6 +3103,16 @@ class Config:
                 ),
                 field="LLM_PROVIDER",
             ))
+        if self.unsupported_aihubmix_configuration:
+            issues.append(ConfigIssue(
+                severity="error",
+                message=(
+                    "AIHubmix routes are not supported. Remove AIHubmix from "
+                    "OPENAI_BASE_URL, LLM_CHANNELS, LITELLM_CONFIG, and legacy "
+                    "AIHubmix settings."
+                ),
+                field="LLM_PROVIDER",
+            ))
         if self.unsupported_zhipu_configuration:
             issues.append(ConfigIssue(
                 severity="error",
@@ -3188,8 +3253,8 @@ class Config:
                     severity="error",
                     message=(
                         "未配置任何可用的 AI 模型接入。请至少配置 ANSPIRE_API_KEYS、"
-                        "AIHUBMIX_KEY、GEMINI_API_KEY、"
-                        "OPENAI_API_KEY 或 DEEPSEEK_API_KEY 中的一个，或配置 "
+                        "GEMINI_API_KEY、OPENAI_API_KEY 或 DEEPSEEK_API_KEY 中的一个，"
+                        "或配置 "
                         "LITELLM_CONFIG / LLM_CHANNELS 可用模型渠道。"
                     ),
                     field="LITELLM_CONFIG",
@@ -3483,8 +3548,6 @@ def extra_litellm_params(model: str, config: Config) -> Dict[str, Any]:
     if model.startswith("openai/") or "/" not in model:
         if config.openai_base_url:
             params["api_base"] = config.openai_base_url
-        if config.openai_base_url and "aihubmix.com" in config.openai_base_url:
-            params["extra_headers"] = {"APP-Code": "GPIJ3886"}
     return params
 
 

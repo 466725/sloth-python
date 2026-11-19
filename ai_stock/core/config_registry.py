@@ -269,7 +269,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "display_order": 4,
         "help_key": "settings.ai_model.LLM_CHANNELS",
         "examples": [
-            "LLM_CHANNELS=deepseek,aihubmix",
+            "LLM_CHANNELS=deepseek,anspire",
             "LLM_DEEPSEEK_BASE_URL=https://api.deepseek.com",
             "LLM_DEEPSEEK_API_KEY=sk-xxxx",
             "LLM_DEEPSEEK_MODELS=deepseek-v4-flash,deepseek-v4-pro",
@@ -365,35 +365,6 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
         ],
         "warning_codes": [],
-    },
-    "AIHUBMIX_KEY": {
-        "title": "AIHubmix Key",
-        "description": "AIHubmix one-stop API key – access all mainstream models with a single key, no VPN required. Auto-sets base URL to aihubmix.com/v1. Get key: https://aihubmix.com/?aff=CfMq",
-        "category": "ai_model",
-        "data_type": "string",
-        "ui_control": "password",
-        "is_sensitive": True,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": None,
-        "options": [],
-        "validation": {},
-        "display_order": 5,
-        "help_key": "settings.ai_model.provider_keys",
-        "examples": [
-            "AIHUBMIX_KEY=sk-xxxx",
-        ],
-        "docs": [
-            {
-                "label": "LLM 配置指南",
-                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
-            },
-            {
-                "label": "LLM 服务商配置速查",
-                "href": "https://github.com/466725/sloth-python/blob/main/ai_stock/llm/llm-providers.md",
-            },
-        ],
-        "warning_codes": ["secret_value"],
     },
     "ANSPIRE_LLM_ENABLED": {
         "title": "Anspire LLM Enabled",
@@ -992,7 +963,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
     },
     "OPENAI_API_KEYS": {
         "title": "OpenAI API Keys (Multi)",
-        "description": "Comma-separated OpenAI-compatible API keys for load balancing. Takes priority over AIHUBMIX_KEY and OPENAI_API_KEY.",
+        "description": "Comma-separated OpenAI-compatible API keys for load balancing. Takes priority over OPENAI_API_KEY.",
         "category": "ai_model",
         "data_type": "string",
         "ui_control": "password",
@@ -3329,7 +3300,7 @@ def _is_sensitive_key(key: str) -> bool:
 def _infer_category(key: str) -> str:
     if key.startswith("BACKTEST_"):
         return "backtest"
-    if key.startswith(("GEMINI_", "OPENAI_", "LITELLM_", "AIHUBMIX_", "DEEPSEEK_", "LLM_")):
+    if key.startswith(("GEMINI_", "OPENAI_", "LITELLM_", "DEEPSEEK_", "LLM_")):
         return "ai_model"
     if key.endswith("_PRIORITY") or key.startswith(
         (

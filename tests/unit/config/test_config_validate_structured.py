@@ -239,7 +239,7 @@ class TestValidateStructuredLLM:
         LLM_CHANNELS (no legacy *_API_KEY) should not see 'AI 功能不可用'.
         """
         channel_model_list = [
-            {"model_name": "openai/gpt-4o-mini", "litellm_params": {"api_key": "sk-chan", "api_base": "https://aihubmix.com/v1"}},
+            {"model_name": "openai/gpt-4o-mini", "litellm_params": {"api_key": "sk-chan", "api_base": "https://api.example.com/v1"}},
         ]
         cfg = _make_config(
             llm_model_list=channel_model_list,

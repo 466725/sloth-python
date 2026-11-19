@@ -370,7 +370,6 @@ const SettingsPage: React.FC = () => {
     "LITELLM_MODEL",
     "AGENT_LITELLM_MODEL",
     "LITELLM_FALLBACK_MODELS",
-    "AIHUBMIX_KEY",
     "DEEPSEEK_API_KEY",
     "DEEPSEEK_API_KEYS",
     "GEMINI_API_KEY",

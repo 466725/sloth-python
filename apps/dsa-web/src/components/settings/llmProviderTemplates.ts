@@ -47,15 +47,6 @@ export const LLM_PROVIDER_CAPABILITY_LABELS: Record<LLMProviderCapability, { lab
 
 export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
   {
-    channelId: 'aihubmix',
-    label: 'AIHubmix（聚合平台）',
-    protocol: 'openai',
-    baseUrl: 'https://aihubmix.com/v1',
-    placeholderModels: 'gpt-5.5,gemini-3.1-pro-preview',
-    capabilities: ['openai-compatible', 'aggregator'],
-    officialSources: [{ label: 'AIHubmix', url: 'https://aihubmix.com/' }],
-  },
-  {
     channelId: 'anspire',
     label: 'Anspire Open（一站式模型+搜索）',
     protocol: 'openai',
@@ -115,7 +106,6 @@ export const LLM_PROVIDER_TEMPLATE_BY_ID: Record<string, LLMProviderTemplate> = 
 );
 
 const EN_PROVIDER_TEXT: Record<string, { label: string; configHint?: string }> = {
-  aihubmix: { label: 'AIHubmix (aggregator)' },
   anspire: { label: 'Anspire Open (models + search)', configHint: 'The same ANSPIRE_API_KEYS can be used for search and LLM channels. Models and gateways are examples; availability depends on account permissions and the console. Test the connection first.' },
   deepseek: { label: 'DeepSeek Official' },
   gemini: { label: 'Gemini Official' },

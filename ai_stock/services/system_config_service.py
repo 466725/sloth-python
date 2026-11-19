@@ -34,6 +34,7 @@ from ai_stock.config import (
     _is_volcengine_model,
     _is_siliconflow_endpoint,
     _is_siliconflow_model,
+    _is_aihubmix_endpoint,
     _is_openrouter_endpoint,
     _is_openrouter_model,
     _is_zhipu_endpoint,
@@ -130,13 +131,19 @@ class SystemConfigService:
         "LLM_USAGE_HMAC_SECRET",
     }
     _REMOVED_CONFIG_KEYS: Set[str] = {
+        "AIHUBMIX_KEY",
         "SNAPSHOT_SOURCE_PRIORITY",
         "INDUSTRY_PROVIDER",
         "INDUSTRY_PROVIDER_MAX_BOARDS",
         "LLM_TIMEOUT_SEC",
         "LLM_MAX_TOKENS",
     }
-    _REMOVED_CONFIG_KEY_PREFIXES: Tuple[str, ...] = ("ALPHASIFT_", "ANTHROPIC_")
+    _REMOVED_CONFIG_KEY_PREFIXES: Tuple[str, ...] = (
+        "ALPHASIFT_",
+        "ANTHROPIC_",
+        "AIHUBMIX_",
+        "LLM_AIHUBMIX_",
+    )
     _NOTIFICATION_TEST_CHANNELS: Tuple[str, ...] = ("email",)
     _NOTIFICATION_TEST_KEY_MAP: Dict[str, Tuple[str, str]] = {
         "EMAIL_SENDER": ("email_sender", "string"),
@@ -1604,7 +1611,6 @@ class SystemConfigService:
                     "value": "" if value is None else str(value),
                 }
             )
-
         if not updates:
             raise ConfigImportError("未识别到有效 .env 配置")
 
@@ -1669,8 +1675,6 @@ class SystemConfigService:
                     "actual": "contains newline",
                 }
             )
-            return issues
-
         if data_type == "integer":
             try:
                 numeric = int(value)
@@ -2308,6 +2312,8 @@ class SystemConfigService:
             return False
         if normalized == "siliconflow":
             return False
+        if normalized == "aihubmix":
+            return False
         if normalized == "gemini" or normalized == "vertex_ai":
             return cls._has_any_config_value(effective_map, ("GEMINI_API_KEYS", "GEMINI_API_KEY"))
         if normalized == "deepseek":
@@ -2321,10 +2327,11 @@ class SystemConfigService:
                 or _is_dashscope_endpoint(base_url)
                 or _is_volcengine_endpoint(base_url)
                 or _is_siliconflow_endpoint(base_url)
+                or _is_aihubmix_endpoint(base_url)
                 or _is_openrouter_endpoint(base_url)
             ):
                 return False
-            if cls._has_any_config_value(effective_map, ("OPENAI_API_KEYS", "OPENAI_API_KEY", "AIHUBMIX_KEY")):
+            if cls._has_any_config_value(effective_map, ("OPENAI_API_KEYS", "OPENAI_API_KEY")):
                 return True
             if (
                 cls._anspire_legacy_llm_enabled(effective_map)
@@ -2409,6 +2416,12 @@ class SystemConfigService:
             ):
                 continue
             if (
+                name.lower() == "aihubmix"
+                or raw_protocol.lower() == "aihubmix"
+                or _is_aihubmix_endpoint(base_url)
+            ):
+                continue
+            if (
                 name.lower() == "openrouter"
                 or raw_protocol.lower() == "openrouter"
                 or _is_openrouter_endpoint(base_url)
@@ -2469,7 +2482,7 @@ class SystemConfigService:
             return model if "/" in model else f"gemini/{model}"
         if cls._has_any_config_value(effective_map, ("DEEPSEEK_API_KEYS", "DEEPSEEK_API_KEY")):
             return "deepseek/deepseek-chat"
-        if cls._has_any_config_value(effective_map, ("OPENAI_API_KEYS", "OPENAI_API_KEY", "AIHUBMIX_KEY")):
+        if cls._has_any_config_value(effective_map, ("OPENAI_API_KEYS", "OPENAI_API_KEY")):
             model = (effective_map.get("OPENAI_MODEL") or "gpt-5.5").strip()
             return model if "/" in model else f"openai/{model}"
         if (
@@ -2493,6 +2506,7 @@ class SystemConfigService:
         blocked_dashscope_model_names: set[str] = set()
         blocked_volcengine_model_names: set[str] = set()
         blocked_siliconflow_model_names: set[str] = set()
+        blocked_aihubmix_model_names: set[str] = set()
         blocked_openrouter_model_names: set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
@@ -2505,6 +2519,7 @@ class SystemConfigService:
                 blocked_dashscope_model_names=blocked_dashscope_model_names,
                 blocked_volcengine_model_names=blocked_volcengine_model_names,
                 blocked_siliconflow_model_names=blocked_siliconflow_model_names,
+                blocked_aihubmix_model_names=blocked_aihubmix_model_names,
                 blocked_openrouter_model_names=blocked_openrouter_model_names,
             )
         yaml_models = self._collect_yaml_models_from_map(effective_map)
@@ -2525,6 +2540,8 @@ class SystemConfigService:
                 return "", "Volcengine Ark models are not supported; select a supported model."
             if _is_siliconflow_model(explicit_model) or explicit_model in blocked_siliconflow_model_names:
                 return "", "SiliconFlow models are not supported; select a supported model."
+            if explicit_model in blocked_aihubmix_model_names:
+                return "", "AIHubmix models are not supported; select a supported model."
             if _is_openrouter_model(explicit_model) or explicit_model in blocked_openrouter_model_names:
                 return "", "OpenRouter models are not supported; select a supported model."
             if _uses_direct_env_provider(explicit_model):
@@ -2589,6 +2606,7 @@ class SystemConfigService:
         blocked_dashscope_model_names: set[str] = set()
         blocked_volcengine_model_names: set[str] = set()
         blocked_siliconflow_model_names: set[str] = set()
+        blocked_aihubmix_model_names: set[str] = set()
         blocked_openrouter_model_names: set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
@@ -2601,6 +2619,7 @@ class SystemConfigService:
                 blocked_dashscope_model_names=blocked_dashscope_model_names,
                 blocked_volcengine_model_names=blocked_volcengine_model_names,
                 blocked_siliconflow_model_names=blocked_siliconflow_model_names,
+                blocked_aihubmix_model_names=blocked_aihubmix_model_names,
                 blocked_openrouter_model_names=blocked_openrouter_model_names,
             )
         if not agent_model_raw:
@@ -2711,6 +2730,16 @@ class SystemConfigService:
                 True,
                 "needs_action",
                 "SiliconFlow models are not supported.",
+                "Select a supported Agent model.",
+            )
+        if agent_model_raw in blocked_aihubmix_model_names:
+            return self._setup_check(
+                "llm_agent",
+                "Agent 渠道",
+                "agent",
+                True,
+                "needs_action",
+                "AIHubmix models are not supported.",
                 "Select a supported Agent model.",
             )
         if (
@@ -3506,6 +3535,12 @@ class SystemConfigService:
             ):
                 continue
             if (
+                name.lower() == "aihubmix"
+                or protocol_value.lower() == "aihubmix"
+                or _is_aihubmix_endpoint(base_url_value)
+            ):
+                continue
+            if (
                 name.lower() == "openrouter"
                 or protocol_value.lower() == "openrouter"
                 or _is_openrouter_endpoint(base_url_value)
@@ -3575,10 +3610,15 @@ class SystemConfigService:
                 or (effective_map.get("DEEPSEEK_API_KEY") or "").strip()
             )
         if normalized_provider == "openai":
+            openai_base_url = effective_map.get("OPENAI_BASE_URL")
             return bool(
-                (effective_map.get("OPENAI_API_KEYS") or "").strip()
-                or (effective_map.get("AIHUBMIX_KEY") or "").strip()
-                or (effective_map.get("OPENAI_API_KEY") or "").strip()
+                (
+                    not _is_aihubmix_endpoint(openai_base_url)
+                    and (
+                        (effective_map.get("OPENAI_API_KEYS") or "").strip()
+                        or (effective_map.get("OPENAI_API_KEY") or "").strip()
+                    )
+                )
                 or (
                     SystemConfigService._anspire_legacy_llm_enabled(effective_map)
                     and (effective_map.get("ANSPIRE_API_KEYS") or "").strip()
@@ -3606,6 +3646,7 @@ class SystemConfigService:
         blocked_dashscope_model_names: set[str] = set()
         blocked_volcengine_model_names: set[str] = set()
         blocked_siliconflow_model_names: set[str] = set()
+        blocked_aihubmix_model_names: set[str] = set()
         blocked_openrouter_model_names: set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
@@ -3618,6 +3659,7 @@ class SystemConfigService:
                 blocked_dashscope_model_names=blocked_dashscope_model_names,
                 blocked_volcengine_model_names=blocked_volcengine_model_names,
                 blocked_siliconflow_model_names=blocked_siliconflow_model_names,
+                blocked_aihubmix_model_names=blocked_aihubmix_model_names,
                 blocked_openrouter_model_names=blocked_openrouter_model_names,
             )
 
@@ -3628,6 +3670,7 @@ class SystemConfigService:
         channel_uses_dashscope = False
         channel_uses_volcengine = False
         channel_uses_siliconflow = False
+        channel_uses_aihubmix = False
         channel_uses_openrouter = False
         for name in SystemConfigService._split_csv(effective_map.get("LLM_CHANNELS") or ""):
             prefix = f"LLM_{name.strip().upper()}"
@@ -3683,6 +3726,12 @@ class SystemConfigService:
                 or any(_is_siliconflow_model(model) for model in models)
             ):
                 channel_uses_siliconflow = True
+            if (
+                name.strip().lower() == "aihubmix"
+                or protocol == "aihubmix"
+                or _is_aihubmix_endpoint(base_url)
+            ):
+                channel_uses_aihubmix = True
             if (
                 name.strip().lower() == "openrouter"
                 or protocol == "openrouter"
@@ -3799,6 +3848,18 @@ class SystemConfigService:
                 effective_map.get("LITELLM_FALLBACK_MODELS") or ""
             )
             if _is_siliconflow_model(model) or model in blocked_siliconflow_model_names
+        )
+        unsupported_aihubmix_models = [
+            (key, model)
+            for key, model in selected_models
+            if model and model in blocked_aihubmix_model_names
+        ]
+        unsupported_aihubmix_models.extend(
+            ("LITELLM_FALLBACK_MODELS", model)
+            for model in SystemConfigService._split_csv(
+                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
+            )
+            if model in blocked_aihubmix_model_names
         )
         unsupported_openrouter_models = [
             (key, model)
@@ -3943,6 +4004,25 @@ class SystemConfigService:
                     "key": fields or ("LLM_CHANNELS" if channel_uses_siliconflow else "LLM_PROVIDER"),
                     "code": "unsupported_provider",
                     "message": "SiliconFlow model routes are not supported. Select another provider and remove SiliconFlow settings.",
+                }
+            )
+        if (
+            any(
+                key.startswith(("AIHUBMIX_", "LLM_AIHUBMIX_"))
+                and str(value or "").strip()
+                for key, value in effective_map.items()
+            )
+            or _is_aihubmix_endpoint(effective_map.get("OPENAI_BASE_URL"))
+            or bool(blocked_aihubmix_model_names)
+            or channel_uses_aihubmix
+            or unsupported_aihubmix_models
+        ):
+            fields = ", ".join(dict.fromkeys(key for key, _model in unsupported_aihubmix_models))
+            issues.append(
+                {
+                    "key": fields or ("LLM_CHANNELS" if channel_uses_aihubmix else "LLM_PROVIDER"),
+                    "code": "unsupported_provider",
+                    "message": "AIHubmix routes are not supported. Select another provider and remove AIHubmix settings.",
                 }
             )
         if (
@@ -4328,6 +4408,21 @@ class SystemConfigService:
                     "key": protocol_key,
                     "code": "unsupported_provider",
                     "message": "SiliconFlow model routes are not supported.",
+                    "severity": "error",
+                    "expected": "a supported LLM provider",
+                    "actual": protocol_value or channel_name,
+                }
+            )
+        if (
+            channel_name.strip().lower() == "aihubmix"
+            or protocol_value.strip().lower() == "aihubmix"
+            or _is_aihubmix_endpoint(base_url_value)
+        ):
+            issues.append(
+                {
+                    "key": protocol_key,
+                    "code": "unsupported_provider",
+                    "message": "AIHubmix model routes are not supported.",
                     "severity": "error",
                     "expected": "a supported LLM provider",
                     "actual": protocol_value or channel_name,

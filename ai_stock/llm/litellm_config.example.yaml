@@ -21,13 +21,13 @@
 # https://docs.litellm.ai/docs/proxy/configs
 
 model_list:
-  # OpenAI-compatible gateway. Replace the model ID and URL with values
-  # supported by your account and gateway.
+  # OpenAI official API. Replace the model ID and key with values
+  # supported by your account.
   - model_name: openai/gpt-5.5
     litellm_params:
       model: openai/gpt-5.5
-      api_key: os.environ/AIHUBMIX_KEY
-      api_base: https://aihubmix.com/v1
+      api_key: os.environ/OPENAI_API_KEY
+      api_base: https://api.openai.com/v1
 
   # DeepSeek official API. The top-level model_name is the routing alias
   # selected by LITELLM_MODEL; litellm_params.model is the provider model.

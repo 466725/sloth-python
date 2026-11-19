@@ -289,16 +289,16 @@ describe('LLMChannelEditor', () => {
     expect(screen.getByLabelText('模型（逗号分隔）')).toHaveValue('deepseek-v4-flash,deepseek-v4-pro');
   });
 
-  it('shows provider capability badges and official sources', async () => {
+  it('shows Anspire provider capability badges and official sources', async () => {
     render(
       <LLMChannelEditor
         items={[
-          { key: 'LLM_CHANNELS', value: 'aihubmix' },
-          { key: 'LLM_AIHUBMIX_PROTOCOL', value: 'openai' },
-          { key: 'LLM_AIHUBMIX_BASE_URL', value: 'https://aihubmix.com/v1' },
-          { key: 'LLM_AIHUBMIX_ENABLED', value: 'true' },
-          { key: 'LLM_AIHUBMIX_API_KEY', value: 'sk-test' },
-          { key: 'LLM_AIHUBMIX_MODELS', value: 'gpt-5.5' },
+          { key: 'LLM_CHANNELS', value: 'anspire' },
+          { key: 'LLM_ANSPIRE_PROTOCOL', value: 'openai' },
+          { key: 'LLM_ANSPIRE_BASE_URL', value: 'https://open-gateway.anspire.cn/v6' },
+          { key: 'LLM_ANSPIRE_ENABLED', value: 'true' },
+          { key: 'LLM_ANSPIRE_API_KEY', value: 'sk-test' },
+          { key: 'LLM_ANSPIRE_MODELS', value: 'Doubao-Seed-2.0-lite' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -306,14 +306,14 @@ describe('LLMChannelEditor', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /AIHubmix/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Anspire/i }));
 
     expect(await screen.findByText('配置参考')).toBeInTheDocument();
     expect(screen.getByText('OpenAI 兼容')).toBeInTheDocument();
-    expect(screen.getByText('聚合平台')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'AIHubmix' })).toHaveAttribute(
+    expect(screen.getByText('OpenAI 兼容')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Anspire Open' })).toHaveAttribute(
       'href',
-      'https://aihubmix.com/',
+      'https://open.anspire.cn/?share_code=QFBC0FYC',
     );
     expect(screen.getByText(/能力标签仅用于配置参考，不代表运行时能力已验证通过/i)).toBeInTheDocument();
   });

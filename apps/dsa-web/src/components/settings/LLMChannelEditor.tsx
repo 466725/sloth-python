@@ -487,7 +487,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
                 label={text.channelName}
                 fieldKey="LLM_CHANNEL_NAME"
                 helpKey="settings.llm_channel.channel_name"
-                examples={['LLM_CHANNELS=deepseek,aihubmix', 'LLM_DEEPSEEK_MODELS=deepseek-v4-flash,deepseek-v4-pro']}
+                examples={['LLM_CHANNELS=deepseek,anspire', 'LLM_DEEPSEEK_MODELS=deepseek-v4-flash,deepseek-v4-pro']}
               />
             <Input
               id={channelNameInputId}
@@ -503,7 +503,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
                 label={text.protocol}
                 fieldKey="LLM_CHANNEL_PROTOCOL"
                 helpKey="settings.llm_channel.protocol"
-                examples={['LLM_DEEPSEEK_PROTOCOL=deepseek', 'LLM_AIHUBMIX_PROTOCOL=openai']}
+                examples={['LLM_DEEPSEEK_PROTOCOL=deepseek', 'LLM_ANSPIRE_PROTOCOL=openai']}
               />
               <Select
                 id={protocolInputId}
@@ -522,7 +522,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
               label="Base URL"
               fieldKey="LLM_CHANNEL_BASE_URL"
               helpKey="settings.llm_channel.base_url"
-              examples={['LLM_DEEPSEEK_BASE_URL=https://api.deepseek.com', 'LLM_AIHUBMIX_BASE_URL=https://aihubmix.com/v1']}
+              examples={['LLM_DEEPSEEK_BASE_URL=https://api.deepseek.com', 'LLM_ANSPIRE_BASE_URL=https://open-gateway.anspire.cn/v6']}
             />
           <Input
             id={baseUrlInputId}
@@ -1065,7 +1065,7 @@ const MANAGED_PROVIDERS = new Set(['gemini', 'vertex_ai', 'openai', 'deepseek'])
 const LEGACY_PROVIDER_KEYS: Record<string, string[]> = {
   gemini: ['GEMINI_API_KEYS', 'GEMINI_API_KEY'],
   vertex_ai: ['GEMINI_API_KEYS', 'GEMINI_API_KEY'],
-  openai: ['OPENAI_API_KEYS', 'AIHUBMIX_KEY', 'OPENAI_API_KEY'],
+  openai: ['OPENAI_API_KEYS', 'OPENAI_API_KEY'],
   deepseek: ['DEEPSEEK_API_KEYS', 'DEEPSEEK_API_KEY'],
 };
 
@@ -1220,6 +1220,7 @@ function parseChannelsFromItems(
         && !isUnsupportedDashScopeChannel(name, protocol, baseUrl, models)
         && !isUnsupportedVolcengineChannel(name, protocol, baseUrl, models)
         && !isUnsupportedSiliconFlowChannel(name, protocol, baseUrl, models)
+        && !isUnsupportedAIHubmixChannel(name, protocol, baseUrl)
         && !isUnsupportedOpenRouterChannel(name, protocol, baseUrl, models)
       );
     });
@@ -1454,6 +1455,18 @@ function isSiliconFlowEndpoint(baseUrl: string): boolean {
   }
 }
 
+function isUnsupportedAIHubmixChannel(name: string, protocol: string, baseUrl: string): boolean {
+  if (name.trim().toLowerCase() === 'aihubmix' || protocol.trim().toLowerCase() === 'aihubmix') {
+    return true;
+  }
+  try {
+    const hostname = new URL(baseUrl).hostname.toLowerCase().replace(/\.$/, '');
+    return hostname === 'aihubmix.com' || hostname.endsWith('.aihubmix.com');
+  } catch {
+    return false;
+  }
+}
+
 function isUnsupportedOpenRouterChannel(
   name: string,
   protocol: string,
@@ -1615,7 +1628,7 @@ export const LLMChannelEditor: React.FC<LLMChannelEditorProps> = ({
   const [capabilityStates, setCapabilityStates] = useState<Record<string, ChannelCapabilityState>>({});
   const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({});
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [addPreset, setAddPreset] = useState('aihubmix');
+  const [addPreset, setAddPreset] = useState('anspire');
   const addChannelIdRef = useRef(0);
 
   const prevChannelsRef = useRef(channelsFingerprint);
