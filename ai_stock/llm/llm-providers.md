@@ -24,15 +24,11 @@ Configuration precedence is **YAML → Channels → legacy provider settings**.
 YAML takes precedence only when its path can be read and it contains a usable
 `model_list`; otherwise DSA falls back to the next configuration source. The
 configuration loader does not rewrite or remove lower-priority settings.
-Native Ollama protocol settings and `ollama/` model routes are unsupported and
-ignored. Remove them from existing `.env` files and LiteLLM YAML, then select a
-supported model. OpenRouter-specific routes, API endpoints, and legacy settings
-are also unsupported and should be removed from existing configuration.
-Legacy Anthropic settings are no longer shown or used for automatic provider
-selection. Existing environment files are not changed; select another provider
-and update the primary, Agent, fallback, and vision models if needed.
-SiliconFlow-specific routes and settings are unsupported and should be removed
-from existing configuration.
+DSA does not maintain provider-specific denylist rules for retired model names
+or endpoints. YAML deployments are passed through to LiteLLM, and channels use
+generic protocol resolution. This does not add provider presets or guarantee
+that a route is available; configure only providers and endpoints you intend
+to use.
 
 Channels are the recommended option for most users and can be managed in the
 Web app's **AI Model Configuration** settings. Use **Quick Add Channel** to

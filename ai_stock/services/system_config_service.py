@@ -22,23 +22,6 @@ from ai_stock.config import (
     SUPPORTED_LLM_CHANNEL_PROTOCOLS,
     Config,
     _get_litellm_provider,
-    _is_ollama_endpoint,
-    _is_ollama_model,
-    _is_moonshot_endpoint,
-    _is_moonshot_model,
-    _is_minimax_endpoint,
-    _is_minimax_model,
-    _is_dashscope_endpoint,
-    _is_dashscope_model,
-    _is_volcengine_endpoint,
-    _is_volcengine_model,
-    _is_siliconflow_endpoint,
-    _is_siliconflow_model,
-    _is_aihubmix_endpoint,
-    _is_openrouter_endpoint,
-    _is_openrouter_model,
-    _is_zhipu_endpoint,
-    _is_zhipu_model,
     _uses_direct_env_provider,
     canonicalize_llm_channel_protocol,
     channel_allows_empty_api_key,
@@ -2298,39 +2281,12 @@ class SystemConfigService:
     @classmethod
     def _provider_has_setup_credentials(cls, provider: str, effective_map: Dict[str, str]) -> bool:
         normalized = canonicalize_llm_channel_protocol(provider)
-        if normalized in {"zhipu", "bigmodel", "zai", "glm"}:
-            return False
-        if normalized in {"moonshot", "moonshotai", "kimi"}:
-            return False
-        if normalized == "minimax":
-            return False
-        if normalized == "dashscope":
-            return False
-        if normalized in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}:
-            return False
-        if normalized == "openrouter":
-            return False
-        if normalized == "siliconflow":
-            return False
-        if normalized == "aihubmix":
-            return False
         if normalized == "gemini" or normalized == "vertex_ai":
             return cls._has_any_config_value(effective_map, ("GEMINI_API_KEYS", "GEMINI_API_KEY"))
         if normalized == "deepseek":
             return cls._has_any_config_value(effective_map, ("DEEPSEEK_API_KEYS", "DEEPSEEK_API_KEY"))
         if normalized == "openai":
             base_url = (effective_map.get("OPENAI_BASE_URL") or "").strip()
-            if (
-                _is_ollama_endpoint(base_url)
-                or _is_moonshot_endpoint(base_url)
-                or _is_minimax_endpoint(base_url)
-                or _is_dashscope_endpoint(base_url)
-                or _is_volcengine_endpoint(base_url)
-                or _is_siliconflow_endpoint(base_url)
-                or _is_aihubmix_endpoint(base_url)
-                or _is_openrouter_endpoint(base_url)
-            ):
-                return False
             if cls._has_any_config_value(effective_map, ("OPENAI_API_KEYS", "OPENAI_API_KEY")):
                 return True
             if (
@@ -2373,61 +2329,6 @@ class SystemConfigService:
             base_url = (effective_map.get(f"{prefix}_BASE_URL") or "").strip()
             raw_protocol = (effective_map.get(f"{prefix}_PROTOCOL") or "").strip()
             raw_models = cls._split_csv(effective_map.get(f"{prefix}_MODELS") or "")
-            if (
-                name.lower() == "ollama"
-                or raw_protocol.lower() == "ollama"
-                or _is_ollama_endpoint(base_url)
-            ):
-                continue
-            if (
-                name.lower() in {"zhipu", "bigmodel", "zai", "glm"}
-                or raw_protocol.lower() in {"zhipu", "bigmodel", "zai", "glm"}
-                or _is_zhipu_endpoint(base_url)
-            ):
-                continue
-            if (
-                name.lower() in {"moonshot", "moonshotai", "kimi"}
-                or raw_protocol.lower() in {"moonshot", "moonshotai", "kimi"}
-                or _is_moonshot_endpoint(base_url)
-            ):
-                continue
-            if (
-                name.lower() == "minimax"
-                or raw_protocol.lower() == "minimax"
-                or _is_minimax_endpoint(base_url)
-            ):
-                continue
-            if (
-                name.lower() == "dashscope"
-                or raw_protocol.lower() == "dashscope"
-                or _is_dashscope_endpoint(base_url)
-            ):
-                continue
-            if (
-                name.lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
-                or raw_protocol.lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
-                or _is_volcengine_endpoint(base_url)
-            ):
-                continue
-            if (
-                name.lower() == "siliconflow"
-                or raw_protocol.lower() == "siliconflow"
-                or _is_siliconflow_endpoint(base_url)
-            ):
-                continue
-            if (
-                name.lower() == "aihubmix"
-                or raw_protocol.lower() == "aihubmix"
-                or _is_aihubmix_endpoint(base_url)
-            ):
-                continue
-            if (
-                name.lower() == "openrouter"
-                or raw_protocol.lower() == "openrouter"
-                or _is_openrouter_endpoint(base_url)
-            ):
-                continue
-            raw_models = [model for model in raw_models if not _is_ollama_model(model)]
             if name.lower() == "anspire" and not base_url:
                 base_url = (
                     effective_map.get("ANSPIRE_LLM_BASE_URL")
@@ -2449,14 +2350,6 @@ class SystemConfigService:
                         or ANSPIRE_LLM_MODEL_DEFAULT
                     ).strip()
                 ]
-            raw_models = [model for model in raw_models if not _is_ollama_model(model)]
-            raw_models = [model for model in raw_models if not _is_zhipu_model(model)]
-            raw_models = [model for model in raw_models if not _is_moonshot_model(model)]
-            raw_models = [model for model in raw_models if not _is_minimax_model(model)]
-            raw_models = [model for model in raw_models if not _is_dashscope_model(model)]
-            raw_models = [model for model in raw_models if not _is_volcengine_model(model)]
-            raw_models = [model for model in raw_models if not _is_siliconflow_model(model)]
-            raw_models = [model for model in raw_models if not _is_openrouter_model(model)]
             resolved_protocol = resolve_llm_channel_protocol(
                 protocol,
                 base_url=base_url,
@@ -2499,51 +2392,10 @@ class SystemConfigService:
 
     def _resolve_setup_primary_model(self, effective_map: Dict[str, str]) -> Tuple[str, str]:
         explicit_model = (effective_map.get("LITELLM_MODEL") or "").strip()
-        blocked_yaml_model_names: Set[str] = set()
-        blocked_zhipu_model_names: Set[str] = set()
-        blocked_moonshot_model_names: set[str] = set()
-        blocked_minimax_model_names: set[str] = set()
-        blocked_dashscope_model_names: set[str] = set()
-        blocked_volcengine_model_names: set[str] = set()
-        blocked_siliconflow_model_names: set[str] = set()
-        blocked_aihubmix_model_names: set[str] = set()
-        blocked_openrouter_model_names: set[str] = set()
-        config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
-        if config_path:
-            Config._parse_litellm_yaml(
-                config_path,
-                blocked_model_names=blocked_yaml_model_names,
-                blocked_zhipu_model_names=blocked_zhipu_model_names,
-                blocked_moonshot_model_names=blocked_moonshot_model_names,
-                blocked_minimax_model_names=blocked_minimax_model_names,
-                blocked_dashscope_model_names=blocked_dashscope_model_names,
-                blocked_volcengine_model_names=blocked_volcengine_model_names,
-                blocked_siliconflow_model_names=blocked_siliconflow_model_names,
-                blocked_aihubmix_model_names=blocked_aihubmix_model_names,
-                blocked_openrouter_model_names=blocked_openrouter_model_names,
-            )
         yaml_models = self._collect_yaml_models_from_map(effective_map)
         channel_models = self._collect_setup_channel_models(effective_map)
 
         if explicit_model:
-            if _is_ollama_model(explicit_model) or explicit_model in blocked_yaml_model_names:
-                return "", "Ollama models are not supported; select a supported model."
-            if _is_zhipu_model(explicit_model) or explicit_model in blocked_zhipu_model_names:
-                return "", "Zhipu GLM models are not supported; select a supported model."
-            if _is_moonshot_model(explicit_model) or explicit_model in blocked_moonshot_model_names:
-                return "", "Moonshot/Kimi models are not supported; select a supported model."
-            if _is_minimax_model(explicit_model) or explicit_model in blocked_minimax_model_names:
-                return "", "MiniMax models are not supported; select a supported model."
-            if _is_dashscope_model(explicit_model) or explicit_model in blocked_dashscope_model_names:
-                return "", "Alibaba DashScope models are not supported; select a supported model."
-            if _is_volcengine_model(explicit_model) or explicit_model in blocked_volcengine_model_names:
-                return "", "Volcengine Ark models are not supported; select a supported model."
-            if _is_siliconflow_model(explicit_model) or explicit_model in blocked_siliconflow_model_names:
-                return "", "SiliconFlow models are not supported; select a supported model."
-            if explicit_model in blocked_aihubmix_model_names:
-                return "", "AIHubmix models are not supported; select a supported model."
-            if _is_openrouter_model(explicit_model) or explicit_model in blocked_openrouter_model_names:
-                return "", "OpenRouter models are not supported; select a supported model."
             if _uses_direct_env_provider(explicit_model):
                 return explicit_model, "explicit"
             has_direct_source = self._has_setup_runtime_source_for_model(explicit_model, effective_map)
@@ -2599,29 +2451,6 @@ class SystemConfigService:
         primary_check: Dict[str, Any],
     ) -> Dict[str, Any]:
         agent_model_raw = (effective_map.get("AGENT_LITELLM_MODEL") or "").strip()
-        blocked_yaml_model_names: Set[str] = set()
-        blocked_zhipu_model_names: Set[str] = set()
-        blocked_moonshot_model_names: set[str] = set()
-        blocked_minimax_model_names: set[str] = set()
-        blocked_dashscope_model_names: set[str] = set()
-        blocked_volcengine_model_names: set[str] = set()
-        blocked_siliconflow_model_names: set[str] = set()
-        blocked_aihubmix_model_names: set[str] = set()
-        blocked_openrouter_model_names: set[str] = set()
-        config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
-        if config_path:
-            Config._parse_litellm_yaml(
-                config_path,
-                blocked_model_names=blocked_yaml_model_names,
-                blocked_zhipu_model_names=blocked_zhipu_model_names,
-                blocked_moonshot_model_names=blocked_moonshot_model_names,
-                blocked_minimax_model_names=blocked_minimax_model_names,
-                blocked_dashscope_model_names=blocked_dashscope_model_names,
-                blocked_volcengine_model_names=blocked_volcengine_model_names,
-                blocked_siliconflow_model_names=blocked_siliconflow_model_names,
-                blocked_aihubmix_model_names=blocked_aihubmix_model_names,
-                blocked_openrouter_model_names=blocked_openrouter_model_names,
-            )
         if not agent_model_raw:
             if primary_check["status"] == "configured":
                 return self._setup_check(
@@ -2647,114 +2476,6 @@ class SystemConfigService:
             or self._collect_setup_channel_models(effective_map)
         )
         agent_model = normalize_agent_litellm_model(agent_model_raw, configured_models=configured_models)
-        if _is_ollama_model(agent_model) or agent_model_raw in blocked_yaml_model_names:
-            return self._setup_check(
-                "llm_agent",
-                "Agent 渠道",
-                "agent",
-                True,
-                "needs_action",
-                "Ollama models are not supported.",
-                "Select a supported Agent model.",
-            )
-        if _is_zhipu_model(agent_model) or agent_model_raw in blocked_zhipu_model_names:
-            return self._setup_check(
-                "llm_agent",
-                "Agent 渠道",
-                "agent",
-                True,
-                "needs_action",
-                "Zhipu GLM models are not supported.",
-                "Select a supported Agent model.",
-            )
-        if (
-            _is_moonshot_model(agent_model)
-            or agent_model_raw in blocked_moonshot_model_names
-        ):
-            return self._setup_check(
-                "llm_agent",
-                "Agent 渠道",
-                "agent",
-                True,
-                "needs_action",
-                "Moonshot/Kimi models are not supported.",
-                "Select a supported Agent model.",
-            )
-        if (
-            _is_minimax_model(agent_model)
-            or agent_model_raw in blocked_minimax_model_names
-        ):
-            return self._setup_check(
-                "llm_agent",
-                "Agent 渠道",
-                "agent",
-                True,
-                "needs_action",
-                "MiniMax models are not supported.",
-                "Select a supported Agent model.",
-            )
-        if (
-            _is_dashscope_model(agent_model)
-            or agent_model_raw in blocked_dashscope_model_names
-        ):
-            return self._setup_check(
-                "llm_agent",
-                "Agent 渠道",
-                "agent",
-                True,
-                "needs_action",
-                "Alibaba DashScope models are not supported.",
-                "Select a supported Agent model.",
-            )
-        if (
-            _is_volcengine_model(agent_model)
-            or agent_model_raw in blocked_volcengine_model_names
-        ):
-            return self._setup_check(
-                "llm_agent",
-                "Agent 渠道",
-                "agent",
-                True,
-                "needs_action",
-                "Volcengine Ark models are not supported.",
-                "Select a supported Agent model.",
-            )
-        if (
-            _is_siliconflow_model(agent_model)
-            or agent_model_raw in blocked_siliconflow_model_names
-        ):
-            return self._setup_check(
-                "llm_agent",
-                "Agent 渠道",
-                "agent",
-                True,
-                "needs_action",
-                "SiliconFlow models are not supported.",
-                "Select a supported Agent model.",
-            )
-        if agent_model_raw in blocked_aihubmix_model_names:
-            return self._setup_check(
-                "llm_agent",
-                "Agent 渠道",
-                "agent",
-                True,
-                "needs_action",
-                "AIHubmix models are not supported.",
-                "Select a supported Agent model.",
-            )
-        if (
-            _is_openrouter_model(agent_model)
-            or agent_model_raw in blocked_openrouter_model_names
-        ):
-            return self._setup_check(
-                "llm_agent",
-                "Agent 渠道",
-                "agent",
-                True,
-                "needs_action",
-                "OpenRouter models are not supported.",
-                "Select a supported Agent model.",
-            )
         if _uses_direct_env_provider(agent_model):
             return self._setup_check(
                 "llm_agent",
@@ -3517,35 +3238,6 @@ class SystemConfigService:
 
             base_url_value = (effective_map.get(f"{prefix}_BASE_URL") or "").strip()
             protocol_value = (effective_map.get(f"{prefix}_PROTOCOL") or "").strip()
-            if (
-                name.lower() == "dashscope"
-                or _is_dashscope_endpoint(base_url_value)
-            ):
-                continue
-            if (
-                name.lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
-                or protocol_value.lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
-                or _is_volcengine_endpoint(base_url_value)
-            ):
-                continue
-            if (
-                name.lower() == "siliconflow"
-                or protocol_value.lower() == "siliconflow"
-                or _is_siliconflow_endpoint(base_url_value)
-            ):
-                continue
-            if (
-                name.lower() == "aihubmix"
-                or protocol_value.lower() == "aihubmix"
-                or _is_aihubmix_endpoint(base_url_value)
-            ):
-                continue
-            if (
-                name.lower() == "openrouter"
-                or protocol_value.lower() == "openrouter"
-                or _is_openrouter_endpoint(base_url_value)
-            ):
-                continue
             if name.lower() == "anspire" and not base_url_value:
                 base_url_value = (
                     effective_map.get("ANSPIRE_LLM_BASE_URL")
@@ -3565,10 +3257,6 @@ class SystemConfigService:
                         or ANSPIRE_LLM_MODEL_DEFAULT
                     ).strip()
                 ]
-            raw_models = [model for model in raw_models if not _is_dashscope_model(model)]
-            raw_models = [model for model in raw_models if not _is_volcengine_model(model)]
-            raw_models = [model for model in raw_models if not _is_siliconflow_model(model)]
-            raw_models = [model for model in raw_models if not _is_openrouter_model(model)]
             resolved_protocol = resolve_llm_channel_protocol(protocol_value, base_url=base_url_value, models=raw_models, channel_name=name)
             for model in raw_models:
                 normalized_model = normalize_llm_channel_model(model, resolved_protocol, base_url_value)
@@ -3610,15 +3298,9 @@ class SystemConfigService:
                 or (effective_map.get("DEEPSEEK_API_KEY") or "").strip()
             )
         if normalized_provider == "openai":
-            openai_base_url = effective_map.get("OPENAI_BASE_URL")
             return bool(
-                (
-                    not _is_aihubmix_endpoint(openai_base_url)
-                    and (
-                        (effective_map.get("OPENAI_API_KEYS") or "").strip()
-                        or (effective_map.get("OPENAI_API_KEY") or "").strip()
-                    )
-                )
+                (effective_map.get("OPENAI_API_KEYS") or "").strip()
+                or (effective_map.get("OPENAI_API_KEY") or "").strip()
                 or (
                     SystemConfigService._anspire_legacy_llm_enabled(effective_map)
                     and (effective_map.get("ANSPIRE_API_KEYS") or "").strip()
@@ -3638,412 +3320,6 @@ class SystemConfigService:
     def _validate_llm_runtime_selection(effective_map: Dict[str, str]) -> List[Dict[str, Any]]:
         """Validate selected primary/fallback/vision models against configured channels."""
         issues: List[Dict[str, Any]] = []
-
-        blocked_yaml_model_names: Set[str] = set()
-        blocked_zhipu_model_names: Set[str] = set()
-        blocked_moonshot_model_names: set[str] = set()
-        blocked_minimax_model_names: set[str] = set()
-        blocked_dashscope_model_names: set[str] = set()
-        blocked_volcengine_model_names: set[str] = set()
-        blocked_siliconflow_model_names: set[str] = set()
-        blocked_aihubmix_model_names: set[str] = set()
-        blocked_openrouter_model_names: set[str] = set()
-        config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
-        if config_path:
-            Config._parse_litellm_yaml(
-                config_path,
-                blocked_model_names=blocked_yaml_model_names,
-                blocked_zhipu_model_names=blocked_zhipu_model_names,
-                blocked_moonshot_model_names=blocked_moonshot_model_names,
-                blocked_minimax_model_names=blocked_minimax_model_names,
-                blocked_dashscope_model_names=blocked_dashscope_model_names,
-                blocked_volcengine_model_names=blocked_volcengine_model_names,
-                blocked_siliconflow_model_names=blocked_siliconflow_model_names,
-                blocked_aihubmix_model_names=blocked_aihubmix_model_names,
-                blocked_openrouter_model_names=blocked_openrouter_model_names,
-            )
-
-        channel_uses_ollama = False
-        channel_uses_zhipu = False
-        channel_uses_moonshot = False
-        channel_uses_minimax = False
-        channel_uses_dashscope = False
-        channel_uses_volcengine = False
-        channel_uses_siliconflow = False
-        channel_uses_aihubmix = False
-        channel_uses_openrouter = False
-        for name in SystemConfigService._split_csv(effective_map.get("LLM_CHANNELS") or ""):
-            prefix = f"LLM_{name.strip().upper()}"
-            protocol = (effective_map.get(f"{prefix}_PROTOCOL") or "").strip().lower()
-            base_url = (effective_map.get(f"{prefix}_BASE_URL") or "").strip()
-            models = SystemConfigService._split_csv(effective_map.get(f"{prefix}_MODELS") or "")
-            if (
-                name.strip().lower() == "ollama"
-                or protocol == "ollama"
-                or _is_ollama_endpoint(base_url)
-                or any(_is_ollama_model(model) for model in models)
-            ):
-                channel_uses_ollama = True
-            if (
-                name.strip().lower() in {"zhipu", "bigmodel", "zai", "glm"}
-                or protocol in {"zhipu", "bigmodel", "zai", "glm"}
-                or _is_zhipu_endpoint(base_url)
-                or any(_is_zhipu_model(model) for model in models)
-            ):
-                channel_uses_zhipu = True
-            if (
-                name.strip().lower() in {"moonshot", "moonshotai", "kimi"}
-                or protocol in {"moonshot", "moonshotai", "kimi"}
-                or _is_moonshot_endpoint(base_url)
-                or any(_is_moonshot_model(model) for model in models)
-            ):
-                channel_uses_moonshot = True
-            if (
-                name.strip().lower() == "minimax"
-                or protocol == "minimax"
-                or _is_minimax_endpoint(base_url)
-                or any(_is_minimax_model(model) for model in models)
-            ):
-                channel_uses_minimax = True
-            if (
-                name.strip().lower() == "dashscope"
-                or protocol == "dashscope"
-                or _is_dashscope_endpoint(base_url)
-                or any(_is_dashscope_model(model) for model in models)
-            ):
-                channel_uses_dashscope = True
-            if (
-                name.strip().lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
-                or protocol in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
-                or _is_volcengine_endpoint(base_url)
-                or any(_is_volcengine_model(model) for model in models)
-            ):
-                channel_uses_volcengine = True
-            if (
-                name.strip().lower() == "siliconflow"
-                or protocol == "siliconflow"
-                or _is_siliconflow_endpoint(base_url)
-                or any(_is_siliconflow_model(model) for model in models)
-            ):
-                channel_uses_siliconflow = True
-            if (
-                name.strip().lower() == "aihubmix"
-                or protocol == "aihubmix"
-                or _is_aihubmix_endpoint(base_url)
-            ):
-                channel_uses_aihubmix = True
-            if (
-                name.strip().lower() == "openrouter"
-                or protocol == "openrouter"
-                or _is_openrouter_endpoint(base_url)
-                or any(_is_openrouter_model(model) for model in models)
-            ):
-                channel_uses_openrouter = True
-
-        selected_models = [
-            (key, (effective_map.get(key) or "").strip())
-            for key in ("LITELLM_MODEL", "AGENT_LITELLM_MODEL", "VISION_MODEL")
-        ]
-        unsupported_models = [
-            (key, model)
-            for key, model in selected_models
-            if model and (
-                _is_ollama_model(model)
-                or model in blocked_yaml_model_names
-            )
-        ]
-        unsupported_models.extend(
-            ("LITELLM_FALLBACK_MODELS", model)
-            for model in SystemConfigService._split_csv(
-                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
-            )
-            if _is_ollama_model(model) or model in blocked_yaml_model_names
-        )
-        unsupported_zhipu_models = [
-            (key, model)
-            for key, model in selected_models
-            if model and (
-                _is_zhipu_model(model)
-                or model in blocked_zhipu_model_names
-            )
-        ]
-        unsupported_zhipu_models.extend(
-            ("LITELLM_FALLBACK_MODELS", model)
-            for model in SystemConfigService._split_csv(
-                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
-            )
-            if _is_zhipu_model(model) or model in blocked_zhipu_model_names
-        )
-        unsupported_moonshot_models = [
-            (key, model)
-            for key, model in selected_models
-            if model and (
-                _is_moonshot_model(model)
-                or model in blocked_moonshot_model_names
-            )
-        ]
-        unsupported_moonshot_models.extend(
-            ("LITELLM_FALLBACK_MODELS", model)
-            for model in SystemConfigService._split_csv(
-                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
-            )
-            if _is_moonshot_model(model) or model in blocked_moonshot_model_names
-        )
-        unsupported_minimax_models = [
-            (key, model)
-            for key, model in selected_models
-            if model and (
-                _is_minimax_model(model)
-                or model in blocked_minimax_model_names
-            )
-        ]
-        unsupported_minimax_models.extend(
-            ("LITELLM_FALLBACK_MODELS", model)
-            for model in SystemConfigService._split_csv(
-                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
-            )
-            if _is_minimax_model(model) or model in blocked_minimax_model_names
-        )
-        unsupported_dashscope_models = [
-            (key, model)
-            for key, model in selected_models
-            if model and (
-                _is_dashscope_model(model)
-                or model in blocked_dashscope_model_names
-            )
-        ]
-        unsupported_dashscope_models.extend(
-            ("LITELLM_FALLBACK_MODELS", model)
-            for model in SystemConfigService._split_csv(
-                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
-            )
-            if _is_dashscope_model(model) or model in blocked_dashscope_model_names
-        )
-        unsupported_volcengine_models = [
-            (key, model)
-            for key, model in selected_models
-            if model and (
-                _is_volcengine_model(model)
-                or model in blocked_volcengine_model_names
-            )
-        ]
-        unsupported_volcengine_models.extend(
-            ("LITELLM_FALLBACK_MODELS", model)
-            for model in SystemConfigService._split_csv(
-                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
-            )
-            if _is_volcengine_model(model) or model in blocked_volcengine_model_names
-        )
-        unsupported_siliconflow_models = [
-            (key, model)
-            for key, model in selected_models
-            if model and (
-                _is_siliconflow_model(model)
-                or model in blocked_siliconflow_model_names
-            )
-        ]
-        unsupported_siliconflow_models.extend(
-            ("LITELLM_FALLBACK_MODELS", model)
-            for model in SystemConfigService._split_csv(
-                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
-            )
-            if _is_siliconflow_model(model) or model in blocked_siliconflow_model_names
-        )
-        unsupported_aihubmix_models = [
-            (key, model)
-            for key, model in selected_models
-            if model and model in blocked_aihubmix_model_names
-        ]
-        unsupported_aihubmix_models.extend(
-            ("LITELLM_FALLBACK_MODELS", model)
-            for model in SystemConfigService._split_csv(
-                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
-            )
-            if model in blocked_aihubmix_model_names
-        )
-        unsupported_openrouter_models = [
-            (key, model)
-            for key, model in selected_models
-            if model and (
-                _is_openrouter_model(model)
-                or model in blocked_openrouter_model_names
-            )
-        ]
-        unsupported_openrouter_models.extend(
-            ("LITELLM_FALLBACK_MODELS", model)
-            for model in SystemConfigService._split_csv(
-                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
-            )
-            if _is_openrouter_model(model) or model in blocked_openrouter_model_names
-        )
-        if (
-            any(
-                key.startswith("OLLAMA_") and str(value or "").strip()
-                for key, value in effective_map.items()
-            )
-            or _is_ollama_endpoint(effective_map.get("OPENAI_BASE_URL"))
-            or bool(blocked_yaml_model_names)
-            or channel_uses_ollama
-            or unsupported_models
-        ):
-            fields = ", ".join(dict.fromkeys(key for key, _model in unsupported_models))
-            issues.append(
-                {
-                    "key": fields or ("LLM_CHANNELS" if channel_uses_ollama else "LLM_PROVIDER"),
-                    "code": "unsupported_provider",
-                    "message": "Ollama model routes are not supported. Select another provider and remove Ollama settings.",
-                }
-            )
-        if (
-            any(
-                key.startswith(("ZHIPU_", "BIGMODEL_", "ZAI_", "GLM_"))
-                and str(value or "").strip()
-                for key, value in effective_map.items()
-            )
-            or _is_zhipu_endpoint(effective_map.get("OPENAI_BASE_URL"))
-            or bool(blocked_zhipu_model_names)
-            or channel_uses_zhipu
-            or unsupported_zhipu_models
-        ):
-            fields = ", ".join(dict.fromkeys(key for key, _model in unsupported_zhipu_models))
-            issues.append(
-                {
-                    "key": fields or ("LLM_CHANNELS" if channel_uses_zhipu else "LLM_PROVIDER"),
-                    "code": "unsupported_provider",
-                    "message": "Zhipu GLM model routes are not supported. Select another provider and remove Zhipu settings.",
-                }
-            )
-        if (
-            any(
-                key.startswith(("MOONSHOT_", "KIMI_")) and str(value or "").strip()
-                for key, value in effective_map.items()
-            )
-            or _is_moonshot_endpoint(effective_map.get("OPENAI_BASE_URL"))
-            or bool(blocked_moonshot_model_names)
-            or channel_uses_moonshot
-            or unsupported_moonshot_models
-        ):
-            fields = ", ".join(dict.fromkeys(key for key, _model in unsupported_moonshot_models))
-            issues.append(
-                {
-                    "key": fields or ("LLM_CHANNELS" if channel_uses_moonshot else "LLM_PROVIDER"),
-                    "code": "unsupported_provider",
-                    "message": "Moonshot/Kimi model routes are not supported. Select another provider and remove Moonshot settings.",
-                }
-            )
-        if (
-            any(
-                key.startswith("MINIMAX_") and str(value or "").strip()
-                for key, value in effective_map.items()
-            )
-            or _is_minimax_endpoint(effective_map.get("OPENAI_BASE_URL"))
-            or bool(blocked_minimax_model_names)
-            or channel_uses_minimax
-            or unsupported_minimax_models
-        ):
-            fields = ", ".join(dict.fromkeys(key for key, _model in unsupported_minimax_models))
-            issues.append(
-                {
-                    "key": fields or ("LLM_CHANNELS" if channel_uses_minimax else "LLM_PROVIDER"),
-                    "code": "unsupported_provider",
-                    "message": "MiniMax model and search routes are not supported. Select another provider and remove MiniMax settings.",
-                }
-            )
-        if (
-            any(
-                key.startswith(("DASHSCOPE_", "LLM_DASHSCOPE_"))
-                and str(value or "").strip()
-                for key, value in effective_map.items()
-            )
-            or _is_dashscope_endpoint(effective_map.get("OPENAI_BASE_URL"))
-            or bool(blocked_dashscope_model_names)
-            or channel_uses_dashscope
-            or unsupported_dashscope_models
-        ):
-            fields = ", ".join(dict.fromkeys(key for key, _ in unsupported_dashscope_models))
-            issues.append(
-                {
-                    "key": fields or ("LLM_CHANNELS" if channel_uses_dashscope else "LLM_PROVIDER"),
-                    "code": "unsupported_provider",
-                    "message": "Alibaba DashScope model routes are not supported. Select another provider and remove DashScope settings.",
-                }
-            )
-        if (
-            any(
-                key.startswith(("VOLCENGINE_", "LLM_VOLCENGINE_"))
-                and str(value or "").strip()
-                for key, value in effective_map.items()
-            )
-            or _is_volcengine_endpoint(effective_map.get("OPENAI_BASE_URL"))
-            or bool(blocked_volcengine_model_names)
-            or channel_uses_volcengine
-            or unsupported_volcengine_models
-        ):
-            fields = ", ".join(dict.fromkeys(key for key, _model in unsupported_volcengine_models))
-            issues.append(
-                {
-                    "key": fields or ("LLM_CHANNELS" if channel_uses_volcengine else "LLM_PROVIDER"),
-                    "code": "unsupported_provider",
-                    "message": "Volcengine Ark model routes are not supported. Select another provider and remove Volcengine settings.",
-                }
-            )
-        if (
-            any(
-                key.startswith(("SILICONFLOW_", "LLM_SILICONFLOW_"))
-                and str(value or "").strip()
-                for key, value in effective_map.items()
-            )
-            or _is_siliconflow_endpoint(effective_map.get("OPENAI_BASE_URL"))
-            or bool(blocked_siliconflow_model_names)
-            or channel_uses_siliconflow
-            or unsupported_siliconflow_models
-        ):
-            fields = ", ".join(dict.fromkeys(key for key, _model in unsupported_siliconflow_models))
-            issues.append(
-                {
-                    "key": fields or ("LLM_CHANNELS" if channel_uses_siliconflow else "LLM_PROVIDER"),
-                    "code": "unsupported_provider",
-                    "message": "SiliconFlow model routes are not supported. Select another provider and remove SiliconFlow settings.",
-                }
-            )
-        if (
-            any(
-                key.startswith(("AIHUBMIX_", "LLM_AIHUBMIX_"))
-                and str(value or "").strip()
-                for key, value in effective_map.items()
-            )
-            or _is_aihubmix_endpoint(effective_map.get("OPENAI_BASE_URL"))
-            or bool(blocked_aihubmix_model_names)
-            or channel_uses_aihubmix
-            or unsupported_aihubmix_models
-        ):
-            fields = ", ".join(dict.fromkeys(key for key, _model in unsupported_aihubmix_models))
-            issues.append(
-                {
-                    "key": fields or ("LLM_CHANNELS" if channel_uses_aihubmix else "LLM_PROVIDER"),
-                    "code": "unsupported_provider",
-                    "message": "AIHubmix routes are not supported. Select another provider and remove AIHubmix settings.",
-                }
-            )
-        if (
-            any(
-                key.startswith(("OPENROUTER_", "LLM_OPENROUTER_"))
-                and str(value or "").strip()
-                for key, value in effective_map.items()
-            )
-            or _is_openrouter_endpoint(effective_map.get("OPENAI_BASE_URL"))
-            or bool(blocked_openrouter_model_names)
-            or channel_uses_openrouter
-            or unsupported_openrouter_models
-        ):
-            fields = ", ".join(dict.fromkeys(key for key, _model in unsupported_openrouter_models))
-            issues.append(
-                {
-                    "key": fields or ("LLM_CHANNELS" if channel_uses_openrouter else "LLM_PROVIDER"),
-                    "code": "unsupported_provider",
-                    "message": "OpenRouter model routes are not supported. Select another provider and remove OpenRouter settings.",
-                }
-            )
 
         available_models = (
             SystemConfigService._collect_yaml_models_from_map(effective_map)
@@ -4302,148 +3578,6 @@ class SystemConfigService:
         api_key_key = f"{field_prefix}_API_KEY" if field_prefix != "test_channel" else "api_key"
 
         normalized_protocol = canonicalize_llm_channel_protocol(protocol_value)
-        if (
-            channel_name.strip().lower() == "ollama"
-            or _is_ollama_endpoint(base_url_value)
-            or any(_is_ollama_model(model) for model in model_values)
-        ):
-            issues.append(
-                {
-                    "key": protocol_key,
-                    "code": "unsupported_provider",
-                    "message": "Ollama model routes are not supported.",
-                    "severity": "error",
-                    "expected": "a supported LLM provider",
-                    "actual": protocol_value or channel_name,
-                }
-            )
-        if (
-            channel_name.strip().lower() in {"zhipu", "bigmodel", "zai", "glm"}
-            or protocol_value.strip().lower() in {"zhipu", "bigmodel", "zai", "glm"}
-            or _is_zhipu_endpoint(base_url_value)
-            or any(_is_zhipu_model(model) for model in model_values)
-        ):
-            issues.append(
-                {
-                    "key": protocol_key,
-                    "code": "unsupported_provider",
-                    "message": "Zhipu GLM model routes are not supported.",
-                    "severity": "error",
-                    "expected": "a supported LLM provider",
-                    "actual": protocol_value or channel_name,
-                }
-            )
-        if (
-            channel_name.strip().lower() in {"moonshot", "moonshotai", "kimi"}
-            or protocol_value.strip().lower() in {"moonshot", "moonshotai", "kimi"}
-            or _is_moonshot_endpoint(base_url_value)
-            or any(_is_moonshot_model(model) for model in model_values)
-        ):
-            issues.append(
-                {
-                    "key": protocol_key,
-                    "code": "unsupported_provider",
-                    "message": "Moonshot/Kimi model routes are not supported.",
-                    "severity": "error",
-                    "expected": "a supported LLM provider",
-                    "actual": protocol_value or channel_name,
-                }
-            )
-        if (
-            channel_name.strip().lower() == "minimax"
-            or protocol_value.strip().lower() == "minimax"
-            or _is_minimax_endpoint(base_url_value)
-            or any(_is_minimax_model(model) for model in model_values)
-        ):
-            issues.append(
-                {
-                    "key": protocol_key,
-                    "code": "unsupported_provider",
-                    "message": "MiniMax model routes are not supported.",
-                    "severity": "error",
-                    "expected": "a supported LLM provider",
-                    "actual": protocol_value or channel_name,
-                }
-            )
-        if (
-            channel_name.strip().lower() == "dashscope"
-            or protocol_value.strip().lower() == "dashscope"
-            or _is_dashscope_endpoint(base_url_value)
-            or any(_is_dashscope_model(model) for model in model_values)
-        ):
-            issues.append(
-                {
-                    "key": protocol_key,
-                    "code": "unsupported_provider",
-                    "message": "Alibaba DashScope model routes are not supported.",
-                    "severity": "error",
-                    "expected": "a supported LLM provider",
-                    "actual": protocol_value or channel_name,
-                }
-            )
-        if (
-            channel_name.strip().lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
-            or protocol_value.strip().lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
-            or _is_volcengine_endpoint(base_url_value)
-            or any(_is_volcengine_model(model) for model in model_values)
-        ):
-            issues.append(
-                {
-                    "key": protocol_key,
-                    "code": "unsupported_provider",
-                    "message": "Volcengine Ark model routes are not supported.",
-                    "severity": "error",
-                    "expected": "a supported LLM provider",
-                    "actual": protocol_value or channel_name,
-                }
-            )
-        if (
-            channel_name.strip().lower() == "siliconflow"
-            or protocol_value.strip().lower() == "siliconflow"
-            or _is_siliconflow_endpoint(base_url_value)
-            or any(_is_siliconflow_model(model) for model in model_values)
-        ):
-            issues.append(
-                {
-                    "key": protocol_key,
-                    "code": "unsupported_provider",
-                    "message": "SiliconFlow model routes are not supported.",
-                    "severity": "error",
-                    "expected": "a supported LLM provider",
-                    "actual": protocol_value or channel_name,
-                }
-            )
-        if (
-            channel_name.strip().lower() == "aihubmix"
-            or protocol_value.strip().lower() == "aihubmix"
-            or _is_aihubmix_endpoint(base_url_value)
-        ):
-            issues.append(
-                {
-                    "key": protocol_key,
-                    "code": "unsupported_provider",
-                    "message": "AIHubmix model routes are not supported.",
-                    "severity": "error",
-                    "expected": "a supported LLM provider",
-                    "actual": protocol_value or channel_name,
-                }
-            )
-        if (
-            channel_name.strip().lower() == "openrouter"
-            or protocol_value.strip().lower() == "openrouter"
-            or _is_openrouter_endpoint(base_url_value)
-            or any(_is_openrouter_model(model) for model in model_values)
-        ):
-            issues.append(
-                {
-                    "key": protocol_key,
-                    "code": "unsupported_provider",
-                    "message": "OpenRouter model routes are not supported.",
-                    "severity": "error",
-                    "expected": "a supported LLM provider",
-                    "actual": protocol_value or channel_name,
-                }
-            )
         if normalized_protocol and normalized_protocol not in SUPPORTED_LLM_CHANNEL_PROTOCOLS:
             issues.append(
                 {

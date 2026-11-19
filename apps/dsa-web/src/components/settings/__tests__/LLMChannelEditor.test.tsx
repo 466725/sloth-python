@@ -79,28 +79,6 @@ describe('LLMChannelEditor', () => {
     expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
   });
 
-  it('does not load a removed local-model channel from saved settings', () => {
-    localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'en');
-    render(
-      <UiLanguageProvider>
-        <LLMChannelEditor
-          items={[
-            { key: 'LLM_CHANNELS', value: 'local' },
-            { key: 'LLM_LOCAL_PROTOCOL', value: 'ollama' },
-            { key: 'LLM_LOCAL_BASE_URL', value: 'http://127.0.0.1:11434' },
-            { key: 'LLM_LOCAL_MODELS', value: 'qwen3:8b' },
-          ]}
-          configVersion="v1"
-          maskToken="******"
-          onSaved={() => {}}
-        />
-      </UiLanguageProvider>,
-    );
-
-    expect(screen.getByText('No channels yet')).toBeInTheDocument();
-    expect(screen.queryByText(/Ollama/i)).not.toBeInTheDocument();
-  });
-
   it('updates expanded controls and help when toggling languages without losing edits', async () => {
     localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'zh');
     const { container } = render(
