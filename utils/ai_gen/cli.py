@@ -73,14 +73,13 @@ def main(argv: list[str] | None = None) -> int:
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
     base_url = args.base_url
     
-    # Skip invalid-looking OpenAI keys (e.g., OpenRouter sk-or-v1 keys rejected by OpenAI)
-    # and fall back to ANSPIRE_API_KEYS if available
+    # Fall back to ANSPIRE_API_KEYS when no OpenAI key is configured.
     ai_config: Any = settings.ai_generation
     model = args.model
     anspire_keys_str = os.getenv("ANSPIRE_API_KEYS", "")
     anspire_keys = [k.strip() for k in anspire_keys_str.split(",") if k.strip()]
     
-    if not api_key or api_key.startswith("sk-or-v1"):
+    if not api_key:
         if anspire_keys:
             api_key = anspire_keys[0]
             # Always use Anspire gateway when using Anspire key, regardless of default base_url

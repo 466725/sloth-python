@@ -503,7 +503,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
                 label={text.protocol}
                 fieldKey="LLM_CHANNEL_PROTOCOL"
                 helpKey="settings.llm_channel.protocol"
-                examples={['LLM_DEEPSEEK_PROTOCOL=deepseek', 'LLM_OPENROUTER_PROTOCOL=openai']}
+                examples={['LLM_DEEPSEEK_PROTOCOL=deepseek', 'LLM_AIHUBMIX_PROTOCOL=openai']}
               />
               <Select
                 id={protocolInputId}
@@ -522,7 +522,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
               label="Base URL"
               fieldKey="LLM_CHANNEL_BASE_URL"
               helpKey="settings.llm_channel.base_url"
-              examples={['LLM_DEEPSEEK_BASE_URL=https://api.deepseek.com', 'LLM_OPENROUTER_BASE_URL=https://openrouter.ai/api/v1']}
+              examples={['LLM_DEEPSEEK_BASE_URL=https://api.deepseek.com', 'LLM_AIHUBMIX_BASE_URL=https://aihubmix.com/v1']}
             />
           <Input
             id={baseUrlInputId}
@@ -1089,6 +1089,9 @@ function hasLegacyRuntimeSource(model: string, itemMap: Map<string, string>): bo
 }
 
 function isRuntimeModelAvailable(model: string, availableModels: string[], itemMap: Map<string, string>): boolean {
+  if (isUnsupportedOpenRouterModel(model)) {
+    return false;
+  }
   return availableModels.includes(model)
     || usesDirectEnvProvider(model)
     || (availableModels.length === 0 && hasLegacyRuntimeSource(model, itemMap));
@@ -1215,6 +1218,7 @@ function parseChannelsFromItems(
         && !isUnsupportedMoonshotChannel(name, protocol, baseUrl, models)
         && !isUnsupportedMiniMaxChannel(name, protocol, baseUrl, models)
         && !isUnsupportedDashScopeChannel(name, protocol, baseUrl, models)
+        && !isUnsupportedOpenRouterChannel(name, protocol, baseUrl, models)
       );
     });
 
@@ -1394,6 +1398,34 @@ function isDashScopeEndpoint(baseUrl: string): boolean {
   }
 }
 
+function isUnsupportedOpenRouterChannel(
+  name: string,
+  protocol: string,
+  baseUrl: string,
+  models: string[],
+): boolean {
+  return (
+    name.trim().toLowerCase() === 'openrouter'
+    || protocol.trim().toLowerCase() === 'openrouter'
+    || isOpenRouterEndpoint(baseUrl)
+    || models.some(isUnsupportedOpenRouterModel)
+  );
+}
+
+function isUnsupportedOpenRouterModel(model: string): boolean {
+  const normalized = model.trim().toLowerCase();
+  return normalized.startsWith('openai/~') || normalized.split('/').includes('openrouter');
+}
+
+function isOpenRouterEndpoint(baseUrl: string): boolean {
+  try {
+    const hostname = new URL(baseUrl).hostname.toLowerCase().replace(/\.$/, '');
+    return hostname === 'openrouter.ai' || hostname.endsWith('.openrouter.ai');
+  } catch {
+    return false;
+  }
+}
+
 function isLocalEndpointUrl(baseUrl: string): boolean {
   try {
     return ['localhost', '127.0.0.1', '0.0.0.0'].includes(new URL(baseUrl).hostname);
@@ -1496,7 +1528,10 @@ export const LLMChannelEditor: React.FC<LLMChannelEditorProps> = ({
     () => parseChannelsFromItems(items, initialItemSourceByKey),
     [items, initialItemSourceByKey],
   );
-  const initialNames = useMemo(() => initialChannels.map((channel) => channel.name), [initialChannels]);
+  const initialNames = useMemo(() => {
+    const channelList = items.find((item) => item.key.toUpperCase() === 'LLM_CHANNELS')?.value || '';
+    return channelList.split(',').map((name) => name.trim()).filter(Boolean);
+  }, [items]);
   const initialRuntimeConfig = useMemo(() => parseRuntimeConfigFromItems(items), [items]);
   const savedItemMap = useMemo(() => new Map(items.map((item) => [item.key.toUpperCase(), item.value])), [items]);
   const hasLitellmConfig = useMemo(
@@ -1783,6 +1818,21 @@ export const LLMChannelEditor: React.FC<LLMChannelEditorProps> = ({
         ...buildChangedItemKeys(channels, initialChannels, initialItemSourceByKey, savedItemMap),
         ...runtimeConfigChangedKeys(runtimeConfigForSave, initialRuntimeConfig),
       ]);
+      const activeChannelNames = new Set(channels.map((channel) => channel.name.trim().toUpperCase()));
+      for (const oldName of initialNames) {
+        if (activeChannelNames.has(oldName.trim().toUpperCase())) {
+          continue;
+        }
+        for (const key of parseChannelFieldKeysFromName(oldName)) {
+          if (initialItemSourceByKey.get(key.toUpperCase()) !== false) {
+            changedKeys.add(key);
+          }
+        }
+      }
+      if (channels.map((channel) => channel.name.trim().toLowerCase()).join(',')
+        !== initialNames.map((name) => name.trim().toLowerCase()).join(',')) {
+        changedKeys.add('LLM_CHANNELS');
+      }
       const updateItems = channelsToUpdateItems(channels, initialNames, runtimeConfigForSave, managesRuntimeConfig).filter(
         (item) => {
           const itemKey = item.key.toUpperCase();

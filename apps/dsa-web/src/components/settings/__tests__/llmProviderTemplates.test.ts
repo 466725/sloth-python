@@ -43,7 +43,6 @@ describe('llmProviderTemplates', () => {
       'deepseek',
       'volcengine',
       'siliconflow',
-      'openrouter',
       'gemini',
       'openai',
       'custom',
@@ -67,13 +66,13 @@ describe('llmProviderTemplates', () => {
   });
 
   it('exposes safe helpers for known, custom, and unknown channel ids', () => {
-    expect(getProviderTemplate('openrouter')).toBe(LLM_PROVIDER_TEMPLATE_BY_ID.openrouter);
+    expect(getProviderTemplate('volcengine')).toBe(LLM_PROVIDER_TEMPLATE_BY_ID.volcengine);
     expect(getProviderTemplate('custom')).toBe(LLM_PROVIDER_TEMPLATE_BY_ID.custom);
     expect(getProviderTemplate('unknown-provider')).toBeUndefined();
     expect(getProviderTemplate('constructor')).toBeUndefined();
     expect(getProviderTemplate('toString')).toBeUndefined();
 
-    expect(isKnownProviderTemplate('openrouter')).toBe(true);
+    expect(isKnownProviderTemplate('volcengine')).toBe(true);
     expect(isKnownProviderTemplate('custom')).toBe(false);
     expect(isKnownProviderTemplate('unknown-provider')).toBe(false);
     expect(isKnownProviderTemplate('constructor')).toBe(false);
@@ -106,7 +105,7 @@ describe('llmProviderTemplates', () => {
 
   it('keeps focused config hints on providers with common setup pitfalls', () => {
     expect(LLM_PROVIDER_TEMPLATE_BY_ID.siliconflow.configHint).toContain('API Key');
-    expect(LLM_PROVIDER_TEMPLATE_BY_ID.openrouter.configHint).toContain('API Key');
+    expect(LLM_PROVIDER_TEMPLATE_BY_ID.volcengine.configHint).toContain('endpoint');
     expect(LLM_PROVIDER_TEMPLATE_BY_ID.openai.configHint).toBeUndefined();
   });
 

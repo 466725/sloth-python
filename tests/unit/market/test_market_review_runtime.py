@@ -64,7 +64,7 @@ class TestMarketReviewRuntimeCompatibility(unittest.TestCase):
                 "litellm_params": {
                     "api_key": "openai-channel-key",
                     "model": "openai/gpt-5.5",
-                    "api_base": "https://api.openrouter.ai/v1",
+                    "api_base": "https://api.example.com/v1",
                 },
             }
         ]
