@@ -318,29 +318,6 @@ describe('LLMChannelEditor', () => {
     expect(screen.getByText(/能力标签仅用于配置参考，不代表运行时能力已验证通过/i)).toBeInTheDocument();
   });
 
-  it('shows model-discovery capability for SiliconFlow provider hints', async () => {
-    render(
-      <LLMChannelEditor
-        items={[
-          { key: 'LLM_CHANNELS', value: 'siliconflow' },
-          { key: 'LLM_SILICONFLOW_PROTOCOL', value: 'openai' },
-          { key: 'LLM_SILICONFLOW_BASE_URL', value: 'https://api.siliconflow.cn/v1' },
-          { key: 'LLM_SILICONFLOW_ENABLED', value: 'true' },
-          { key: 'LLM_SILICONFLOW_API_KEY', value: 'sk-test' },
-          { key: 'LLM_SILICONFLOW_MODELS', value: 'deepseek-ai/DeepSeek-V3.2' },
-        ]}
-        configVersion="v1"
-        maskToken="******"
-        onSaved={() => {}}
-      />
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: /SiliconFlow/i }));
-
-    expect(await screen.findByText('可获取模型')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'SiliconFlow Models' })).toBeInTheDocument();
-  });
-
   it('does not show provider metadata for custom or unknown channels', async () => {
     render(
       <LLMChannelEditor
@@ -1242,12 +1219,12 @@ describe('LLMChannelEditor', () => {
     render(
       <LLMChannelEditor
         items={[
-          { key: 'LLM_CHANNELS', value: 'siliconflow' },
-          { key: 'LLM_SILICONFLOW_PROTOCOL', value: 'openai' },
-          { key: 'LLM_SILICONFLOW_BASE_URL', value: 'https://api.siliconflow.cn/v1' },
-          { key: 'LLM_SILICONFLOW_ENABLED', value: 'true' },
-          { key: 'LLM_SILICONFLOW_API_KEY', value: 'secret-key' },
-          { key: 'LLM_SILICONFLOW_MODELS', value: 'deepseek-ai/DeepSeek-V3,Qwen/Qwen3-Coder' },
+          { key: 'LLM_CHANNELS', value: 'my_proxy' },
+          { key: 'LLM_MY_PROXY_PROTOCOL', value: 'openai' },
+          { key: 'LLM_MY_PROXY_BASE_URL', value: 'https://proxy.example.com/v1' },
+          { key: 'LLM_MY_PROXY_ENABLED', value: 'true' },
+          { key: 'LLM_MY_PROXY_API_KEY', value: 'secret-key' },
+          { key: 'LLM_MY_PROXY_MODELS', value: 'deepseek-ai/DeepSeek-V3,Qwen/Qwen3-Coder' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -1255,7 +1232,7 @@ describe('LLMChannelEditor', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /SiliconFlow/i }));
+    fireEvent.click(screen.getByRole('button', { name: /my_proxy/i }));
     fireEvent.click(screen.getByRole('button', { name: '测试连接' }));
 
     expect(await screen.findByText(/聊天调用 · 模型不可用：LLM channel test failed/i)).toBeInTheDocument();

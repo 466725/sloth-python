@@ -41,7 +41,6 @@ describe('llmProviderTemplates', () => {
       'aihubmix',
       'anspire',
       'deepseek',
-      'siliconflow',
       'gemini',
       'openai',
       'custom',
@@ -92,7 +91,6 @@ describe('llmProviderTemplates', () => {
   });
 
   it('keeps focused config hints on providers with common setup pitfalls', () => {
-    expect(LLM_PROVIDER_TEMPLATE_BY_ID.siliconflow.configHint).toContain('API Key');
     expect(LLM_PROVIDER_TEMPLATE_BY_ID.openai.configHint).toBeUndefined();
   });
 
