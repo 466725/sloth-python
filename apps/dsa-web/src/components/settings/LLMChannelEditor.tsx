@@ -1219,6 +1219,7 @@ function parseChannelsFromItems(
         && !isUnsupportedMiniMaxChannel(name, protocol, baseUrl, models)
         && !isUnsupportedDashScopeChannel(name, protocol, baseUrl, models)
         && !isUnsupportedVolcengineChannel(name, protocol, baseUrl, models)
+        && !isUnsupportedSiliconFlowChannel(name, protocol, baseUrl, models)
         && !isUnsupportedOpenRouterChannel(name, protocol, baseUrl, models)
       );
     });
@@ -1423,6 +1424,31 @@ function isVolcengineEndpoint(baseUrl: string): boolean {
   try {
     const hostname = new URL(baseUrl).hostname.toLowerCase().replace(/\.$/, '');
     return hostname === 'volces.com' || hostname.endsWith('.volces.com');
+  } catch {
+    return false;
+  }
+}
+
+function isUnsupportedSiliconFlowChannel(
+  name: string,
+  protocol: string,
+  baseUrl: string,
+  models: string[],
+): boolean {
+  return (
+    name.trim().toLowerCase() === 'siliconflow'
+    || protocol.trim().toLowerCase() === 'siliconflow'
+    || isSiliconFlowEndpoint(baseUrl)
+    || models.some((model) => model.trim().toLowerCase().split('/', 1)[0] === 'siliconflow')
+  );
+}
+
+function isSiliconFlowEndpoint(baseUrl: string): boolean {
+  try {
+    const hostname = new URL(baseUrl).hostname.toLowerCase().replace(/\.$/, '');
+    return ['siliconflow.cn', 'siliconflow.com'].some(
+      (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
+    );
   } catch {
     return false;
   }

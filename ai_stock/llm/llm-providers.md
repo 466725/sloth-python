@@ -31,6 +31,8 @@ are also unsupported and should be removed from existing configuration.
 Legacy Anthropic settings are no longer shown or used for automatic provider
 selection. Existing environment files are not changed; select another provider
 and update the primary, Agent, fallback, and vision models if needed.
+SiliconFlow-specific routes and settings are unsupported and should be removed
+from existing configuration.
 
 Channels are the recommended option for most users and can be managed in the
 Web app's **AI Model Configuration** settings. Use **Quick Add Channel** to
@@ -85,7 +87,7 @@ must be able to reach the configured URL.
 
 The [`.env.example` file](../../.env.example) is a compact starter template. The
 provider and channel examples in this guide cover additional options such as
-AIHubmix, Anspire Open, MiMo, and SiliconFlow. Treat
+AIHubmix, Anspire Open, and MiMo. Treat
 model IDs and regional endpoints as starting points, and verify them with the
 provider before use.
 
@@ -102,7 +104,6 @@ They are not an exhaustive list of models or a compatibility certification.
 | DeepSeek | `deepseek` | `deepseek` | `https://api.deepseek.com` |
 | Google Gemini | `gemini` | `gemini` | Provider default; normally leave blank |
 | Xiaomi MiMo | `mimo` | `openai` | Use the endpoint from the provider console |
-| SiliconFlow | `siliconflow` | `openai` | `https://api.siliconflow.cn/v1` |
 
 Provider-specific model names and available endpoints change. Use the provider
 documentation and account console as the source of truth. Useful references

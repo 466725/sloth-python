@@ -143,11 +143,11 @@ class LLMChannelConfigTestCase(unittest.TestCase):
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_openai_compatible_channel_prefixes_non_provider_slash_models(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
-            "LLM_CHANNELS": "siliconflow",
-            "LLM_SILICONFLOW_PROTOCOL": "openai",
-            "LLM_SILICONFLOW_BASE_URL": "https://api.siliconflow.cn/v1",
-            "LLM_SILICONFLOW_API_KEY": "sk-test-value",
-            "LLM_SILICONFLOW_MODELS": "Qwen/Qwen3-8B,deepseek-ai/DeepSeek-V3",
+            "LLM_CHANNELS": "my_proxy",
+            "LLM_MY_PROXY_PROTOCOL": "openai",
+            "LLM_MY_PROXY_BASE_URL": "https://api.example.com/v1",
+            "LLM_MY_PROXY_API_KEY": "sk-test-value",
+            "LLM_MY_PROXY_MODELS": "Qwen/Qwen3-8B,deepseek-ai/DeepSeek-V3",
         }
 
         with patch.dict(os.environ, env, clear=True):
@@ -483,7 +483,6 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         valid_urls = [
             "https://api.openai.com/v1",
             "https://api.deepseek.com/v1",
-            "https://api.siliconflow.cn/v1",
             "https://api.example.com/v1",
             "http://127.0.0.1:11434",
             "http://127.0.0.1:11434/v1",

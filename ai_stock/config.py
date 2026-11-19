@@ -495,6 +495,33 @@ def _is_volcengine_endpoint(base_url: str | None) -> bool:
     return hostname == "volces.com" or hostname.endswith(".volces.com")
 
 
+def _is_siliconflow_model(
+    model: str,
+    model_list: list[dict[str, Any]] | None = None,
+) -> bool:
+    """Return whether a model or configured router alias resolves to SiliconFlow."""
+    normalized = (model or "").strip()
+    if not normalized:
+        return False
+    wire_model = resolve_litellm_wire_model(normalized, model_list)
+    return any(
+        candidate.strip().lower().split("/", 1)[0] == "siliconflow"
+        for candidate in (normalized, wire_model)
+    )
+
+
+def _is_siliconflow_endpoint(base_url: str | None) -> bool:
+    """Recognize SiliconFlow API hosts."""
+    try:
+        hostname = (urlparse(base_url or "").hostname or "").lower().rstrip(".")
+    except ValueError:
+        return False
+    return any(
+        hostname == domain or hostname.endswith(f".{domain}")
+        for domain in ("siliconflow.cn", "siliconflow.com")
+    )
+
+
 def _is_openrouter_model(
     model: str,
     model_list: list[dict[str, Any]] | None = None,
@@ -530,8 +557,8 @@ def normalize_llm_channel_model(model: str, protocol: Optional[str], base_url: O
     if "/" in normalized_model:
         # The model already has a slash, e.g. 'deepseek-ai/DeepSeek-V3'.
         # Check if the prefix is a known LiteLLM provider; if so, keep it.
-        # Otherwise (e.g. HuggingFace-style IDs on SiliconFlow), prepend
-        # the resolved protocol so LiteLLM routes via the correct handler.
+        # Otherwise, prepend the resolved protocol so LiteLLM routes via the
+        # correct handler.
         raw_prefix, remainder = normalized_model.split("/", 1)
         prefix = raw_prefix.lower()
         canonical_prefix = canonicalize_llm_channel_protocol(prefix)
@@ -733,6 +760,9 @@ def get_effective_agent_models_to_try(config: "Config") -> List[str]:
         if _is_volcengine_model(dedupe_key, model_list):
             logger.error("Skipping unsupported Volcengine Ark Agent model route")
             continue
+        if _is_siliconflow_model(dedupe_key, model_list):
+            logger.error("Skipping unsupported SiliconFlow Agent model route")
+            continue
         if _is_openrouter_model(dedupe_key, model_list):
             logger.error("Skipping unsupported OpenRouter Agent model route")
             continue
@@ -817,6 +847,7 @@ class Config:
     unsupported_minimax_configuration: bool = False
     unsupported_dashscope_configuration: bool = False
     unsupported_volcengine_configuration: bool = False
+    unsupported_siliconflow_configuration: bool = False
     unsupported_openrouter_configuration: bool = False
 
     # Multi-key support: each list is parsed from *_API_KEYS (comma-separated) with single-key fallback
@@ -1224,6 +1255,11 @@ class Config:
             name.startswith(("VOLCENGINE_", "LLM_VOLCENGINE_")) and str(value or "").strip()
             for name, value in os.environ.items()
         )
+        unsupported_siliconflow_configuration = any(
+            name.startswith(("SILICONFLOW_", "LLM_SILICONFLOW_"))
+            and str(value or "").strip()
+            for name, value in os.environ.items()
+        )
         unsupported_openrouter_configuration = any(
             name.startswith(("OPENROUTER_", "LLM_OPENROUTER_")) and str(value or "").strip()
             for name, value in os.environ.items()
@@ -1272,6 +1308,10 @@ class Config:
         if _is_volcengine_endpoint(openai_base_url):
             logger.warning("Volcengine Ark's endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
             unsupported_volcengine_configuration = True
+            openai_base_url = None
+        if _is_siliconflow_endpoint(openai_base_url):
+            logger.warning("SiliconFlow's endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
+            unsupported_siliconflow_configuration = True
             openai_base_url = None
         if _is_openrouter_endpoint(openai_base_url):
             logger.warning("OpenRouter's endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
@@ -1364,6 +1404,7 @@ class Config:
         blocked_minimax_model_names: set[str] = set()
         blocked_dashscope_model_names: set[str] = set()
         blocked_volcengine_model_names: set[str] = set()
+        blocked_siliconflow_model_names: set[str] = set()
         blocked_openrouter_model_names: set[str] = set()
 
         # Priority 1: LITELLM_CONFIG (standard LiteLLM YAML config file)
@@ -1376,6 +1417,7 @@ class Config:
                 blocked_minimax_model_names=blocked_minimax_model_names,
                 blocked_dashscope_model_names=blocked_dashscope_model_names,
                 blocked_volcengine_model_names=blocked_volcengine_model_names,
+                blocked_siliconflow_model_names=blocked_siliconflow_model_names,
                 blocked_openrouter_model_names=blocked_openrouter_model_names,
             )
             if blocked_yaml_model_names:
@@ -1390,6 +1432,8 @@ class Config:
                 unsupported_dashscope_configuration = True
             if blocked_volcengine_model_names:
                 unsupported_volcengine_configuration = True
+            if blocked_siliconflow_model_names:
+                unsupported_siliconflow_configuration = True
             if blocked_openrouter_model_names:
                 unsupported_openrouter_configuration = True
             if llm_model_list:
@@ -1517,6 +1561,28 @@ class Config:
                 litellm_fallback_models = supported_fallbacks
 
         if any(
+            _is_siliconflow_model(model, llm_model_list)
+            or model in blocked_siliconflow_model_names
+            for model in configured_models
+            if model
+        ):
+            unsupported_siliconflow_configuration = True
+            if (
+                _is_siliconflow_model(litellm_model, llm_model_list)
+                or litellm_model in blocked_siliconflow_model_names
+            ):
+                logger.warning("SiliconFlow primary model is unsupported and has been ignored")
+                litellm_model = ""
+            supported_fallbacks = [
+                model for model in litellm_fallback_models
+                if not _is_siliconflow_model(model, llm_model_list)
+                and model not in blocked_siliconflow_model_names
+            ]
+            if len(supported_fallbacks) != len(litellm_fallback_models):
+                logger.warning("SiliconFlow fallback models are unsupported and have been ignored")
+                litellm_fallback_models = supported_fallbacks
+
+        if any(
             _is_openrouter_model(model, llm_model_list) or model in blocked_openrouter_model_names
             for model in configured_models
             if model
@@ -1600,6 +1666,13 @@ class Config:
                         or any(_is_volcengine_model(model) for model in raw_models)
                     ):
                         unsupported_volcengine_configuration = True
+                    if (
+                        channel_name == "siliconflow"
+                        or raw_protocol == "siliconflow"
+                        or _is_siliconflow_endpoint(raw_base_url)
+                        or any(_is_siliconflow_model(model) for model in raw_models)
+                    ):
+                        unsupported_siliconflow_configuration = True
                     if (
                         channel_name == "openrouter"
                         or raw_protocol == "openrouter"
@@ -1704,6 +1777,14 @@ class Config:
             unsupported_volcengine_configuration = True
             agent_litellm_model = ""
         if (
+            _is_siliconflow_model(agent_litellm_model, llm_model_list)
+            or agent_model_raw.strip() in blocked_siliconflow_model_names
+            or agent_litellm_model in blocked_siliconflow_model_names
+        ):
+            logger.warning("SiliconFlow Agent model is unsupported and has been ignored")
+            unsupported_siliconflow_configuration = True
+            agent_litellm_model = ""
+        if (
             _is_openrouter_model(agent_litellm_model, llm_model_list)
             or agent_model_raw.strip() in blocked_openrouter_model_names
             or agent_litellm_model in blocked_openrouter_model_names
@@ -1750,6 +1831,13 @@ class Config:
         ):
             logger.warning("Volcengine Ark vision model is unsupported and has been ignored")
             unsupported_volcengine_configuration = True
+            vision_model = ""
+        if (
+            _is_siliconflow_model(vision_model, llm_model_list)
+            or vision_model in blocked_siliconflow_model_names
+        ):
+            logger.warning("SiliconFlow vision model is unsupported and has been ignored")
+            unsupported_siliconflow_configuration = True
             vision_model = ""
         if (
             _is_openrouter_model(vision_model, llm_model_list)
@@ -1884,6 +1972,7 @@ class Config:
             unsupported_minimax_configuration=unsupported_minimax_configuration,
             unsupported_dashscope_configuration=unsupported_dashscope_configuration,
             unsupported_volcengine_configuration=unsupported_volcengine_configuration,
+            unsupported_siliconflow_configuration=unsupported_siliconflow_configuration,
             unsupported_openrouter_configuration=unsupported_openrouter_configuration,
             gemini_api_keys=gemini_api_keys,
             openai_api_keys=openai_api_keys,
@@ -2168,6 +2257,7 @@ class Config:
         blocked_minimax_model_names: set[str] | None = None,
         blocked_dashscope_model_names: set[str] | None = None,
         blocked_volcengine_model_names: set[str] | None = None,
+        blocked_siliconflow_model_names: set[str] | None = None,
         blocked_openrouter_model_names: set[str] | None = None,
     ) -> List[Dict[str, Any]]:
         """Parse a standard LiteLLM config YAML file into Router model_list.
@@ -2293,6 +2383,19 @@ class Config:
                     blocked_volcengine_model_names.add(model_name)
                 _logger.warning(
                     "LITELLM_CONFIG: Volcengine Ark deployment %r is unsupported and has been ignored",
+                    model_name,
+                )
+                continue
+            if (
+                _is_siliconflow_model(model)
+                or _is_siliconflow_model(model_name)
+                or custom_provider == "siliconflow"
+                or _is_siliconflow_endpoint(api_base)
+            ):
+                if blocked_siliconflow_model_names is not None:
+                    blocked_siliconflow_model_names.add(model_name)
+                _logger.warning(
+                    "LITELLM_CONFIG: SiliconFlow deployment %r is unsupported and has been ignored",
                     model_name,
                 )
                 continue
@@ -2429,6 +2532,17 @@ class Config:
             supported_raw_models = [model for model in raw_models if not _is_volcengine_model(model)]
             if len(supported_raw_models) != len(raw_models):
                 _logger.warning("Volcengine Ark models in LLM channel '%s' are unsupported and have been ignored", ch_name)
+                raw_models = supported_raw_models
+            if (
+                ch_lower == "siliconflow"
+                or protocol_raw.strip().lower() == "siliconflow"
+                or _is_siliconflow_endpoint(base_url)
+            ):
+                _logger.warning("LLM channel '%s' uses an unsupported SiliconFlow route and was skipped", ch_name)
+                continue
+            supported_raw_models = [model for model in raw_models if not _is_siliconflow_model(model)]
+            if len(supported_raw_models) != len(raw_models):
+                _logger.warning("SiliconFlow models in LLM channel '%s' are unsupported and have been ignored", ch_name)
                 raw_models = supported_raw_models
             if (
                 ch_lower == "openrouter"
@@ -2981,6 +3095,16 @@ class Config:
                     "Volcengine Ark model routes are not supported. Remove Volcengine/Ark "
                     "from LITELLM_MODEL, LLM_CHANNELS, LITELLM_CONFIG, fallback, Agent, "
                     "vision, and legacy Volcengine settings."
+                ),
+                field="LLM_PROVIDER",
+            ))
+        if self.unsupported_siliconflow_configuration:
+            issues.append(ConfigIssue(
+                severity="error",
+                message=(
+                    "SiliconFlow model routes are not supported. Remove SiliconFlow "
+                    "from LITELLM_MODEL, LLM_CHANNELS, LITELLM_CONFIG, fallback, Agent, "
+                    "vision, and legacy SiliconFlow settings."
                 ),
                 field="LLM_PROVIDER",
             ))
