@@ -82,19 +82,6 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     officialSources: [{ label: 'DeepSeek API Docs', url: 'https://api-docs.deepseek.com/' }],
   },
   {
-    channelId: 'volcengine',
-    label: '火山方舟（豆包）',
-    protocol: 'openai',
-    baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
-    placeholderModels: 'doubao-seed-1-6-251015,doubao-seed-1-6-thinking-251015',
-    capabilities: ['openai-compatible'],
-    configHint: '确认在线推理 endpoint / region 与 Coding Plan 专用入口不要混用。',
-    officialSources: [
-      { label: 'Volcengine Ark Inference', url: 'https://www.volcengine.com/docs/82379/2121998' },
-      { label: 'Volcengine Ark Models', url: 'https://www.volcengine.com/docs/82379/1949118' },
-    ],
-  },
-  {
     channelId: 'siliconflow',
     label: '硅基流动（SiliconFlow）',
     protocol: 'openai',
@@ -141,7 +128,6 @@ const EN_PROVIDER_TEXT: Record<string, { label: string; configHint?: string }> =
   aihubmix: { label: 'AIHubmix (aggregator)' },
   anspire: { label: 'Anspire Open (models + search)', configHint: 'The same ANSPIRE_API_KEYS can be used for search and LLM channels. Models and gateways are examples; availability depends on account permissions and the console. Test the connection first.' },
   deepseek: { label: 'DeepSeek Official' },
-  volcengine: { label: 'Volcengine Ark (Doubao)', configHint: 'Do not mix online inference endpoints/regions with Coding Plan endpoints.' },
   siliconflow: { label: 'SiliconFlow', configHint: 'Model listings and visibility depend on account permissions and the API Key.' },
   gemini: { label: 'Gemini Official' },
   openai: { label: 'OpenAI Official' },

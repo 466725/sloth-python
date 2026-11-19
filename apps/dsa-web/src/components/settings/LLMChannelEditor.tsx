@@ -1218,6 +1218,7 @@ function parseChannelsFromItems(
         && !isUnsupportedMoonshotChannel(name, protocol, baseUrl, models)
         && !isUnsupportedMiniMaxChannel(name, protocol, baseUrl, models)
         && !isUnsupportedDashScopeChannel(name, protocol, baseUrl, models)
+        && !isUnsupportedVolcengineChannel(name, protocol, baseUrl, models)
         && !isUnsupportedOpenRouterChannel(name, protocol, baseUrl, models)
       );
     });
@@ -1393,6 +1394,35 @@ function isDashScopeEndpoint(baseUrl: string): boolean {
       hostname.endsWith('.dashscope.aliyuncs.com')
       || (hostname.startsWith('dashscope') && hostname.endsWith('.aliyuncs.com'))
     );
+  } catch {
+    return false;
+  }
+}
+
+function isUnsupportedVolcengineChannel(
+  name: string,
+  protocol: string,
+  baseUrl: string,
+  models: string[],
+): boolean {
+  return (
+    ['ark', 'volcengine', 'volcengine-maas', 'volcengine_maas'].includes(name.trim().toLowerCase())
+    || ['ark', 'volcengine', 'volcengine-maas', 'volcengine_maas'].includes(protocol.trim().toLowerCase())
+    || isVolcengineEndpoint(baseUrl)
+    || models.some(isUnsupportedVolcengineModel)
+  );
+}
+
+function isUnsupportedVolcengineModel(model: string): boolean {
+  return ['ark', 'volcengine', 'volcengine-maas', 'volcengine_maas'].includes(
+    model.trim().toLowerCase().split('/', 1)[0],
+  );
+}
+
+function isVolcengineEndpoint(baseUrl: string): boolean {
+  try {
+    const hostname = new URL(baseUrl).hostname.toLowerCase().replace(/\.$/, '');
+    return hostname === 'volces.com' || hostname.endsWith('.volces.com');
   } catch {
     return false;
   }

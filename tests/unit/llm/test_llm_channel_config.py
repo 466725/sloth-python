@@ -484,7 +484,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
             "https://api.openai.com/v1",
             "https://api.deepseek.com/v1",
             "https://api.siliconflow.cn/v1",
-            "https://ark.cn-beijing.volces.com/api/v3",
+            "https://api.example.com/v1",
             "http://127.0.0.1:11434",
             "http://127.0.0.1:11434/v1",
         ]
@@ -562,9 +562,9 @@ class LLMChannelConfigTestCase(unittest.TestCase):
 
         self.assertEqual(
             SystemConfigService._build_llm_models_url(
-                "https://ark.cn-beijing.volces.com/api/v3/chat/completions?api-version=1#frag"
+                "https://api.example.com/v1/chat/completions?api-version=1#frag"
             ),
-            "https://ark.cn-beijing.volces.com/api/v3/models",
+            "https://api.example.com/v1/models",
         )
 
 

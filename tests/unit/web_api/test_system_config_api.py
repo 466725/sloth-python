@@ -578,22 +578,22 @@ class SystemConfigApiTestCase(unittest.TestCase):
                     "retryable": False,
                     "details": {"model_count": 2},
                     "resolved_protocol": "openai",
-                    "models": ["doubao-plus", "doubao-turbo"],
+                    "models": ["model-plus", "model-turbo"],
                     "latency_ms": 88,
                 },
         ) as mock_discover:
             payload = system_config.discover_llm_channel_models(
                 request=DiscoverLLMChannelModelsRequest(
-                    name="volcengine",
+                    name="primary",
                     protocol="openai",
-                    base_url="https://ark.cn-beijing.volces.com/api/v3",
+                    base_url="https://api.example.com/v1",
                     api_key="sk-test",
                 ),
                 service=self.service,
             ).model_dump()
 
         self.assertTrue(payload["success"])
-        self.assertEqual(payload["models"], ["doubao-plus", "doubao-turbo"])
+        self.assertEqual(payload["models"], ["model-plus", "model-turbo"])
         self.assertEqual(payload["stage"], "model_discovery")
         mock_discover.assert_called_once()
 
