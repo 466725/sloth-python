@@ -85,7 +85,7 @@ must be able to reach the configured URL.
 
 The [`.env.example` file](../../.env.example) is a compact starter template. The
 provider and channel examples in this guide cover additional options such as
-AIHubmix, Anspire Open, MiMo, Volcengine, and SiliconFlow. Treat
+AIHubmix, Anspire Open, MiMo, and SiliconFlow. Treat
 model IDs and regional endpoints as starting points, and verify them with the
 provider before use.
 
@@ -102,7 +102,6 @@ They are not an exhaustive list of models or a compatibility certification.
 | DeepSeek | `deepseek` | `deepseek` | `https://api.deepseek.com` |
 | Google Gemini | `gemini` | `gemini` | Provider default; normally leave blank |
 | Xiaomi MiMo | `mimo` | `openai` | Use the endpoint from the provider console |
-| Volcengine Ark / Doubao | `volcengine` | `openai` | `https://ark.cn-beijing.volces.com/api/v3` (region-specific) |
 | SiliconFlow | `siliconflow` | `openai` | `https://api.siliconflow.cn/v1` |
 
 Provider-specific model names and available endpoints change. Use the provider

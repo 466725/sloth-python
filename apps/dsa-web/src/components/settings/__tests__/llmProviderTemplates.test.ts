@@ -41,7 +41,6 @@ describe('llmProviderTemplates', () => {
       'aihubmix',
       'anspire',
       'deepseek',
-      'volcengine',
       'siliconflow',
       'gemini',
       'openai',
@@ -66,13 +65,13 @@ describe('llmProviderTemplates', () => {
   });
 
   it('exposes safe helpers for known, custom, and unknown channel ids', () => {
-    expect(getProviderTemplate('volcengine')).toBe(LLM_PROVIDER_TEMPLATE_BY_ID.volcengine);
+    expect(getProviderTemplate('deepseek')).toBe(LLM_PROVIDER_TEMPLATE_BY_ID.deepseek);
     expect(getProviderTemplate('custom')).toBe(LLM_PROVIDER_TEMPLATE_BY_ID.custom);
     expect(getProviderTemplate('unknown-provider')).toBeUndefined();
     expect(getProviderTemplate('constructor')).toBeUndefined();
     expect(getProviderTemplate('toString')).toBeUndefined();
 
-    expect(isKnownProviderTemplate('volcengine')).toBe(true);
+    expect(isKnownProviderTemplate('deepseek')).toBe(true);
     expect(isKnownProviderTemplate('custom')).toBe(false);
     expect(isKnownProviderTemplate('unknown-provider')).toBe(false);
     expect(isKnownProviderTemplate('constructor')).toBe(false);
@@ -92,20 +91,8 @@ describe('llmProviderTemplates', () => {
     expect(LLM_PROVIDER_CAPABILITY_LABELS).not.toHaveProperty('stream');
   });
 
-  it('uses volcengine as the default Volcengine Ark provider id', () => {
-    expect(LLM_PROVIDER_TEMPLATE_BY_ID.volcengine).toMatchObject({
-      label: '火山方舟（豆包）',
-      protocol: 'openai',
-      baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
-      placeholderModels: 'doubao-seed-1-6-251015,doubao-seed-1-6-thinking-251015',
-      configHint: '确认在线推理 endpoint / region 与 Coding Plan 专用入口不要混用。',
-    });
-    expect(LLM_PROVIDER_TEMPLATE_BY_ID.ark).toBeUndefined();
-  });
-
   it('keeps focused config hints on providers with common setup pitfalls', () => {
     expect(LLM_PROVIDER_TEMPLATE_BY_ID.siliconflow.configHint).toContain('API Key');
-    expect(LLM_PROVIDER_TEMPLATE_BY_ID.volcengine.configHint).toContain('endpoint');
     expect(LLM_PROVIDER_TEMPLATE_BY_ID.openai.configHint).toBeUndefined();
   });
 

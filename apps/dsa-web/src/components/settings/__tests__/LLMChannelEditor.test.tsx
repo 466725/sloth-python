@@ -289,29 +289,6 @@ describe('LLMChannelEditor', () => {
     expect(screen.getByLabelText('模型（逗号分隔）')).toHaveValue('deepseek-v4-flash,deepseek-v4-pro');
   });
 
-  it.each([
-    ['volcengine', /火山方舟/i, 'https://ark.cn-beijing.volces.com/api/v3', 'doubao-seed-1-6-251015,doubao-seed-1-6-thinking-251015'],
-  ])('uses %s OpenAI-compatible defaults when adding the official preset', async (preset, buttonName, baseUrl, models) => {
-    render(
-      <LLMChannelEditor
-        items={[]}
-        configVersion="v1"
-        maskToken="******"
-        onSaved={() => {}}
-      />
-    );
-
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: preset } });
-    fireEvent.click(screen.getByRole('button', { name: '+ 添加渠道' }));
-
-    await screen.findByRole('button', { name: buttonName });
-    expect(screen.getAllByRole('combobox').some((select) => (
-      select instanceof HTMLSelectElement && select.value === 'openai'
-    ))).toBe(true);
-    expect(screen.getByLabelText('Base URL')).toHaveValue(baseUrl);
-    expect(screen.getByLabelText('模型（逗号分隔）')).toHaveValue(models);
-  });
-
   it('shows provider capability badges and official sources', async () => {
     render(
       <LLMChannelEditor
@@ -1100,12 +1077,12 @@ describe('LLMChannelEditor', () => {
     render(
       <LLMChannelEditor
         items={[
-          { key: 'LLM_CHANNELS', value: 'volcengine' },
-          { key: 'LLM_VOLCENGINE_PROTOCOL', value: 'openai' },
-          { key: 'LLM_VOLCENGINE_BASE_URL', value: 'https://ark.cn-beijing.volces.com/api/v3' },
-          { key: 'LLM_VOLCENGINE_ENABLED', value: 'true' },
-          { key: 'LLM_VOLCENGINE_API_KEY', value: 'sk-test' },
-          { key: 'LLM_VOLCENGINE_MODELS', value: 'openai/custom-model-1' },
+          { key: 'LLM_CHANNELS', value: 'custom' },
+          { key: 'LLM_CUSTOM_PROTOCOL', value: 'openai' },
+          { key: 'LLM_CUSTOM_BASE_URL', value: 'https://api.example.com/v1' },
+          { key: 'LLM_CUSTOM_ENABLED', value: 'true' },
+          { key: 'LLM_CUSTOM_API_KEY', value: 'sk-test' },
+          { key: 'LLM_CUSTOM_MODELS', value: 'openai/custom-model-1' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -1113,7 +1090,7 @@ describe('LLMChannelEditor', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /火山方舟/i }));
+    fireEvent.click(screen.getByRole('button', { name: /自定义渠道/i }));
     fireEvent.click(screen.getByRole('button', { name: '获取模型' }));
 
     const checkbox = await screen.findByLabelText('custom-model-1');
@@ -1138,12 +1115,12 @@ describe('LLMChannelEditor', () => {
     render(
       <LLMChannelEditor
         items={[
-          { key: 'LLM_CHANNELS', value: 'volcengine' },
-          { key: 'LLM_VOLCENGINE_PROTOCOL', value: 'openai' },
-          { key: 'LLM_VOLCENGINE_BASE_URL', value: 'https://ark.cn-beijing.volces.com/api/v3' },
-          { key: 'LLM_VOLCENGINE_ENABLED', value: 'true' },
-          { key: 'LLM_VOLCENGINE_API_KEY', value: 'sk-test' },
-          { key: 'LLM_VOLCENGINE_MODELS', value: 'unknown/custom-model-1' },
+          { key: 'LLM_CHANNELS', value: 'custom' },
+          { key: 'LLM_CUSTOM_PROTOCOL', value: 'openai' },
+          { key: 'LLM_CUSTOM_BASE_URL', value: 'https://api.example.com/v1' },
+          { key: 'LLM_CUSTOM_ENABLED', value: 'true' },
+          { key: 'LLM_CUSTOM_API_KEY', value: 'sk-test' },
+          { key: 'LLM_CUSTOM_MODELS', value: 'unknown/custom-model-1' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -1151,7 +1128,7 @@ describe('LLMChannelEditor', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /火山方舟/i }));
+    fireEvent.click(screen.getByRole('button', { name: /自定义渠道/i }));
     fireEvent.click(screen.getByRole('button', { name: '获取模型' }));
 
     const checkbox = await screen.findByLabelText('custom-model-1');
@@ -1165,7 +1142,7 @@ describe('LLMChannelEditor', () => {
       message: 'LLM channel model discovery succeeded',
       error: null,
       resolvedProtocol: 'openai',
-      models: ['doubao-seed-1-6-251015', 'doubao-seed-1-6-thinking-251015'],
+      models: ['sample-model-1', 'sample-model-2'],
       latencyMs: 88,
     });
     update.mockResolvedValue({
@@ -1181,12 +1158,12 @@ describe('LLMChannelEditor', () => {
     render(
       <LLMChannelEditor
         items={[
-          { key: 'LLM_CHANNELS', value: 'volcengine' },
-          { key: 'LLM_VOLCENGINE_PROTOCOL', value: 'openai' },
-          { key: 'LLM_VOLCENGINE_BASE_URL', value: 'https://ark.cn-beijing.volces.com/api/v3' },
-          { key: 'LLM_VOLCENGINE_ENABLED', value: 'true' },
-          { key: 'LLM_VOLCENGINE_API_KEY', value: 'sk-test' },
-          { key: 'LLM_VOLCENGINE_MODELS', value: 'doubao-old' },
+          { key: 'LLM_CHANNELS', value: 'custom' },
+          { key: 'LLM_CUSTOM_PROTOCOL', value: 'openai' },
+          { key: 'LLM_CUSTOM_BASE_URL', value: 'https://api.example.com/v1' },
+          { key: 'LLM_CUSTOM_ENABLED', value: 'true' },
+          { key: 'LLM_CUSTOM_API_KEY', value: 'sk-test' },
+          { key: 'LLM_CUSTOM_MODELS', value: 'old-model' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -1194,23 +1171,23 @@ describe('LLMChannelEditor', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /火山方舟/i }));
+    fireEvent.click(screen.getByRole('button', { name: /自定义渠道/i }));
     fireEvent.click(screen.getByRole('button', { name: '获取模型' }));
 
-    const doubaoCheckbox = await screen.findByLabelText('doubao-seed-1-6-251015');
-    fireEvent.click(doubaoCheckbox);
+    const modelCheckbox = await screen.findByLabelText('sample-model-1');
+    fireEvent.click(modelCheckbox);
 
     await waitFor(() => {
-      expect(screen.getByLabelText('手动模型（逗号分隔）')).toHaveValue('doubao-old,doubao-seed-1-6-251015');
+      expect(screen.getByLabelText('手动模型（逗号分隔）')).toHaveValue('old-model,sample-model-1');
     });
 
     expect(discoverLLMChannelModels).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: 'volcengine',
+        name: 'custom',
         protocol: 'openai',
-        baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
+        baseUrl: 'https://api.example.com/v1',
         apiKey: 'sk-test',
-        models: ['doubao-old'],
+        models: ['old-model'],
       }),
     );
 
@@ -1223,7 +1200,7 @@ describe('LLMChannelEditor', () => {
     const updatePayload = update.mock.calls[0][0];
     expect(updatePayload.items).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ key: 'LLM_VOLCENGINE_MODELS', value: 'doubao-old,doubao-seed-1-6-251015' }),
+        expect.objectContaining({ key: 'LLM_CUSTOM_MODELS', value: 'old-model,sample-model-1' }),
       ]),
     );
   });
@@ -1649,7 +1626,7 @@ describe('LLMChannelEditor', () => {
         message: 'LLM channel model discovery succeeded',
         error: null,
         resolvedProtocol: 'openai',
-        models: ['doubao-plus'],
+        models: ['sample-plus'],
         latencyMs: 30,
       });
 
@@ -1662,11 +1639,11 @@ describe('LLMChannelEditor', () => {
           { key: 'LLM_OPENAI_ENABLED', value: 'true' },
           { key: 'LLM_OPENAI_API_KEY', value: 'open-key' },
           { key: 'LLM_OPENAI_MODELS', value: 'gpt-old' },
-          { key: 'LLM_VOLCENGINE_PROTOCOL', value: 'openai' },
-          { key: 'LLM_VOLCENGINE_BASE_URL', value: 'https://ark.cn-beijing.volces.com/api/v3' },
-          { key: 'LLM_VOLCENGINE_ENABLED', value: 'true' },
-          { key: 'LLM_VOLCENGINE_API_KEY', value: 'volc-key' },
-          { key: 'LLM_VOLCENGINE_MODELS', value: 'doubao-old' },
+          { key: 'LLM_CUSTOM_PROTOCOL', value: 'openai' },
+          { key: 'LLM_CUSTOM_BASE_URL', value: 'https://api.example.com/v1' },
+          { key: 'LLM_CUSTOM_ENABLED', value: 'true' },
+          { key: 'LLM_CUSTOM_API_KEY', value: 'custom-key' },
+          { key: 'LLM_CUSTOM_MODELS', value: 'old-model' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -1680,12 +1657,12 @@ describe('LLMChannelEditor', () => {
     renderResult.rerender(
       <LLMChannelEditor
         items={[
-          { key: 'LLM_CHANNELS', value: 'volcengine' },
-          { key: 'LLM_VOLCENGINE_PROTOCOL', value: 'openai' },
-          { key: 'LLM_VOLCENGINE_BASE_URL', value: 'https://ark.cn-beijing.volces.com/api/v3' },
-          { key: 'LLM_VOLCENGINE_ENABLED', value: 'true' },
-          { key: 'LLM_VOLCENGINE_API_KEY', value: 'volc-key' },
-          { key: 'LLM_VOLCENGINE_MODELS', value: 'doubao-old' },
+          { key: 'LLM_CHANNELS', value: 'custom' },
+          { key: 'LLM_CUSTOM_PROTOCOL', value: 'openai' },
+          { key: 'LLM_CUSTOM_BASE_URL', value: 'https://api.example.com/v1' },
+          { key: 'LLM_CUSTOM_ENABLED', value: 'true' },
+          { key: 'LLM_CUSTOM_API_KEY', value: 'custom-key' },
+          { key: 'LLM_CUSTOM_MODELS', value: 'old-model' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -1693,13 +1670,13 @@ describe('LLMChannelEditor', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /火山方舟/i }));
+    fireEvent.click(screen.getByRole('button', { name: /自定义渠道/i }));
     fireEvent.click(screen.getByRole('button', { name: '获取模型' }));
 
-    const doubaoModelCheckbox = await screen.findByLabelText('doubao-plus');
-    fireEvent.click(doubaoModelCheckbox);
+    const modelCheckbox = await screen.findByLabelText('sample-plus');
+    fireEvent.click(modelCheckbox);
 
-    expect(screen.getByLabelText('手动模型（逗号分隔）')).toHaveValue('doubao-old,doubao-plus');
+    expect(screen.getByLabelText('手动模型（逗号分隔）')).toHaveValue('old-model,sample-plus');
 
     resolvePendingFirst({
       success: true,
@@ -1711,7 +1688,7 @@ describe('LLMChannelEditor', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByLabelText('手动模型（逗号分隔）')).toHaveValue('doubao-old,doubao-plus');
+      expect(screen.getByLabelText('手动模型（逗号分隔）')).toHaveValue('old-model,sample-plus');
     });
     expect(screen.queryByLabelText('stale-openai')).not.toBeInTheDocument();
   });
@@ -1727,12 +1704,12 @@ describe('LLMChannelEditor', () => {
     render(
       <LLMChannelEditor
         items={[
-          { key: 'LLM_CHANNELS', value: 'volcengine' },
-          { key: 'LLM_VOLCENGINE_PROTOCOL', value: 'openai' },
-          { key: 'LLM_VOLCENGINE_BASE_URL', value: 'https://ark.cn-beijing.volces.com/api/v3' },
-          { key: 'LLM_VOLCENGINE_ENABLED', value: 'true' },
-          { key: 'LLM_VOLCENGINE_API_KEY', value: 'volc-key' },
-          { key: 'LLM_VOLCENGINE_MODELS', value: 'doubao-old' },
+          { key: 'LLM_CHANNELS', value: 'custom' },
+          { key: 'LLM_CUSTOM_PROTOCOL', value: 'openai' },
+          { key: 'LLM_CUSTOM_BASE_URL', value: 'https://api.example.com/v1' },
+          { key: 'LLM_CUSTOM_ENABLED', value: 'true' },
+          { key: 'LLM_CUSTOM_API_KEY', value: 'custom-key' },
+          { key: 'LLM_CUSTOM_MODELS', value: 'old-model' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -1740,12 +1717,12 @@ describe('LLMChannelEditor', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /火山方舟/i }));
+    fireEvent.click(screen.getByRole('button', { name: /自定义渠道/i }));
     fireEvent.click(screen.getByRole('button', { name: '获取模型' }));
 
     const baseUrlInput = screen.getByLabelText('Base URL');
     fireEvent.change(baseUrlInput, {
-      target: { value: 'https://ark.cn-beijing.volces.com/api/v2' },
+      target: { value: 'https://api.example.com/v2' },
     });
 
     resolvePendingFirst({
@@ -1758,7 +1735,7 @@ describe('LLMChannelEditor', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByLabelText('模型（逗号分隔）')).toHaveValue('doubao-old');
+      expect(screen.getByLabelText('模型（逗号分隔）')).toHaveValue('old-model');
       expect(screen.queryByLabelText('stale-openai')).not.toBeInTheDocument();
     });
   });

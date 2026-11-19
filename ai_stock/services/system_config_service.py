@@ -30,6 +30,8 @@ from ai_stock.config import (
     _is_minimax_model,
     _is_dashscope_endpoint,
     _is_dashscope_model,
+    _is_volcengine_endpoint,
+    _is_volcengine_model,
     _is_openrouter_endpoint,
     _is_openrouter_model,
     _is_zhipu_endpoint,
@@ -2298,6 +2300,8 @@ class SystemConfigService:
             return False
         if normalized == "dashscope":
             return False
+        if normalized in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}:
+            return False
         if normalized == "openrouter":
             return False
         if normalized == "gemini" or normalized == "vertex_ai":
@@ -2311,6 +2315,7 @@ class SystemConfigService:
                 or _is_moonshot_endpoint(base_url)
                 or _is_minimax_endpoint(base_url)
                 or _is_dashscope_endpoint(base_url)
+                or _is_volcengine_endpoint(base_url)
                 or _is_openrouter_endpoint(base_url)
             ):
                 return False
@@ -2387,6 +2392,12 @@ class SystemConfigService:
             ):
                 continue
             if (
+                name.lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+                or raw_protocol.lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+                or _is_volcengine_endpoint(base_url)
+            ):
+                continue
+            if (
                 name.lower() == "openrouter"
                 or raw_protocol.lower() == "openrouter"
                 or _is_openrouter_endpoint(base_url)
@@ -2419,6 +2430,7 @@ class SystemConfigService:
             raw_models = [model for model in raw_models if not _is_moonshot_model(model)]
             raw_models = [model for model in raw_models if not _is_minimax_model(model)]
             raw_models = [model for model in raw_models if not _is_dashscope_model(model)]
+            raw_models = [model for model in raw_models if not _is_volcengine_model(model)]
             raw_models = [model for model in raw_models if not _is_openrouter_model(model)]
             resolved_protocol = resolve_llm_channel_protocol(
                 protocol,
@@ -2467,6 +2479,7 @@ class SystemConfigService:
         blocked_moonshot_model_names: set[str] = set()
         blocked_minimax_model_names: set[str] = set()
         blocked_dashscope_model_names: set[str] = set()
+        blocked_volcengine_model_names: set[str] = set()
         blocked_openrouter_model_names: set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
@@ -2477,6 +2490,7 @@ class SystemConfigService:
                 blocked_moonshot_model_names=blocked_moonshot_model_names,
                 blocked_minimax_model_names=blocked_minimax_model_names,
                 blocked_dashscope_model_names=blocked_dashscope_model_names,
+                blocked_volcengine_model_names=blocked_volcengine_model_names,
                 blocked_openrouter_model_names=blocked_openrouter_model_names,
             )
         yaml_models = self._collect_yaml_models_from_map(effective_map)
@@ -2493,6 +2507,8 @@ class SystemConfigService:
                 return "", "MiniMax models are not supported; select a supported model."
             if _is_dashscope_model(explicit_model) or explicit_model in blocked_dashscope_model_names:
                 return "", "Alibaba DashScope models are not supported; select a supported model."
+            if _is_volcengine_model(explicit_model) or explicit_model in blocked_volcengine_model_names:
+                return "", "Volcengine Ark models are not supported; select a supported model."
             if _is_openrouter_model(explicit_model) or explicit_model in blocked_openrouter_model_names:
                 return "", "OpenRouter models are not supported; select a supported model."
             if _uses_direct_env_provider(explicit_model):
@@ -2555,6 +2571,7 @@ class SystemConfigService:
         blocked_moonshot_model_names: set[str] = set()
         blocked_minimax_model_names: set[str] = set()
         blocked_dashscope_model_names: set[str] = set()
+        blocked_volcengine_model_names: set[str] = set()
         blocked_openrouter_model_names: set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
@@ -2565,6 +2582,7 @@ class SystemConfigService:
                 blocked_moonshot_model_names=blocked_moonshot_model_names,
                 blocked_minimax_model_names=blocked_minimax_model_names,
                 blocked_dashscope_model_names=blocked_dashscope_model_names,
+                blocked_volcengine_model_names=blocked_volcengine_model_names,
                 blocked_openrouter_model_names=blocked_openrouter_model_names,
             )
         if not agent_model_raw:
@@ -2649,6 +2667,19 @@ class SystemConfigService:
                 True,
                 "needs_action",
                 "Alibaba DashScope models are not supported.",
+                "Select a supported Agent model.",
+            )
+        if (
+            _is_volcengine_model(agent_model)
+            or agent_model_raw in blocked_volcengine_model_names
+        ):
+            return self._setup_check(
+                "llm_agent",
+                "Agent 渠道",
+                "agent",
+                True,
+                "needs_action",
+                "Volcengine Ark models are not supported.",
                 "Select a supported Agent model.",
             )
         if (
@@ -3432,6 +3463,12 @@ class SystemConfigService:
             ):
                 continue
             if (
+                name.lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+                or protocol_value.lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+                or _is_volcengine_endpoint(base_url_value)
+            ):
+                continue
+            if (
                 name.lower() == "openrouter"
                 or protocol_value.lower() == "openrouter"
                 or _is_openrouter_endpoint(base_url_value)
@@ -3457,6 +3494,7 @@ class SystemConfigService:
                     ).strip()
                 ]
             raw_models = [model for model in raw_models if not _is_dashscope_model(model)]
+            raw_models = [model for model in raw_models if not _is_volcengine_model(model)]
             raw_models = [model for model in raw_models if not _is_openrouter_model(model)]
             resolved_protocol = resolve_llm_channel_protocol(protocol_value, base_url=base_url_value, models=raw_models, channel_name=name)
             for model in raw_models:
@@ -3528,6 +3566,7 @@ class SystemConfigService:
         blocked_moonshot_model_names: set[str] = set()
         blocked_minimax_model_names: set[str] = set()
         blocked_dashscope_model_names: set[str] = set()
+        blocked_volcengine_model_names: set[str] = set()
         blocked_openrouter_model_names: set[str] = set()
         config_path = (effective_map.get("LITELLM_CONFIG") or "").strip()
         if config_path:
@@ -3538,6 +3577,7 @@ class SystemConfigService:
                 blocked_moonshot_model_names=blocked_moonshot_model_names,
                 blocked_minimax_model_names=blocked_minimax_model_names,
                 blocked_dashscope_model_names=blocked_dashscope_model_names,
+                blocked_volcengine_model_names=blocked_volcengine_model_names,
                 blocked_openrouter_model_names=blocked_openrouter_model_names,
             )
 
@@ -3546,6 +3586,7 @@ class SystemConfigService:
         channel_uses_moonshot = False
         channel_uses_minimax = False
         channel_uses_dashscope = False
+        channel_uses_volcengine = False
         channel_uses_openrouter = False
         for name in SystemConfigService._split_csv(effective_map.get("LLM_CHANNELS") or ""):
             prefix = f"LLM_{name.strip().upper()}"
@@ -3587,6 +3628,13 @@ class SystemConfigService:
                 or any(_is_dashscope_model(model) for model in models)
             ):
                 channel_uses_dashscope = True
+            if (
+                name.strip().lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+                or protocol in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+                or _is_volcengine_endpoint(base_url)
+                or any(_is_volcengine_model(model) for model in models)
+            ):
+                channel_uses_volcengine = True
             if (
                 name.strip().lower() == "openrouter"
                 or protocol == "openrouter"
@@ -3673,6 +3721,21 @@ class SystemConfigService:
                 effective_map.get("LITELLM_FALLBACK_MODELS") or ""
             )
             if _is_dashscope_model(model) or model in blocked_dashscope_model_names
+        )
+        unsupported_volcengine_models = [
+            (key, model)
+            for key, model in selected_models
+            if model and (
+                _is_volcengine_model(model)
+                or model in blocked_volcengine_model_names
+            )
+        ]
+        unsupported_volcengine_models.extend(
+            ("LITELLM_FALLBACK_MODELS", model)
+            for model in SystemConfigService._split_csv(
+                effective_map.get("LITELLM_FALLBACK_MODELS") or ""
+            )
+            if _is_volcengine_model(model) or model in blocked_volcengine_model_names
         )
         unsupported_openrouter_models = [
             (key, model)
@@ -3779,6 +3842,25 @@ class SystemConfigService:
                     "key": fields or ("LLM_CHANNELS" if channel_uses_dashscope else "LLM_PROVIDER"),
                     "code": "unsupported_provider",
                     "message": "Alibaba DashScope model routes are not supported. Select another provider and remove DashScope settings.",
+                }
+            )
+        if (
+            any(
+                key.startswith(("VOLCENGINE_", "LLM_VOLCENGINE_"))
+                and str(value or "").strip()
+                for key, value in effective_map.items()
+            )
+            or _is_volcengine_endpoint(effective_map.get("OPENAI_BASE_URL"))
+            or bool(blocked_volcengine_model_names)
+            or channel_uses_volcengine
+            or unsupported_volcengine_models
+        ):
+            fields = ", ".join(dict.fromkeys(key for key, _model in unsupported_volcengine_models))
+            issues.append(
+                {
+                    "key": fields or ("LLM_CHANNELS" if channel_uses_volcengine else "LLM_PROVIDER"),
+                    "code": "unsupported_provider",
+                    "message": "Volcengine Ark model routes are not supported. Select another provider and remove Volcengine settings.",
                 }
             )
         if (
@@ -4132,6 +4214,22 @@ class SystemConfigService:
                     "key": protocol_key,
                     "code": "unsupported_provider",
                     "message": "Alibaba DashScope model routes are not supported.",
+                    "severity": "error",
+                    "expected": "a supported LLM provider",
+                    "actual": protocol_value or channel_name,
+                }
+            )
+        if (
+            channel_name.strip().lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+            or protocol_value.strip().lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+            or _is_volcengine_endpoint(base_url_value)
+            or any(_is_volcengine_model(model) for model in model_values)
+        ):
+            issues.append(
+                {
+                    "key": protocol_key,
+                    "code": "unsupported_provider",
+                    "message": "Volcengine Ark model routes are not supported.",
                     "severity": "error",
                     "expected": "a supported LLM provider",
                     "actual": protocol_value or channel_name,

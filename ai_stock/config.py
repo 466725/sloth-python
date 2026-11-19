@@ -470,6 +470,31 @@ def _is_dashscope_endpoint(base_url: str | None) -> bool:
     )
 
 
+def _is_volcengine_model(
+    model: str,
+    model_list: list[dict[str, Any]] | None = None,
+) -> bool:
+    """Return whether a model or configured router alias resolves to Volcengine."""
+    normalized = (model or "").strip()
+    if not normalized:
+        return False
+    wire_model = resolve_litellm_wire_model(normalized, model_list)
+    providers = {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+    return any(
+        candidate.strip().lower().split("/", 1)[0] in providers
+        for candidate in (normalized, wire_model)
+    )
+
+
+def _is_volcengine_endpoint(base_url: str | None) -> bool:
+    """Recognize Volcengine Ark API hosts."""
+    try:
+        hostname = (urlparse(base_url or "").hostname or "").lower().rstrip(".")
+    except ValueError:
+        return False
+    return hostname == "volces.com" or hostname.endswith(".volces.com")
+
+
 def _is_openrouter_model(
     model: str,
     model_list: list[dict[str, Any]] | None = None,
@@ -705,6 +730,9 @@ def get_effective_agent_models_to_try(config: "Config") -> List[str]:
         if _is_dashscope_model(dedupe_key, model_list):
             logger.error("Skipping unsupported Alibaba DashScope Agent model route")
             continue
+        if _is_volcengine_model(dedupe_key, model_list):
+            logger.error("Skipping unsupported Volcengine Ark Agent model route")
+            continue
         if _is_openrouter_model(dedupe_key, model_list):
             logger.error("Skipping unsupported OpenRouter Agent model route")
             continue
@@ -788,6 +816,7 @@ class Config:
     unsupported_moonshot_configuration: bool = False
     unsupported_minimax_configuration: bool = False
     unsupported_dashscope_configuration: bool = False
+    unsupported_volcengine_configuration: bool = False
     unsupported_openrouter_configuration: bool = False
 
     # Multi-key support: each list is parsed from *_API_KEYS (comma-separated) with single-key fallback
@@ -1191,6 +1220,10 @@ class Config:
             name.startswith(("DASHSCOPE_", "LLM_DASHSCOPE_")) and str(value or "").strip()
             for name, value in os.environ.items()
         )
+        unsupported_volcengine_configuration = any(
+            name.startswith(("VOLCENGINE_", "LLM_VOLCENGINE_")) and str(value or "").strip()
+            for name, value in os.environ.items()
+        )
         unsupported_openrouter_configuration = any(
             name.startswith(("OPENROUTER_", "LLM_OPENROUTER_")) and str(value or "").strip()
             for name, value in os.environ.items()
@@ -1235,6 +1268,10 @@ class Config:
         if _is_dashscope_endpoint(openai_base_url):
             logger.warning("Alibaba DashScope's endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
             unsupported_dashscope_configuration = True
+            openai_base_url = None
+        if _is_volcengine_endpoint(openai_base_url):
+            logger.warning("Volcengine Ark's endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
+            unsupported_volcengine_configuration = True
             openai_base_url = None
         if _is_openrouter_endpoint(openai_base_url):
             logger.warning("OpenRouter's endpoint is unsupported as OPENAI_BASE_URL and has been ignored")
@@ -1326,6 +1363,7 @@ class Config:
         blocked_moonshot_model_names: set[str] = set()
         blocked_minimax_model_names: set[str] = set()
         blocked_dashscope_model_names: set[str] = set()
+        blocked_volcengine_model_names: set[str] = set()
         blocked_openrouter_model_names: set[str] = set()
 
         # Priority 1: LITELLM_CONFIG (standard LiteLLM YAML config file)
@@ -1337,6 +1375,7 @@ class Config:
                 blocked_moonshot_model_names=blocked_moonshot_model_names,
                 blocked_minimax_model_names=blocked_minimax_model_names,
                 blocked_dashscope_model_names=blocked_dashscope_model_names,
+                blocked_volcengine_model_names=blocked_volcengine_model_names,
                 blocked_openrouter_model_names=blocked_openrouter_model_names,
             )
             if blocked_yaml_model_names:
@@ -1349,6 +1388,8 @@ class Config:
                 unsupported_minimax_configuration = True
             if blocked_dashscope_model_names:
                 unsupported_dashscope_configuration = True
+            if blocked_volcengine_model_names:
+                unsupported_volcengine_configuration = True
             if blocked_openrouter_model_names:
                 unsupported_openrouter_configuration = True
             if llm_model_list:
@@ -1455,6 +1496,27 @@ class Config:
                 litellm_fallback_models = supported_fallbacks
 
         if any(
+            _is_volcengine_model(model, llm_model_list) or model in blocked_volcengine_model_names
+            for model in configured_models
+            if model
+        ):
+            unsupported_volcengine_configuration = True
+            if (
+                _is_volcengine_model(litellm_model, llm_model_list)
+                or litellm_model in blocked_volcengine_model_names
+            ):
+                logger.warning("Volcengine Ark primary model is unsupported and has been ignored")
+                litellm_model = ""
+            supported_fallbacks = [
+                model for model in litellm_fallback_models
+                if not _is_volcengine_model(model, llm_model_list)
+                and model not in blocked_volcengine_model_names
+            ]
+            if len(supported_fallbacks) != len(litellm_fallback_models):
+                logger.warning("Volcengine Ark fallback models are unsupported and have been ignored")
+                litellm_fallback_models = supported_fallbacks
+
+        if any(
             _is_openrouter_model(model, llm_model_list) or model in blocked_openrouter_model_names
             for model in configured_models
             if model
@@ -1531,6 +1593,13 @@ class Config:
                         or any(_is_dashscope_model(model) for model in raw_models)
                     ):
                         unsupported_dashscope_configuration = True
+                    if (
+                        channel_name in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+                        or raw_protocol in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+                        or _is_volcengine_endpoint(raw_base_url)
+                        or any(_is_volcengine_model(model) for model in raw_models)
+                    ):
+                        unsupported_volcengine_configuration = True
                     if (
                         channel_name == "openrouter"
                         or raw_protocol == "openrouter"
@@ -1627,6 +1696,14 @@ class Config:
             unsupported_dashscope_configuration = True
             agent_litellm_model = ""
         if (
+            _is_volcengine_model(agent_litellm_model, llm_model_list)
+            or agent_model_raw.strip() in blocked_volcengine_model_names
+            or agent_litellm_model in blocked_volcengine_model_names
+        ):
+            logger.warning("Volcengine Ark Agent model is unsupported and has been ignored")
+            unsupported_volcengine_configuration = True
+            agent_litellm_model = ""
+        if (
             _is_openrouter_model(agent_litellm_model, llm_model_list)
             or agent_model_raw.strip() in blocked_openrouter_model_names
             or agent_litellm_model in blocked_openrouter_model_names
@@ -1666,6 +1743,13 @@ class Config:
         ):
             logger.warning("Alibaba DashScope vision model is unsupported and has been ignored")
             unsupported_dashscope_configuration = True
+            vision_model = ""
+        if (
+            _is_volcengine_model(vision_model, llm_model_list)
+            or vision_model in blocked_volcengine_model_names
+        ):
+            logger.warning("Volcengine Ark vision model is unsupported and has been ignored")
+            unsupported_volcengine_configuration = True
             vision_model = ""
         if (
             _is_openrouter_model(vision_model, llm_model_list)
@@ -1799,6 +1883,7 @@ class Config:
             unsupported_moonshot_configuration=unsupported_moonshot_configuration,
             unsupported_minimax_configuration=unsupported_minimax_configuration,
             unsupported_dashscope_configuration=unsupported_dashscope_configuration,
+            unsupported_volcengine_configuration=unsupported_volcengine_configuration,
             unsupported_openrouter_configuration=unsupported_openrouter_configuration,
             gemini_api_keys=gemini_api_keys,
             openai_api_keys=openai_api_keys,
@@ -2082,6 +2167,7 @@ class Config:
         blocked_moonshot_model_names: set[str] | None = None,
         blocked_minimax_model_names: set[str] | None = None,
         blocked_dashscope_model_names: set[str] | None = None,
+        blocked_volcengine_model_names: set[str] | None = None,
         blocked_openrouter_model_names: set[str] | None = None,
     ) -> List[Dict[str, Any]]:
         """Parse a standard LiteLLM config YAML file into Router model_list.
@@ -2194,6 +2280,19 @@ class Config:
                     blocked_dashscope_model_names.add(model_name)
                 _logger.warning(
                     "LITELLM_CONFIG: Alibaba DashScope deployment %r is unsupported and has been ignored",
+                    model_name,
+                )
+                continue
+            if (
+                _is_volcengine_model(model)
+                or _is_volcengine_model(model_name)
+                or custom_provider in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+                or _is_volcengine_endpoint(api_base)
+            ):
+                if blocked_volcengine_model_names is not None:
+                    blocked_volcengine_model_names.add(model_name)
+                _logger.warning(
+                    "LITELLM_CONFIG: Volcengine Ark deployment %r is unsupported and has been ignored",
                     model_name,
                 )
                 continue
@@ -2319,6 +2418,17 @@ class Config:
             supported_raw_models = [model for model in raw_models if not _is_dashscope_model(model)]
             if len(supported_raw_models) != len(raw_models):
                 _logger.warning("Alibaba DashScope models in LLM channel '%s' are unsupported and have been ignored", ch_name)
+                raw_models = supported_raw_models
+            if (
+                ch_lower in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+                or protocol_raw.strip().lower() in {"ark", "volcengine", "volcengine-maas", "volcengine_maas"}
+                or _is_volcengine_endpoint(base_url)
+            ):
+                _logger.warning("LLM channel '%s' uses an unsupported Volcengine Ark route and was skipped", ch_name)
+                continue
+            supported_raw_models = [model for model in raw_models if not _is_volcengine_model(model)]
+            if len(supported_raw_models) != len(raw_models):
+                _logger.warning("Volcengine Ark models in LLM channel '%s' are unsupported and have been ignored", ch_name)
                 raw_models = supported_raw_models
             if (
                 ch_lower == "openrouter"
@@ -2861,6 +2971,16 @@ class Config:
                     "Alibaba DashScope model routes are not supported. Remove DashScope "
                     "from LITELLM_MODEL, LLM_CHANNELS, LITELLM_CONFIG, fallback, Agent, "
                     "vision, and legacy DashScope settings."
+                ),
+                field="LLM_PROVIDER",
+            ))
+        if self.unsupported_volcengine_configuration:
+            issues.append(ConfigIssue(
+                severity="error",
+                message=(
+                    "Volcengine Ark model routes are not supported. Remove Volcengine/Ark "
+                    "from LITELLM_MODEL, LLM_CHANNELS, LITELLM_CONFIG, fallback, Agent, "
+                    "vision, and legacy Volcengine settings."
                 ),
                 field="LLM_PROVIDER",
             ))
