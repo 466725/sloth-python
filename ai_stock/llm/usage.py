@@ -895,10 +895,6 @@ def _has_deepseek_hit_miss_shape(usage: Mapping[str, Any]) -> bool:
 def _infer_provider(model: str, provider: Optional[str]) -> str:
     normalized_model = (model or "").strip().lower()
     normalized_provider = (provider or "").strip().lower()
-    route_text = f"{normalized_provider} {normalized_model}"
-
-    if normalized_model.startswith("openai/~") or "openrouter" in route_text:
-        return "openrouter"
     if normalized_provider in {"anthropic", "gemini", "vertex_ai", "deepseek", "stepfun"}:
         return normalized_provider
     if normalized_provider == _OPENAI_LITELLM_PROVIDER:

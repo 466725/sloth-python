@@ -105,18 +105,6 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     officialSources: [{ label: 'SiliconFlow Models', url: 'https://docs.siliconflow.cn/quickstart/models' }],
   },
   {
-    channelId: 'openrouter',
-    label: 'OpenRouter',
-    protocol: 'openai',
-    baseUrl: 'https://openrouter.ai/api/v1',
-    placeholderModels: '~openai/gpt-latest',
-    capabilities: ['openai-compatible', 'aggregator', 'model-discovery'],
-    configHint: '模型列表和模型可见性依赖账号权限与 API Key。',
-    officialSources: [
-      { label: 'OpenRouter Models API', url: 'https://openrouter.ai/docs/api/api-reference/models/get-models' },
-    ],
-  },
-  {
     channelId: 'gemini',
     label: 'Gemini 官方',
     protocol: 'gemini',
@@ -155,7 +143,6 @@ const EN_PROVIDER_TEXT: Record<string, { label: string; configHint?: string }> =
   deepseek: { label: 'DeepSeek Official' },
   volcengine: { label: 'Volcengine Ark (Doubao)', configHint: 'Do not mix online inference endpoints/regions with Coding Plan endpoints.' },
   siliconflow: { label: 'SiliconFlow', configHint: 'Model listings and visibility depend on account permissions and the API Key.' },
-  openrouter: { label: 'OpenRouter', configHint: 'Model listings and visibility depend on account permissions and the API Key.' },
   gemini: { label: 'Gemini Official' },
   openai: { label: 'OpenAI Official' },
   custom: { label: 'Custom channel' },

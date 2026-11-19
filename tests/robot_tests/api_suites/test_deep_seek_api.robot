@@ -5,16 +5,16 @@ Library          Collections
 Library          OperatingSystem
 
 *** Variables ***
-${DEFAULT_OPENROUTER_URL}    https://openrouter.ai/api/v1
-${MODEL}                     deepseek/deepseek-chat
+${DEFAULT_DEEPSEEK_URL}      https://api.deepseek.com
+${MODEL}                     deepseek-chat
 
 *** Test Cases ***
 DeepSeek Chat Completion Demo With RequestsLibrary
-    # Try to get API key from environment (supports both OpenRouter and direct DeepSeek API)
+    # Get the direct DeepSeek API key from the environment.
     ${api_key}=    Get Environment Variable    AI_GEN_API_KEY    ${EMPTY}
-    Skip If    '${api_key}' == ''    AI_GEN_API_KEY environment variable is not set. Set it with: $env:AI_GEN_API_KEY = "sk-or-v1-<your-key>"
+    Skip If    '${api_key}' == ''    AI_GEN_API_KEY environment variable is not set. Set it with your DeepSeek API key.
 
-    ${base_url}=    Get Environment Variable    AI_GEN_BASE_URL    ${DEFAULT_OPENROUTER_URL}
+    ${base_url}=    Get Environment Variable    AI_GEN_BASE_URL    ${DEFAULT_DEEPSEEK_URL}
     Log    Using base URL: ${base_url}
     Log    Using model: ${MODEL}
 

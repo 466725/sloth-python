@@ -312,16 +312,16 @@ describe('LLMChannelEditor', () => {
     expect(screen.getByLabelText('模型（逗号分隔）')).toHaveValue(models);
   });
 
-  it('shows provider capability badges, official sources, and config hints', async () => {
+  it('shows provider capability badges and official sources', async () => {
     render(
       <LLMChannelEditor
         items={[
-          { key: 'LLM_CHANNELS', value: 'openrouter' },
-          { key: 'LLM_OPENROUTER_PROTOCOL', value: 'openai' },
-          { key: 'LLM_OPENROUTER_BASE_URL', value: 'https://openrouter.ai/api/v1' },
-          { key: 'LLM_OPENROUTER_ENABLED', value: 'true' },
-          { key: 'LLM_OPENROUTER_API_KEY', value: 'sk-or-test' },
-          { key: 'LLM_OPENROUTER_MODELS', value: '~anthropic/claude-sonnet-latest' },
+          { key: 'LLM_CHANNELS', value: 'aihubmix' },
+          { key: 'LLM_AIHUBMIX_PROTOCOL', value: 'openai' },
+          { key: 'LLM_AIHUBMIX_BASE_URL', value: 'https://aihubmix.com/v1' },
+          { key: 'LLM_AIHUBMIX_ENABLED', value: 'true' },
+          { key: 'LLM_AIHUBMIX_API_KEY', value: 'sk-test' },
+          { key: 'LLM_AIHUBMIX_MODELS', value: 'gpt-5.5' },
         ]}
         configVersion="v1"
         maskToken="******"
@@ -329,16 +329,14 @@ describe('LLMChannelEditor', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /OpenRouter/i }));
+    fireEvent.click(screen.getByRole('button', { name: /AIHubmix/i }));
 
     expect(await screen.findByText('配置参考')).toBeInTheDocument();
     expect(screen.getByText('OpenAI 兼容')).toBeInTheDocument();
     expect(screen.getByText('聚合平台')).toBeInTheDocument();
-    expect(screen.getByText('可获取模型')).toBeInTheDocument();
-    expect(screen.getByText(/模型列表和模型可见性依赖账号权限与 API Key/i)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'OpenRouter Models API' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'AIHubmix' })).toHaveAttribute(
       'href',
-      'https://openrouter.ai/docs/api/api-reference/models/get-models',
+      'https://aihubmix.com/',
     );
     expect(screen.getByText(/能力标签仅用于配置参考，不代表运行时能力已验证通过/i)).toBeInTheDocument();
   });

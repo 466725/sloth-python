@@ -26,7 +26,8 @@ YAML takes precedence only when its path can be read and it contains a usable
 configuration loader does not rewrite or remove lower-priority settings.
 Native Ollama protocol settings and `ollama/` model routes are unsupported and
 ignored. Remove them from existing `.env` files and LiteLLM YAML, then select a
-supported model.
+supported model. OpenRouter-specific routes, API endpoints, and legacy settings
+are also unsupported and should be removed from existing configuration.
 Legacy Anthropic settings are no longer shown or used for automatic provider
 selection. Existing environment files are not changed; select another provider
 and update the primary, Agent, fallback, and vision models if needed.
@@ -84,7 +85,7 @@ must be able to reach the configured URL.
 
 The [`.env.example` file](../../.env.example) is a compact starter template. The
 provider and channel examples in this guide cover additional options such as
-AIHubmix, Anspire Open, MiMo, Volcengine, SiliconFlow, and OpenRouter. Treat
+AIHubmix, Anspire Open, MiMo, Volcengine, and SiliconFlow. Treat
 model IDs and regional endpoints as starting points, and verify them with the
 provider before use.
 
@@ -103,7 +104,6 @@ They are not an exhaustive list of models or a compatibility certification.
 | Xiaomi MiMo | `mimo` | `openai` | Use the endpoint from the provider console |
 | Volcengine Ark / Doubao | `volcengine` | `openai` | `https://ark.cn-beijing.volces.com/api/v3` (region-specific) |
 | SiliconFlow | `siliconflow` | `openai` | `https://api.siliconflow.cn/v1` |
-| OpenRouter | `openrouter` | `openai` | `https://openrouter.ai/api/v1` |
 
 Provider-specific model names and available endpoints change. Use the provider
 documentation and account console as the source of truth. Useful references
