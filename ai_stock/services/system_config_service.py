@@ -1638,15 +1638,15 @@ class SystemConfigService:
     @staticmethod
     def _validate_value(key: str, value: str, field_schema: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Validate a single field value against schema metadata."""
-        issues: List[Dict[str, Any]] = []
         data_type = field_schema.get("data_type", "string")
         validation = field_schema.get("validation", {}) or {}
         is_required = field_schema.get("is_required", False)
 
         # Empty values are valid for non-required fields (skip type validation)
         if not value.strip() and not is_required:
-            return issues
+            return []
 
+        issues: List[Dict[str, Any]] = []
         if ("\n" in value or "\r" in value) and data_type != "json":
             issues.append(
                 {
@@ -1658,6 +1658,35 @@ class SystemConfigService:
                     "actual": "contains newline",
                 }
             )
+
+        typed_issues, stop_validation = SystemConfigService._validate_typed_value(
+            key=key,
+            value=value,
+            data_type=data_type,
+            validation=validation,
+        )
+        if stop_validation:
+            return typed_issues
+        issues.extend(typed_issues)
+        issues.extend(
+            SystemConfigService._validate_value_constraints(
+                key=key,
+                value=value,
+                validation=validation,
+            )
+        )
+        return issues
+
+    @staticmethod
+    def _validate_typed_value(
+        *,
+        key: str,
+        value: str,
+        data_type: str,
+        validation: dict[str, Any],
+    ) -> tuple[list[dict[str, Any]], bool]:
+        """Validate the value's declared type and return whether validation should stop."""
+        issues: list[dict[str, Any]] = []
         if data_type == "integer":
             try:
                 numeric = int(value)
@@ -1671,7 +1700,7 @@ class SystemConfigService:
                         "expected": "integer",
                         "actual": value,
                     }
-                ]
+                ], True
             issues.extend(SystemConfigService._validate_numeric_range(key, numeric, validation))
 
         elif data_type == "number":
@@ -1687,7 +1716,7 @@ class SystemConfigService:
                         "expected": "number",
                         "actual": value,
                     }
-                ]
+                ], True
             issues.extend(SystemConfigService._validate_numeric_range(key, numeric, validation))
 
         elif data_type == "boolean":
@@ -1765,6 +1794,17 @@ class SystemConfigService:
                     }
                 )
 
+        return issues, False
+
+    @staticmethod
+    def _validate_value_constraints(
+        *,
+        key: str,
+        value: str,
+        validation: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Apply schema constraints that are independent of the field's data type."""
+        issues: list[dict[str, Any]] = []
         if validation.get("timezone") and value:
             try:
                 validate_notification_timezone(value)
@@ -3319,104 +3359,122 @@ class SystemConfigService:
     @staticmethod
     def _validate_llm_runtime_selection(effective_map: Dict[str, str]) -> List[Dict[str, Any]]:
         """Validate selected primary/fallback/vision models against configured channels."""
-        issues: List[Dict[str, Any]] = []
-
         available_models = (
             SystemConfigService._collect_yaml_models_from_map(effective_map)
             or SystemConfigService._collect_llm_channel_models_from_map(effective_map)
         )
-        available_model_set = set(available_models)
-        if not available_model_set:
-            raw_channels = (effective_map.get("LLM_CHANNELS") or "").strip()
-            if not raw_channels:
-                return issues
+        if not available_models:
+            return SystemConfigService._validate_llm_models_with_legacy_sources(effective_map)
 
-            configured_agent_model_raw = (effective_map.get("AGENT_LITELLM_MODEL") or "").strip()
-            configured_agent_model = normalize_agent_litellm_model(
-                configured_agent_model_raw,
-                configured_models=available_model_set,
-            )
-            primary_model = (effective_map.get("LITELLM_MODEL") or "").strip()
-            if primary_model and not SystemConfigService._has_runtime_source_for_model(primary_model, effective_map):
-                issues.append(
-                    {
-                        "key": "LITELLM_MODEL",
-                        "code": "missing_runtime_source",
-                        "message": (
-                            "A primary model is selected, but no usable runtime source was found. "
-                            "Enable at least one channel with available models, or provide the "
-                            "matching provider API key so the model can be resolved."
-                        ),
-                        "severity": "error",
-                        "expected": "enabled channel model or matching legacy API key",
-                        "actual": primary_model,
-                    }
-                )
+        return SystemConfigService._validate_llm_models_against_channels(
+            effective_map,
+            available_models,
+        )
 
-            if (
-                configured_agent_model_raw
-                and configured_agent_model
-                and not SystemConfigService._has_runtime_source_for_model(
-                    configured_agent_model,
-                    effective_map,
-                )
-            ):
-                issues.append(
-                    {
-                        "key": "AGENT_LITELLM_MODEL",
-                        "code": "missing_runtime_source",
-                        "message": (
-                            "An Agent primary model is selected, but no usable runtime source was found. "
-                            "Enable at least one channel with available models, or provide the "
-                            "matching provider API key so the model can be resolved."
-                        ),
-                        "severity": "error",
-                        "expected": "enabled channel model or matching legacy API key",
-                        "actual": configured_agent_model,
-                    }
-                )
-
-            fallback_models = [
-                model.strip()
-                for model in (effective_map.get("LITELLM_FALLBACK_MODELS") or "").split(",")
-                if model.strip()
-            ]
-            invalid_fallbacks = [
-                model for model in fallback_models
-                if not SystemConfigService._has_runtime_source_for_model(model, effective_map)
-            ]
-            if invalid_fallbacks:
-                issues.append(
-                    {
-                        "key": "LITELLM_FALLBACK_MODELS",
-                        "code": "missing_runtime_source",
-                        "message": (
-                            "Some fallback models do not have an enabled channel "
-                            "or matching API key available"
-                        ),
-                        "severity": "error",
-                        "expected": "enabled channel models or matching legacy API keys",
-                        "actual": ", ".join(invalid_fallbacks[:3]),
-                    }
-                )
-
-            vision_model = (effective_map.get("VISION_MODEL") or "").strip()
-            if vision_model and not SystemConfigService._has_runtime_source_for_model(vision_model, effective_map):
-                issues.append(
-                    {
-                        "key": "VISION_MODEL",
-                        "code": "missing_runtime_source",
-                        "message": (
-                            "A Vision model is selected, but there is no enabled channel "
-                            "or matching API key available for it"
-                        ),
-                        "severity": "warning",
-                        "expected": "enabled channel model or matching legacy API key",
-                        "actual": vision_model,
-                    }
-                )
-
+    @staticmethod
+    def _validate_llm_models_with_legacy_sources(
+        effective_map: dict[str, str],
+    ) -> list[dict[str, Any]]:
+        """Validate model selections when channels provide keys but no model list."""
+        issues: list[dict[str, Any]] = []
+        if not (effective_map.get("LLM_CHANNELS") or "").strip():
             return issues
+
+        configured_agent_model_raw = (effective_map.get("AGENT_LITELLM_MODEL") or "").strip()
+        configured_agent_model = normalize_agent_litellm_model(
+            configured_agent_model_raw,
+            configured_models=set(),
+        )
+        primary_model = (effective_map.get("LITELLM_MODEL") or "").strip()
+        if primary_model and not SystemConfigService._has_runtime_source_for_model(primary_model, effective_map):
+            issues.append(
+                {
+                    "key": "LITELLM_MODEL",
+                    "code": "missing_runtime_source",
+                    "message": (
+                        "A primary model is selected, but no usable runtime source was found. "
+                        "Enable at least one channel with available models, or provide the "
+                        "matching provider API key so the model can be resolved."
+                    ),
+                    "severity": "error",
+                    "expected": "enabled channel model or matching legacy API key",
+                    "actual": primary_model,
+                }
+            )
+
+        if (
+            configured_agent_model_raw
+            and configured_agent_model
+            and not SystemConfigService._has_runtime_source_for_model(
+                configured_agent_model,
+                effective_map,
+            )
+        ):
+            issues.append(
+                {
+                    "key": "AGENT_LITELLM_MODEL",
+                    "code": "missing_runtime_source",
+                    "message": (
+                        "An Agent primary model is selected, but no usable runtime source was found. "
+                        "Enable at least one channel with available models, or provide the "
+                        "matching provider API key so the model can be resolved."
+                    ),
+                    "severity": "error",
+                    "expected": "enabled channel model or matching legacy API key",
+                    "actual": configured_agent_model,
+                }
+            )
+
+        fallback_models = [
+            model.strip()
+            for model in (effective_map.get("LITELLM_FALLBACK_MODELS") or "").split(",")
+            if model.strip()
+        ]
+        invalid_fallbacks = [
+            model for model in fallback_models
+            if not SystemConfigService._has_runtime_source_for_model(model, effective_map)
+        ]
+        if invalid_fallbacks:
+            issues.append(
+                {
+                    "key": "LITELLM_FALLBACK_MODELS",
+                    "code": "missing_runtime_source",
+                    "message": (
+                        "Some fallback models do not have an enabled channel "
+                        "or matching API key available"
+                    ),
+                    "severity": "error",
+                    "expected": "enabled channel models or matching legacy API keys",
+                    "actual": ", ".join(invalid_fallbacks[:3]),
+                }
+            )
+
+        vision_model = (effective_map.get("VISION_MODEL") or "").strip()
+        if vision_model and not SystemConfigService._has_runtime_source_for_model(vision_model, effective_map):
+            issues.append(
+                {
+                    "key": "VISION_MODEL",
+                    "code": "missing_runtime_source",
+                    "message": (
+                        "A Vision model is selected, but there is no enabled channel "
+                        "or matching API key available for it"
+                    ),
+                    "severity": "warning",
+                    "expected": "enabled channel model or matching legacy API key",
+                    "actual": vision_model,
+                }
+            )
+
+        return issues
+
+    @staticmethod
+    def _validate_llm_models_against_channels(
+        effective_map: dict[str, str],
+        available_models: Sequence[str],
+    ) -> list[dict[str, Any]]:
+        """Ensure selected models are declared by enabled channels or YAML routing."""
+        issues: list[dict[str, Any]] = []
+        available_model_set = set(available_models)
 
         primary_model = (effective_map.get("LITELLM_MODEL") or "").strip()
         if primary_model and primary_model not in available_model_set and not _uses_direct_env_provider(primary_model):
