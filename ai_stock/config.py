@@ -89,6 +89,30 @@ class AgentContextCompressionPreset:
     history_budget_tokens: int
 
 
+@dataclass(frozen=True)
+class _LLMEnvironmentConfig:
+    """Resolved LLM settings assembled from YAML, channels, and legacy keys."""
+
+    litellm_model: str
+    litellm_fallback_models: list[str]
+    litellm_config_path: Optional[str]
+    llm_models_source: str
+    llm_channels: list[dict[str, Any]]
+    llm_channel_names: list[str]
+    llm_model_list: list[dict[str, Any]]
+    gemini_api_keys: list[str]
+    openai_api_keys: list[str]
+    deepseek_api_keys: list[str]
+    openai_base_url: Optional[str]
+    openai_model: str
+    anspire_api_keys: list[str]
+    agent_litellm_model: str
+    vision_model: str
+    agent_context_compression_profile: str
+    agent_context_compression_trigger_tokens: int
+    agent_context_protected_turns: int
+
+
 AGENT_CONTEXT_COMPRESSION_DEFAULT_PROFILE = "balanced"
 AGENT_CONTEXT_COMPRESSION_PROFILES: Dict[str, AgentContextCompressionPreset] = {
     "cost": AgentContextCompressionPreset(
@@ -930,47 +954,8 @@ class Config:
                 ", ".join(invalid_image_channels),
             )
 
-        # === 智能代理配置 (关键修复) ===
-        # 如果配置了代理，自动设置 NO_PROXY 以排除国内数据源，避免行情获取失败
-        http_proxy = os.getenv('HTTP_PROXY') or os.getenv('http_proxy')
-        if http_proxy:
-            # 国内金融数据源域名列表
-            domestic_domains = [
-                'eastmoney.com',   # 东方财富 (Efinance/Akshare)
-                'sina.com.cn',     # 新浪财经 (Akshare)
-                '163.com',         # 网易财经 (Akshare)
-                'baostock.com',    # Baostock
-                'sse.com.cn',      # 上交所
-                'szse.cn',         # 深交所
-                'csindex.com.cn',  # 中证指数
-                'cninfo.com.cn',   # 巨潮资讯
-                'localhost',
-                '127.0.0.1'
-            ]
+        cls._configure_proxy_environment()
 
-            # 获取现有的 no_proxy
-            current_no_proxy = os.getenv('NO_PROXY') or os.getenv('no_proxy') or ''
-            existing_domains = current_no_proxy.split(',') if current_no_proxy else []
-
-            # 合并去重
-            final_domains = list(set(existing_domains + domestic_domains))
-            final_no_proxy = ','.join(filter(None, final_domains))
-
-            # 设置环境变量 (requests/urllib3/aiohttp 都会遵守此设置)
-            os.environ['NO_PROXY'] = final_no_proxy
-            os.environ['no_proxy'] = final_no_proxy
-
-            # 确保 HTTP_PROXY 也被正确设置（以防仅在 .env 中定义但未导出）
-            os.environ['HTTP_PROXY'] = http_proxy
-            os.environ['http_proxy'] = http_proxy
-
-            # HTTPS_PROXY 同理
-            https_proxy = os.getenv('HTTPS_PROXY') or os.getenv('https_proxy')
-            if https_proxy:
-                os.environ['HTTPS_PROXY'] = https_proxy
-                os.environ['https_proxy'] = https_proxy
-
-        
         # 解析自选股列表（逗号分隔，统一为大写 Issue #355）
         stock_list_str = cls._resolve_env_value(
             'STOCK_LIST',
@@ -983,185 +968,7 @@ class Config:
             if (c or "").strip()
         ]
 
-        # === LiteLLM multi-key parsing ===
-        # GEMINI_API_KEYS (comma-separated) > GEMINI_API_KEY (single)
-        _gemini_keys_raw = os.getenv('GEMINI_API_KEYS', '')
-        gemini_api_keys = [k.strip() for k in _gemini_keys_raw.split(',') if k.strip()]
-        _single_gemini = os.getenv('GEMINI_API_KEY', '').strip()
-        if not gemini_api_keys and _single_gemini:
-            gemini_api_keys = [_single_gemini]
-
-        # OPENAI_API_KEYS > OPENAI_API_KEY
-        _openai_keys_raw = os.getenv('OPENAI_API_KEYS', '')
-        openai_api_keys = [k.strip() for k in _openai_keys_raw.split(',') if k.strip()]
-        if not openai_api_keys:
-            _single_openai = os.getenv('OPENAI_API_KEY', '').strip()
-            if _single_openai:
-                openai_api_keys = [_single_openai]
-        openai_base_url = os.getenv('OPENAI_BASE_URL') or None
-        # DEEPSEEK_API_KEYS > DEEPSEEK_API_KEY (independent from OpenAI-compatible layer)
-        _deepseek_keys_raw = os.getenv('DEEPSEEK_API_KEYS', '')
-        deepseek_api_keys = [k.strip() for k in _deepseek_keys_raw.split(',') if k.strip()]
-        if not deepseek_api_keys:
-            _single_deepseek = os.getenv('DEEPSEEK_API_KEY', '').strip()
-            if _single_deepseek:
-                deepseek_api_keys = [_single_deepseek]
-
-        # Anspire Open shares the same key as Anspire Search and exposes an
-        # OpenAI-compatible LLM gateway.  When no other OpenAI-compatible key is
-        # configured, use ANSPIRE_API_KEYS as the legacy openai-compatible
-        # provider so "one key" setups work without LLM_CHANNELS.
-        anspire_keys_str = os.getenv('ANSPIRE_API_KEYS', '')
-        anspire_api_keys = [k.strip() for k in anspire_keys_str.split(',') if k.strip()]
-        anspire_llm_enabled = parse_env_bool(os.getenv('ANSPIRE_LLM_ENABLED'), default=True)
-        anspire_llm_base_url = (
-            os.getenv('ANSPIRE_LLM_BASE_URL') or ANSPIRE_LLM_BASE_URL_DEFAULT
-        ).strip()
-        _anspire_llm_model_env = os.getenv('ANSPIRE_LLM_MODEL', '').strip()
-        anspire_channel_disabled = False
-        for _raw_channel in os.getenv('LLM_CHANNELS', '').split(','):
-            if _raw_channel.strip().lower() != "anspire":
-                continue
-            _channel_enabled_raw = os.getenv('LLM_ANSPIRE_ENABLED')
-            if _channel_enabled_raw is not None and _channel_enabled_raw.strip():
-                anspire_channel_disabled = not parse_env_bool(_channel_enabled_raw, default=True)
-            else:
-                anspire_channel_disabled = not anspire_llm_enabled
-            break
-        using_anspire_llm_legacy = bool(
-            anspire_llm_enabled
-            and not anspire_channel_disabled
-            and anspire_api_keys
-            and not openai_api_keys
-        )
-        if using_anspire_llm_legacy:
-            openai_api_keys = list(anspire_api_keys)
-            openai_base_url = anspire_llm_base_url
-
-        # LITELLM_MODEL: explicit config takes precedence; else infer from available keys
-        litellm_model = os.getenv('LITELLM_MODEL', '').strip()
-        inferred_legacy_deepseek_model = False
-        _openai_model_env = os.getenv('OPENAI_MODEL', '').strip()
-        if using_anspire_llm_legacy:
-            _openai_model_name = _anspire_llm_model_env or _openai_model_env or ANSPIRE_LLM_MODEL_DEFAULT
-        else:
-            _openai_model_name = _openai_model_env or 'gpt-5.5'
-        if not litellm_model:
-            _gemini_model_name = os.getenv('GEMINI_MODEL', 'gemini-3.1-pro-preview').strip()
-            if gemini_api_keys:
-                litellm_model = f'gemini/{_gemini_model_name}'
-            elif deepseek_api_keys:
-                litellm_model = 'deepseek/deepseek-chat'
-                inferred_legacy_deepseek_model = True
-            elif openai_api_keys:
-                # For openai-compatible models, add prefix only if not already prefixed
-                if '/' not in _openai_model_name:
-                    litellm_model = f'openai/{_openai_model_name}'
-                else:
-                    litellm_model = _openai_model_name
-
-        # LITELLM_FALLBACK_MODELS: comma-separated list of fallback models
-        _fallback_str = os.getenv('LITELLM_FALLBACK_MODELS', '')
-        if _fallback_str.strip():
-            litellm_fallback_models = [m.strip() for m in _fallback_str.split(',') if m.strip()]
-        else:
-            # Backward compat: use gemini_model_fallback when primary is gemini
-            _gemini_fallback = os.getenv('GEMINI_MODEL_FALLBACK', 'gemini-3-flash-preview').strip()
-            if litellm_model.startswith('gemini/') and _gemini_fallback:
-                _fb = f'gemini/{_gemini_fallback}' if '/' not in _gemini_fallback else _gemini_fallback
-                litellm_fallback_models = [_fb]
-            else:
-                litellm_fallback_models = []
-
-        # === LLM Channels + YAML config ===
-        litellm_config_path = os.getenv('LITELLM_CONFIG', '').strip() or None
-        llm_models_source = "legacy_env"
-        llm_channels: List[Dict[str, Any]] = []
-        llm_channel_names: List[str] = []
-        llm_model_list: List[Dict[str, Any]] = []
-        # Priority 1: LITELLM_CONFIG (standard LiteLLM YAML config file)
-        if litellm_config_path:
-            llm_model_list = cls._parse_litellm_yaml(litellm_config_path)
-            if llm_model_list:
-                llm_models_source = "litellm_config"
-
-        # Priority 2: LLM_CHANNELS (env var based channel config)
-        if not llm_model_list:
-            _channels_str = os.getenv('LLM_CHANNELS', '').strip()
-            if _channels_str:
-                llm_channel_names = [
-                    ch.strip().lower()
-                    for ch in _channels_str.split(',')
-                    if ch.strip()
-                ]
-                llm_channels = cls._parse_llm_channels(_channels_str)
-                llm_model_list = cls._channels_to_model_list(llm_channels)
-                if llm_model_list:
-                    llm_models_source = "llm_channels"
-
-        if not llm_model_list:
-            llm_model_list = cls._legacy_keys_to_model_list(
-                gemini_api_keys, openai_api_keys,
-                openai_base_url,
-                deepseek_api_keys,
-            )
-            if llm_model_list:
-                llm_models_source = "legacy_env"
-
-        if (
-            inferred_legacy_deepseek_model
-            and llm_models_source == "legacy_env"
-            and litellm_model == 'deepseek/deepseek-chat'
-        ):
-            logger.warning(
-                "Deprecation warning:\n"
-                "deepseek-chat will be deprecated on 2026-07-24,\n"
-                "please migrate to deepseek-v4-flash."
-            )
-
-        # Auto-infer LITELLM_MODEL from channels when not explicitly set
-        if not litellm_model and llm_channels:
-            for _ch in llm_channels:
-                if _ch.get('models'):
-                    litellm_model = _ch['models'][0]
-                    break
-        # Auto-infer LITELLM_FALLBACK_MODELS from channels when not explicitly set
-        if not litellm_fallback_models and llm_channels and litellm_model:
-            _all_ch_models: List[str] = []
-            for _ch in llm_channels:
-                _all_ch_models.extend(_ch.get('models', []))
-            _seen = {litellm_model}
-            litellm_fallback_models = [
-                m for m in _all_ch_models
-                if m not in _seen and not _seen.add(m)  # type: ignore[func-returns-value]
-            ]
-
-        agent_model_raw = os.getenv('AGENT_LITELLM_MODEL', '')
-        agent_litellm_model = normalize_agent_litellm_model(
-            agent_model_raw,
-            configured_models=set(get_configured_llm_models(llm_model_list)),
-        )
-        vision_model = os.getenv('VISION_MODEL') or os.getenv('OPENAI_VISION_MODEL') or ""
-        agent_context_compression_profile = normalize_agent_context_compression_profile(
-            os.getenv('AGENT_CONTEXT_COMPRESSION_PROFILE')
-        )
-        agent_context_compression_preset = get_agent_context_compression_preset(
-            agent_context_compression_profile
-        )
-        agent_context_compression_trigger_tokens = parse_agent_context_compression_int(
-            os.getenv('AGENT_CONTEXT_COMPRESSION_TRIGGER_TOKENS'),
-            agent_context_compression_preset.trigger_tokens,
-            field_name='AGENT_CONTEXT_COMPRESSION_TRIGGER_TOKENS',
-            minimum=1000,
-            maximum=200000,
-        )
-        agent_context_protected_turns = parse_agent_context_compression_int(
-            os.getenv('AGENT_CONTEXT_PROTECTED_TURNS'),
-            agent_context_compression_preset.protected_turns,
-            field_name='AGENT_CONTEXT_PROTECTED_TURNS',
-            minimum=1,
-            maximum=20,
-        )
+        llm_environment = cls._load_llm_environment_config()
 
         # 解析搜索引擎 API Keys（支持多个 key，逗号分隔）
         bocha_keys_str = os.getenv('BOCHA_API_KEYS', '')
@@ -1254,17 +1061,17 @@ class Config:
                 os.getenv('STOCK_INDEX_REMOTE_UPDATE_ENABLED'),
                 default=True,
             ),
-            litellm_model=litellm_model,
-            litellm_fallback_models=litellm_fallback_models,
-            llm_temperature=resolve_unified_llm_temperature(litellm_model),
-            litellm_config_path=litellm_config_path,
-            llm_models_source=llm_models_source,
-            llm_channels=llm_channels,
-            llm_channel_names=llm_channel_names,
-            llm_model_list=llm_model_list,
-            gemini_api_keys=gemini_api_keys,
-            openai_api_keys=openai_api_keys,
-            deepseek_api_keys=deepseek_api_keys,
+            litellm_model=llm_environment.litellm_model,
+            litellm_fallback_models=llm_environment.litellm_fallback_models,
+            llm_temperature=resolve_unified_llm_temperature(llm_environment.litellm_model),
+            litellm_config_path=llm_environment.litellm_config_path,
+            llm_models_source=llm_environment.llm_models_source,
+            llm_channels=llm_environment.llm_channels,
+            llm_channel_names=llm_environment.llm_channel_names,
+            llm_model_list=llm_environment.llm_model_list,
+            gemini_api_keys=llm_environment.gemini_api_keys,
+            openai_api_keys=llm_environment.openai_api_keys,
+            deepseek_api_keys=llm_environment.deepseek_api_keys,
             gemini_api_key=os.getenv('GEMINI_API_KEY'),
             gemini_model=os.getenv('GEMINI_MODEL', 'gemini-3.1-pro-preview'),
             gemini_model_fallback=os.getenv('GEMINI_MODEL_FALLBACK', 'gemini-3-flash-preview'),
@@ -1273,15 +1080,15 @@ class Config:
             gemini_max_retries=parse_env_int(os.getenv('GEMINI_MAX_RETRIES'), 5, field_name='GEMINI_MAX_RETRIES', minimum=0),
             gemini_retry_delay=parse_env_float(os.getenv('GEMINI_RETRY_DELAY'), 5.0, field_name='GEMINI_RETRY_DELAY', minimum=0.0),
             # Model names match upstream (e.g. gemini-3.1-pro-preview, gpt-5.5, deepseek-v4-flash).
-            openai_api_key=openai_api_keys[0] if openai_api_keys else None,
-            openai_base_url=openai_base_url,
-            openai_model=_openai_model_name,
+            openai_api_key=llm_environment.openai_api_keys[0] if llm_environment.openai_api_keys else None,
+            openai_base_url=llm_environment.openai_base_url,
+            openai_model=llm_environment.openai_model,
             openai_vision_model=os.getenv('OPENAI_VISION_MODEL') or None,
             openai_temperature=parse_env_float(os.getenv('OPENAI_TEMPERATURE'), 0.7, field_name='OPENAI_TEMPERATURE'),
             # Vision model: VISION_MODEL > OPENAI_VISION_MODEL (alias) > default
-            vision_model=vision_model,
+            vision_model=llm_environment.vision_model,
             vision_provider_priority=os.getenv('VISION_PROVIDER_PRIORITY', 'gemini,openai'),
-            anspire_api_keys=anspire_api_keys,
+            anspire_api_keys=llm_environment.anspire_api_keys,
             bocha_api_keys=bocha_api_keys,
             tavily_api_keys=tavily_api_keys,
             brave_api_keys=brave_api_keys,
@@ -1317,7 +1124,7 @@ class Config:
             ),
             newsnow_base_url=((os.getenv('NEWSNOW_BASE_URL') or '').strip().rstrip('/') or 'https://newsnow.busiyi.world'),
             bias_threshold=parse_env_float(os.getenv('BIAS_THRESHOLD'), 5.0, field_name='BIAS_THRESHOLD', minimum=1.0),
-            agent_litellm_model=agent_litellm_model,
+            agent_litellm_model=llm_environment.agent_litellm_model,
             agent_mode=os.getenv('AGENT_MODE', 'false').lower() == 'true',
             _agent_mode_explicit=os.getenv('AGENT_MODE') is not None,
             agent_max_steps=parse_env_int(
@@ -1362,9 +1169,9 @@ class Config:
                 os.getenv('AGENT_CONTEXT_COMPRESSION_ENABLED'),
                 default=False,
             ),
-            agent_context_compression_profile=agent_context_compression_profile,
-            agent_context_compression_trigger_tokens=agent_context_compression_trigger_tokens,
-            agent_context_protected_turns=agent_context_protected_turns,
+            agent_context_compression_profile=llm_environment.agent_context_compression_profile,
+            agent_context_compression_trigger_tokens=llm_environment.agent_context_compression_trigger_tokens,
+            agent_context_protected_turns=llm_environment.agent_context_protected_turns,
             agent_event_monitor_enabled=os.getenv('AGENT_EVENT_MONITOR_ENABLED', 'false').lower() == 'true',
             agent_event_monitor_interval_minutes=parse_env_int(
                 os.getenv('AGENT_EVENT_MONITOR_INTERVAL_MINUTES'),
@@ -1529,6 +1336,254 @@ class Config:
             ),
         )
     
+    @staticmethod
+    def _configure_proxy_environment() -> None:
+        """Set proxy variables while bypassing domestic market data domains."""
+        http_proxy = os.getenv('HTTP_PROXY') or os.getenv('http_proxy')
+        if not http_proxy:
+            return
+
+        domestic_domains = [
+            'eastmoney.com',
+            'sina.com.cn',
+            '163.com',
+            'baostock.com',
+            'sse.com.cn',
+            'szse.cn',
+            'csindex.com.cn',
+            'cninfo.com.cn',
+            'localhost',
+            '127.0.0.1',
+        ]
+        current_no_proxy = os.getenv('NO_PROXY') or os.getenv('no_proxy') or ''
+        existing_domains = current_no_proxy.split(',') if current_no_proxy else []
+        final_domains = list(set(existing_domains + domestic_domains))
+        final_no_proxy = ','.join(filter(None, final_domains))
+
+        os.environ['NO_PROXY'] = final_no_proxy
+        os.environ['no_proxy'] = final_no_proxy
+        os.environ['HTTP_PROXY'] = http_proxy
+        os.environ['http_proxy'] = http_proxy
+
+        https_proxy = os.getenv('HTTPS_PROXY') or os.getenv('https_proxy')
+        if https_proxy:
+            os.environ['HTTPS_PROXY'] = https_proxy
+            os.environ['https_proxy'] = https_proxy
+
+    @classmethod
+    def _load_llm_environment_config(cls) -> _LLMEnvironmentConfig:
+        """Resolve LLM keys, channels, model selection, and Agent settings."""
+        # Multi-key values take precedence over their legacy single-key aliases.
+        gemini_api_keys = [
+            key.strip()
+            for key in os.getenv('GEMINI_API_KEYS', '').split(',')
+            if key.strip()
+        ]
+        single_gemini_key = os.getenv('GEMINI_API_KEY', '').strip()
+        if not gemini_api_keys and single_gemini_key:
+            gemini_api_keys = [single_gemini_key]
+
+        openai_api_keys = [
+            key.strip()
+            for key in os.getenv('OPENAI_API_KEYS', '').split(',')
+            if key.strip()
+        ]
+        if not openai_api_keys:
+            single_openai_key = os.getenv('OPENAI_API_KEY', '').strip()
+            if single_openai_key:
+                openai_api_keys = [single_openai_key]
+        openai_base_url = os.getenv('OPENAI_BASE_URL') or None
+
+        deepseek_api_keys = [
+            key.strip()
+            for key in os.getenv('DEEPSEEK_API_KEYS', '').split(',')
+            if key.strip()
+        ]
+        if not deepseek_api_keys:
+            single_deepseek_key = os.getenv('DEEPSEEK_API_KEY', '').strip()
+            if single_deepseek_key:
+                deepseek_api_keys = [single_deepseek_key]
+
+        # Anspire Open shares the search key and provides an OpenAI-compatible gateway.
+        anspire_api_keys = [
+            key.strip()
+            for key in os.getenv('ANSPIRE_API_KEYS', '').split(',')
+            if key.strip()
+        ]
+        anspire_llm_enabled = parse_env_bool(os.getenv('ANSPIRE_LLM_ENABLED'), default=True)
+        anspire_llm_base_url = (
+            os.getenv('ANSPIRE_LLM_BASE_URL') or ANSPIRE_LLM_BASE_URL_DEFAULT
+        ).strip()
+        anspire_llm_model = os.getenv('ANSPIRE_LLM_MODEL', '').strip()
+        anspire_channel_disabled = False
+        for raw_channel in os.getenv('LLM_CHANNELS', '').split(','):
+            if raw_channel.strip().lower() != "anspire":
+                continue
+            channel_enabled = os.getenv('LLM_ANSPIRE_ENABLED')
+            if channel_enabled is not None and channel_enabled.strip():
+                anspire_channel_disabled = not parse_env_bool(channel_enabled, default=True)
+            else:
+                anspire_channel_disabled = not anspire_llm_enabled
+            break
+        use_legacy_anspire = bool(
+            anspire_llm_enabled
+            and not anspire_channel_disabled
+            and anspire_api_keys
+            and not openai_api_keys
+        )
+        if use_legacy_anspire:
+            openai_api_keys = list(anspire_api_keys)
+            openai_base_url = anspire_llm_base_url
+
+        litellm_model = os.getenv('LITELLM_MODEL', '').strip()
+        inferred_legacy_deepseek_model = False
+        openai_model_env = os.getenv('OPENAI_MODEL', '').strip()
+        if use_legacy_anspire:
+            openai_model = (
+                anspire_llm_model or openai_model_env or ANSPIRE_LLM_MODEL_DEFAULT
+            )
+        else:
+            openai_model = openai_model_env or 'gpt-5.5'
+        if not litellm_model:
+            gemini_model = os.getenv('GEMINI_MODEL', 'gemini-3.1-pro-preview').strip()
+            if gemini_api_keys:
+                litellm_model = f'gemini/{gemini_model}'
+            elif deepseek_api_keys:
+                litellm_model = 'deepseek/deepseek-chat'
+                inferred_legacy_deepseek_model = True
+            elif openai_api_keys:
+                litellm_model = (
+                    openai_model if '/' in openai_model else f'openai/{openai_model}'
+                )
+
+        fallback_models_raw = os.getenv('LITELLM_FALLBACK_MODELS', '')
+        if fallback_models_raw.strip():
+            litellm_fallback_models = [
+                model.strip()
+                for model in fallback_models_raw.split(',')
+                if model.strip()
+            ]
+        else:
+            gemini_fallback = os.getenv(
+                'GEMINI_MODEL_FALLBACK',
+                'gemini-3-flash-preview',
+            ).strip()
+            if litellm_model.startswith('gemini/') and gemini_fallback:
+                fallback_model = (
+                    gemini_fallback
+                    if '/' in gemini_fallback
+                    else f'gemini/{gemini_fallback}'
+                )
+                litellm_fallback_models = [fallback_model]
+            else:
+                litellm_fallback_models = []
+
+        litellm_config_path = os.getenv('LITELLM_CONFIG', '').strip() or None
+        llm_models_source = "legacy_env"
+        llm_channels: list[dict[str, Any]] = []
+        llm_channel_names: list[str] = []
+        llm_model_list: list[dict[str, Any]] = []
+        if litellm_config_path:
+            llm_model_list = cls._parse_litellm_yaml(litellm_config_path)
+            if llm_model_list:
+                llm_models_source = "litellm_config"
+
+        if not llm_model_list:
+            channels_raw = os.getenv('LLM_CHANNELS', '').strip()
+            if channels_raw:
+                llm_channel_names = [
+                    name.strip().lower()
+                    for name in channels_raw.split(',')
+                    if name.strip()
+                ]
+                llm_channels = cls._parse_llm_channels(channels_raw)
+                llm_model_list = cls._channels_to_model_list(llm_channels)
+                if llm_model_list:
+                    llm_models_source = "llm_channels"
+
+        if not llm_model_list:
+            llm_model_list = cls._legacy_keys_to_model_list(
+                gemini_api_keys,
+                openai_api_keys,
+                openai_base_url,
+                deepseek_api_keys,
+            )
+            if llm_model_list:
+                llm_models_source = "legacy_env"
+
+        if (
+            inferred_legacy_deepseek_model
+            and llm_models_source == "legacy_env"
+            and litellm_model == 'deepseek/deepseek-chat'
+        ):
+            logger.warning(
+                "Deprecation warning:\n"
+                "deepseek-chat will be deprecated on 2026-07-24,\n"
+                "please migrate to deepseek-v4-flash."
+            )
+
+        if not litellm_model and llm_channels:
+            for channel in llm_channels:
+                if channel.get('models'):
+                    litellm_model = channel['models'][0]
+                    break
+
+        if not litellm_fallback_models and llm_channels and litellm_model:
+            channel_models: list[str] = []
+            for channel in llm_channels:
+                channel_models.extend(channel.get('models', []))
+            seen_models = {litellm_model}
+            litellm_fallback_models = [
+                model
+                for model in channel_models
+                if model not in seen_models and not seen_models.add(model)
+            ]
+
+        agent_litellm_model = normalize_agent_litellm_model(
+            os.getenv('AGENT_LITELLM_MODEL', ''),
+            configured_models=set(get_configured_llm_models(llm_model_list)),
+        )
+        vision_model = os.getenv('VISION_MODEL') or os.getenv('OPENAI_VISION_MODEL') or ""
+        compression_profile = normalize_agent_context_compression_profile(
+            os.getenv('AGENT_CONTEXT_COMPRESSION_PROFILE')
+        )
+        compression_preset = get_agent_context_compression_preset(compression_profile)
+        compression_trigger_tokens = parse_agent_context_compression_int(
+            os.getenv('AGENT_CONTEXT_COMPRESSION_TRIGGER_TOKENS'),
+            compression_preset.trigger_tokens,
+            field_name='AGENT_CONTEXT_COMPRESSION_TRIGGER_TOKENS',
+            minimum=1000,
+            maximum=200000,
+        )
+        protected_turns = parse_agent_context_compression_int(
+            os.getenv('AGENT_CONTEXT_PROTECTED_TURNS'),
+            compression_preset.protected_turns,
+            field_name='AGENT_CONTEXT_PROTECTED_TURNS',
+            minimum=1,
+            maximum=20,
+        )
+
+        return _LLMEnvironmentConfig(
+            litellm_model=litellm_model,
+            litellm_fallback_models=litellm_fallback_models,
+            litellm_config_path=litellm_config_path,
+            llm_models_source=llm_models_source,
+            llm_channels=llm_channels,
+            llm_channel_names=llm_channel_names,
+            llm_model_list=llm_model_list,
+            gemini_api_keys=gemini_api_keys,
+            openai_api_keys=openai_api_keys,
+            deepseek_api_keys=deepseek_api_keys,
+            openai_base_url=openai_base_url,
+            openai_model=openai_model,
+            anspire_api_keys=anspire_api_keys,
+            agent_litellm_model=agent_litellm_model,
+            vision_model=vision_model,
+            agent_context_compression_profile=compression_profile,
+            agent_context_compression_trigger_tokens=compression_trigger_tokens,
+            agent_context_protected_turns=protected_turns,
+        )
+
     @classmethod
     def _parse_litellm_yaml(
         cls,
@@ -2095,7 +2150,7 @@ class Config:
 
         self.stock_list = stock_list
     
-    def validate_structured(self) -> List[ConfigIssue]:
+    def validate_structured(self) -> list[ConfigIssue]:
         """Return structured validation issues with severity levels.
 
         Covers all three LLM configuration tiers introduced by PR #494:
@@ -2108,8 +2163,16 @@ class Config:
             ("error" | "warning" | "info"), a human-readable message, and the
             primary environment variable / field name it relates to.
         """
-        issues: List[ConfigIssue] = []
+        issues: list[ConfigIssue] = []
+        issues.extend(self._validate_stock_list())
+        issues.extend(self._validate_llm_configuration())
+        issues.extend(self._validate_search_configuration())
+        issues.extend(self._validate_notification_configuration())
+        issues.extend(self._validate_vision_configuration())
+        return issues
 
+    def _validate_stock_list(self) -> list[ConfigIssue]:
+        issues: list[ConfigIssue] = []
         # --- Stock list ---
         if not self.stock_list:
             issues.append(ConfigIssue(
@@ -2124,8 +2187,8 @@ class Config:
                 for code in self.stock_list
                 if (code or "").strip()
             }
-            missing_group_stocks_dict: Dict[str, None] = {}
-            for stocks, _emails in self.stock_email_groups:
+            missing_group_stocks_dict: dict[str, None] = {}
+            for stocks, _ in self.stock_email_groups:
                 for stock in stocks:
                     raw = (stock or "").strip()
                     if not raw:
@@ -2148,7 +2211,23 @@ class Config:
                     ),
                     field="STOCK_GROUP_N",
                 ))
+        return issues
 
+    def _has_runtime_source_for_model(self, model: str) -> bool:
+        """Check whether the model's provider has a configured legacy API key."""
+        if not model or _uses_direct_env_provider(model):
+            return True
+        provider = _get_litellm_provider(model)
+        if provider in {"gemini", "vertex_ai"}:
+            return any(k and len(k) >= 8 for k in (self.gemini_api_keys or []))
+        if provider == "deepseek":
+            return any(k and len(k) >= 8 for k in (self.deepseek_api_keys or []))
+        if provider == "openai":
+            return any(k and len(k) >= 8 for k in (self.openai_api_keys or []))
+        return False
+
+    def _validate_llm_configuration(self) -> list[ConfigIssue]:
+        issues: list[ConfigIssue] = []
         # --- LLM availability ---
         # llm_model_list is populated for YAML / channels / managed legacy keys.
         # Other LiteLLM-native providers (for example cohere/*) run through the
@@ -2197,18 +2276,6 @@ class Config:
 
         available_router_models = get_configured_llm_models(self.llm_model_list)
         available_router_model_set = set(available_router_models)
-
-        def _has_runtime_source_for_model(model: str) -> bool:
-            if not model or _uses_direct_env_provider(model):
-                return True
-            provider = _get_litellm_provider(model)
-            if provider in {"gemini", "vertex_ai"}:
-                return any(k and len(k) >= 8 for k in (self.gemini_api_keys or []))
-            if provider == "deepseek":
-                return any(k and len(k) >= 8 for k in (self.deepseek_api_keys or []))
-            if provider == "openai":
-                return any(k and len(k) >= 8 for k in (self.openai_api_keys or []))
-            return False
 
         configured_agent_primary_model = bool((self.agent_litellm_model or "").strip())
         effective_agent_primary_model = get_effective_agent_primary_model(self)
@@ -2274,7 +2341,7 @@ class Config:
         elif (
             configured_agent_primary_model
             and effective_agent_primary_model
-            and not _has_runtime_source_for_model(effective_agent_primary_model)
+            and not self._has_runtime_source_for_model(effective_agent_primary_model)
         ):
             issues.append(ConfigIssue(
                 severity="error",
@@ -2284,7 +2351,10 @@ class Config:
                 ),
                 field="AGENT_LITELLM_MODEL",
             ))
+        return issues
 
+    def _validate_search_configuration(self) -> list[ConfigIssue]:
+        issues: list[ConfigIssue] = []
         # --- Search engine (informational only) ---
         if not self.has_search_capability_enabled():
             issues.append(ConfigIssue(
@@ -2292,7 +2362,10 @@ class Config:
                 message="未配置搜索引擎能力 (Bocha/Tavily/Brave/SerpAPI/SearXNG)，新闻搜索功能将不可用",
                 field="BOCHA_API_KEYS",
             ))
+        return issues
 
+    def _validate_notification_configuration(self) -> list[ConfigIssue]:
+        issues: list[ConfigIssue] = []
         # --- Notification channels ---
         has_notification = bool(self.email_sender and self.email_password)
 
@@ -2351,7 +2424,10 @@ class Config:
                 ),
                 field="NOTIFICATION_DAILY_DIGEST_ENABLED",
             ))
+        return issues
 
+    def _validate_vision_configuration(self) -> list[ConfigIssue]:
+        issues: list[ConfigIssue] = []
         # --- Deprecated field migration hints ---
         if os.getenv("OPENAI_VISION_MODEL"):
             issues.append(ConfigIssue(
