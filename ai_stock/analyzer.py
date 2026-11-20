@@ -207,6 +207,28 @@ def _legacy_audit_marker_specs(
     return markers
 
 
+def _is_blank_text(value: Any) -> bool:
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return not value.strip()
+    return True
+
+
+def _is_invalid_risk_alerts(value: Any) -> bool:
+    return not isinstance(value, list)
+
+
+def _is_invalid_stop_loss(value: Any) -> bool:
+    if value is None:
+        return True
+    if isinstance(value, (list, tuple, dict)):
+        return True
+    if isinstance(value, str):
+        return not value.strip()
+    return False
+
+
 class _LiteLLMStreamError(RuntimeError):
     """Internal error wrapper that records whether any text was streamed."""
 
@@ -253,25 +275,6 @@ def check_content_integrity(
     Returns (pass, missing_fields). Module-level for use by pipeline (agent weak mode).
     """
     missing: List[str] = []
-
-    def _is_blank_text(value: Any) -> bool:
-        if value is None:
-            return True
-        if isinstance(value, str):
-            return not value.strip()
-        return True
-
-    def _is_invalid_risk_alerts(value: Any) -> bool:
-        return not isinstance(value, list)
-
-    def _is_invalid_stop_loss(value: Any) -> bool:
-        if value is None:
-            return True
-        if isinstance(value, (list, tuple, dict)):
-            return True
-        if isinstance(value, str):
-            return not value.strip()
-        return False
 
     if result.sentiment_score is None:
         missing.append("sentiment_score")
@@ -320,25 +323,6 @@ def check_content_integrity(
 
 def apply_placeholder_fill(result: "AnalysisResult", missing_fields: List[str]) -> None:
     """Fill missing mandatory fields with placeholders (in-place). Module-level for pipeline."""
-
-    def _is_blank_text(value: Any) -> bool:
-        if value is None:
-            return True
-        if isinstance(value, str):
-            return not value.strip()
-        return True
-
-    def _is_invalid_risk_alerts(value: Any) -> bool:
-        return not isinstance(value, list)
-
-    def _is_invalid_stop_loss(value: Any) -> bool:
-        if value is None:
-            return True
-        if isinstance(value, (list, tuple, dict)):
-            return True
-        if isinstance(value, str):
-            return not value.strip()
-        return False
 
     report_language = normalize_report_language(getattr(result, "report_language", "zh"))
     placeholder = get_placeholder_text(report_language)
@@ -3129,200 +3113,16 @@ class GeminiAnalyzer:
 | 60日涨跌幅 | {rt.get('change_60d', 'N/A')}% | 中期表现 |
 """
 
-        # 添加财报与分红（价值投资口径）
-        fundamental_context = context.get("fundamental_context") if isinstance(context, dict) else None
-        earnings_block = (
-            fundamental_context.get("earnings", {})
-            if isinstance(fundamental_context, dict)
-            else {}
+        prompt += self._format_fundamental_prompt_section(context)
+
+        prompt += self._format_chip_prompt_section(context, report_language)
+
+        prompt += self._format_trend_prompt_section(
+            context,
+            unknown_text=unknown_text,
+            use_legacy_default_prompt=use_legacy_default_prompt,
         )
-        earnings_data = (
-            earnings_block.get("data", {})
-            if isinstance(earnings_block, dict)
-            else {}
-        )
-        financial_report = (
-            earnings_data.get("financial_report", {})
-            if isinstance(earnings_data, dict)
-            else {}
-        )
-        dividend_metrics = (
-            earnings_data.get("dividend", {})
-            if isinstance(earnings_data, dict)
-            else {}
-        )
-        if isinstance(financial_report, dict) or isinstance(dividend_metrics, dict):
-            financial_report = financial_report if isinstance(financial_report, dict) else {}
-            dividend_metrics = dividend_metrics if isinstance(dividend_metrics, dict) else {}
-            ttm_yield = dividend_metrics.get("ttm_dividend_yield_pct", "N/A")
-            ttm_cash = dividend_metrics.get("ttm_cash_dividend_per_share", "N/A")
-            ttm_count = dividend_metrics.get("ttm_event_count", "N/A")
-            report_date = financial_report.get("report_date", "N/A")
-            prompt += f"""
-### 财报与分红（价值投资口径）
-| 指标 | 数值 | 说明 |
-|------|------|------|
-| 最近报告期 | {report_date} | 来自结构化财报字段 |
-| 营业收入 | {financial_report.get('revenue', 'N/A')} | |
-| 归母净利润 | {financial_report.get('net_profit_parent', 'N/A')} | |
-| 经营现金流 | {financial_report.get('operating_cash_flow', 'N/A')} | |
-| ROE | {financial_report.get('roe', 'N/A')} | |
-| 近12个月每股现金分红 | {ttm_cash} | 仅现金分红、税前口径 |
-| TTM 股息率 | {ttm_yield} | 公式：近12个月每股现金分红 / 当前价格 × 100% |
-| TTM 分红事件数 | {ttm_count} | |
 
-> 若上述字段为 N/A 或缺失，请明确写“数据缺失，无法判断”，禁止编造。
-"""
-
-        capital_flow_block = (
-            fundamental_context.get("capital_flow", {})
-            if isinstance(fundamental_context, dict)
-            else {}
-        )
-        capital_flow_data = (
-            capital_flow_block.get("data", {})
-            if isinstance(capital_flow_block, dict)
-            else {}
-        )
-        stock_flow = (
-            capital_flow_data.get("stock_flow", {})
-            if isinstance(capital_flow_data, dict)
-            else {}
-        )
-        sector_flow = (
-            capital_flow_data.get("sector_rankings", {})
-            if isinstance(capital_flow_data, dict)
-            else {}
-        )
-        has_capital_flow = (
-            isinstance(stock_flow, dict)
-            and any(v is not None for v in stock_flow.values())
-        ) or (
-            isinstance(sector_flow, dict)
-            and (sector_flow.get("top") or sector_flow.get("bottom"))
-        )
-        if has_capital_flow:
-            top_sectors = sector_flow.get("top", []) if isinstance(sector_flow, dict) else []
-            bottom_sectors = sector_flow.get("bottom", []) if isinstance(sector_flow, dict) else []
-            top_sector_text = "、".join(
-                str(item.get("name", "")).strip()
-                for item in top_sectors[:3]
-                if isinstance(item, dict) and str(item.get("name", "")).strip()
-            ) or "N/A"
-            bottom_sector_text = "、".join(
-                str(item.get("name", "")).strip()
-                for item in bottom_sectors[:3]
-                if isinstance(item, dict) and str(item.get("name", "")).strip()
-            ) or "N/A"
-            prompt += f"""
-### 主力资金流向（操作建议过滤器）
-| 指标 | 数值 | 决策含义 |
-|------|------|----------|
-| 主力净流入 | {stock_flow.get('main_net_inflow', 'N/A')} | 正值偏支持，负值偏压制 |
-| 5日净流入 | {stock_flow.get('inflow_5d', 'N/A')} | 用于判断资金持续性 |
-| 10日净流入 | {stock_flow.get('inflow_10d', 'N/A')} | 用于判断资金持续性 |
-| 资金流入靠前板块 | {top_sector_text} | 板块资金共振参考 |
-| 资金流出靠前板块 | {bottom_sector_text} | 板块风险参考 |
-
-> 资金流向只能作为价格位置的过滤器：接近压力且主力流出时不得追买；接近支撑且未放量跌破时，优先判断为持有观察、震荡或洗盘观察。
-"""
-
-        # 添加筹码分布数据
-        if 'chip' in context:
-            chip = context['chip']
-            profit_ratio = chip.get('profit_ratio', 0)
-            prompt += f"""
-### 筹码分布数据（效率指标）
-| 指标 | 数值 | 健康标准 |
-|------|------|----------|
-| **获利比例** | **{profit_ratio:.1%}** | 70-90%时警惕 |
-| 平均成本 | {chip.get('avg_cost', 'N/A')} 元 | 现价应高于5-15% |
-| 90%筹码集中度 | {chip.get('concentration_90', 0):.2%} | <15%为集中 |
-| 70%筹码集中度 | {chip.get('concentration_70', 0):.2%} | |
-| 筹码状态 | {chip.get('chip_status', unknown_text)} | |
-"""
-        else:
-            chip_unavailable_text = get_chip_unavailable_text(report_language)
-            chip_instruction = (
-                "Do not fabricate profit ratio, average cost, or concentration. Mention chip data "
-                "unavailability only once in the report; do not repeat per-field no-data text in `chip_structure`."
-                if report_language == "en"
-                else "请勿编造获利比例、平均成本或集中度；报告中只说明一次筹码数据不可用，不要把“数据缺失，无法判断”逐字段重复写入 `chip_structure`。"
-            )
-            prompt += f"""
-### 筹码分布数据（效率指标）
-> {chip_unavailable_text}
-> {chip_instruction}
-"""
-        
-        # 添加趋势分析结果（仅隐式内建 bull_trend 默认回退保留旧口径）
-        if 'trend_analysis' in context:
-            trend = _sanitize_trend_analysis_for_prompt(
-                context['trend_analysis'],
-                volume_change_ratio=context.get('volume_change_ratio'),
-            )
-            consistency_notes = trend.get('prompt_consistency_notes', [])
-            if use_legacy_default_prompt:
-                bias_warning = "🚨 超过5%，严禁追高！" if trend.get('bias_ma5', 0) > 5 else "✅ 安全范围"
-                prompt += f"""
-### 趋势分析预判（基于交易理念）
-| 指标 | 数值 | 判定 |
-|------|------|------|
-| 趋势状态 | {trend.get('trend_status', unknown_text)} | |
-| 均线排列 | {trend.get('ma_alignment', unknown_text)} | MA5>MA10>MA20为多头 |
-| 趋势强度 | {trend.get('trend_strength', 0)}/100 | |
-| **乖离率(MA5)** | **{trend.get('bias_ma5', 0):+.2f}%** | {bias_warning} |
-| 乖离率(MA10) | {trend.get('bias_ma10', 0):+.2f}% | |
-| 量能状态 | {trend.get('volume_status', unknown_text)} | {trend.get('volume_trend', '')} |
-| 系统信号 | {trend.get('buy_signal', unknown_text)} | |
-| 系统评分 | {trend.get('signal_score', 0)}/100 | |
-
-#### 系统分析理由
-**买入理由**：
-{chr(10).join('- ' + r for r in trend.get('signal_reasons', ['无'])) if trend.get('signal_reasons') else '- 无'}
-
-**风险因素**：
-{chr(10).join('- ' + r for r in trend.get('risk_factors', ['无'])) if trend.get('risk_factors') else '- 无'}
-"""
-                if consistency_notes:
-                    prompt += f"""
-
-**一致性约束**：
-{chr(10).join('- ' + note for note in consistency_notes)}
-"""
-            else:
-                bias_warning = (
-                    "🚨 偏离较大，需谨慎评估追高风险"
-                    if trend.get('bias_ma5', 0) > 5
-                    else "✅ 位置相对可控"
-                )
-                prompt += f"""
-### 技术与结构分析（供激活技能判断参考）
-| 指标 | 数值 | 说明 |
-|------|------|------|
-| 趋势状态 | {trend.get('trend_status', unknown_text)} | |
-| 均线排列 | {trend.get('ma_alignment', unknown_text)} | 结合激活技能判断结构强弱 |
-| 趋势强度 | {trend.get('trend_strength', 0)}/100 | |
-| **价格位置(MA5)** | **{trend.get('bias_ma5', 0):+.2f}%** | {bias_warning} |
-| 价格位置(MA10) | {trend.get('bias_ma10', 0):+.2f}% | |
-| 量能状态 | {trend.get('volume_status', unknown_text)} | {trend.get('volume_trend', '')} |
-| 系统信号 | {trend.get('buy_signal', unknown_text)} | |
-| 系统评分 | {trend.get('signal_score', 0)}/100 | |
-
-#### 系统分析理由
-**支持因素**：
-{chr(10).join('- ' + r for r in trend.get('signal_reasons', ['无'])) if trend.get('signal_reasons') else '- 无'}
-
-**风险因素**：
-{chr(10).join('- ' + r for r in trend.get('risk_factors', ['无'])) if trend.get('risk_factors') else '- 无'}
-"""
-                if consistency_notes:
-                    prompt += f"""
-
-**一致性约束**：
-{chr(10).join('- ' + note for note in consistency_notes)}
-"""
-        
         # 添加昨日对比数据
         if 'yesterday' in context:
             volume_change = context.get('volume_change_ratio', 'N/A')
@@ -3336,7 +3136,7 @@ class GeminiAnalyzer:
                 prompt += """
 - ⚠️ 量能异常提示：成交量较昨日放大超过10倍，可能受异常数据或一次性冲量影响，必须降权解读，不能机械视为强确认信号
 """
-        
+
         # 添加新闻搜索结果（重点区域）
         news_window_days: Optional[int] = None
         context_window = context.get("news_window_days")
@@ -3440,7 +3240,7 @@ class GeminiAnalyzer:
 - **检查清单**：每项用 ✅/⚠️/❌ 标记
 - **消息面时间合规**：`latest_news`、`risk_alerts`、`positive_catalysts` 不得包含超出近{news_window_days}日或时间未知的信息
 - **技术面一致性**：严禁把“空头排列”和“多头排列”等互斥结论同时当作有效依据；若基本面/事件面与技术面冲突，必须明确写“事件先行、技术待确认”或“基本面偏多，但技术面尚未确认”
- 
+{" "}
 请输出完整的 JSON 格式决策仪表盘。"""
 
         if report_language == "en":
@@ -3463,7 +3263,214 @@ class GeminiAnalyzer:
 - 所有面向用户的人类可读文本值必须使用中文。
 - 当数据缺失时，请使用中文直接说明“{no_data_text}，无法判断”。
 """
-        
+
+        return prompt
+
+    def _format_fundamental_prompt_section(self, context: Dict[str, Any]) -> str:
+        """Format optional earnings, dividend, and capital-flow context."""
+        prompt = ""
+        fundamental_context = context.get("fundamental_context") if isinstance(context, dict) else None
+        earnings_block = (
+            fundamental_context.get("earnings", {})
+            if isinstance(fundamental_context, dict)
+            else {}
+        )
+        earnings_data = (
+            earnings_block.get("data", {})
+            if isinstance(earnings_block, dict)
+            else {}
+        )
+        financial_report = (
+            earnings_data.get("financial_report", {})
+            if isinstance(earnings_data, dict)
+            else {}
+        )
+        dividend_metrics = (
+            earnings_data.get("dividend", {})
+            if isinstance(earnings_data, dict)
+            else {}
+        )
+        if isinstance(financial_report, dict) or isinstance(dividend_metrics, dict):
+            financial_report = financial_report if isinstance(financial_report, dict) else {}
+            dividend_metrics = dividend_metrics if isinstance(dividend_metrics, dict) else {}
+            ttm_yield = dividend_metrics.get("ttm_dividend_yield_pct", "N/A")
+            ttm_cash = dividend_metrics.get("ttm_cash_dividend_per_share", "N/A")
+            ttm_count = dividend_metrics.get("ttm_event_count", "N/A")
+            report_date = financial_report.get("report_date", "N/A")
+            prompt += f"""
+### 财报与分红（价值投资口径）
+| 指标 | 数值 | 说明 |
+|------|------|------|
+| 最近报告期 | {report_date} | 来自结构化财报字段 |
+| 营业收入 | {financial_report.get('revenue', 'N/A')} | |
+| 归母净利润 | {financial_report.get('net_profit_parent', 'N/A')} | |
+| 经营现金流 | {financial_report.get('operating_cash_flow', 'N/A')} | |
+| ROE | {financial_report.get('roe', 'N/A')} | |
+| 近12个月每股现金分红 | {ttm_cash} | 仅现金分红、税前口径 |
+| TTM 股息率 | {ttm_yield} | 公式：近12个月每股现金分红 / 当前价格 × 100% |
+| TTM 分红事件数 | {ttm_count} | |
+
+> 若上述字段为 N/A 或缺失，请明确写“数据缺失，无法判断”，禁止编造。
+"""
+
+        capital_flow_block = (
+            fundamental_context.get("capital_flow", {})
+            if isinstance(fundamental_context, dict)
+            else {}
+        )
+        capital_flow_data = (
+            capital_flow_block.get("data", {})
+            if isinstance(capital_flow_block, dict)
+            else {}
+        )
+        stock_flow = (
+            capital_flow_data.get("stock_flow", {})
+            if isinstance(capital_flow_data, dict)
+            else {}
+        )
+        sector_flow = (
+            capital_flow_data.get("sector_rankings", {})
+            if isinstance(capital_flow_data, dict)
+            else {}
+        )
+        has_capital_flow = (
+            isinstance(stock_flow, dict)
+            and any(value is not None for value in stock_flow.values())
+        ) or (
+            isinstance(sector_flow, dict)
+            and (sector_flow.get("top") or sector_flow.get("bottom"))
+        )
+        if has_capital_flow:
+            top_sectors = sector_flow.get("top", []) if isinstance(sector_flow, dict) else []
+            bottom_sectors = sector_flow.get("bottom", []) if isinstance(sector_flow, dict) else []
+            top_sector_text = "、".join(
+                str(item.get("name", "")).strip()
+                for item in top_sectors[:3]
+                if isinstance(item, dict) and str(item.get("name", "")).strip()
+            ) or "N/A"
+            bottom_sector_text = "、".join(
+                str(item.get("name", "")).strip()
+                for item in bottom_sectors[:3]
+                if isinstance(item, dict) and str(item.get("name", "")).strip()
+            ) or "N/A"
+            prompt += f"""
+### 主力资金流向（操作建议过滤器）
+| 指标 | 数值 | 决策含义 |
+|------|------|----------|
+| 主力净流入 | {stock_flow.get('main_net_inflow', 'N/A')} | 正值偏支持，负值偏压制 |
+| 5日净流入 | {stock_flow.get('inflow_5d', 'N/A')} | 用于判断资金持续性 |
+| 10日净流入 | {stock_flow.get('inflow_10d', 'N/A')} | 用于判断资金持续性 |
+| 资金流入靠前板块 | {top_sector_text} | 板块资金共振参考 |
+| 资金流出靠前板块 | {bottom_sector_text} | 板块风险参考 |
+
+> 资金流向只能作为价格位置的过滤器：接近压力且主力流出时不得追买；接近支撑且未放量跌破时，优先判断为持有观察、震荡或洗盘观察。
+"""
+        return prompt
+
+    def _format_chip_prompt_section(
+        self,
+        context: Dict[str, Any],
+        report_language: str,
+    ) -> str:
+        """Format chip-distribution data or its localized unavailability guidance."""
+        if "chip" in context:
+            chip = context["chip"]
+            profit_ratio = chip.get("profit_ratio", 0)
+            return f"""
+### 筹码分布数据（效率指标）
+| 指标 | 数值 | 健康标准 |
+|------|------|----------|
+| **获利比例** | **{profit_ratio:.1%}** | 70-90%时警惕 |
+| 平均成本 | {chip.get('avg_cost', 'N/A')} 元 | 现价应高于5-15% |
+| 90%筹码集中度 | {chip.get('concentration_90', 0):.2%} | <15%为集中 |
+| 70%筹码集中度 | {chip.get('concentration_70', 0):.2%} | |
+| 筹码状态 | {chip.get('chip_status', get_unknown_text(report_language))} | |
+"""
+
+        chip_unavailable_text = get_chip_unavailable_text(report_language)
+        chip_instruction = (
+            "Do not fabricate profit ratio, average cost, or concentration. Mention chip data "
+            "unavailability only once in the report; do not repeat per-field no-data text in `chip_structure`."
+            if report_language == "en"
+            else "请勿编造获利比例、平均成本或集中度；报告中只说明一次筹码数据不可用，不要把“数据缺失，无法判断”逐字段重复写入 `chip_structure`。"
+        )
+        return f"""
+### 筹码分布数据（效率指标）
+> {chip_unavailable_text}
+> {chip_instruction}
+"""
+
+    def _format_trend_prompt_section(
+        self,
+        context: Dict[str, Any],
+        *,
+        unknown_text: str,
+        use_legacy_default_prompt: bool,
+    ) -> str:
+        """Format sanitized trend analysis in the active prompt style."""
+        if "trend_analysis" not in context:
+            return ""
+
+        trend = _sanitize_trend_analysis_for_prompt(
+            context["trend_analysis"],
+            volume_change_ratio=context.get("volume_change_ratio"),
+        )
+        consistency_notes = trend.get("prompt_consistency_notes", [])
+        if use_legacy_default_prompt:
+            bias_warning = "🚨 超过5%，严禁追高！" if trend.get("bias_ma5", 0) > 5 else "✅ 安全范围"
+            prompt = f"""
+### 趋势分析预判（基于交易理念）
+| 指标 | 数值 | 判定 |
+|------|------|------|
+| 趋势状态 | {trend.get('trend_status', unknown_text)} | |
+| 均线排列 | {trend.get('ma_alignment', unknown_text)} | MA5>MA10>MA20为多头 |
+| 趋势强度 | {trend.get('trend_strength', 0)}/100 | |
+| **乖离率(MA5)** | **{trend.get('bias_ma5', 0):+.2f}%** | {bias_warning} |
+| 乖离率(MA10) | {trend.get('bias_ma10', 0):+.2f}% | |
+| 量能状态 | {trend.get('volume_status', unknown_text)} | {trend.get('volume_trend', '')} |
+| 系统信号 | {trend.get('buy_signal', unknown_text)} | |
+| 系统评分 | {trend.get('signal_score', 0)}/100 | |
+
+#### 系统分析理由
+**买入理由**：
+{chr(10).join('- ' + reason for reason in trend.get('signal_reasons', ['无'])) if trend.get('signal_reasons') else '- 无'}
+
+**风险因素**：
+{chr(10).join('- ' + reason for reason in trend.get('risk_factors', ['无'])) if trend.get('risk_factors') else '- 无'}
+"""
+        else:
+            bias_warning = (
+                "🚨 偏离较大，需谨慎评估追高风险"
+                if trend.get("bias_ma5", 0) > 5
+                else "✅ 位置相对可控"
+            )
+            prompt = f"""
+### 技术与结构分析（供激活技能判断参考）
+| 指标 | 数值 | 说明 |
+|------|------|------|
+| 趋势状态 | {trend.get('trend_status', unknown_text)} | |
+| 均线排列 | {trend.get('ma_alignment', unknown_text)} | 结合激活技能判断结构强弱 |
+| 趋势强度 | {trend.get('trend_strength', 0)}/100 | |
+| **价格位置(MA5)** | **{trend.get('bias_ma5', 0):+.2f}%** | {bias_warning} |
+| 价格位置(MA10) | {trend.get('bias_ma10', 0):+.2f}% | |
+| 量能状态 | {trend.get('volume_status', unknown_text)} | {trend.get('volume_trend', '')} |
+| 系统信号 | {trend.get('buy_signal', unknown_text)} | |
+| 系统评分 | {trend.get('signal_score', 0)}/100 | |
+
+#### 系统分析理由
+**支持因素**：
+{chr(10).join('- ' + reason for reason in trend.get('signal_reasons', ['无'])) if trend.get('signal_reasons') else '- 无'}
+
+**风险因素**：
+{chr(10).join('- ' + reason for reason in trend.get('risk_factors', ['无'])) if trend.get('risk_factors') else '- 无'}
+"""
+
+        if consistency_notes:
+            prompt += f"""
+
+**一致性约束**：
+{chr(10).join('- ' + note for note in consistency_notes)}
+"""
         return prompt
     
     def _format_volume(self, volume: Optional[float]) -> str:
