@@ -496,6 +496,13 @@
 
 /* ============ Base Styles ============ */
 @layer base {
+  @media (min-width: 64rem) {
+    html {
+      /* Keep the centered desktop shell in place when routes add a scrollbar. */
+      scrollbar-gutter: stable;
+    }
+  }
+
   body {
     margin: 0;
     min-width: 320px;
