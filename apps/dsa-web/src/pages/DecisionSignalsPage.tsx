@@ -388,7 +388,7 @@ const DecisionSignalsPage: React.FC = () => {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <AppPage>
+    <AppPage className="max-w-6xl">
       <div className="space-y-5">
         <PageHeader
           eyebrow={t('decisionSignals.activeOnly')}
