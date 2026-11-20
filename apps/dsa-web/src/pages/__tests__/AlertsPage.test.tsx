@@ -156,6 +156,7 @@ describe('AlertsPage', () => {
 
     expect(await screen.findByText('No notification attempts')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Alert Center' })).toBeInTheDocument();
+    expect(screen.getByRole('main')).toHaveClass('max-w-6xl');
     expect(screen.getByText('No trigger history')).toBeInTheDocument();
     expect(screen.getByText('Evaluation records')).toBeInTheDocument();
     expect(screen.getByText('No alert rules')).toBeInTheDocument();
