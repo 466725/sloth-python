@@ -104,6 +104,7 @@ describe('TokenUsagePage', () => {
     renderPage();
 
     expect(await screen.findByRole('heading', { name: 'Token 用量监控' })).toBeInTheDocument();
+    expect(screen.getByRole('main')).toHaveClass('max-w-6xl');
     expect(await screen.findByText('400')).toBeInTheDocument();
     expect(screen.getAllByText('openai/gpt-test')).toHaveLength(2);
     expect(screen.getAllByText('个股分析')).toHaveLength(2);
