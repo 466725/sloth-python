@@ -388,9 +388,10 @@ describe('SettingsPage', () => {
   });
 
   it('renders category navigation and system settings modules', async () => {
-    render(<SettingsPage />);
+    const { container } = render(<SettingsPage />);
 
     expect(await screen.findByRole('heading', { name: '系统设置' })).toBeInTheDocument();
+    expect(container.querySelector('.settings-page')).toHaveClass('mx-auto', 'max-w-6xl');
     expect(load).toHaveBeenCalled();
   });
 
