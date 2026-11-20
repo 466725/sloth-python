@@ -164,6 +164,13 @@ beforeEach(() => {
 });
 
 describe('DecisionSignalsPage', () => {
+  it('uses the Home page content width', async () => {
+    renderPage();
+
+    await screen.findByRole('heading', { name: 'AI 建议' });
+    expect(screen.getByRole('main')).toHaveClass('max-w-6xl');
+  });
+
   it('loads active signals by default', async () => {
     renderPage();
 
