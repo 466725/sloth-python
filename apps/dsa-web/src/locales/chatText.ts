@@ -179,7 +179,6 @@ const EN_SKILLS: Record<string, { name: string; description: string; zhName: str
   dragon_head: { name: 'Sector leader', zhName: '龙头策略', description: 'Identify leading stocks during sector rotation, sector launches and industry catalysts.' },
   emotion_cycle: { name: 'Sentiment cycle', zhName: '情绪周期', description: 'Use sentiment, turnover and price-volume patterns to identify panic lows and euphoric highs for contrarian positioning.' },
   one_yang_three_yin: { name: 'One bullish, three bearish candles', zhName: '一阳夹三阴', description: 'Detect a bullish candle with three bearish consolidation candles as a trend continuation entry signal.' },
-  'stock-analyzer': { name: 'Stock Analyzer', zhName: 'Stock Analyzer', description: 'Analyze stocks using the Stock Analyzer skill.' },
 };
 
 export function getChatSkillText(skill: SkillInfo, language: UiLanguage): Pick<SkillInfo, 'name' | 'description'> {

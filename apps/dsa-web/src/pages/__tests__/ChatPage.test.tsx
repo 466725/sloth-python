@@ -253,7 +253,7 @@ describe('ChatPage', () => {
       'bull_trend', 'ma_golden_cross', 'shrink_pullback', 'volume_breakout', 'hot_theme',
       'box_oscillation', 'event_driven', 'growth_quality', 'bottom_volume',
       'expectation_repricing', 'wave_theory', 'dragon_head',
-      'emotion_cycle', 'one_yang_three_yin', 'stock-analyzer',
+      'emotion_cycle', 'one_yang_three_yin',
     ];
     for (const id of ids) {
       const original = { id, name: '策略', description: '说明' };
