@@ -5,7 +5,7 @@ import type { Message } from '../../stores/agentChatStore';
 
 const messages: Message[] = [
   { id: 'user-1', role: 'user', content: '请分析茅台' },
-  { id: 'assistant-1', role: 'assistant', content: '原始中文分析', skillName: '默认多头趋势、缠论' },
+  { id: 'assistant-1', role: 'assistant', content: '原始中文分析', skillName: '默认多头趋势、放量突破' },
 ];
 
 afterEach(() => {
@@ -19,7 +19,7 @@ describe('chat export localization', () => {
     expect(output).toContain('# Ask conversation');
     expect(output).toContain('Generated at:');
     expect(output).toContain('## User');
-    expect(output).toContain('## AI (Default bullish trend, Chan theory)');
+    expect(output).toContain('## AI (Default bullish trend, Volume breakout)');
     expect(output).toContain('请分析茅台');
     expect(output).toContain('原始中文分析');
   });
@@ -29,7 +29,7 @@ describe('chat export localization', () => {
     expect(output).toContain('# 问股会话');
     expect(output).toContain('生成时间:');
     expect(output).toContain('## 用户');
-    expect(output).toContain('## AI (默认多头趋势、缠论)');
+    expect(output).toContain('## AI (默认多头趋势、放量突破)');
   });
 
   it('downloads using a localized filename and revokes the object URL', () => {

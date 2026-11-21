@@ -228,7 +228,7 @@ describe('ChatPage', () => {
     mockGetSkills.mockResolvedValue({
       skills: [
         { id: 'bull_trend', name: '默认多头趋势', description: '默认个股分析优先策略' },
-        { id: 'chan_theory', name: '缠论', description: '缠论结构' },
+        { id: 'volume_breakout', name: '放量突破', description: '放量突破结构' },
       ],
       default_skill_id: 'bull_trend',
     });
@@ -236,13 +236,13 @@ describe('ChatPage', () => {
     expect(await screen.findByRole('checkbox', { name: 'Default bullish trend' })).toBeChecked();
     expect(screen.getByRole('heading', { name: 'Ask' })).toBeInTheDocument();
     expect(screen.getByText('No conversation history')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Analyze Moutai with Chan theory' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Analyze Moutai for a volume breakout' })).toBeInTheDocument();
     expect(screen.getByRole('checkbox', { name: /Context compression/ })).toBeInTheDocument();
     expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', CHAT_TEXT.en.placeholder);
     expect(document.title).toBe('Ask - DSA');
     expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
-    fireEvent.mouseEnter(screen.getByRole('checkbox', { name: 'Chan theory' }).closest('label')!);
-    expect(screen.getByText(/Use Chan theory strokes/)).toBeInTheDocument();
+    fireEvent.mouseEnter(screen.getByRole('checkbox', { name: 'Volume breakout' }).closest('label')!);
+    expect(screen.getByText(/Detect high-volume breakouts/)).toBeInTheDocument();
     expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
   });
 
@@ -252,7 +252,7 @@ describe('ChatPage', () => {
     const ids = [
       'bull_trend', 'ma_golden_cross', 'shrink_pullback', 'volume_breakout', 'hot_theme',
       'box_oscillation', 'event_driven', 'growth_quality', 'bottom_volume',
-      'expectation_repricing', 'chan_theory', 'wave_theory', 'dragon_head',
+      'expectation_repricing', 'wave_theory', 'dragon_head',
       'emotion_cycle', 'one_yang_three_yin', 'stock-analyzer',
     ];
     for (const id of ids) {
@@ -275,14 +275,14 @@ describe('ChatPage', () => {
     mockGetSkills.mockResolvedValue({
       skills: [
         { id: 'bull_trend', name: '默认多头趋势', description: '趋势说明' },
-        { id: 'chan_theory', name: '缠论', description: '缠论说明' },
+        { id: 'volume_breakout', name: '放量突破', description: '放量突破说明' },
       ],
       default_skill_id: 'bull_trend',
     });
     renderLocalizedChat();
     const draft = screen.getByRole('textbox');
     fireEvent.change(draft, { target: { value: 'My unsent question' } });
-    fireEvent.click(await screen.findByRole('checkbox', { name: 'Chan theory' }));
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Volume breakout' }));
     expect(screen.getByLabelText('Skills Default bullish trend')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Switch to conversation 请简要分析 600519' })).toBeInTheDocument();
     expect(screen.getByText('2 messages')).toBeInTheDocument();
@@ -291,12 +291,12 @@ describe('ChatPage', () => {
     expect(screen.getByRole('button', { name: 'Collapse strategy selection' })).toHaveAttribute('aria-expanded', 'true');
     fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
     expect(draft).toHaveValue('My unsent question');
-    expect(screen.getByRole('checkbox', { name: '缠论' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: '放量突破' })).toBeChecked();
     expect(screen.getByRole('button', { name: '收起策略选择' })).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByLabelText('技能 默认多头趋势')).toBeInTheDocument();
     expect(document.title).toBe('问股 - DSA');
     fireEvent.click(screen.getByRole('button', { name: 'English' }));
-    expect(screen.getByRole('checkbox', { name: 'Chan theory' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Volume breakout' })).toBeChecked();
     expect(screen.getByText('请分析茅台')).toBeInTheDocument();
     expect(screen.getByText('原始中文回复')).toBeInTheDocument();
     expect(mockGetSkills).toHaveBeenCalledTimes(1);
@@ -308,15 +308,15 @@ describe('ChatPage', () => {
 
   it('sends English quick examples with the original skill ids and canonical metadata', async () => {
     mockGetSkills.mockResolvedValue({
-      skills: [{ id: 'chan_theory', name: '缠论', description: '缠论说明' }],
-      default_skill_id: 'chan_theory',
+      skills: [{ id: 'volume_breakout', name: '放量突破', description: '放量突破说明' }],
+      default_skill_id: 'volume_breakout',
     });
     renderLocalizedChat();
-    fireEvent.click(await screen.findByRole('checkbox', { name: 'Chan theory' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Analyze Moutai with Chan theory' }));
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Volume breakout' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Analyze Moutai for a volume breakout' }));
     expect(mockStartStream).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Analyze Moutai with Chan theory', skills: ['chan_theory'] }),
-      { skillNames: ['缠论'], skillName: '缠论' },
+      expect.objectContaining({ message: 'Analyze Moutai for a volume breakout', skills: ['volume_breakout'] }),
+      { skillNames: ['放量突破'], skillName: '放量突破' },
     );
   });
 
@@ -729,7 +729,7 @@ describe('ChatPage', () => {
       skills: [
         { id: 'bull_trend', name: '趋势分析', description: '默认趋势' },
         { id: 'ma_golden_cross', name: '均线金叉', description: '均线交叉' },
-        { id: 'chan_theory', name: '缠论', description: '结构分析' },
+        { id: 'volume_breakout', name: '放量突破', description: '突破分析' },
         { id: 'wave_theory', name: '波浪理论', description: '波浪分析' },
       ],
       default_skill_id: 'bull_trend',
@@ -742,7 +742,7 @@ describe('ChatPage', () => {
     );
 
     fireEvent.click(await screen.findByRole('checkbox', { name: '均线金叉' }));
-    fireEvent.click(screen.getByRole('checkbox', { name: '缠论' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: '放量突破' }));
 
     const wave = screen.getByRole('checkbox', { name: '波浪理论' });
     expect(wave).toBeDisabled();
@@ -756,7 +756,7 @@ describe('ChatPage', () => {
       skills: [
         { id: 'bull_trend', name: '趋势分析', description: '默认趋势' },
         { id: 'ma_golden_cross', name: '均线金叉', description: '均线交叉' },
-        { id: 'chan_theory', name: '缠论', description: '结构分析' },
+        { id: 'volume_breakout', name: '放量突破', description: '突破分析' },
       ],
       default_skill_id: 'bull_trend',
     });
@@ -768,17 +768,17 @@ describe('ChatPage', () => {
     );
 
     fireEvent.click(await screen.findByRole('checkbox', { name: '均线金叉' }));
-    fireEvent.click(screen.getByRole('button', { name: '用缠论分析茅台' }));
+    fireEvent.click(screen.getByRole('button', { name: '用放量突破分析茅台' }));
 
     await waitFor(() => {
       expect(mockStartStream).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: '用缠论分析茅台',
-          skills: ['chan_theory'],
+          message: '用放量突破分析茅台',
+          skills: ['volume_breakout'],
         }),
         expect.objectContaining({
-          skillNames: ['缠论'],
-          skillName: '缠论',
+          skillNames: ['放量突破'],
+          skillName: '放量突破',
         }),
       );
     });

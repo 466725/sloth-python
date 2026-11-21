@@ -147,7 +147,7 @@ export const CHAT_TEXT = { zh, en };
 
 export const CHAT_QUICK_QUESTIONS = {
   zh: [
-    { label: '用缠论分析茅台', skill: 'chan_theory' },
+    { label: '用放量突破分析茅台', skill: 'volume_breakout' },
     { label: '波浪理论看宁德时代', skill: 'wave_theory' },
     { label: '分析比亚迪趋势', skill: 'bull_trend' },
     { label: '箱体震荡技能看中芯国际', skill: 'box_oscillation' },
@@ -155,7 +155,7 @@ export const CHAT_QUICK_QUESTIONS = {
     { label: '用情绪周期分析东方财富', skill: 'emotion_cycle' },
   ],
   en: [
-    { label: 'Analyze Moutai with Chan theory', skill: 'chan_theory' },
+    { label: 'Analyze Moutai for a volume breakout', skill: 'volume_breakout' },
     { label: 'Analyze CATL with Elliott wave theory', skill: 'wave_theory' },
     { label: 'Analyze the BYD trend', skill: 'bull_trend' },
     { label: 'Analyze SMIC with box range trading', skill: 'box_oscillation' },
@@ -175,7 +175,6 @@ const EN_SKILLS: Record<string, { name: string; description: string; zhName: str
   growth_quality: { name: 'Growth quality', zhName: '成长质量', description: 'Assess revenue and profit growth, ROE, cash flow and industry potential to identify quality growth and slowdown risks.' },
   bottom_volume: { name: 'Bottom volume surge', zhName: '底部放量', description: 'Detect bottom volume surges after prolonged declines as potential trend reversal signals.' },
   expectation_repricing: { name: 'Expectation repricing', zhName: '预期重估', description: 'Analyze changes in earnings, policy and valuation expectations for repricing opportunities and overheating risks.' },
-  chan_theory: { name: 'Chan theory', zhName: '缠论', description: 'Use Chan theory strokes, segments and central structures to assess trends, entry/exit points and divergence.' },
   wave_theory: { name: 'Elliott wave theory', zhName: '波浪理论', description: 'Use impulse and corrective wave structures to assess the current wave and potential price targets.' },
   dragon_head: { name: 'Sector leader', zhName: '龙头策略', description: 'Identify leading stocks during sector rotation, sector launches and industry catalysts.' },
   emotion_cycle: { name: 'Sentiment cycle', zhName: '情绪周期', description: 'Use sentiment, turnover and price-volume patterns to identify panic lows and euphoric highs for contrarian positioning.' },
