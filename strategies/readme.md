@@ -6,7 +6,7 @@
 
 This directory contains natural-language trading strategies. YAML definitions can live directly here; Markdown skill bundles belong in subdirectories containing `skill.md`. Both formats are loaded automatically at runtime.
 
-For example, [stock-analyzer/skill.md](stock-analyzer/skill.md) is a built-in, user-invocable skill that appears in the Web app's skill selector. It is not activated by default. Use `AGENT_SKILL_DIR` only when adding a separate custom skill directory; custom definitions load alongside the built-in strategies.
+Use `AGENT_SKILL_DIR` to add a separate custom skill directory; custom definitions load alongside the built-in strategies.
 
 ## 如何编写自定义策略（Strategy Skill）
 
