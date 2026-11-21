@@ -610,7 +610,23 @@ describe('ChatPage', () => {
     );
 
     expect(await screen.findByRole('checkbox', { name: '趋势分析' })).toBeChecked();
-    expect(screen.getByRole('checkbox', { name: '通用分析' })).not.toBeChecked();
+    expect(screen.queryByRole('checkbox', { name: '通用分析' })).not.toBeInTheDocument();
+  });
+
+  it('selects an available strategy when the catalog default is unavailable', async () => {
+    mockGetSkills.mockResolvedValue({
+      skills: [{ id: 'volume_breakout', name: '放量突破', description: '突破分析' }],
+      default_skill_id: 'removed_strategy',
+    });
+    renderLocalizedChat();
+
+    expect(await screen.findByRole('checkbox', { name: 'Volume breakout' })).toBeChecked();
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Analyze AAPL' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
+    expect(mockStartStream).toHaveBeenCalledWith(
+      expect.objectContaining({ skills: ['volume_breakout'] }),
+      expect.anything(),
+    );
   });
 
   it('sends multiple selected skills in order', async () => {
@@ -696,15 +712,27 @@ describe('ChatPage', () => {
     expect(skillPanel).toHaveClass('hidden');
   });
 
-  it('omits skills when all concrete skills are cleared', async () => {
+  it('requires a selected strategy and sends it explicitly', async () => {
+    mockGetSkills.mockResolvedValue({
+      skills: [
+        { id: 'bull_trend', name: '趋势分析', description: '默认趋势' },
+        { id: 'volume_breakout', name: '放量突破', description: '突破分析' },
+      ],
+      default_skill_id: 'bull_trend',
+    });
     render(
       <MemoryRouter initialEntries={['/chat']}>
         <ChatPage />
       </MemoryRouter>
     );
 
-    fireEvent.click(await screen.findByRole('checkbox', { name: '趋势分析' }));
-    expect(screen.getByRole('checkbox', { name: '通用分析' })).toBeChecked();
+    const defaultSkill = await screen.findByRole('checkbox', { name: '趋势分析' });
+    expect(defaultSkill).toBeChecked();
+    expect(defaultSkill).toBeDisabled();
+    fireEvent.click(screen.getByRole('checkbox', { name: '放量突破' }));
+    fireEvent.click(defaultSkill);
+    expect(defaultSkill).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: '放量突破' })).toBeDisabled();
 
     fireEvent.change(screen.getByPlaceholderText(/分析 600519/), {
       target: { value: '分析 AAPL' },
@@ -715,12 +743,42 @@ describe('ChatPage', () => {
       expect(mockStartStream).toHaveBeenCalled();
     });
     const lastCall = mockStartStream.mock.calls[mockStartStream.mock.calls.length - 1];
-    expect(lastCall[0]).toEqual(expect.objectContaining({ message: '分析 AAPL' }));
-    expect(lastCall[0]).not.toHaveProperty('skills');
+    expect(lastCall[0]).toEqual(expect.objectContaining({ message: '分析 AAPL', skills: ['volume_breakout'] }));
     expect(lastCall[1]).toEqual(expect.objectContaining({
-      skillNames: ['通用'],
-      skillName: '通用',
+      skillNames: ['放量突破'],
+      skillName: '放量突破',
     }));
+  });
+
+  it('blocks sending while strategies load and allows retry after a load failure', async () => {
+    const pending = createDeferred<{ skills: { id: string; name: string; description: string }[]; default_skill_id: string }>();
+    mockGetSkills.mockReturnValueOnce(pending.promise);
+    renderLocalizedChat();
+
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: 'Analyze AAPL' } });
+    expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(mockStartStream).not.toHaveBeenCalled();
+
+    pending.reject(new Error('network error'));
+    expect(await screen.findByText('Unable to load strategies. Retry before sending.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(await screen.findByRole('checkbox', { name: 'Default bullish trend' })).toBeChecked();
+    expect(screen.getByRole('button', { name: 'Send' })).toBeEnabled();
+  });
+
+  it('blocks sending when the strategy catalog is empty', async () => {
+    mockGetSkills.mockResolvedValue({ skills: [], default_skill_id: '' });
+    renderLocalizedChat();
+
+    expect(await screen.findByText('No strategies are available. Retry before sending.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Analyze Moutai for a volume breakout' })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Analyze AAPL' } });
+    expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
+    fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' });
+    expect(mockStartStream).not.toHaveBeenCalled();
   });
 
   it('caps concrete skill selection at three and re-enables choices after unselecting', async () => {
