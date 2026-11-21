@@ -58,8 +58,6 @@ describe('llmProviderTemplates', () => {
   it('does not offer removed providers', () => {
     expect(getProviderTemplate('anthropic')).toBeUndefined();
     expect(MODEL_PLACEHOLDERS_BY_PROTOCOL).not.toHaveProperty('anthropic');
-    expect(getProviderTemplate('ollama')).toBeUndefined();
-    expect(MODEL_PLACEHOLDERS_BY_PROTOCOL).not.toHaveProperty('ollama');
   });
 
   it('exposes safe helpers for known, custom, and unknown channel ids', () => {

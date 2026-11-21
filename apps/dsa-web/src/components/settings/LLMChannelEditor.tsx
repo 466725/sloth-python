@@ -374,8 +374,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
     (model) => !discoveredModels.some((discoveredModel) => areModelsEquivalent(model, discoveredModel, channel.protocol)),
   );
   const modelCount = selectedModels.length;
-  const hasKey = channel.apiKey.length > 0;
-  const isLocalEndpoint = isLocalEndpointUrl(channel.baseUrl);
+  const hasKey = channel.apiKey.split(',').some((key) => key.trim());
   const statusVariant = testState?.status === 'success'
     ? 'success'
     : testState?.status === 'error'
@@ -451,7 +450,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
               </span>
             </Tooltip>
           ) : null}
-          {!hasKey && !isLocalEndpoint ? <Badge variant="warning">{text.missingKey}</Badge> : null}
+          {!hasKey ? <Badge variant="warning">{text.missingKey}</Badge> : null}
           {testState?.status !== 'idle' ? (
             <Badge variant={statusVariant}>
               {testState?.status === 'success' ? text.connectionOK : testState?.status === 'error' ? text.connectionFailed : text.testing}
@@ -597,7 +596,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
             value={channel.apiKey}
             disabled={busy}
             onChange={(e) => onUpdate(index, 'apiKey', e.target.value)}
-            placeholder={isLocalEndpoint ? text.localKeyPlaceholder : text.keyPlaceholder}
+            placeholder={text.keyPlaceholder}
           />
           </div>
 
@@ -831,7 +830,7 @@ function normalizeProtocol(value: string): ChannelProtocol {
   return 'openai';
 }
 
-function inferProtocol(protocol: string, baseUrl: string, models: string[]): ChannelProtocol {
+function inferProtocol(protocol: string, models: string[]): ChannelProtocol {
   const explicit = normalizeProtocol(protocol);
   if (protocol.trim()) {
     return explicit;
@@ -840,10 +839,6 @@ function inferProtocol(protocol: string, baseUrl: string, models: string[]): Cha
   const firstPrefixedModel = models.find((model) => model.includes('/'));
   if (firstPrefixedModel) {
     return normalizeProtocol(firstPrefixedModel.split('/', 1)[0]);
-  }
-
-  if (baseUrl.includes('127.0.0.1') || baseUrl.includes('localhost')) {
-    return 'openai';
   }
 
   return 'openai';
@@ -1214,21 +1209,13 @@ function parseChannelsFromItems(
     return {
       id: `parsed:${index}:${upperName}`,
       name: name.toLowerCase(),
-      protocol: inferProtocol(itemMap.get(`LLM_${upperName}_PROTOCOL`) || '', baseUrl, models),
+      protocol: inferProtocol(itemMap.get(`LLM_${upperName}_PROTOCOL`) || '', models),
       baseUrl,
       apiKey: resolveInitialChannelApiKeyValue(name, itemMap, itemSourceByKey),
       models: rawModels,
       enabled: parseEnabled(itemMap.get(`LLM_${upperName}_ENABLED`)),
     };
   });
-}
-
-function isLocalEndpointUrl(baseUrl: string): boolean {
-  try {
-    return ['localhost', '127.0.0.1', '0.0.0.0'].includes(new URL(baseUrl).hostname);
-  } catch {
-    return false;
-  }
 }
 
 function channelsToUpdateItems(

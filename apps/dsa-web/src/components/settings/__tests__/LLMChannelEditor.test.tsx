@@ -79,6 +79,27 @@ describe('LLMChannelEditor', () => {
     expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
   });
 
+  it('shows a missing key warning regardless of the endpoint address', () => {
+    localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'en');
+    const items = localizedChannelItems.map((item) => {
+      if (item.key === 'LLM_OPENAI_BASE_URL') {
+        return { ...item, value: 'http://127.0.0.1:8000/v1' };
+      }
+      if (item.key === 'LLM_OPENAI_API_KEY') {
+        return { ...item, value: '' };
+      }
+      return item;
+    });
+
+    render(
+      <UiLanguageProvider>
+        <LLMChannelEditor items={items} configVersion="v1" maskToken="******" onSaved={() => {}} />
+      </UiLanguageProvider>,
+    );
+
+    expect(screen.getByText('Missing Key')).toBeInTheDocument();
+  });
+
   it('updates expanded controls and help when toggling languages without losing edits', async () => {
     localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'zh');
     const { container } = render(
