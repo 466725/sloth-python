@@ -153,6 +153,8 @@ const ChatPage: React.FC = () => {
   const [input, setInput] = useState('');
   const [skills, setSkills] = useState<SkillInfo[]>([]);
   const [selectedSkillIds, setSelectedSkillIds] = useState<string[]>([]);
+  const [skillsStatus, setSkillsStatus] = useState<'loading' | 'ready' | 'error' | 'empty'>('loading');
+  const [skillsLoadAttempt, setSkillsLoadAttempt] = useState(0);
   const [showSkillDesc, setShowSkillDesc] = useState<string | null>(null);
   const [mobileSkillPickerOpen, setMobileSkillPickerOpen] = useState(false);
   const [expandedThinking, setExpandedThinking] = useState<Set<string>>(new Set());
@@ -363,19 +365,24 @@ const ChatPage: React.FC = () => {
   }, [loadInitialSession]);
 
   useEffect(() => {
+    let active = true;
     agentApi.getSkills()
       .then((res) => {
+        if (!active) return;
         setSkills(res.skills);
-        const defaultId =
-          res.default_skill_id ||
-          res.skills[0]?.id ||
-          '';
+        const defaultId = res.skills.find((skill) => skill.id === res.default_skill_id)?.id
+          || res.skills[0]?.id
+          || '';
         setSelectedSkillIds(defaultId ? [defaultId] : []);
+        setSkillsStatus(defaultId ? 'ready' : 'empty');
       })
       .catch((error) => {
+        if (!active) return;
         console.error('Failed to load chat skills:', error);
+        setSkillsStatus('error');
       });
-  }, []);
+    return () => { active = false; };
+  }, [skillsLoadAttempt]);
 
   useEffect(() => {
     let active = true;
@@ -449,7 +456,7 @@ const ChatPage: React.FC = () => {
   );
 
   const availableSkillIds = new Set(skills.map((skill) => skill.id));
-  const quickQuestions = CHAT_QUICK_QUESTIONS[language].filter((question) => availableSkillIds.size === 0 || availableSkillIds.has(question.skill));
+  const quickQuestions = CHAT_QUICK_QUESTIONS[language].filter((question) => availableSkillIds.has(question.skill));
   const selectedSkillIdSet = new Set(selectedSkillIds);
   const skillLimitReached = selectedSkillIds.length >= MAX_SELECTED_SKILLS;
 
@@ -472,7 +479,7 @@ const ChatPage: React.FC = () => {
   const toggleSkillSelection = useCallback((skillId: string) => {
     setSelectedSkillIds((prev) => {
       if (prev.includes(skillId)) {
-        return prev.filter((id) => id !== skillId);
+        return prev.length > 1 ? prev.filter((id) => id !== skillId) : prev;
       }
       if (prev.length >= MAX_SELECTED_SKILLS) {
         return prev;
@@ -563,9 +570,13 @@ const ChatPage: React.FC = () => {
   const handleSend = useCallback(
     async (overrideMessage?: string, overrideSkillIds?: string[]) => {
       const msgText = (overrideMessage ?? input).trim();
-      if (!msgText || loading) return;
+      if (!msgText || loading || skillsStatus !== 'ready') return;
       const usedSkillIds = normalizeSelectedSkillIds(overrideSkillIds ?? selectedSkillIds);
-      const usedSkillNames = usedSkillIds.length > 0 ? getSkillNames(usedSkillIds) : ['通用'];
+      if (!usedSkillIds.length || usedSkillIds.some((id) => !skills.some((skill) => skill.id === id))) {
+        console.error('Cannot send chat without an available strategy');
+        return;
+      }
+      const usedSkillNames = getSkillNames(usedSkillIds);
 
       let nextActiveStockContext = activeStockContext;
       let useActiveContextForThisSend = false;
@@ -583,7 +594,7 @@ const ChatPage: React.FC = () => {
       const payload = {
         message: msgText,
         session_id: sessionId,
-        ...(usedSkillIds.length > 0 ? { skills: usedSkillIds } : {}),
+        skills: usedSkillIds,
         context: contextForSend ?? undefined,
       };
       followUpHydrationTokenRef.current += 1;
@@ -598,7 +609,7 @@ const ChatPage: React.FC = () => {
         skillName: usedSkillNames.join('、'),
       });
     },
-    [activeStockContext, getSkillNames, input, loading, normalizeSelectedSkillIds, requestScrollToBottom, selectedSkillIds, sessionId, startStream],
+    [activeStockContext, getSkillNames, input, loading, normalizeSelectedSkillIds, requestScrollToBottom, selectedSkillIds, sessionId, skills, skillsStatus, startStream],
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -858,12 +869,10 @@ const ChatPage: React.FC = () => {
     </>
   );
 
-  const selectedSkillSummary = selectedSkillIds.length > 0
-    ? selectedSkillIds.map((id) => {
-      const skill = skills.find((skill) => skill.id === id);
-      return skill ? getChatSkillText(skill, language).name : getChatSkillName(id, language);
-    }).join(language === 'en' ? ', ' : '、')
-    : text.generalAnalysis;
+  const selectedSkillSummary = selectedSkillIds.map((id) => {
+    const skill = skills.find((skill) => skill.id === id);
+    return skill ? getChatSkillText(skill, language).name : getChatSkillName(id, language);
+  }).join(language === 'en' ? ', ' : '、');
 
   return (
     <div
@@ -1284,7 +1293,29 @@ const ChatPage: React.FC = () => {
                   className="rounded-xl px-3 py-2 text-xs shadow-none"
                 />
               ) : null}
-              {skills.length > 0 && (
+              {skillsStatus === 'loading' && (
+                <p role="status" className="text-xs text-muted-text">{text.strategiesLoading}</p>
+              )}
+              {(skillsStatus === 'error' || skillsStatus === 'empty') && (
+                <InlineAlert
+                  variant="danger"
+                  message={skillsStatus === 'error' ? text.strategiesLoadFailed : text.strategiesEmpty}
+                  action={(
+                    <Button
+                      variant="secondary"
+                      size="xsm"
+                      onClick={() => {
+                        setSkillsStatus('loading');
+                        setSkillsLoadAttempt((attempt) => attempt + 1);
+                      }}
+                    >
+                      {text.retryStrategies}
+                    </Button>
+                  )}
+                  className="rounded-xl px-3 py-2"
+                />
+              )}
+              {skillsStatus === 'ready' && (
                 <div className="space-y-2">
                   <button
                     type="button"
@@ -1318,29 +1349,15 @@ const ChatPage: React.FC = () => {
                     <span className="text-xs text-muted-text font-medium uppercase tracking-wider flex-shrink-0 mt-1">
                       {text.strategy}
                     </span>
-                    <label className="flex items-center gap-1.5 text-sm cursor-pointer group mt-0.5">
-                      <input
-                        type="checkbox"
-                        name="general-analysis"
-                        value=""
-                        checked={selectedSkillIds.length === 0}
-                        onChange={() => setSelectedSkillIds([])}
-                        className="chat-skill-checkbox"
-                      />
-                      <span
-                        className={`transition-colors text-sm ${selectedSkillIds.length === 0 ? 'text-foreground font-medium' : 'text-secondary-text group-hover:text-foreground'}`}
-                      >
-                        {text.generalAnalysis}
-                      </span>
-                    </label>
                     {skills.map((s) => {
                       const skillText = getChatSkillText(s, language);
                       const checked = selectedSkillIdSet.has(s.id);
-                      const disabled = !checked && skillLimitReached;
+                      const lastSelected = checked && selectedSkillIds.length === 1;
+                      const disabled = lastSelected || (!checked && skillLimitReached);
                       return (
                         <label
                           key={s.id}
-                          className={`flex items-center gap-1.5 cursor-pointer group relative mt-0.5 ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          className={`flex items-center gap-1.5 cursor-pointer group relative mt-0.5 ${!checked && disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
                           onMouseEnter={() => setShowSkillDesc(s.id)}
                           onMouseLeave={() => setShowSkillDesc(null)}
                         >
@@ -1350,6 +1367,7 @@ const ChatPage: React.FC = () => {
                             value={s.id}
                             checked={checked}
                             disabled={disabled}
+                            title={lastSelected ? text.strategyRequired : undefined}
                             onChange={() => toggleSkillSelection(s.id)}
                             className="chat-skill-checkbox"
                           />
@@ -1368,6 +1386,7 @@ const ChatPage: React.FC = () => {
                       );
                     })}
                   </div>
+                  <p className="text-xs text-muted-text">{text.strategyRequired}</p>
                 </div>
               )}
 
@@ -1408,7 +1427,7 @@ const ChatPage: React.FC = () => {
                 <Button
                   variant="primary"
                   onClick={() => handleSend()}
-                  disabled={!input.trim() || loading}
+                  disabled={!input.trim() || loading || skillsStatus !== 'ready'}
                   isLoading={loading}
                   loadingText={text.sending}
                   className="btn-primary flex-shrink-0"
