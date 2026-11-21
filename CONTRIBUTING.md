@@ -98,8 +98,8 @@ work.
 - Repository collaboration skills live in `.claude/skills/`. Analysis
   artifacts belong in `.claude/reviews/`; those artifacts are local by
   default, while the skills may be committed.
-- [Stock Analyzer Skill](apps/dsa-web/readme.md#stock-analyzer-skill) describes product behavior; it is not the source of
-  repository collaboration rules.
+- [Strategy skills](apps/dsa-web/readme.md#strategy-skills) describe product
+  behavior; they are not the source of repository collaboration rules.
 - If adding `.agents/skills/` or another agent-specific directory, first
   define one source of truth and synchronize other copies with a script or
   equivalent. Do not maintain duplicate content manually over time.
