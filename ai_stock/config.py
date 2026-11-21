@@ -342,19 +342,9 @@ def resolve_llm_channel_protocol(
             return name_protocol
 
     if base_url:
-        parsed = urlparse(base_url)
-        if parsed.hostname in {"127.0.0.1", "localhost", "0.0.0.0"}:
-            # Default to openai for local servers (vLLM, LM Studio, LocalAI, etc.).
-            return "openai"
         return "openai"
 
     return ""
-
-
-def channel_allows_empty_api_key(protocol: Optional[str], base_url: Optional[str]) -> bool:
-    """Return True when a channel can run without an API key."""
-    parsed = urlparse(base_url or "")
-    return parsed.hostname in {"127.0.0.1", "localhost", "0.0.0.0"}
 
 
 def normalize_llm_channel_model(model: str, protocol: Optional[str], base_url: Optional[str] = None) -> str:
@@ -1717,9 +1707,6 @@ class Config:
                     protocol or "unknown",
                 )
 
-            if not api_keys and channel_allows_empty_api_key(protocol, base_url):
-                api_keys = [""]
-
             if not api_keys:
                 _logger.warning(f"LLM channel '{ch_name}': no API key configured, skipped")
                 continue
@@ -1754,9 +1741,8 @@ class Config:
                 for api_key in ch['api_keys']:
                     litellm_params: Dict[str, Any] = {
                         'model': model_name,
+                        'api_key': api_key,
                     }
-                    if api_key:
-                        litellm_params['api_key'] = api_key
                     if ch['base_url']:
                         litellm_params['api_base'] = ch['base_url']
                     headers = dict(ch.get('extra_headers') or {})

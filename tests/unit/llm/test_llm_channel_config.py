@@ -238,13 +238,12 @@ class LLMChannelConfigTestCase(unittest.TestCase):
 
     @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
-    def test_local_openai_compatible_channel_defaults_to_openai_protocol(self, _mock_parse_yaml, _mock_setup_env) -> None:
-        """Localhost OpenAI-compatible channels without a protocol default to openai."""
+    def test_custom_openai_compatible_channel_defaults_to_openai_protocol(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
-            "LLM_CHANNELS": "local",
-            "LLM_LOCAL_BASE_URL": "http://127.0.0.1:8000/v1",
-            "LLM_LOCAL_API_KEY": "not-needed",
-            "LLM_LOCAL_MODELS": "my-model",
+            "LLM_CHANNELS": "custom",
+            "LLM_CUSTOM_BASE_URL": "https://provider.example/v1",
+            "LLM_CUSTOM_API_KEY": "sk-test-value",
+            "LLM_CUSTOM_MODELS": "my-model",
         }
 
         with patch.dict(os.environ, env, clear=True):
@@ -253,6 +252,20 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         params = config.llm_model_list[0]["litellm_params"]
         self.assertEqual(params["model"], "openai/my-model")
         self.assertEqual(config.llm_channels[0]["protocol"], "openai")
+
+    def test_channel_without_credentials_is_not_loaded_or_setup_ready(self) -> None:
+        env = {
+            "LLM_CHANNELS": "custom",
+            "LLM_CUSTOM_BASE_URL": "http://127.0.0.1:8000/v1",
+            "LLM_CUSTOM_MODELS": "my-model",
+        }
+
+        with patch.dict(os.environ, env, clear=True):
+            self.assertEqual(Config._parse_llm_channels(env["LLM_CHANNELS"]), [])
+        self.assertEqual(SystemConfigService._collect_setup_channel_models(env), [])
+        self.assertFalse(SystemConfigService._provider_has_setup_credentials(
+            "openai", {"OPENAI_BASE_URL": env["LLM_CUSTOM_BASE_URL"]},
+        ))
 
     @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
@@ -391,19 +404,33 @@ class LLMChannelConfigTestCase(unittest.TestCase):
                 self.assertTrue(SystemConfigService._is_valid_llm_base_url(value))
                 self.assertFalse(SystemConfigService._is_safe_base_url(value))
 
-    def test_llm_base_url_accepts_common_openai_compatible_and_local_shapes(self) -> None:
+    def test_llm_base_url_accepts_common_openai_compatible_shapes(self) -> None:
         valid_urls = [
             "https://api.openai.com/v1",
             "https://api.deepseek.com/v1",
             "https://api.example.com/v1",
-            "http://127.0.0.1:11434",
-            "http://127.0.0.1:11434/v1",
+            "http://api.example.com",
         ]
 
         for value in valid_urls:
             with self.subTest(value=value):
                 self.assertTrue(SystemConfigService._is_valid_llm_base_url(value), msg=value)
                 self.assertTrue(SystemConfigService._is_safe_base_url(value), msg=value)
+
+    @patch("ai_stock.services.system_config_service.requests.get")
+    def test_discover_llm_channel_models_requires_credentials(self, mock_get) -> None:
+        service = SystemConfigService(manager=Mock())
+        mock_get.side_effect = AssertionError("Discovery must not send requests without credentials")
+        payload = service.discover_llm_channel_models(
+            name="custom",
+            protocol="openai",
+            base_url="http://127.0.0.1:8000/v1",
+            api_key="",
+        )
+
+        self.assertFalse(payload["success"])
+        self.assertEqual(payload["details"]["reason"], "missing_api_key")
+        mock_get.assert_not_called()
 
     @patch("ai_stock.services.system_config_service.requests.get")
     def test_discover_llm_channel_models_blocks_parser_differential_url(self, mock_get) -> None:

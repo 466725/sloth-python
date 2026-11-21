@@ -24,7 +24,6 @@ from ai_stock.config import (
     _get_litellm_provider,
     _uses_direct_env_provider,
     canonicalize_llm_channel_protocol,
-    channel_allows_empty_api_key,
     get_configured_llm_models,
     normalize_agent_litellm_model,
     normalize_news_strategy_profile,
@@ -579,11 +578,8 @@ class SystemConfigService:
                 latency_ms=None,
             )
 
-        api_keys = [segment.strip() for segment in api_key.split(",") if segment.strip()]
-        selected_api_key = api_keys[0] if api_keys else ""
-        request_headers = {"Accept": "application/json"}
-        if selected_api_key:
-            request_headers["Authorization"] = f"Bearer {selected_api_key}"
+        selected_api_key = self._split_csv(api_key)[0]
+        request_headers = {"Accept": "application/json", "Authorization": f"Bearer {selected_api_key}"}
 
         try:
             models_url = self._build_llm_models_url(base_url)
@@ -763,17 +759,15 @@ class SystemConfigService:
         resolved_protocol = resolve_llm_channel_protocol(protocol, base_url=base_url, models=raw_models, channel_name=name)
         resolved_models = [normalize_llm_channel_model(model, resolved_protocol, base_url) for model in raw_models]
         resolved_model = resolved_models[0]
-        api_keys = [segment.strip() for segment in api_key.split(",") if segment.strip()]
-        selected_api_key = api_keys[0] if api_keys else ""
+        selected_api_key = self._split_csv(api_key)[0]
 
         call_kwargs: Dict[str, Any] = {
             "model": resolved_model,
+            "api_key": selected_api_key,
             "messages": [{"role": "user", "content": "Reply with OK"}],
             "max_tokens": 256,
             "timeout": max(5.0, float(timeout_seconds)),
         }
-        if selected_api_key:
-            call_kwargs["api_key"] = selected_api_key
         if base_url.strip():
             call_kwargs["api_base"] = base_url.strip()
         call_kwargs = apply_litellm_generation_params(
@@ -1211,12 +1205,11 @@ class SystemConfigService:
             timeout = 10.0
         call_kwargs: Dict[str, Any] = {
             "model": resolved_model,
+            "api_key": selected_api_key,
             "messages": messages,
             "max_tokens": max_tokens,
             "timeout": min(max(5.0, timeout), 10.0),
         }
-        if selected_api_key:
-            call_kwargs["api_key"] = selected_api_key
         if base_url.strip():
             call_kwargs["api_base"] = base_url.strip()
         if extra:
@@ -2326,15 +2319,12 @@ class SystemConfigService:
         if normalized == "deepseek":
             return cls._has_any_config_value(effective_map, ("DEEPSEEK_API_KEYS", "DEEPSEEK_API_KEY"))
         if normalized == "openai":
-            base_url = (effective_map.get("OPENAI_BASE_URL") or "").strip()
             if cls._has_any_config_value(effective_map, ("OPENAI_API_KEYS", "OPENAI_API_KEY")):
                 return True
-            if (
+            return (
                 cls._anspire_legacy_llm_enabled(effective_map)
                 and cls._has_any_config_value(effective_map, ("ANSPIRE_API_KEYS",))
-            ):
-                return True
-            return channel_allows_empty_api_key("openai", base_url)
+            )
 
         env_prefix = normalized.upper().replace("-", "_")
         return cls._has_any_config_value(
@@ -2398,7 +2388,7 @@ class SystemConfigService:
             )
             if not raw_models or not resolved_protocol:
                 continue
-            if not api_key and not channel_allows_empty_api_key(resolved_protocol, base_url):
+            if not cls._split_csv(api_key):
                 continue
 
             for raw_model in raw_models:
@@ -2637,7 +2627,7 @@ class SystemConfigService:
     def _is_safe_base_url(value: str) -> bool:
         """Block link-local and cloud metadata addresses to prevent SSRF.
 
-        Allows localhost / private-LAN addresses for custom local integrations,
+        Allows private addresses for custom integrations,
         but blocks 169.254.x.x (AWS/Azure/GCP/Alibaba instance-metadata service)
         and other known metadata hostnames.
         """
@@ -3680,7 +3670,7 @@ class SystemConfigService:
                     "code": "ssrf_blocked",
                     "message": "LLM channel base URL points to a restricted address (cloud metadata services are not allowed)",
                     "severity": "error",
-                    "expected": "publicly reachable or local LLM endpoint",
+                    "expected": "LLM endpoint outside restricted address ranges",
                     "actual": base_url_value,
                 }
             )
@@ -3693,8 +3683,7 @@ class SystemConfigService:
         )
         # Validate parsed key segments so that inputs like "," or " , " are
         # treated as empty (they produce zero usable keys after split+strip).
-        _parsed_api_keys = [seg.strip() for seg in api_key_value.split(",") if seg.strip()]
-        if not _parsed_api_keys and not channel_allows_empty_api_key(resolved_protocol, base_url_value):
+        if not SystemConfigService._split_csv(api_key_value):
             issues.append(
                 {
                     "key": api_key_key,
