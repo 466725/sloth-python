@@ -80,6 +80,11 @@ strategies can be selected explicitly; custom strategies and experimental
 multi-agent modes depend on the backend configuration. Provider setup is covered
 in the [LLM provider guide](../../ai_stock/llm/llm-providers.md).
 
+Ask selects the catalog's default strategy initially and requires at least one
+selected strategy. Select another before deselecting the last one; up to three
+can be combined. If the strategy catalog cannot be loaded or is empty, retry
+before sending a question.
+
 The sidebar language switch applies to Ask controls, built-in strategy labels
 and descriptions, quick questions, conversation dates, local feedback and
 Markdown export headings. Switching languages preserves drafts, strategy
