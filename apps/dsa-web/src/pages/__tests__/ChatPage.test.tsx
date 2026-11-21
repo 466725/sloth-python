@@ -250,10 +250,9 @@ describe('ChatPage', () => {
     expect(Object.keys(CHAT_TEXT.en).sort()).toEqual(Object.keys(CHAT_TEXT.zh).sort());
     expect(CHAT_QUICK_QUESTIONS.en.map((question) => question.skill)).toEqual(CHAT_QUICK_QUESTIONS.zh.map((question) => question.skill));
     const ids = [
-      'bull_trend', 'ma_golden_cross', 'shrink_pullback', 'volume_breakout', 'hot_theme',
-      'box_oscillation', 'event_driven', 'growth_quality', 'bottom_volume',
-      'expectation_repricing', 'wave_theory', 'dragon_head',
-      'emotion_cycle', 'one_yang_three_yin',
+      'bull_trend', 'ma_golden_cross', 'shrink_pullback', 'volume_breakout',
+      'box_oscillation', 'growth_quality',
+      'wave_theory', 'dragon_head',
     ];
     for (const id of ids) {
       const original = { id, name: '策略', description: '说明' };

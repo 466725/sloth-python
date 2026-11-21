@@ -152,7 +152,7 @@ export const CHAT_QUICK_QUESTIONS = {
     { label: '分析比亚迪趋势', skill: 'bull_trend' },
     { label: '箱体震荡技能看中芯国际', skill: 'box_oscillation' },
     { label: '分析腾讯 hk00700', skill: 'bull_trend' },
-    { label: '用情绪周期分析东方财富', skill: 'emotion_cycle' },
+    { label: '用均线金叉分析东方财富', skill: 'ma_golden_cross' },
   ],
   en: [
     { label: 'Analyze Moutai for a volume breakout', skill: 'volume_breakout' },
@@ -160,7 +160,7 @@ export const CHAT_QUICK_QUESTIONS = {
     { label: 'Analyze the BYD trend', skill: 'bull_trend' },
     { label: 'Analyze SMIC with box range trading', skill: 'box_oscillation' },
     { label: 'Analyze Tencent hk00700', skill: 'bull_trend' },
-    { label: 'Analyze East Money with sentiment cycles', skill: 'emotion_cycle' },
+    { label: 'Analyze East Money for a moving average golden cross', skill: 'ma_golden_cross' },
   ],
 };
 
@@ -169,16 +169,10 @@ const EN_SKILLS: Record<string, { name: string; description: string; zhName: str
   ma_golden_cross: { name: 'Moving average golden cross', zhName: '均线金叉', description: 'Detect moving average golden crosses confirmed by volume for trend reversal or continuation.' },
   shrink_pullback: { name: 'Low-volume pullback', zhName: '缩量回踩', description: 'Detect low-volume pullbacks to moving average support for trend continuation entries.' },
   volume_breakout: { name: 'Volume breakout', zhName: '放量突破', description: 'Detect high-volume breakouts near known resistance levels.' },
-  hot_theme: { name: 'Hot themes', zhName: '热点题材', description: 'Track policy, industry and market themes, sector expansion and relative stock strength.' },
   box_oscillation: { name: 'Box range trading', zhName: '箱体震荡', description: 'Identify price ranges to buy near the bottom and reduce positions near the top in sideways markets.' },
-  event_driven: { name: 'Event-driven', zhName: '事件驱动', description: 'Evaluate catalysts, realization probability and risks around earnings, policy, mergers, orders and product launches.' },
   growth_quality: { name: 'Growth quality', zhName: '成长质量', description: 'Assess revenue and profit growth, ROE, cash flow and industry potential to identify quality growth and slowdown risks.' },
-  bottom_volume: { name: 'Bottom volume surge', zhName: '底部放量', description: 'Detect bottom volume surges after prolonged declines as potential trend reversal signals.' },
-  expectation_repricing: { name: 'Expectation repricing', zhName: '预期重估', description: 'Analyze changes in earnings, policy and valuation expectations for repricing opportunities and overheating risks.' },
   wave_theory: { name: 'Elliott wave theory', zhName: '波浪理论', description: 'Use impulse and corrective wave structures to assess the current wave and potential price targets.' },
   dragon_head: { name: 'Sector leader', zhName: '龙头策略', description: 'Identify leading stocks during sector rotation, sector launches and industry catalysts.' },
-  emotion_cycle: { name: 'Sentiment cycle', zhName: '情绪周期', description: 'Use sentiment, turnover and price-volume patterns to identify panic lows and euphoric highs for contrarian positioning.' },
-  one_yang_three_yin: { name: 'One bullish, three bearish candles', zhName: '一阳夹三阴', description: 'Detect a bullish candle with three bearish consolidation candles as a trend continuation entry signal.' },
 };
 
 export function getChatSkillText(skill: SkillInfo, language: UiLanguage): Pick<SkillInfo, 'name' | 'description'> {

@@ -212,7 +212,7 @@ if __name__ == "__main__":
             "prediction": PredictionOutcome(
                 direction="sideways", confidence=0.6, reason="range-bound price + mixed news"
             ),
-            "strategy_names": ["box_oscillation", "shrink_pullback", "event_driven"],
+            "strategy_names": ["box_oscillation", "shrink_pullback", "volume_breakout"],
             "stock_data": {"history": [{"close": 25.0}, {"close": 25.4}]},
             "stock_news": {
                 "news_items": [
@@ -231,7 +231,7 @@ if __name__ == "__main__":
             "prediction": PredictionOutcome(
                 direction="down", confidence=0.7, reason="weak momentum + negative news"
             ),
-            "strategy_names": ["wave_theory", "growth_quality", "expectation_repricing"],
+            "strategy_names": ["wave_theory", "growth_quality", "volume_breakout"],
             "stock_data": {"history": [{"close": 5.2}, {"close": 4.9}]},
             "stock_news": {
                 "news_items": [
