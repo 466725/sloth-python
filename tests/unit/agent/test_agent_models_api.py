@@ -251,6 +251,11 @@ class AgentSkillsEndpointTestCase(unittest.TestCase):
         self.assertNotIn("chan_theory", ids)
         self.assertNotIn("stock-analyzer", ids)
         self.assertNotIn("hot_theme", ids)
+        self.assertNotIn("event_driven", ids)
+        self.assertNotIn("expectation_repricing", ids)
+        self.assertNotIn("one_yang_three_yin", ids)
+        self.assertNotIn("emotion_cycle", ids)
+        self.assertNotIn("bottom_volume", ids)
         self.assertTrue({"bull_trend", "volume_breakout", "wave_theory"} <= ids)
 
     def test_skills_endpoint_returns_skill_metadata_shape(self) -> None:

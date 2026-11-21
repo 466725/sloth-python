@@ -54,9 +54,9 @@ class TestAnalyzeRequest:
 
         legacy_request = AnalyzeRequest(
             stock_code="600519",
-            strategies=["event_driven"],
+            strategies=["volume_breakout"],
         )
-        assert legacy_request.skills == ["event_driven"]
+        assert legacy_request.skills == ["volume_breakout"]
 
     def test_analyze_request_validation_selection_source(self):
         """Test selection_source field validation"""
