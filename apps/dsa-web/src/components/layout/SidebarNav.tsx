@@ -41,7 +41,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({ collapsed = false, onNav
   const itemBaseClass = cn(
     'group relative flex h-[var(--nav-item-height)] w-full items-center overflow-hidden rounded-2xl border border-transparent text-sm leading-none text-secondary-text transition-all',
     isRail
-      ? 'justify-center gap-2.5 px-2'
+      ? 'justify-center gap-2.5 px-2 font-medium'
       : collapsed
         ? 'justify-center px-0'
         : 'gap-3 px-[var(--nav-item-padding-x)]'
@@ -55,7 +55,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({ collapsed = false, onNav
   const itemLabelClass = cn('truncate', isRail ? 'text-center' : '');
 
   return (
-    <div className="flex h-full flex-col">
+    <div className={cn('flex h-full flex-col', isRail && 'w-full')}>
       <div
         className={cn(
           'flex items-center',
