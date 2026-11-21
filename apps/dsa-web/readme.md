@@ -12,7 +12,7 @@ React and TypeScript frontend for Daily Stock Analysis (DSA). The app runs with 
   - [Scripts and local servers](#scripts-and-local-servers)
   - [Maintaining tests](#maintaining-tests)
 - [Feature guides](#feature-guides)
-  - [Stock Analyzer skill](#stock-analyzer-skill)
+  - [Strategy skills](#strategy-skills)
   - [Stock autocomplete catalog](#stock-autocomplete-catalog)
   - [Alert Center](#alert-center)
   - [Email notifications](#email-notifications)
@@ -200,17 +200,10 @@ Start the backend and/or `npm run dev` here first, then follow the respective pa
 
 ## Feature guides
 
-## Stock Analyzer Skill
+## Strategy skills
 
-The runtime skill bundle is
-[`strategies/stock-analyzer/skill.md`](../../strategies/stock-analyzer/skill.md).
-The Agent loads it automatically from the built-in `strategies/` directory;
-setting `AGENT_SKILL_DIR` is not required.
-
-The skill is user-invocable and appears in the Web app's skill selector. It is
-not part of the default active skill set, so users can choose it explicitly in
-chat or analysis without changing the behavior of all existing default
-analyses.
+The Agent loads built-in strategies from the
+[`strategies/`](../../strategies/) directory for use in chat and analysis.
 
 For custom skill bundles, set `AGENT_SKILL_DIR` to a separate directory
 containing YAML definitions or nested `skill.md` bundles. The runtime loads
