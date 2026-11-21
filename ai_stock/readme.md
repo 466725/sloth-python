@@ -246,7 +246,7 @@ These are the implementation rules future AI agents or developers should follow.
 {
     "symbol": "AAPL",
     "market": "us",
-    "strategy_names": ["bull_trend", "event_driven"],
+    "strategy_names": ["bull_trend", "growth_quality"],
     "question": "Should I watch for a breakout this week?",
 }
 ```
@@ -263,7 +263,7 @@ These are the implementation rules future AI agents or developers should follow.
         "confidence": 0.68,
         "reason": "..."
     },
-    "strategy_names": ["bull_trend", "event_driven"],
+    "strategy_names": ["bull_trend", "growth_quality"],
     "stock_data": {},
     "stock_news": {},
     "agent_outputs": {
