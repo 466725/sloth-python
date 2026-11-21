@@ -72,9 +72,8 @@ not a substitute for choosing focused checks or for testing unrelated demo suite
 - Keep related translations consistent; explain when no counterpart is updated.
 - [Repository collaboration skills](.claude/skills/README.md) live in
   `.claude/skills/`; local review artifacts belong in `.claude/reviews/`, not
-  shared instruction files. The
-  [Stock Analyzer skill](apps/dsa-web/readme.md#stock-analyzer-skill) and
-  [strategies](strategies/) are DSA runtime features, not collaboration rules.
+  shared instruction files. [Strategies](strategies/) are DSA runtime features,
+  not collaboration rules.
 - Prefer PR titles in `<type>: <change summary>` form without tool-name prefixes.
 - Report what changed and why, validation commands/results, compatibility impact,
   and limitations. Never claim unrun checks passed.
