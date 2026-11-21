@@ -35,8 +35,8 @@ application documentation that owns them.
   — local search, remote refresh, and bundled catalog maintenance.
 - [Analysis Context Pack](apps/dsa-web/readme.md#analysis-context-pack) —
   analysis inputs, data-quality metadata, prompt summaries, and public overview.
-- [Stock Analyzer skill](apps/dsa-web/readme.md#stock-analyzer-skill) —
-  built-in skill behavior and custom skill directories.
+- [Strategy skills](apps/dsa-web/readme.md#strategy-skills) — built-in
+  strategies and custom skill directories.
 
 ## Development and testing
 
