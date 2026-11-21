@@ -35,8 +35,8 @@ application documentation that owns them.
   — local search, remote refresh, and bundled catalog maintenance.
 - [Analysis Context Pack](apps/dsa-web/readme.md#analysis-context-pack) —
   analysis inputs, data-quality metadata, prompt summaries, and public overview.
-- [Strategy skills](apps/dsa-web/readme.md#strategy-skills) — built-in
-  strategies and custom skill directories.
+- [Trading strategies](apps/dsa-web/readme.md#trading-strategies) — built-in
+  YAML strategies, custom definitions, and strategy-writing examples.
 
 ## Development and testing
 
@@ -527,6 +527,14 @@ DSA combines market data, technical analysis, news, and language models to produ
 | Operations | CLI, FastAPI/Web service, local scheduler, Docker, and optional email delivery |
 
 Coverage varies by market and provider. Japan (`.T`) and Korea (`.KS` / `.KQ`) rely mainly on YFinance for daily bars, basic or delayed quotes, and technical indicators. Real-time quotes, complete symbol lists, full fundamentals, and region-specific market data may be unavailable. Missing data is not a zero value or a market signal.
+
+### Trading strategies
+
+The current built-in strategies are YAML files in [`strategies/`](strategies/);
+Stock Analyzer is no longer a built-in strategy. Custom strategies can be
+loaded from `AGENT_SKILL_DIR` as YAML files or Markdown skill bundles. See the
+[trading strategies guide](apps/dsa-web/readme.md#trading-strategies) for
+examples and configuration.
 
 ### Quick start
 
