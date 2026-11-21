@@ -239,7 +239,7 @@ class AgentModelsEndpointTestCase(unittest.TestCase):
 
 
 class AgentSkillsEndpointTestCase(unittest.TestCase):
-    def test_removed_strategy_is_absent_from_builtin_skills_response(self) -> None:
+    def test_removed_strategies_are_absent_from_builtin_skills_response(self) -> None:
         from ai_stock.agent.skills.base import SkillManager
 
         manager = SkillManager()
@@ -249,6 +249,7 @@ class AgentSkillsEndpointTestCase(unittest.TestCase):
 
         ids = {item["id"] for item in payload["skills"]}
         self.assertNotIn("chan_theory", ids)
+        self.assertNotIn("stock-analyzer", ids)
         self.assertTrue({"bull_trend", "volume_breakout", "wave_theory"} <= ids)
 
     def test_skills_endpoint_returns_skill_metadata_shape(self) -> None:
