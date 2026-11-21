@@ -95,13 +95,13 @@ class AnalyzerNewsPromptTestCase(unittest.TestCase):
     def test_analysis_prompt_uses_injected_skill_sections_instead_of_hardcoded_trend_baseline(self) -> None:
         with patch.object(GeminiAnalyzer, "_init_litellm", return_value=None):
             analyzer = GeminiAnalyzer(
-                skill_instructions="### 技能 1: 缠论\n- 关注中枢与背驰",
+                skill_instructions="### 技能 1: 放量突破\n- 关注成交量和阻力位",
                 default_skill_policy="",
             )
 
         prompt = analyzer._get_analysis_system_prompt("zh", stock_code="600519")
 
-        self.assertIn("### 技能 1: 缠论", prompt)
+        self.assertIn("### 技能 1: 放量突破", prompt)
         self.assertNotIn("专注于趋势交易", prompt)
         self.assertNotIn("多头排列：MA5 > MA10 > MA20", prompt)
 
@@ -447,7 +447,7 @@ class AnalyzerNewsPromptTestCase(unittest.TestCase):
     def test_format_prompt_omits_legacy_trend_checks_for_nondefault_skill_mode(self) -> None:
         with patch.object(GeminiAnalyzer, "_init_litellm", return_value=None):
             analyzer = GeminiAnalyzer(
-                skill_instructions="### 技能 1: 缠论\n- 关注中枢与背驰",
+                skill_instructions="### 技能 1: 放量突破\n- 关注成交量和阻力位",
                 default_skill_policy="",
                 use_legacy_default_prompt=False,
             )
@@ -481,7 +481,7 @@ class AnalyzerNewsPromptTestCase(unittest.TestCase):
     def test_format_prompt_removes_bullish_reasons_when_final_trend_is_bearish(self) -> None:
         with patch.object(GeminiAnalyzer, "_init_litellm", return_value=None):
             analyzer = GeminiAnalyzer(
-                skill_instructions="### 技能 1: 缠论\n- 关注中枢与背驰",
+                skill_instructions="### 技能 1: 放量突破\n- 关注成交量和阻力位",
                 default_skill_policy="",
                 use_legacy_default_prompt=False,
             )
@@ -524,7 +524,7 @@ class AnalyzerNewsPromptTestCase(unittest.TestCase):
     def test_format_prompt_removes_bearish_risks_when_final_trend_is_bullish(self) -> None:
         with patch.object(GeminiAnalyzer, "_init_litellm", return_value=None):
             analyzer = GeminiAnalyzer(
-                skill_instructions="### 技能 1: 缠论\n- 关注中枢与背驰",
+                skill_instructions="### 技能 1: 放量突破\n- 关注成交量和阻力位",
                 default_skill_policy="",
                 use_legacy_default_prompt=False,
             )
@@ -561,7 +561,7 @@ class AnalyzerNewsPromptTestCase(unittest.TestCase):
     def test_format_prompt_removes_bullish_reasons_when_final_trend_is_weak_bearish(self) -> None:
         with patch.object(GeminiAnalyzer, "_init_litellm", return_value=None):
             analyzer = GeminiAnalyzer(
-                skill_instructions="### 技能 1: 缠论\n- 关注中枢与背驰",
+                skill_instructions="### 技能 1: 放量突破\n- 关注成交量和阻力位",
                 default_skill_policy="",
                 use_legacy_default_prompt=False,
             )

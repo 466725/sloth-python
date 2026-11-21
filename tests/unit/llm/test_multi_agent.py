@@ -522,9 +522,9 @@ class TestStrategyRouter(unittest.TestCase):
         from ai_stock.agent.strategies.router import StrategyRouter
         router = StrategyRouter()
         ctx = AgentContext(query="test")
-        ctx.meta["strategies_requested"] = ["chan_theory", "wave_theory"]
+        ctx.meta["strategies_requested"] = ["volume_breakout", "wave_theory"]
         result = router.select_strategies(ctx)
-        self.assertEqual(result, ["chan_theory", "wave_theory"])
+        self.assertEqual(result, ["volume_breakout", "wave_theory"])
 
     def test_user_requested_capped_at_max(self):
         from ai_stock.agent.strategies.router import StrategyRouter
@@ -1254,13 +1254,13 @@ class TestTechnicalAgentSkillPolicy(unittest.TestCase):
         agent = TechnicalAgent(
             tool_registry=MagicMock(),
             llm_adapter=MagicMock(),
-            skill_instructions="### 技能 1: 缠论",
+            skill_instructions="### 技能 1: 放量突破",
             technical_skill_policy="",
         )
         prompt = agent.system_prompt(AgentContext(query="分析 600519", stock_code="600519"))
 
         self.assertNotIn("Bias from MA5 < 2%", prompt)
-        self.assertIn("### 技能 1: 缠论", prompt)
+        self.assertIn("### 技能 1: 放量突破", prompt)
 
     def test_prompt_includes_legacy_default_policy_for_implicit_default_run(self):
         from ai_stock.agent.agents.technical_agent import TechnicalAgent
@@ -1758,7 +1758,7 @@ class TestBaseAgentMemoryIntegration(unittest.TestCase):
         from ai_stock.agent.agents.base_agent import BaseAgent
 
         class DummyStrategyAgent(BaseAgent):
-            agent_name = "strategy_chan_theory"
+            agent_name = "strategy_volume_breakout"
 
             def system_prompt(self, ctx):
                 return "system"
@@ -1794,9 +1794,9 @@ class TestBaseAgentMemoryIntegration(unittest.TestCase):
         self.assertTrue(result.success)
         self.assertAlmostEqual(result.opinion.confidence, 0.4)
         memory.get_calibration.assert_called_once_with(
-            agent_name="strategy_chan_theory",
+            agent_name="strategy_volume_breakout",
             stock_code="600519",
-            skill_id="chan_theory",
+            skill_id="volume_breakout",
         )
 
 

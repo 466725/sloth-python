@@ -239,6 +239,18 @@ class AgentModelsEndpointTestCase(unittest.TestCase):
 
 
 class AgentSkillsEndpointTestCase(unittest.TestCase):
+    def test_removed_strategy_is_absent_from_builtin_skills_response(self) -> None:
+        from ai_stock.agent.skills.base import SkillManager
+
+        manager = SkillManager()
+        manager.load_builtin_skills()
+        with patch("ai_stock.agent.factory.get_skill_manager", return_value=manager):
+            payload = agent._build_skills_response(_build_config()).model_dump()
+
+        ids = {item["id"] for item in payload["skills"]}
+        self.assertNotIn("chan_theory", ids)
+        self.assertTrue({"bull_trend", "volume_breakout", "wave_theory"} <= ids)
+
     def test_skills_endpoint_returns_skill_metadata_shape(self) -> None:
         config = _build_config()
         skill_manager = SimpleNamespace(
@@ -252,9 +264,9 @@ class AgentSkillsEndpointTestCase(unittest.TestCase):
                     default_active=True,
                 ),
                 SimpleNamespace(
-                    name="chan_theory",
-                    display_name="缠论",
-                    description="结构分析",
+                    name="volume_breakout",
+                    display_name="放量突破",
+                    description="突破分析",
                     user_invocable=True,
                     default_priority=40,
                     default_active=False,
@@ -269,7 +281,7 @@ class AgentSkillsEndpointTestCase(unittest.TestCase):
             payload = asyncio.run(agent.get_skills()).model_dump()
 
         self.assertEqual(payload["default_skill_id"], "bull_trend")
-        self.assertEqual([item["id"] for item in payload["skills"]], ["bull_trend", "chan_theory"])
+        self.assertEqual([item["id"] for item in payload["skills"]], ["bull_trend", "volume_breakout"])
 
     def test_legacy_strategies_endpoint_preserves_legacy_field_names(self) -> None:
         config = _build_config()

@@ -847,7 +847,7 @@ class TestAgentExecutor(unittest.TestCase):
         executor = AgentExecutor(
             registry,
             adapter,
-            skill_instructions="### 技能 1: 缠论\n- 关注中枢与背驰",
+            skill_instructions="### 技能 1: 放量突破\n- 关注成交量和阻力位",
             default_skill_policy="",
             max_steps=2,
         )
@@ -855,7 +855,7 @@ class TestAgentExecutor(unittest.TestCase):
 
         self.assertTrue(result.success)
         prompt = adapter.call_with_tools.call_args.args[0][0]["content"]
-        self.assertIn("### 技能 1: 缠论", prompt)
+        self.assertIn("### 技能 1: 放量突破", prompt)
         self.assertNotIn("专注于趋势交易", prompt)
         self.assertNotIn("多头排列：MA5 > MA10 > MA20", prompt)
 
