@@ -78,8 +78,8 @@ LITELLM_MODEL=openai/model-a
 Keep API keys and headers containing credentials in a private `.env` file or
 secret store; do not commit real values. A channel may use `LLM_<CHANNEL>_API_KEY`
 or `LLM_<CHANNEL>_API_KEYS`. Set `LLM_<CHANNEL>_ENABLED=false` to skip a channel.
-Local OpenAI-compatible endpoints may not need an API key; the host running DSA
-must be able to reach the configured URL.
+Enabled channels require at least one API key. The host running DSA must be able
+to reach any configured custom endpoint.
 
 The [`.env.example` file](../../.env.example) is a compact starter template. The
 provider and channel examples in this guide cover additional options such as
