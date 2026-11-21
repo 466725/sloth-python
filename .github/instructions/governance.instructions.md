@@ -19,7 +19,7 @@ and deployment files selected by the `applyTo` pattern above.
   [repository development guide](../../readme.md#repository-development-guide),
   `.github/copilot-instructions.md`, scoped instructions, and repository skills
   as needed.
-- The [Stock Analyzer skill guide](../../apps/dsa-web/readme.md#stock-analyzer-skill)
+- The [strategy skills guide](../../apps/dsa-web/readme.md#strategy-skills)
   and `strategies/` describe product behavior, not repository governance.
 - If only one language version of a document is updated, explain why its
   counterpart was not synchronized.
