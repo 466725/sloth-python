@@ -34,6 +34,8 @@ x-common: &common
 
   environment:
     - TZ=Asia/Shanghai
+    # Compose uses the persistent data mount, independently of local DATABASE_PATH.
+    - DATABASE_PATH=${DOCKER_DATABASE_PATH:-/app/data/stock_analysis.db}
 
     # Web/API service bind address (must be 0.0.0.0 inside container)
     - WEBUI_HOST=0.0.0.0

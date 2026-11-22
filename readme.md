@@ -223,6 +223,19 @@ python -m utils.config.config
 
 The local MySQL service is defined in `docker/docker-compose.yml`. It stores data in the named `mysql-data` Docker volume, so stopping or recreating the container does not remove the database.
 
+The application uses SQLite, separately from the optional MySQL service. Compose
+stores its database at `/app/data/stock_analysis.db`, backed by the host
+`ai_stock/stock_data/stock_analysis.db`. The local `DATABASE_PATH` in `.env`
+does not override this container path. To choose another container path, set
+`DOCKER_DATABASE_PATH` for Compose and ensure its directory is persistently
+mounted. SQLite databases are excluded from the Docker build context.
+
+If upgrading an existing deployment that used a database outside `/app/data`,
+back up both the running database and the host database before recreating the
+container, then migrate the desired database to the persistent location. Do not
+overwrite either database without checking which data it contains. The old
+container's writable layer is removed on recreation.
+
 ### Start and manage Docker services
 
 Run these commands from the repository root. `server` hosts the Web/API app,
