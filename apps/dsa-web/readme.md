@@ -80,9 +80,9 @@ strategies can be selected explicitly; custom strategies and experimental
 multi-agent modes depend on the backend configuration. Provider setup is covered
 in the [LLM provider guide](../../ai_stock/llm/llm-providers.md).
 
-Ask selects the catalog's default strategy initially and requires at least one
-selected strategy. Select another before deselecting the last one; up to three
-can be combined. If the strategy catalog cannot be loaded or is empty, retry
+Ask selects one strategy at a time, defaulting to Bullish Trend when available.
+If it is unavailable, Ask selects the catalog's default or the first available
+strategy. If the strategy catalog cannot be loaded or is empty, retry
 before sending a question.
 
 The sidebar language switch applies to Ask controls, built-in strategy labels
