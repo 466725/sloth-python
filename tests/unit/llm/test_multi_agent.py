@@ -1296,6 +1296,16 @@ class TestBaseAgentMessageAssembly(unittest.TestCase):
 
         return DummyAgent(tool_registry=MagicMock(), llm_adapter=MagicMock())
 
+    def test_locked_scope_is_included_in_system_prompt(self):
+        agent = self._make_agent()
+        ctx = AgentContext(query="分析 AAPL", stock_code="600519")
+        ctx.meta["stock_scope"] = resolve_stock_scope(
+            ctx.query, {"stock_code": ctx.stock_code, "lock_stock_scope": True}
+        ).stock_scope
+
+        messages = agent._build_messages(ctx)
+        self.assertIn("Analyze only that stock", messages[0]["content"])
+
     def test_build_messages_includes_conversation_history(self):
         agent = self._make_agent()
         ctx = AgentContext(query="hello")

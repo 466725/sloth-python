@@ -159,8 +159,14 @@ class BaseAgent(ABC):
 
     def _build_messages(self, ctx: AgentContext) -> List[Dict[str, Any]]:
         """Assemble the initial messages list for the LLM."""
+        system_prompt = self.system_prompt(ctx)
+        stock_scope = ctx.meta.get("stock_scope")
+        if stock_scope is not None:
+            instruction = stock_scope.prompt_instruction()
+            if instruction:
+                system_prompt += f"\n\n{instruction}"
         messages: List[Dict[str, Any]] = [
-            {"role": "system", "content": self.system_prompt(ctx)},
+            {"role": "system", "content": system_prompt},
         ]
 
         history = ctx.meta.get("conversation_history")

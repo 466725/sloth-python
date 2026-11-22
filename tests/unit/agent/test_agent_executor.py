@@ -216,6 +216,29 @@ class TestAgentExecutor(unittest.TestCase):
         self.assertEqual(result.effective_context["stock_name"], "贵州茅台")
         self.assertEqual(result.stock_scope.allowed_stock_codes, {"600519", "AAPL"})
 
+    def test_locked_stock_scope_overrides_switch_and_comparison(self):
+        for message in ("分析 AAPL", "比较 600519 和 AAPL"):
+            with self.subTest(message=message):
+                result = resolve_stock_scope(
+                    message,
+                    {"stock_code": "600519", "lock_stock_scope": True},
+                )
+                self.assertEqual(result.effective_context["stock_code"], "600519")
+                self.assertEqual(result.stock_scope.allowed_stock_codes, {"600519"})
+
+    def test_chat_adds_locked_stock_instruction_and_scope(self):
+        executor = AgentExecutor(_make_registry_with_echo(), _make_mock_adapter(), max_steps=2)
+        with (
+            patch("ai_stock.agent.conversation.conversation_manager"),
+            patch("ai_stock.agent.executor.build_agent_chat_context_bundle", return_value=SimpleNamespace(context_messages=[])),
+            patch.object(executor, "_run_loop", return_value=AgentResult(success=False, error="test")) as run_loop,
+        ):
+            executor.chat("分析 AAPL", "locked-test", context={"stock_code": "600519", "lock_stock_scope": True})
+
+        messages = run_loop.call_args.args[0]
+        self.assertIn("Analyze only that stock", messages[0]["content"])
+        self.assertEqual(run_loop.call_args.kwargs["stock_scope"].allowed_stock_codes, {"600519"})
+
     def test_resolve_stock_scope_keeps_ambiguous_bare_code_on_current_stock(self):
         result = resolve_stock_scope("AAPL", {"stock_code": "600519", "stock_name": "贵州茅台"})
 

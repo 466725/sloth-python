@@ -584,6 +584,10 @@ class AgentExecutor:
             skills_section=skills_section,
             language_section=_build_language_section(report_language, chat_mode=True),
         )
+        if scope_resolution.stock_scope:
+            instruction = scope_resolution.stock_scope.prompt_instruction()
+            if instruction:
+                system_prompt += f"\n\n{instruction}"
 
         # Build tool declarations in OpenAI format (litellm handles all providers)
         tool_decls = self.tool_registry.to_openai_tools()
