@@ -89,13 +89,17 @@ Ask displays up to the first six distinct stocks from `STOCK_LIST`, selecting
 the first by default. The selected stock is the analysis target even when the
 question or a linked report mentions another stock. With an empty list, Ask
 continues to use the question or report context. Retry if the list cannot load.
+When both a stock and strategy are selected, Ask generates a prompt in the
+input. Selecting either radio again replaces the current draft with a new
+prompt; it can still be edited before sending.
 
 The sidebar language switch applies to Ask controls, built-in strategy labels
 and descriptions, quick questions, conversation dates, local feedback and
-Markdown export headings. Switching languages preserves drafts, strategy
+Markdown export headings. Switching languages preserves edited drafts, strategy
 selections and conversation content without restarting requests. Saved titles,
 user messages, AI responses, provider progress and custom skill metadata remain
 in their original language; the UI switch does not translate existing answers.
+An unedited generated prompt follows the selected UI language.
 
 ### Backtesting and decision signals
 
