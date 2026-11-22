@@ -368,13 +368,13 @@ describe('ChatPage', () => {
     expect(screen.getByText('Original answer')).toBeInTheDocument();
   });
 
-  it('preserves follow-up prompts without showing or loading watchlist controls', async () => {
+  it('preserves follow-up prompts when the stock list is empty', async () => {
     renderLocalizedChat('en', '/chat?stock=AAPL&name=Apple');
     expect(screen.getByRole('textbox')).toHaveValue('Please analyze Apple(AAPL) in depth');
     expect(await screen.findByRole('radio', { name: 'Default bullish trend' })).toBeChecked();
     expect(screen.queryByRole('button', { name: /watchlist/i })).not.toBeInTheDocument();
     expect(screen.queryByText('AAPL')).not.toBeInTheDocument();
-    expect(mockGetWatchlist).not.toHaveBeenCalled();
+    expect(mockGetWatchlist).toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
     expect(screen.queryByRole('button', { name: /自选/ })).not.toBeInTheDocument();
     expect(screen.getByRole('textbox')).toHaveValue('Please analyze Apple(AAPL) in depth');
@@ -384,6 +384,121 @@ describe('ChatPage', () => {
     expect(screen.queryByText('AAPL')).not.toBeInTheDocument();
     expect(mockAddToWatchlist).not.toHaveBeenCalled();
     expect(mockRemoveFromWatchlist).not.toHaveBeenCalled();
+  });
+
+  it('selects the first of at most six stocks and sends the selected stock over conflicting input', async () => {
+    mockGetWatchlist.mockResolvedValue(['600519', 'AAPL', 'TSLA', 'MSFT', 'NVDA', 'AMZN', 'GOOG']);
+    renderLocalizedChat();
+
+    expect(await screen.findByRole('radio', { name: '600519' })).toBeChecked();
+    expect(screen.getByRole('radiogroup', { name: 'Stocks' }).querySelectorAll('input[type="radio"]')).toHaveLength(6);
+    expect(screen.queryByRole('radio', { name: 'GOOG' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('radio', { name: 'AAPL' }));
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: '分析 TSLA' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
+
+    await waitFor(() => expect(mockStartStream).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: '分析 TSLA',
+        context: expect.objectContaining({ stock_code: 'AAPL', lock_stock_scope: true }),
+      }),
+      expect.anything(),
+    ));
+  });
+
+  it('generates a prompt for the defaults and replaces drafts when selections change', async () => {
+    mockGetWatchlist.mockResolvedValue(['600519', 'AAPL']);
+    mockGetSkills.mockResolvedValue({
+      skills: [
+        { id: 'bull_trend', name: '趋势分析', description: '默认趋势' },
+        { id: 'ma_golden_cross', name: '均线金叉', description: '均线交叉' },
+      ],
+      default_skill_id: 'bull_trend',
+    });
+    renderLocalizedChat();
+
+    await waitFor(() => expect(screen.getByRole('textbox')).toHaveValue(
+      'Use strategy Default bullish trend to analyze stock 600519',
+    ));
+    expect(screen.getByRole('button', { name: 'Send' })).toBeEnabled();
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'A draft' } });
+    fireEvent.click(screen.getByRole('radio', { name: 'AAPL' }));
+    expect(screen.getByRole('textbox')).toHaveValue('Use strategy Default bullish trend to analyze stock AAPL');
+    fireEvent.click(screen.getByRole('radio', { name: 'Moving average golden cross' }));
+    expect(screen.getByRole('textbox')).toHaveValue('Use strategy Moving average golden cross to analyze stock AAPL');
+    fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
+    expect(screen.getByRole('textbox')).toHaveValue('使用策略 均线金叉 分析股票 AAPL');
+    fireEvent.click(screen.getByRole('button', { name: '发送' }));
+    expect(mockStartStream).toHaveBeenCalledWith(
+      expect.objectContaining({ message: '使用策略 均线金叉 分析股票 AAPL', skills: ['ma_golden_cross'],
+        context: expect.objectContaining({ stock_code: 'AAPL' }) }),
+      expect.anything(),
+    );
+    expect(screen.getByRole('textbox')).toHaveValue('');
+    fireEvent.click(screen.getByRole('radio', { name: 'AAPL' }));
+    expect(screen.getByRole('textbox')).toHaveValue('使用策略 均线金叉 分析股票 AAPL');
+  });
+
+  it('retries stock list failures and prevents sending until loaded', async () => {
+    mockGetWatchlist.mockRejectedValueOnce(new Error('network error')).mockResolvedValueOnce(['AAPL']);
+    renderLocalizedChat();
+    expect(await screen.findByText('Unable to load stocks. Retry before sending.')).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Analyze' } });
+    expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(await screen.findByRole('radio', { name: 'AAPL' })).toBeChecked();
+  });
+
+  it('does not attach a different report stock to the selected stock', async () => {
+    mockGetWatchlist.mockResolvedValue(['AAPL', '600519']);
+    vi.mocked(historyApi.getDetail).mockResolvedValueOnce({
+      meta: { id: 1, queryId: 'q-1', stockCode: '600519', stockName: 'Moutai', reportType: 'detailed', createdAt: '', currentPrice: 100 },
+      summary: { analysisSummary: 'Trend', operationAdvice: 'Observe', trendPrediction: 'Stable', sentimentScore: 50 },
+    });
+    renderLocalizedChat('en', '/chat?stock=600519&name=Moutai&recordId=1');
+    expect(await screen.findByRole('radio', { name: 'AAPL' })).toBeChecked();
+    await waitFor(() => expect(screen.queryByText('Loading historical analysis context. You can send your follow-up now.')).not.toBeInTheDocument());
+    expect(screen.getByRole('textbox')).toHaveValue('Use strategy Default bullish trend to analyze stock AAPL');
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
+    await waitFor(() => expect(mockStartStream).toHaveBeenCalledWith(
+      expect.objectContaining({ context: { stock_code: 'AAPL', stock_name: null, lock_stock_scope: true } }),
+      expect.anything(),
+    ));
+  });
+
+  it('retains report context when it matches the selected stock', async () => {
+    mockGetWatchlist.mockResolvedValue(['600519']);
+    vi.mocked(historyApi.getDetail).mockResolvedValueOnce({
+      meta: { id: 1, queryId: 'q-1', stockCode: '600519', stockName: 'Moutai', reportType: 'detailed', createdAt: '', currentPrice: 100 },
+      summary: { analysisSummary: 'Trend', operationAdvice: 'Observe', trendPrediction: 'Stable', sentimentScore: 50 },
+    });
+    renderLocalizedChat('en', '/chat?stock=600519&name=Moutai&recordId=1');
+    expect(await screen.findByRole('radio', { name: '600519' })).toBeChecked();
+    await waitFor(() => expect(screen.queryByText('Loading historical analysis context. You can send your follow-up now.')).not.toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }));
+    await waitFor(() => expect(mockStartStream).toHaveBeenCalledWith(
+      expect.objectContaining({ context: expect.objectContaining({
+        stock_code: '600519', stock_name: 'Moutai', previous_price: 100, lock_stock_scope: true,
+      }) }),
+      expect.anything(),
+    ));
+  });
+
+  it('uses the selected stock in quick questions', async () => {
+    mockGetWatchlist.mockResolvedValue(['AAPL']);
+    mockGetSkills.mockResolvedValue({
+      skills: [{ id: 'bull_trend', name: '趋势分析', description: '默认趋势' }],
+      default_skill_id: 'bull_trend',
+    });
+    renderLocalizedChat();
+    fireEvent.click(await screen.findByRole('button', { name: 'Analyze AAPL using Default bullish trend' }));
+    expect(mockStartStream).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Analyze AAPL using Default bullish trend',
+        context: expect.objectContaining({ stock_code: 'AAPL', lock_stock_scope: true }),
+      }),
+      expect.anything(),
+    );
   });
 
   it('updates context compression controls and saving feedback without repeating the save', async () => {
