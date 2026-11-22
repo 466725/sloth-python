@@ -56,6 +56,29 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+describe('agentChatStore.resetDeletedSession', () => {
+  it('clears the deleted session and aborts its in-flight stream', () => {
+    const controller = new AbortController();
+    useAgentChatStore.setState({
+      messages: [{ id: 'm1', role: 'user', content: 'Old message' }],
+      loading: true,
+      progressSteps: [{ type: 'thinking' }],
+      abortController: controller,
+    });
+
+    useAgentChatStore.getState().resetDeletedSession();
+
+    const state = useAgentChatStore.getState();
+    expect(controller.signal.aborted).toBe(true);
+    expect(state.sessionId).not.toBe('session-test');
+    expect(localStorage.getItem('dsa_chat_session_id')).toBe(state.sessionId);
+    expect(state.messages).toEqual([]);
+    expect(state.progressSteps).toEqual([]);
+    expect(state.loading).toBe(false);
+    expect(state.abortController).toBeNull();
+  });
+});
+
 describe('agentChatStore.startStream', () => {
   it('appends the user message and final assistant message from the SSE stream', async () => {
     vi.mocked(agentApi.chatStream).mockResolvedValue(

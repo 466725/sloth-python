@@ -331,11 +331,11 @@ const ChatPage: React.FC = () => {
     [skills],
   );
 
-  const handleStartNewChat = useCallback(() => {
+  const resetDeletedSession = useCallback(() => {
     followUpContextRef.current = null;
     setActiveStockContext(null);
     requestScrollToBottom('auto');
-    useAgentChatStore.getState().startNewChat();
+    useAgentChatStore.getState().resetDeletedSession();
     setSidebarOpen(false);
   }, [requestScrollToBottom]);
 
@@ -357,14 +357,14 @@ const ChatPage: React.FC = () => {
       .then(() => {
         loadSessions();
         if (deleteConfirmId === sessionId) {
-          handleStartNewChat();
+          resetDeletedSession();
         }
       })
       .catch((error) => {
         console.error('Failed to delete chat session:', error);
       });
     setDeleteConfirmId(null);
-  }, [deleteConfirmId, sessionId, loadSessions, handleStartNewChat]);
+  }, [deleteConfirmId, sessionId, loadSessions, resetDeletedSession]);
 
   // Handle follow-up from report page: ?stock=600519&name=贵州茅台&recordId=xxx
   useEffect(() => {
@@ -605,25 +605,6 @@ const ChatPage: React.FC = () => {
           </svg>
           {text.history}
         </h2>
-        <button
-          onClick={handleStartNewChat}
-          className="rounded-lg p-1.5 text-muted-text transition-all hover:bg-white/10 hover:text-foreground"
-          aria-label={text.newChat}
-        >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-        </button>
       </div>
       <ScrollArea testId="chat-session-list-scroll" viewportClassName="p-3">
         {sessionsLoading ? (

@@ -69,7 +69,7 @@ const mockLoadInitialSession = vi.fn();
 const mockSwitchSession = vi.fn();
 const mockStartStream = vi.fn();
 const mockClearCompletionBadge = vi.fn();
-const mockStartNewChat = vi.fn();
+const mockResetDeletedSession = vi.fn();
 
 const mockStoreState = {
   messages: [] as Message[],
@@ -129,7 +129,7 @@ vi.mock('../../stores/agentChatStore', () => {
   ) => (typeof selector === 'function' ? selector(mockStoreState) : mockStoreState);
 
   useAgentChatStore.getState = () => ({
-    startNewChat: mockStartNewChat,
+    resetDeletedSession: mockResetDeletedSession,
   });
 
   return { useAgentChatStore };
@@ -238,6 +238,7 @@ describe('ChatPage', () => {
     expect(screen.getByRole('radiogroup', { name: 'Strategies' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Ask' })).toBeInTheDocument();
     expect(screen.getByText('No conversation history')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Start new conversation' })).not.toBeInTheDocument();
     expect(await screen.findByRole('button', { name: 'Analyze 600519 using Volume breakout' })).toBeInTheDocument();
     expect(screen.getByRole('checkbox', { name: /Context compression/ })).toBeInTheDocument();
     expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', CHAT_TEXT.en.placeholder);
@@ -632,6 +633,16 @@ describe('ChatPage', () => {
     fireEvent.click(sessionCard);
     expect(mockSwitchSession).not.toHaveBeenCalled();
     expect(sessionCard).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('does not offer a new conversation action in either history view', async () => {
+    renderLocalizedChat();
+
+    expect(await screen.findByRole('button', { name: 'Switch to conversation 请简要分析 600519' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Start new conversation' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Conversation history' }));
+    expect(screen.getAllByRole('button', { name: 'Switch to conversation 请简要分析 600519' })).toHaveLength(2);
+    expect(screen.queryByRole('button', { name: 'Start new conversation' })).not.toBeInTheDocument();
   });
 
   it('renders a separate delete button for each session and opens confirmation without switching', async () => {
@@ -1320,7 +1331,7 @@ describe('ChatPage', () => {
     });
   });
 
-  it('clears active stock context when starting a new chat or switching sessions', async () => {
+  it('clears active stock context when switching sessions', async () => {
     mockStoreState.sessions = [
       ...mockStoreState.sessions,
       {
@@ -1331,33 +1342,6 @@ describe('ChatPage', () => {
         last_active: '2026-03-16T09:05:00Z',
       },
     ];
-
-    const { unmount } = render(
-      <MemoryRouter initialEntries={['/chat?stock=600519&name=%E8%B4%B5%E5%B7%9E%E8%8C%85%E5%8F%B0']}>
-        <ChatPage />
-      </MemoryRouter>
-    );
-
-    expect(await screen.findByDisplayValue('使用策略 趋势分析 分析股票 600519')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: '开启新对话' }));
-    expect(mockStartNewChat).toHaveBeenCalled();
-
-    fireEvent.click(screen.getByRole('button', { name: '发送' }));
-
-    await waitFor(() => {
-      expect(mockStartStream).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          message: '使用策略 趋势分析 分析股票 600519',
-          context: { stock_code: '600519', stock_name: null, lock_stock_scope: true },
-        }),
-        expect.objectContaining({
-          skillName: '趋势分析',
-        }),
-      );
-    });
-
-    unmount();
-    mockStartStream.mockClear();
 
     render(
       <MemoryRouter initialEntries={['/chat?stock=600519&name=%E8%B4%B5%E5%B7%9E%E8%8C%85%E5%8F%B0']}>
@@ -1398,7 +1382,7 @@ describe('ChatPage', () => {
     await waitFor(() => {
       expect(mockDeleteChatSession).toHaveBeenCalledWith('session-1');
     });
-    expect(mockStartNewChat).toHaveBeenCalled();
+    expect(mockResetDeletedSession).toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: '发送' }));
 
