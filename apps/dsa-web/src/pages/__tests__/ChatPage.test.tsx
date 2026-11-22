@@ -233,7 +233,8 @@ describe('ChatPage', () => {
       default_skill_id: 'bull_trend',
     });
     const { container } = renderLocalizedChat();
-    expect(await screen.findByRole('checkbox', { name: 'Default bullish trend' })).toBeChecked();
+    expect(await screen.findByRole('radio', { name: 'Default bullish trend' })).toBeChecked();
+    expect(screen.getByRole('radiogroup', { name: 'Strategies' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Ask' })).toBeInTheDocument();
     expect(screen.getByText('No conversation history')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Analyze Moutai for a volume breakout' })).toBeInTheDocument();
@@ -241,7 +242,7 @@ describe('ChatPage', () => {
     expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', CHAT_TEXT.en.placeholder);
     expect(document.title).toBe('Ask - DSA');
     expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
-    fireEvent.mouseEnter(screen.getByRole('checkbox', { name: 'Volume breakout' }).closest('label')!);
+    fireEvent.mouseEnter(screen.getByRole('radio', { name: 'Volume breakout' }).closest('label')!);
     expect(screen.getByText(/Detect high-volume breakouts/)).toBeInTheDocument();
     expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
   });
@@ -281,7 +282,7 @@ describe('ChatPage', () => {
     renderLocalizedChat();
     const draft = screen.getByRole('textbox');
     fireEvent.change(draft, { target: { value: 'My unsent question' } });
-    fireEvent.click(await screen.findByRole('checkbox', { name: 'Volume breakout' }));
+    fireEvent.click(await screen.findByRole('radio', { name: 'Volume breakout' }));
     expect(screen.getByLabelText('Skills Default bullish trend')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Switch to conversation 请简要分析 600519' })).toBeInTheDocument();
     expect(screen.getByText('2 messages')).toBeInTheDocument();
@@ -290,12 +291,12 @@ describe('ChatPage', () => {
     expect(screen.getByRole('button', { name: 'Collapse strategy selection' })).toHaveAttribute('aria-expanded', 'true');
     fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
     expect(draft).toHaveValue('My unsent question');
-    expect(screen.getByRole('checkbox', { name: '放量突破' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: '放量突破' })).toBeChecked();
     expect(screen.getByRole('button', { name: '收起策略选择' })).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByLabelText('技能 默认多头趋势')).toBeInTheDocument();
     expect(document.title).toBe('问股 - DSA');
     fireEvent.click(screen.getByRole('button', { name: 'English' }));
-    expect(screen.getByRole('checkbox', { name: 'Volume breakout' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Volume breakout' })).toBeChecked();
     expect(screen.getByText('请分析茅台')).toBeInTheDocument();
     expect(screen.getByText('原始中文回复')).toBeInTheDocument();
     expect(mockGetSkills).toHaveBeenCalledTimes(1);
@@ -311,7 +312,7 @@ describe('ChatPage', () => {
       default_skill_id: 'volume_breakout',
     });
     renderLocalizedChat();
-    fireEvent.click(await screen.findByRole('checkbox', { name: 'Volume breakout' }));
+    expect(await screen.findByRole('radio', { name: 'Volume breakout' })).toBeChecked();
     fireEvent.click(screen.getByRole('button', { name: 'Analyze Moutai for a volume breakout' }));
     expect(mockStartStream).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'Analyze Moutai for a volume breakout', skills: ['volume_breakout'] }),
@@ -367,18 +368,22 @@ describe('ChatPage', () => {
     expect(screen.getByText('Original answer')).toBeInTheDocument();
   });
 
-  it('localizes follow-up prompts and watchlist feedback without repeating the action on toggle', async () => {
-    mockAddToWatchlist.mockResolvedValue(['AAPL']);
+  it('preserves follow-up prompts without showing or loading watchlist controls', async () => {
     renderLocalizedChat('en', '/chat?stock=AAPL&name=Apple');
     expect(screen.getByRole('textbox')).toHaveValue('Please analyze Apple(AAPL) in depth');
-    fireEvent.click(await screen.findByRole('button', { name: 'Add to watchlist' }));
-    expect(await screen.findByText('Added AAPL to watchlist')).toBeInTheDocument();
+    expect(await screen.findByRole('radio', { name: 'Default bullish trend' })).toBeChecked();
+    expect(screen.queryByRole('button', { name: /watchlist/i })).not.toBeInTheDocument();
+    expect(screen.queryByText('AAPL')).not.toBeInTheDocument();
+    expect(mockGetWatchlist).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
-    expect(screen.getByText('已加入自选 AAPL')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /自选/ })).not.toBeInTheDocument();
     expect(screen.getByRole('textbox')).toHaveValue('Please analyze Apple(AAPL) in depth');
-    fireEvent.click(screen.getByRole('button', { name: 'English' }));
-    expect(screen.getByRole('button', { name: 'Remove from watchlist' })).toBeInTheDocument();
-    expect(mockAddToWatchlist).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole('button', { name: '发送' }));
+    await waitFor(() => expect(mockStartStream).toHaveBeenCalled());
+    expect(screen.queryByRole('button', { name: /自选/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('AAPL')).not.toBeInTheDocument();
+    expect(mockAddToWatchlist).not.toHaveBeenCalled();
+    expect(mockRemoveFromWatchlist).not.toHaveBeenCalled();
   });
 
   it('updates context compression controls and saving feedback without repeating the save', async () => {
@@ -602,15 +607,23 @@ describe('ChatPage', () => {
     expect(skillBadge).toHaveTextContent('趋势分析、均线金叉');
   });
 
-  it('selects the default skill after loading skills', async () => {
+  it('selects bullish trend even when the catalog has a different default', async () => {
+    mockGetSkills.mockResolvedValue({
+      skills: [
+        { id: 'volume_breakout', name: '放量突破', description: '突破分析' },
+        { id: 'bull_trend', name: '趋势分析', description: '默认趋势' },
+      ],
+      default_skill_id: 'volume_breakout',
+    });
     render(
       <MemoryRouter initialEntries={['/chat']}>
         <ChatPage />
       </MemoryRouter>
     );
 
-    expect(await screen.findByRole('checkbox', { name: '趋势分析' })).toBeChecked();
-    expect(screen.queryByRole('checkbox', { name: '通用分析' })).not.toBeInTheDocument();
+    expect(await screen.findByRole('radio', { name: '趋势分析' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: '放量突破' })).not.toBeChecked();
+    expect(screen.queryByRole('radio', { name: '通用分析' })).not.toBeInTheDocument();
   });
 
   it('selects an available strategy when the catalog default is unavailable', async () => {
@@ -620,7 +633,7 @@ describe('ChatPage', () => {
     });
     renderLocalizedChat();
 
-    expect(await screen.findByRole('checkbox', { name: 'Volume breakout' })).toBeChecked();
+    expect(await screen.findByRole('radio', { name: 'Volume breakout' })).toBeChecked();
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Analyze AAPL' } });
     fireEvent.click(screen.getByRole('button', { name: 'Send' }));
     expect(mockStartStream).toHaveBeenCalledWith(
@@ -629,7 +642,21 @@ describe('ChatPage', () => {
     );
   });
 
-  it('sends multiple selected skills in order', async () => {
+  it('uses the catalog default when bullish trend is unavailable', async () => {
+    mockGetSkills.mockResolvedValue({
+      skills: [
+        { id: 'ma_golden_cross', name: '均线金叉', description: '均线交叉' },
+        { id: 'volume_breakout', name: '放量突破', description: '突破分析' },
+      ],
+      default_skill_id: 'volume_breakout',
+    });
+    renderLocalizedChat();
+
+    expect(await screen.findByRole('radio', { name: 'Volume breakout' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Moving average golden cross' })).not.toBeChecked();
+  });
+
+  it('sends only the selected strategy', async () => {
     mockGetSkills.mockResolvedValue({
       skills: [
         { id: 'bull_trend', name: '趋势分析', description: '默认趋势' },
@@ -644,7 +671,9 @@ describe('ChatPage', () => {
       </MemoryRouter>
     );
 
-    fireEvent.click(await screen.findByRole('checkbox', { name: '均线金叉' }));
+    fireEvent.click(await screen.findByRole('radio', { name: '均线金叉' }));
+    expect(screen.getByRole('radio', { name: '趋势分析' })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: '均线金叉' })).toBeChecked();
     fireEvent.change(screen.getByPlaceholderText(/分析 600519/), {
       target: { value: '分析 600519' },
     });
@@ -654,17 +683,17 @@ describe('ChatPage', () => {
       expect(mockStartStream).toHaveBeenCalledWith(
         expect.objectContaining({
           message: '分析 600519',
-          skills: ['bull_trend', 'ma_golden_cross'],
+          skills: ['ma_golden_cross'],
         }),
         expect.objectContaining({
-          skillNames: ['趋势分析', '均线金叉'],
-          skillName: '趋势分析、均线金叉',
+          skillNames: ['均线金叉'],
+          skillName: '均线金叉',
         }),
       );
     });
   });
 
-  it('collapses the mobile skill picker by default and keeps selected skills when sending', async () => {
+  it('collapses the mobile skill picker by default and sends the selected skill', async () => {
     mockGetSkills.mockResolvedValue({
       skills: [
         { id: 'bull_trend', name: '趋势分析', description: '默认趋势' },
@@ -690,7 +719,7 @@ describe('ChatPage', () => {
     expect(skillPanel).not.toHaveClass('hidden');
     expect(skillPanel).toHaveClass('flex');
 
-    fireEvent.click(screen.getByRole('checkbox', { name: '均线金叉' }));
+    fireEvent.click(screen.getByRole('radio', { name: '均线金叉' }));
     fireEvent.change(screen.getByPlaceholderText(/分析 600519/), {
       target: { value: '分析 600519' },
     });
@@ -700,10 +729,10 @@ describe('ChatPage', () => {
       expect(mockStartStream).toHaveBeenCalledWith(
         expect.objectContaining({
           message: '分析 600519',
-          skills: ['bull_trend', 'ma_golden_cross'],
+          skills: ['ma_golden_cross'],
         }),
         expect.objectContaining({
-          skillName: '趋势分析、均线金叉',
+          skillName: '均线金叉',
         }),
       );
     });
@@ -726,13 +755,11 @@ describe('ChatPage', () => {
       </MemoryRouter>
     );
 
-    const defaultSkill = await screen.findByRole('checkbox', { name: '趋势分析' });
+    const defaultSkill = await screen.findByRole('radio', { name: '趋势分析' });
     expect(defaultSkill).toBeChecked();
-    expect(defaultSkill).toBeDisabled();
-    fireEvent.click(screen.getByRole('checkbox', { name: '放量突破' }));
-    fireEvent.click(defaultSkill);
+    fireEvent.click(screen.getByRole('radio', { name: '放量突破' }));
     expect(defaultSkill).not.toBeChecked();
-    expect(screen.getByRole('checkbox', { name: '放量突破' })).toBeDisabled();
+    expect(screen.getByRole('radio', { name: '放量突破' })).toBeChecked();
 
     fireEvent.change(screen.getByPlaceholderText(/分析 600519/), {
       target: { value: '分析 AAPL' },
@@ -765,7 +792,7 @@ describe('ChatPage', () => {
     expect(await screen.findByText('Unable to load strategies. Retry before sending.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
-    expect(await screen.findByRole('checkbox', { name: 'Default bullish trend' })).toBeChecked();
+    expect(await screen.findByRole('radio', { name: 'Default bullish trend' })).toBeChecked();
     expect(screen.getByRole('button', { name: 'Send' })).toBeEnabled();
   });
 
@@ -781,7 +808,7 @@ describe('ChatPage', () => {
     expect(mockStartStream).not.toHaveBeenCalled();
   });
 
-  it('caps concrete skill selection at three and re-enables choices after unselecting', async () => {
+  it('keeps exactly one strategy selected when switching repeatedly', async () => {
     mockGetSkills.mockResolvedValue({
       skills: [
         { id: 'bull_trend', name: '趋势分析', description: '默认趋势' },
@@ -798,17 +825,15 @@ describe('ChatPage', () => {
       </MemoryRouter>
     );
 
-    fireEvent.click(await screen.findByRole('checkbox', { name: '均线金叉' }));
-    fireEvent.click(screen.getByRole('checkbox', { name: '放量突破' }));
-
-    const wave = screen.getByRole('checkbox', { name: '波浪理论' });
-    expect(wave).toBeDisabled();
-
-    fireEvent.click(screen.getByRole('checkbox', { name: '均线金叉' }));
-    expect(wave).not.toBeDisabled();
+    fireEvent.click(await screen.findByRole('radio', { name: '均线金叉' }));
+    fireEvent.click(screen.getByRole('radio', { name: '放量突破' }));
+    fireEvent.click(screen.getByRole('radio', { name: '波浪理论' }));
+    const radios = screen.getAllByRole('radio');
+    expect(radios.filter((radio) => (radio as HTMLInputElement).checked)).toHaveLength(1);
+    expect(screen.getByRole('radio', { name: '波浪理论' })).toBeChecked();
   });
 
-  it('quick questions override the current multi-skill selection', async () => {
+  it('quick questions override the current strategy selection', async () => {
     mockGetSkills.mockResolvedValue({
       skills: [
         { id: 'bull_trend', name: '趋势分析', description: '默认趋势' },
@@ -824,8 +849,10 @@ describe('ChatPage', () => {
       </MemoryRouter>
     );
 
-    fireEvent.click(await screen.findByRole('checkbox', { name: '均线金叉' }));
+    fireEvent.click(await screen.findByRole('radio', { name: '均线金叉' }));
     fireEvent.click(screen.getByRole('button', { name: '用放量突破分析茅台' }));
+    expect(screen.getByRole('radio', { name: '放量突破' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: '均线金叉' })).not.toBeChecked();
 
     await waitFor(() => {
       expect(mockStartStream).toHaveBeenCalledWith(
@@ -1830,73 +1857,3 @@ describe('extractStockCodeFromMessage', () => {
   });
 });
 
-describe('watchlist button with code variants', () => {
-  it('shows "从自选删除" when canonical code is in watchlist and user inputs variant', async () => {
-    mockGetWatchlist.mockResolvedValue(['600519', 'HK01810']);
-
-    render(
-      <MemoryRouter>
-        <ChatPage />
-      </MemoryRouter>,
-    );
-
-    const textarea = await screen.findByPlaceholderText(/例如/);
-    fireEvent.change(textarea, { target: { value: '分析 600519.SH' } });
-    fireEvent.keyDown(textarea, { key: 'Enter' });
-
-    expect(await screen.findByText('从自选删除')).toBeInTheDocument();
-  });
-
-  it('shows "从自选删除" for HK variant codes', async () => {
-    mockGetWatchlist.mockResolvedValue(['HK01810']);
-
-    render(
-      <MemoryRouter>
-        <ChatPage />
-      </MemoryRouter>,
-    );
-
-    const textarea = await screen.findByPlaceholderText(/例如/);
-    fireEvent.change(textarea, { target: { value: '分析 1810.HK' } });
-    fireEvent.keyDown(textarea, { key: 'Enter' });
-
-    expect(await screen.findByText('从自选删除')).toBeInTheDocument();
-  });
-
-  it('matches raw HK watchlist entries before rendering the watchlist action', async () => {
-    mockGetWatchlist.mockResolvedValue(['01810']);
-
-    render(
-      <MemoryRouter>
-        <ChatPage />
-      </MemoryRouter>,
-    );
-
-    const textarea = await screen.findByPlaceholderText(/例如/);
-    fireEvent.change(textarea, { target: { value: '分析 1810.HK' } });
-    fireEvent.keyDown(textarea, { key: 'Enter' });
-
-    expect(await screen.findByText('从自选删除')).toBeInTheDocument();
-  });
-
-  it('removes the matched raw HK watchlist entry instead of adding a duplicate variant', async () => {
-    mockGetWatchlist.mockResolvedValue(['00700']);
-    mockRemoveFromWatchlist.mockResolvedValue([]);
-
-    render(
-      <MemoryRouter>
-        <ChatPage />
-      </MemoryRouter>,
-    );
-
-    const textarea = await screen.findByPlaceholderText(/例如/);
-    fireEvent.change(textarea, { target: { value: '分析 00700.HK' } });
-    fireEvent.keyDown(textarea, { key: 'Enter' });
-    fireEvent.click(await screen.findByText('从自选删除'));
-
-    await waitFor(() => {
-      expect(mockRemoveFromWatchlist).toHaveBeenCalledWith('00700');
-    });
-    expect(mockAddToWatchlist).not.toHaveBeenCalled();
-  });
-});

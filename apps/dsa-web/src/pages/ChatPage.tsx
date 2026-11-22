@@ -29,13 +29,12 @@ import { useUiLanguage } from '../contexts/UiLanguageContext';
 import { formatUiText, type UiLanguage } from '../i18n/uiText';
 import { CHAT_TEXT, CHAT_QUICK_QUESTIONS, getChatSkillName, getChatSkillText } from '../locales/chatText';
 import { extractStockCodesFromMessage } from '../utils/chatStockCode';
-import { findMatchingStockCode, includesStockCode, normalizeStockCode } from '../utils/stockCode';
+import { normalizeStockCode } from '../utils/stockCode';
 
 type LocalizedFeedback = string | ((language: UiLanguage) => string);
 const resolveFeedback = (feedback: LocalizedFeedback, language: UiLanguage) =>
   typeof feedback === 'function' ? feedback(language) : feedback;
 
-const MAX_SELECTED_SKILLS = 3;
 const CONTEXT_COMPRESSION_CONFIG_KEY = 'AGENT_CONTEXT_COMPRESSION_ENABLED';
 const STRONG_COMPARE_STOCK_MESSAGE_RE = /比较|对比|\bvs\b|和[^，。,.!?！？]{0,40}比/i;
 const WEAK_COMPARE_STOCK_MESSAGE_RE = /差异(?!化)|区别|不同|相比|对照|比一比/;
@@ -152,7 +151,7 @@ const ChatPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [input, setInput] = useState('');
   const [skills, setSkills] = useState<SkillInfo[]>([]);
-  const [selectedSkillIds, setSelectedSkillIds] = useState<string[]>([]);
+  const [selectedSkillId, setSelectedSkillId] = useState('');
   const [skillsStatus, setSkillsStatus] = useState<'loading' | 'ready' | 'error' | 'empty'>('loading');
   const [skillsLoadAttempt, setSkillsLoadAttempt] = useState(0);
   const [showSkillDesc, setShowSkillDesc] = useState<string | null>(null);
@@ -174,12 +173,7 @@ const ChatPage: React.FC = () => {
   const [contextCompressionError, setContextCompressionError] = useState<LocalizedFeedback | null>(null);
   const [copiedMessages, setCopiedMessages] = useState<Set<string>>(new Set());
   const [showJumpToBottom, setShowJumpToBottom] = useState(false);
-  const [watchlistCodes, setWatchlistCodes] = useState<string[]>([]);
-  const [isWatchlistActioning, setIsWatchlistActioning] = useState(false);
-  const [watchlistMessage, setWatchlistMessage] = useState<LocalizedFeedback | null>(null);
-  const [activeStockCode, setActiveStockCode] = useState<string | null>(null);
   const [activeStockContext, setActiveStockContext] = useState<ActiveStockContext | null>(null);
-  const watchlistMessageTimerRef = useRef<number | null>(null);
   const copyResetTimerRef = useRef<Partial<Record<string, number>>>({});
   const messagesViewportRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -214,67 +208,6 @@ const ChatPage: React.FC = () => {
     isMountedRef.current = false;
   }, []);
 
-  const loadWatchlist = useCallback(async () => {
-    try {
-      const codes = await systemConfigApi.getWatchlist();
-      if (isMountedRef.current) {
-        setWatchlistCodes(codes);
-      }
-    } catch {
-      // ignore error silently
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadWatchlist();
-  }, [loadWatchlist]);
-
-  const stockInWatchlist = useCallback(
-    (stockCode: string) => includesStockCode(watchlistCodes, stockCode),
-    [watchlistCodes],
-  );
-
-  const handleToggleWatchlist = useCallback(
-    async (stockCode: string) => {
-      if (!stockCode || isWatchlistActioning) return;
-      setIsWatchlistActioning(true);
-      setWatchlistMessage(null);
-      try {
-        const existingStockCode = findMatchingStockCode(watchlistCodes, stockCode);
-        if (existingStockCode) {
-          const codes = await systemConfigApi.removeFromWatchlist(existingStockCode);
-          if (isMountedRef.current) {
-            setWatchlistCodes(codes);
-            setWatchlistMessage(() => (language: UiLanguage) => formatUiText(CHAT_TEXT[language].removedWatchlist, { code: stockCode }));
-          }
-        } else {
-          const codes = await systemConfigApi.addToWatchlist(stockCode);
-          if (isMountedRef.current) {
-            setWatchlistCodes(codes);
-            setWatchlistMessage(() => (language: UiLanguage) => formatUiText(CHAT_TEXT[language].addedWatchlist, { code: stockCode }));
-          }
-        }
-      } catch {
-        if (isMountedRef.current) {
-          setWatchlistMessage(() => (language: UiLanguage) => CHAT_TEXT[language].actionFailed);
-        }
-      } finally {
-        if (isMountedRef.current) {
-          setIsWatchlistActioning(false);
-          if (watchlistMessageTimerRef.current !== null) {
-            window.clearTimeout(watchlistMessageTimerRef.current);
-          }
-          watchlistMessageTimerRef.current = window.setTimeout(() => {
-            if (isMountedRef.current) {
-              setWatchlistMessage(null);
-            }
-          }, 3000);
-        }
-      }
-    },
-    [isWatchlistActioning, watchlistCodes],
-  );
-
   const {
     messages,
     loading,
@@ -299,7 +232,6 @@ const ChatPage: React.FC = () => {
       return;
     }
     setActiveStockContext(restoredContext);
-    setActiveStockCode(restoredContext.stock_code);
   }, [activeStockContext, messages, sessionId]);
 
   const syncScrollState = useCallback(() => {
@@ -370,10 +302,11 @@ const ChatPage: React.FC = () => {
       .then((res) => {
         if (!active) return;
         setSkills(res.skills);
-        const defaultId = res.skills.find((skill) => skill.id === res.default_skill_id)?.id
+        const defaultId = res.skills.find((skill) => skill.id === 'bull_trend')?.id
+          || res.skills.find((skill) => skill.id === res.default_skill_id)?.id
           || res.skills[0]?.id
           || '';
-        setSelectedSkillIds(defaultId ? [defaultId] : []);
+        setSelectedSkillId(defaultId);
         setSkillsStatus(defaultId ? 'ready' : 'empty');
       })
       .catch((error) => {
@@ -457,41 +390,14 @@ const ChatPage: React.FC = () => {
 
   const availableSkillIds = new Set(skills.map((skill) => skill.id));
   const quickQuestions = CHAT_QUICK_QUESTIONS[language].filter((question) => availableSkillIds.has(question.skill));
-  const selectedSkillIdSet = new Set(selectedSkillIds);
-  const skillLimitReached = selectedSkillIds.length >= MAX_SELECTED_SKILLS;
-
   const getSkillNames = useCallback(
     (skillIds: string[]) => skillIds.map((id) => skills.find((s) => s.id === id)?.name || id),
     [skills],
   );
 
-  const normalizeSelectedSkillIds = useCallback((skillIds: string[]) => {
-    const normalized: string[] = [];
-    for (const skillId of skillIds) {
-      const cleaned = skillId.trim();
-      if (cleaned && !normalized.includes(cleaned)) {
-        normalized.push(cleaned);
-      }
-    }
-    return normalized.slice(0, MAX_SELECTED_SKILLS);
-  }, []);
-
-  const toggleSkillSelection = useCallback((skillId: string) => {
-    setSelectedSkillIds((prev) => {
-      if (prev.includes(skillId)) {
-        return prev.length > 1 ? prev.filter((id) => id !== skillId) : prev;
-      }
-      if (prev.length >= MAX_SELECTED_SKILLS) {
-        return prev;
-      }
-      return [...prev, skillId];
-    });
-  }, []);
-
   const handleStartNewChat = useCallback(() => {
     followUpContextRef.current = null;
     setActiveStockContext(null);
-    setActiveStockCode(null);
     requestScrollToBottom('auto');
     useAgentChatStore.getState().startNewChat();
     setSidebarOpen(false);
@@ -504,7 +410,6 @@ const ChatPage: React.FC = () => {
     }
     followUpContextRef.current = null;
     setActiveStockContext(null);
-    setActiveStockCode(null);
     requestScrollToBottom('auto');
     switchSession(targetSessionId);
     setSidebarOpen(false);
@@ -538,7 +443,6 @@ const ChatPage: React.FC = () => {
 
     const hydrationToken = ++followUpHydrationTokenRef.current;
     setInput(buildFollowUpPrompt(stock, name, language));
-    setActiveStockCode(stock);
     setActiveStockContext({
       stock_code: stock,
       stock_name: name,
@@ -568,14 +472,15 @@ const ChatPage: React.FC = () => {
   }, [searchParams, setSearchParams, language]);
 
   const handleSend = useCallback(
-    async (overrideMessage?: string, overrideSkillIds?: string[]) => {
+    async (overrideMessage?: string, overrideSkillId?: string) => {
       const msgText = (overrideMessage ?? input).trim();
       if (!msgText || loading || skillsStatus !== 'ready') return;
-      const usedSkillIds = normalizeSelectedSkillIds(overrideSkillIds ?? selectedSkillIds);
-      if (!usedSkillIds.length || usedSkillIds.some((id) => !skills.some((skill) => skill.id === id))) {
+      const usedSkillId = overrideSkillId ?? selectedSkillId;
+      if (!usedSkillId || !skills.some((skill) => skill.id === usedSkillId)) {
         console.error('Cannot send chat without an available strategy');
         return;
       }
+      const usedSkillIds = [usedSkillId];
       const usedSkillNames = getSkillNames(usedSkillIds);
 
       let nextActiveStockContext = activeStockContext;
@@ -585,7 +490,6 @@ const ChatPage: React.FC = () => {
         nextActiveStockContext = stockResolution.context;
         useActiveContextForThisSend = stockResolution.useForCurrentSend;
         setActiveStockContext(nextActiveStockContext);
-        setActiveStockCode(nextActiveStockContext.stock_code);
       }
       const contextForSend = useActiveContextForThisSend
         ? nextActiveStockContext
@@ -609,7 +513,7 @@ const ChatPage: React.FC = () => {
         skillName: usedSkillNames.join('、'),
       });
     },
-    [activeStockContext, getSkillNames, input, loading, normalizeSelectedSkillIds, requestScrollToBottom, selectedSkillIds, sessionId, skills, skillsStatus, startStream],
+    [activeStockContext, getSkillNames, input, loading, requestScrollToBottom, selectedSkillId, sessionId, skills, skillsStatus, startStream],
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -620,8 +524,8 @@ const ChatPage: React.FC = () => {
   };
 
   const handleQuickQuestion = (q: { label: string; skill: string }) => {
-    setSelectedSkillIds([q.skill]);
-    handleSend(q.label, [q.skill]);
+    setSelectedSkillId(q.skill);
+    handleSend(q.label, q.skill);
   };
 
   const showSendFeedback = useCallback((nextToast: { type: 'success' | 'error'; message: LocalizedFeedback }, durationMs: number) => {
@@ -869,10 +773,10 @@ const ChatPage: React.FC = () => {
     </>
   );
 
-  const selectedSkillSummary = selectedSkillIds.map((id) => {
-    const skill = skills.find((skill) => skill.id === id);
-    return skill ? getChatSkillText(skill, language).name : getChatSkillName(id, language);
-  }).join(language === 'en' ? ', ' : '、');
+  const selectedSkill = skills.find((skill) => skill.id === selectedSkillId);
+  const selectedSkillSummary = selectedSkill
+    ? getChatSkillText(selectedSkill, language).name
+    : getChatSkillName(selectedSkillId, language);
 
   return (
     <div
@@ -1341,35 +1245,33 @@ const ChatPage: React.FC = () => {
                   <div
                     id="chat-skill-picker-panel"
                     data-testid="chat-skill-picker-panel"
+                    role="radiogroup"
+                    aria-labelledby="chat-skill-picker-label"
                     className={cn(
                       mobileSkillPickerOpen ? 'flex' : 'hidden',
                       'max-h-40 flex-wrap items-start gap-x-5 gap-y-2 overflow-y-auto rounded-xl border border-white/6 bg-surface/25 px-3 py-2 md:flex md:max-h-none md:overflow-visible md:border-0 md:bg-transparent md:p-0',
                     )}
                   >
-                    <span className="text-xs text-muted-text font-medium uppercase tracking-wider flex-shrink-0 mt-1">
+                    <span id="chat-skill-picker-label" className="text-xs text-muted-text font-medium uppercase tracking-wider flex-shrink-0 mt-1">
                       {text.strategy}
                     </span>
                     {skills.map((s) => {
                       const skillText = getChatSkillText(s, language);
-                      const checked = selectedSkillIdSet.has(s.id);
-                      const lastSelected = checked && selectedSkillIds.length === 1;
-                      const disabled = lastSelected || (!checked && skillLimitReached);
+                      const checked = selectedSkillId === s.id;
                       return (
                         <label
                           key={s.id}
-                          className={`flex items-center gap-1.5 cursor-pointer group relative mt-0.5 ${!checked && disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          className="flex items-center gap-1.5 cursor-pointer group relative mt-0.5"
                           onMouseEnter={() => setShowSkillDesc(s.id)}
                           onMouseLeave={() => setShowSkillDesc(null)}
                         >
                           <input
-                            type="checkbox"
+                            type="radio"
                             name="skills"
                             value={s.id}
                             checked={checked}
-                            disabled={disabled}
-                            title={lastSelected ? text.strategyRequired : undefined}
-                            onChange={() => toggleSkillSelection(s.id)}
-                            className="chat-skill-checkbox"
+                            onChange={() => setSelectedSkillId(s.id)}
+                            className="chat-skill-radio"
                           />
                           <span
                             className={`transition-colors text-sm ${checked ? 'text-foreground font-medium' : 'text-secondary-text group-hover:text-foreground'}`}
@@ -1386,27 +1288,8 @@ const ChatPage: React.FC = () => {
                       );
                     })}
                   </div>
-                  <p className="text-xs text-muted-text">{text.strategyRequired}</p>
                 </div>
               )}
-
-            {activeStockCode && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-text font-mono">{activeStockCode}</span>
-                <Button
-                  variant="secondary"
-                  size="xsm"
-                  isLoading={isWatchlistActioning}
-                  onClick={() => void handleToggleWatchlist(activeStockCode)}
-                  className="text-[11px]"
-                >
-                  {stockInWatchlist(activeStockCode) ? text.removeWatchlist : text.addWatchlist}
-                </Button>
-                {watchlistMessage && (
-                  <span className="text-[11px] text-secondary-text animate-in fade-in">{resolveFeedback(watchlistMessage, language)}</span>
-                )}
-              </div>
-            )}
 
               <div className="flex items-end gap-3">
                 <textarea
