@@ -19,7 +19,7 @@ describe('chat export localization', () => {
     expect(output).toContain('# Ask conversation');
     expect(output).toContain('Generated at:');
     expect(output).toContain('## User');
-    expect(output).toContain('## AI (Default bullish trend, Volume breakout)');
+    expect(output).toContain('## AI (Bullish trend, Volume breakout)');
     expect(output).toContain('请分析茅台');
     expect(output).toContain('原始中文分析');
   });

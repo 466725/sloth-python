@@ -18,7 +18,6 @@ import {
 import { downloadSession, formatSessionAsMarkdown } from '../utils/chatExport';
 import type { ChatFollowUpContext } from '../utils/chatFollowUp';
 import {
-  buildFollowUpPrompt,
   parseFollowUpRecordId,
   resolveChatFollowUpContext,
   sanitizeFollowUpStockCode,
@@ -28,25 +27,14 @@ import { isNearBottom } from '../utils/chatScroll';
 import { useUiLanguage } from '../contexts/UiLanguageContext';
 import { formatUiText, type UiLanguage } from '../i18n/uiText';
 import { CHAT_TEXT, CHAT_QUICK_QUESTIONS, getChatSkillName, getChatSkillText } from '../locales/chatText';
-import { extractStockCodesFromMessage } from '../utils/chatStockCode';
-import { areStockCodesEquivalent, normalizeStockCode } from '../utils/stockCode';
+import { areStockCodesEquivalent } from '../utils/stockCode';
 
 type LocalizedFeedback = string | ((language: UiLanguage) => string);
 const resolveFeedback = (feedback: LocalizedFeedback, language: UiLanguage) =>
   typeof feedback === 'function' ? feedback(language) : feedback;
 
 const CONTEXT_COMPRESSION_CONFIG_KEY = 'AGENT_CONTEXT_COMPRESSION_ENABLED';
-const STRONG_COMPARE_STOCK_MESSAGE_RE = /比较|对比|\bvs\b|和[^，。,.!?！？]{0,40}比/i;
-const WEAK_COMPARE_STOCK_MESSAGE_RE = /差异(?!化)|区别|不同|相比|对照|比一比/;
-const CHOICE_COMPARE_STOCK_MESSAGE_RE = /哪个|哪只|哪一个|谁更|更值得|更适合|怎么选|选哪|二选一/;
-const LINKED_COMPARE_STOCK_MESSAGE_RE = /(?:和|与|跟|同)[^，。,.!?！？]{0,40}(?:差异(?!化)|区别|不同|相比|对照|比一比)/;
-const SWITCH_STOCK_MESSAGE_RE = /换成|改看|分析|看看|研究|诊断/;
-
 type ActiveStockContext = Pick<ChatFollowUpContext, 'stock_code' | 'stock_name'>;
-type ActiveStockResolution = {
-  context: ActiveStockContext;
-  useForCurrentSend: boolean;
-};
 
 const getMessageSkillNames = (msg: Message): string[] => {
   if (msg.skillNames?.length) return msg.skillNames;
@@ -59,98 +47,10 @@ const getMessageSkillNames = (msg: Message): string[] => {
 const getMessageSkillLabel = (msg: Message, language: UiLanguage): string =>
   getMessageSkillNames(msg).flatMap((name) => name.split('、')).map((name) => getChatSkillName(name, language)).join(language === 'en' ? ', ' : '、');
 
-const isCompareStockMessage = (
-  message: string,
-  stockCodes: string[],
-  currentStockCode?: string | null,
-): boolean => {
-  if (STRONG_COMPARE_STOCK_MESSAGE_RE.test(message)) {
-    return true;
-  }
-  const current = currentStockCode ? normalizeStockCode(currentStockCode) : null;
-  const newStockCodes = current
-    ? stockCodes.filter((code) => code !== current)
-    : stockCodes;
-  if (newStockCodes.length >= 2) {
-    return true;
-  }
-  if (CHOICE_COMPARE_STOCK_MESSAGE_RE.test(message) && stockCodes.length >= 2) {
-    return true;
-  }
-  if (!WEAK_COMPARE_STOCK_MESSAGE_RE.test(message)) {
-    return false;
-  }
-  if (stockCodes.length >= 2) {
-    return true;
-  }
-  if (!currentStockCode) {
-    return false;
-  }
-  const hasNewStock = stockCodes.some((code) => code !== current);
-  return hasNewStock && LINKED_COMPARE_STOCK_MESSAGE_RE.test(message);
-};
-
-const resolveActiveStockContextFromMessage = (
-  message: string,
-  currentContext: ActiveStockContext | null,
-): ActiveStockResolution | null => {
-  const stockCodes = extractStockCodesFromMessage(message);
-  const stockCode = stockCodes[0] ?? null;
-  if (!stockCode) {
-    return null;
-  }
-
-  const isCompare = isCompareStockMessage(message, stockCodes, currentContext?.stock_code);
-  const isSwitch = SWITCH_STOCK_MESSAGE_RE.test(message);
-  const currentStockCode = currentContext?.stock_code
-    ? normalizeStockCode(currentContext.stock_code)
-    : null;
-  const newStockCodes = currentStockCode
-    ? stockCodes.filter((code) => code !== currentStockCode)
-    : stockCodes;
-  // Explicit switches can mention the old stock; use the single new code when present.
-  const targetStockCode = isSwitch && newStockCodes.length === 1
-    ? newStockCodes[0]
-    : stockCode;
-  const isDifferentStock = currentStockCode !== targetStockCode;
-
-  // Compare messages and implicit follow-ups must not rewrite the active stock context.
-  if (isCompare || (currentContext && !isSwitch)) {
-    return null;
-  }
-
-  return {
-    context: {
-      stock_code: targetStockCode,
-      stock_name: currentContext && !isDifferentStock
-        ? currentContext.stock_name
-        : null,
-    },
-    // Only explicit switches should affect the context sent with the current request.
-    useForCurrentSend: isSwitch && isDifferentStock,
-  };
-};
-
-const restoreActiveStockContextFromMessages = (messages: Message[]): ActiveStockContext | null => {
-  let restoredContext: ActiveStockContext | null = null;
-  for (const message of messages) {
-    if (message.role !== 'user') {
-      continue;
-    }
-    const resolution = resolveActiveStockContextFromMessage(message.content, restoredContext);
-    if (resolution) {
-      restoredContext = resolution.context;
-    }
-  }
-  return restoredContext;
-};
-
 const ChatPage: React.FC = () => {
   const { language } = useUiLanguage();
   const text = CHAT_TEXT[language];
   const [searchParams, setSearchParams] = useSearchParams();
-  const [input, setInput] = useState<string | null>(null);
-  const [followUpPrompt, setFollowUpPrompt] = useState('');
   const [skills, setSkills] = useState<SkillInfo[]>([]);
   const [selectedSkillId, setSelectedSkillId] = useState('');
   const [skillsStatus, setSkillsStatus] = useState<'loading' | 'ready' | 'error' | 'empty'>('loading');
@@ -227,17 +127,6 @@ const ChatPage: React.FC = () => {
     startStream,
     clearCompletionBadge,
   } = useAgentChatStore();
-
-  useEffect(() => {
-    if (activeStockContext || messages.length === 0) {
-      return;
-    }
-    const restoredContext = restoreActiveStockContextFromMessages(messages);
-    if (!restoredContext) {
-      return;
-    }
-    setActiveStockContext(restoredContext);
-  }, [activeStockContext, messages, sessionId]);
 
   const syncScrollState = useCallback(() => {
     const viewport = messagesViewportRef.current;
@@ -419,27 +308,24 @@ const ChatPage: React.FC = () => {
   );
 
   const selectedSkill = skills.find((skill) => skill.id === selectedSkillId);
-  const generatedPrompt = selectedSkill && selectedStockCode
+  const promptForSkill = (skill: SkillInfo | undefined) => skill && selectedStockCode
     ? formatUiText(text.generatedPrompt, {
-      strategy: getChatSkillText(selectedSkill, language).name,
+      strategy: getChatSkillText(skill, language).name,
       stock: selectedStockCode,
     })
     : '';
-  const inputValue = input ?? (generatedPrompt || followUpPrompt);
-
-  const quickQuestions = CHAT_QUICK_QUESTIONS[language]
+  const generatedPrompt = promptForSkill(selectedSkill);
+  const quickQuestions = selectedStockCode ? CHAT_QUICK_QUESTIONS[language]
     .filter((question, index, questions) =>
-      !selectedStockCode || questions.findIndex((item) => item.skill === question.skill) === index)
+      questions.findIndex((item) => item.skill === question.skill) === index)
     .flatMap((question) => {
       const skill = skills.find((item) => item.id === question.skill);
       if (!skill) return [];
       return [{
         ...question,
-        label: selectedStockCode
-          ? formatUiText(text.quickStockQuestion, { stock: selectedStockCode, strategy: getChatSkillText(skill, language).name })
-          : question.label,
+        label: formatUiText(text.quickStockQuestion, { stock: selectedStockCode, strategy: getChatSkillText(skill, language).name }),
       }];
-    });
+    }) : [];
   const getSkillNames = useCallback(
     (skillIds: string[]) => skillIds.map((id) => skills.find((s) => s.id === id)?.name || id),
     [skills],
@@ -492,8 +378,6 @@ const ChatPage: React.FC = () => {
     }
 
     const hydrationToken = ++followUpHydrationTokenRef.current;
-    setFollowUpPrompt(buildFollowUpPrompt(stock, name, language));
-    setInput(null);
     setActiveStockContext({
       stock_code: stock,
       stock_name: name,
@@ -522,50 +406,34 @@ const ChatPage: React.FC = () => {
     setSearchParams({}, { replace: true });
   }, [searchParams, setSearchParams, language]);
 
-  const handleSend = async (overrideMessage?: string, overrideSkillId?: string) => {
-    const msgText = (overrideMessage ?? inputValue).trim();
-    if (!msgText || loading || skillsStatus !== 'ready' || stocksStatus !== 'ready') return;
+  const handleSend = async (overrideSkillId?: string) => {
+    if (loading || skillsStatus !== 'ready' || stocksStatus !== 'ready'
+      || !selectedStockCode || !stockCodes.includes(selectedStockCode)) return;
     const usedSkillId = overrideSkillId ?? selectedSkillId;
-    if (!usedSkillId || !skills.some((skill) => skill.id === usedSkillId)) {
+    const usedSkill = skills.find((skill) => skill.id === usedSkillId);
+    if (!usedSkill) {
       console.error('Cannot send chat without an available strategy');
       return;
     }
+    const msgText = promptForSkill(usedSkill);
     const usedSkillIds = [usedSkillId];
     const usedSkillNames = getSkillNames(usedSkillIds);
 
-    let nextActiveStockContext = activeStockContext;
-    let useActiveContextForThisSend = false;
-    if (selectedStockCode) {
-      const matchingContext = [followUpContextRef.current, activeStockContext]
-        .find((context) => context && areStockCodesEquivalent(context.stock_code, selectedStockCode));
-      nextActiveStockContext = matchingContext ?? { stock_code: selectedStockCode, stock_name: null };
-      useActiveContextForThisSend = true;
-      setActiveStockContext(nextActiveStockContext);
-    } else {
-      const stockResolution = resolveActiveStockContextFromMessage(msgText, activeStockContext);
-      if (stockResolution) {
-        nextActiveStockContext = stockResolution.context;
-        useActiveContextForThisSend = stockResolution.useForCurrentSend;
-        setActiveStockContext(nextActiveStockContext);
-      }
-    }
-    const contextForSend = useActiveContextForThisSend
-      ? nextActiveStockContext
-      : followUpContextRef.current ?? nextActiveStockContext ?? undefined;
+    const matchingContext = [followUpContextRef.current, activeStockContext]
+      .find((context) => context && areStockCodesEquivalent(context.stock_code, selectedStockCode));
+    const contextForSend = matchingContext ?? { stock_code: selectedStockCode, stock_name: null };
+    setActiveStockContext(contextForSend);
 
     const payload = {
       message: msgText,
       session_id: sessionId,
       skills: usedSkillIds,
-      context: selectedStockCode && contextForSend
-        ? { ...contextForSend, lock_stock_scope: true }
-        : contextForSend ?? undefined,
+      context: { ...contextForSend, lock_stock_scope: true },
     };
     followUpHydrationTokenRef.current += 1;
     followUpContextRef.current = null;
     setIsFollowUpContextLoading(false);
 
-    setInput('');
     setMobileSkillPickerOpen(false);
     requestScrollToBottom('smooth');
     await startStream(payload, {
@@ -583,7 +451,7 @@ const ChatPage: React.FC = () => {
 
   const handleQuickQuestion = (q: { label: string; skill: string }) => {
     setSelectedSkillId(q.skill);
-    handleSend(q.label, q.skill);
+    handleSend(q.skill);
   };
 
   const showSendFeedback = useCallback((nextToast: { type: 'success' | 'error'; message: LocalizedFeedback }, durationMs: number) => {
@@ -1056,7 +924,7 @@ const ChatPage: React.FC = () => {
                         <button
                           key={i}
                           onClick={() => handleQuickQuestion(q)}
-                          disabled={stocksStatus !== 'ready'}
+                          disabled={loading || stocksStatus !== 'ready' || skillsStatus !== 'ready'}
                           className="quick-question-btn"
                         >
                          {q.label}
@@ -1084,8 +952,10 @@ const ChatPage: React.FC = () => {
                   </div>
                   <div
                     className={cn(
-                      'group/message min-w-0 w-fit max-w-[min(100%,48rem)] overflow-hidden px-5 py-3.5 transition-colors',
-                      msg.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'
+                      'group/message min-w-0 overflow-hidden px-5 py-3.5 transition-colors',
+                      msg.role === 'user'
+                        ? 'w-fit max-w-[min(100%,48rem)] chat-bubble-user'
+                        : 'flex-1 chat-bubble-ai'
                     )}
                   >
                     {msg.role === 'assistant' && skillLabel && (
@@ -1114,7 +984,7 @@ const ChatPage: React.FC = () => {
                       msg.thinkingSteps &&
                       renderThinkingDetails(msg.thinkingSteps)}
                     {msg.role === 'assistant' ? (
-                      <div className="relative">
+                      <div className="flow-root">
                         <div className="chat-message-actions">
                           <button
                             type="button"
@@ -1133,7 +1003,7 @@ const ChatPage: React.FC = () => {
                             {text.export}
                           </button>
                         </div>
-                        <div className="chat-prose pr-20 sm:pr-24">
+                        <div className="chat-prose">
                           <Markdown remarkPlugins={[remarkGfm]}>
                             {msg.content}
                           </Markdown>
@@ -1220,7 +1090,7 @@ const ChatPage: React.FC = () => {
                   className="rounded-xl px-3 py-2 text-xs shadow-none"
                 />
               ) : null}
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/6 bg-surface/25 px-3 py-2">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/6 bg-surface/25 px-3 py-2 md:border-0 md:bg-transparent md:px-0">
                 <label
                   className={cn(
                     'inline-flex items-center gap-2 text-sm',
@@ -1310,47 +1180,43 @@ const ChatPage: React.FC = () => {
                       'max-h-40 flex-wrap items-start gap-x-5 gap-y-2 overflow-y-auto rounded-xl border border-white/6 bg-surface/25 px-3 py-2 md:flex md:max-h-none md:overflow-visible md:border-0 md:bg-transparent md:p-0',
                     )}
                   >
-                    <span id="chat-skill-picker-label" className="text-xs text-muted-text font-medium uppercase tracking-wider flex-shrink-0 mt-1">
+                    <span id="chat-skill-picker-label" className="w-full text-xs text-muted-text font-medium uppercase tracking-wider">
                       {text.strategy}
                     </span>
-                    {skills.map((s) => {
-                      const skillText = getChatSkillText(s, language);
-                      const checked = selectedSkillId === s.id;
-                      return (
-                        <label
-                          key={s.id}
-                          className="flex items-center gap-1.5 cursor-pointer group relative mt-0.5"
-                          onMouseEnter={() => setShowSkillDesc(s.id)}
-                          onMouseLeave={() => setShowSkillDesc(null)}
-                        >
-                          <input
-                            type="radio"
-                            name="skills"
-                            value={s.id}
-                            checked={checked}
-                            onChange={() => {
-                              setSelectedSkillId(s.id);
-                              if (selectedStockCode) setInput(null);
-                            }}
-                            onClick={() => {
-                              if (checked && selectedStockCode) setInput(null);
-                            }}
-                            className="chat-skill-radio"
-                          />
-                          <span
-                            className={`transition-colors text-sm ${checked ? 'text-foreground font-medium' : 'text-secondary-text group-hover:text-foreground'}`}
+                    <div className="grid min-w-0 flex-1 grid-cols-2 gap-x-4 gap-y-2 md:grid-cols-4">
+                      {skills.map((s) => {
+                        const skillText = getChatSkillText(s, language);
+                        const checked = selectedSkillId === s.id;
+                        return (
+                          <label
+                            key={s.id}
+                            className="flex min-w-0 items-center gap-1.5 cursor-pointer group relative mt-0.5"
+                            onMouseEnter={() => setShowSkillDesc(s.id)}
+                            onMouseLeave={() => setShowSkillDesc(null)}
                           >
-                            {skillText.name}
-                          </span>
-                          {showSkillDesc === s.id && s.description && (
-                            <div className="skill-desc-tooltip">
-                              <p className="skill-title">{skillText.name}</p>
-                              <p>{skillText.description}</p>
-                            </div>
-                          )}
-                        </label>
-                      );
-                    })}
+                            <input
+                              type="radio"
+                              name="skills"
+                              value={s.id}
+                              checked={checked}
+                              onChange={() => setSelectedSkillId(s.id)}
+                              className="chat-skill-radio"
+                            />
+                            <span
+                              className={`min-w-0 break-words transition-colors text-sm ${checked ? 'text-foreground font-medium' : 'text-secondary-text group-hover:text-foreground'}`}
+                            >
+                              {skillText.name}
+                            </span>
+                            {showSkillDesc === s.id && s.description && (
+                              <div className="skill-desc-tooltip">
+                                <p className="skill-title">{skillText.name}</p>
+                                <p>{skillText.description}</p>
+                              </div>
+                            )}
+                          </label>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               )}
@@ -1373,6 +1239,9 @@ const ChatPage: React.FC = () => {
                   className="rounded-xl px-3 py-2"
                 />
               )}
+              {stocksStatus === 'ready' && stockCodes.length === 0 && (
+                <InlineAlert variant="info" message={text.stocksEmpty} className="rounded-xl px-3 py-2 text-xs shadow-none" />
+              )}
               {stocksStatus === 'ready' && stockCodes.length > 0 && (
                 <div role="radiogroup" aria-label={text.stocks} className="flex flex-wrap items-center gap-x-5 gap-y-2 px-3 md:px-0">
                   <span className="text-xs text-muted-text font-medium uppercase tracking-wider">{text.stocks}</span>
@@ -1383,13 +1252,7 @@ const ChatPage: React.FC = () => {
                         name="stock"
                         value={code}
                         checked={selectedStockCode === code}
-                        onChange={() => {
-                          setSelectedStockCode(code);
-                          setInput(null);
-                        }}
-                        onClick={() => {
-                          if (selectedStockCode === code) setInput(null);
-                        }}
+                        onChange={() => setSelectedStockCode(code)}
                         className="chat-skill-radio"
                       />
                       {code}
@@ -1400,24 +1263,19 @@ const ChatPage: React.FC = () => {
 
               <div className="flex items-end gap-3">
                 <textarea
-                  value={inputValue}
-                  onChange={(e) => setInput(e.target.value)}
+                  value={generatedPrompt}
+                  readOnly
+                  aria-label={text.promptLabel}
                   onKeyDown={handleKeyDown}
                   placeholder={text.placeholder}
                   disabled={loading}
                   rows={1}
                   className="input-surface input-focus-glow flex-1 min-h-[44px] max-h-[200px] rounded-xl border bg-transparent px-4 py-2.5 text-sm transition-all focus:outline-none resize-none disabled:cursor-not-allowed disabled:opacity-60"
-                  style={{ height: 'auto' }}
-                  onInput={(e) => {
-                    const t = e.target as HTMLTextAreaElement;
-                    t.style.height = 'auto';
-                    t.style.height = `${Math.min(t.scrollHeight, 200)}px`;
-                  }}
                 />
                 <Button
                   variant="primary"
                   onClick={() => handleSend()}
-                  disabled={!inputValue.trim() || loading || skillsStatus !== 'ready' || stocksStatus !== 'ready'}
+                  disabled={!generatedPrompt || loading || skillsStatus !== 'ready' || stocksStatus !== 'ready'}
                   isLoading={loading}
                   loadingText={text.sending}
                   className="btn-primary flex-shrink-0"

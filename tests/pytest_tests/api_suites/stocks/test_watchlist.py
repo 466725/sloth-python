@@ -12,6 +12,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from tests.pytest_tests.api_suites.base import BaseAPITest
+from tests.pytest_tests.api_suites.conftest import ApiEnvironment
 
 pytestmark = pytest.mark.api
 
@@ -44,6 +45,30 @@ class TestGetWatchlist(BaseAPITest):
         body = self.assert_ok(api_client.get(self.ENDPOINT))
 
         assert body["stock_codes"] == [*SEEDED_CODES, "601318"]
+
+    def test_reads_runtime_only_stock_list_and_persists_edits(
+        self, api_client: TestClient, api_env: ApiEnvironment, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        api_env.env_file.write_text("REPORT_LANGUAGE=en\n", encoding="utf-8")
+        monkeypatch.setenv("STOCK_LIST", "600519,000858")
+
+        assert self.assert_ok(api_client.get(self.ENDPOINT))["stock_codes"] == SEEDED_CODES
+        body = self.assert_ok(
+            api_client.post("/api/v1/stocks/watchlist/remove", json={"stock_code": "600519"})
+        )
+        assert body["stock_codes"] == ["000858"]
+        assert self.assert_ok(api_client.get(self.ENDPOINT))["stock_codes"] == ["000858"]
+        assert api_env.read_env()["STOCK_LIST"] == "000858"
+
+    @pytest.mark.parametrize("saved_value", ["AAPL", ""])
+    def test_saved_stock_list_overrides_runtime_value(
+        self, api_client: TestClient, api_env: ApiEnvironment, monkeypatch: pytest.MonkeyPatch, saved_value: str
+    ) -> None:
+        api_env.env_file.write_text(f"STOCK_LIST={saved_value}\n", encoding="utf-8")
+        monkeypatch.setenv("STOCK_LIST", "600519,000858")
+
+        expected = [saved_value] if saved_value else []
+        assert self.assert_ok(api_client.get(self.ENDPOINT))["stock_codes"] == expected
 
 
 class TestAddToWatchlist(BaseAPITest):

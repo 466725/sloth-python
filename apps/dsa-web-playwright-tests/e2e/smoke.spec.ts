@@ -28,8 +28,17 @@ test.describe('web smoke', () => {
         await expect(analyzeButton).toBeVisible();
     });
 
-    test('chat page allows entering a question and starts a request', async ({page}) => {
+    test('chat page sends the generated prompt for the selected stock and strategy', async ({page}) => {
         await openApp(page);
+        await page.route('**/api/v1/stocks/watchlist', (route) =>
+            route.fulfill({json: {stock_codes: ['600519', 'AAPL']}}));
+        await page.route('**/api/v1/agent/skills', (route) =>
+            route.fulfill({json: {
+                skills: [{id: 'bull_trend', name: '默认多头趋势', description: '趋势分析'}],
+                default_skill_id: 'bull_trend',
+            }}));
+        await page.route('**/api/v1/agent/chat/stream', (route) =>
+            route.fulfill({contentType: 'text/event-stream', body: 'data: {"type":"done","content":"测试结果"}\n\n'}));
 
         // Navigate to chat page by clicking the link
         await page.getByRole('link', {name: '问股'}).click();
@@ -38,13 +47,22 @@ test.describe('web smoke', () => {
         await expect(page.getByTestId('chat-session-list-scroll')).toBeVisible();
         await expect(page.getByTestId('chat-message-scroll')).toBeVisible();
 
-        const input = page.getByPlaceholder(/分析 600519/);
+        const input = page.getByRole('textbox', {name: '自动生成的分析提示'});
         await expect(input).toBeVisible({timeout: 5000});
-
-        const prompt = '请简要分析 600519';
-        await input.fill(prompt);
+        await page.getByRole('radio', {name: 'AAPL'}).check();
+        const prompt = '使用策略 默认多头趋势 分析股票 AAPL';
+        await expect(input).toHaveValue(prompt);
+        await expect(input).toHaveAttribute('readonly');
+        await input.pressSequentially('TSLA');
+        await expect(input).toHaveValue(prompt);
+        const requestPromise = page.waitForRequest('**/api/v1/agent/chat/stream');
         await page.getByRole('button', {name: '发送'}).click();
-
+        const payload = (await requestPromise).postDataJSON();
+        expect(payload).toMatchObject({
+            message: prompt,
+            skills: ['bull_trend'],
+            context: {stock_code: 'AAPL', lock_stock_scope: true},
+        });
         await expect(page.locator('p').filter({hasText: prompt}).last()).toBeVisible({timeout: 5000});
     });
 
@@ -54,7 +72,7 @@ test.describe('web smoke', () => {
         await page.getByRole('link', {name: '问股'}).click();
 
         const sendButton = page.getByRole('button', {name: '发送'});
-        const composer = page.getByPlaceholder(/分析 600519/);
+        const composer = page.getByRole('textbox', {name: '自动生成的分析提示'});
 
         await expect(page.getByTestId('chat-workspace')).toBeVisible({timeout: 10_000});
         await expect(sendButton).toBeVisible({timeout: 10_000});
@@ -62,6 +80,63 @@ test.describe('web smoke', () => {
 
         await expect(sendButton).not.toHaveAttribute('title', /.+/);
         await expect(composer).not.toHaveAttribute('title', /.+/);
+    });
+
+    test('assistant responses use the available width on desktop and mobile', async ({page}) => {
+        await page.addInitScript(() => {
+            localStorage.setItem('dsa.uiLanguage', 'en');
+            localStorage.setItem('dsa_chat_session_id', 'test-session');
+        });
+        await page.route('**/api/v1/agent/chat/sessions?*', (route) =>
+            route.fulfill({json: {sessions: [{
+                session_id: 'test-session', title: 'Test', message_count: 2,
+                created_at: null, last_active: null,
+            }]}}));
+        await page.route('**/api/v1/agent/chat/sessions/test-session', (route) =>
+            route.fulfill({json: {messages: [
+                {id: 'user', role: 'user', content: 'Analyze stock', created_at: null},
+                {id: 'assistant', role: 'assistant', content: `# Analysis\n\n${'Stock analysis details. '.repeat(100)}`, created_at: null},
+            ]}}));
+        await page.goto('/chat');
+        const assistant = page.locator('.chat-bubble-ai');
+        const user = page.locator('.chat-bubble-user');
+        await expect(assistant).toBeVisible();
+        for (const width of [1440, 390]) {
+            await page.setViewportSize({width, height: 900});
+            const geometry = await assistant.evaluate((bubble) => {
+                const row = bubble.parentElement!.getBoundingClientRect();
+                const rect = bubble.getBoundingClientRect();
+                const prose = bubble.querySelector('.chat-prose')!;
+                const actions = bubble.querySelector('.chat-message-actions')!.getBoundingClientRect();
+                const texts = document.createTreeWalker(prose, NodeFilter.SHOW_TEXT);
+                let overlapsActions = false;
+                while (texts.nextNode()) {
+                    const range = document.createRange();
+                    range.selectNodeContents(texts.currentNode);
+                    for (const textRect of range.getClientRects()) {
+                        if (textRect.left < actions.right && textRect.right > actions.left
+                            && textRect.top < actions.bottom && textRect.bottom > actions.top) {
+                            overlapsActions = true;
+                        }
+                    }
+                }
+                return {
+                    rowRight: row.right,
+                    bubbleRight: rect.right,
+                    prosePaddingRight: getComputedStyle(prose).paddingRight,
+                    overlapsActions,
+                };
+            });
+            expect(Math.abs(geometry.rowRight - geometry.bubbleRight)).toBeLessThanOrEqual(1);
+            expect(geometry.prosePaddingRight).toBe('0px');
+            expect(geometry.overlapsActions).toBe(false);
+            const userWidth = (await user.boundingBox())!.width;
+            const assistantWidth = (await assistant.boundingBox())!.width;
+            expect(userWidth).toBeLessThan(assistantWidth);
+        }
+        await assistant.hover();
+        await expect(assistant.getByRole('button', {name: 'Copy'})).toBeVisible();
+        await expect(assistant.getByRole('button', {name: 'Export this message as Markdown'})).toBeVisible();
     });
 
     test('mobile shell opens navigation drawer', async ({page}) => {

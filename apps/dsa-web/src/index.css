@@ -1380,9 +1380,10 @@ textarea {
 }
 
 .chat-message-actions {
-  position: absolute;
-  top: 0;
-  right: 0;
+  position: relative;
+  float: right;
+  margin-left: 0.5rem;
+  margin-bottom: 0.25rem;
   z-index: 10;
   display: flex;
   gap: 0.5rem;

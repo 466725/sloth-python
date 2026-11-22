@@ -42,7 +42,7 @@ Open <http://localhost:5173>. Vite proxies `/api` requests to `http://127.0.0.1:
 | Route | Page | What you can do |
 | --- | --- | --- |
 | `/` | Home | Manage the watchlist, start analysis, follow task progress, review the market, browse history, and read Markdown reports |
-| `/chat` | Ask Stock | Ask multi-turn questions about stocks and built-in strategies |
+| `/chat` | Ask Stock | Analyze configured stocks using a selected strategy |
 | `/decision-signals` | Decision Signals | Review action tendency, evidence, risks, and follow-up watch conditions |
 | `/backtest` | Backtest | Evaluate historical rules against available market data |
 | `/alerts` | Alerts | Manage alert rules and review triggered, skipped, or degraded results |
@@ -74,7 +74,7 @@ started from the Web app or CLI and uses market-wide context where supported.
 
 ### Ask Stock chat
 
-The `/chat` page supports multi-turn questions using configured models and the
+The `/chat` page supports repeated analyses using configured models and the
 application's existing stock-data, analysis, and strategy tools. Built-in
 strategies can be selected explicitly; custom strategies and experimental
 multi-agent modes depend on the backend configuration. Provider setup is covered
@@ -86,20 +86,23 @@ strategy. If the strategy catalog cannot be loaded or is empty, retry
 before sending a question.
 
 Ask displays up to the first six distinct stocks from `STOCK_LIST`, selecting
-the first by default. The selected stock is the analysis target even when the
-question or a linked report mentions another stock. With an empty list, Ask
-continues to use the question or report context. Retry if the list cannot load.
-When both a stock and strategy are selected, Ask generates a prompt in the
-input. Selecting either radio again replaces the current draft with a new
-prompt; it can still be edited before sending.
+the first by default. The selected stock is the analysis target even when a
+linked report mentions another stock. An empty list prevents sending until
+stocks are configured. Retry if the list cannot load.
+For Docker, startup-injected `STOCK_LIST` is used when no saved value exists;
+a saved value takes precedence, including an explicitly empty list. Recreate
+the container to apply changes to its startup environment.
+When both a stock and strategy are selected, Ask displays a read-only generated
+prompt. Changing either selection updates the prompt; quick questions also use
+the selected stock.
 
 The sidebar language switch applies to Ask controls, built-in strategy labels
 and descriptions, quick questions, conversation dates, local feedback and
-Markdown export headings. Switching languages preserves edited drafts, strategy
-selections and conversation content without restarting requests. Saved titles,
+Markdown export headings. Switching languages preserves strategy selections and
+conversation content without restarting requests. Saved titles,
 user messages, AI responses, provider progress and custom skill metadata remain
 in their original language; the UI switch does not translate existing answers.
-An unedited generated prompt follows the selected UI language.
+The generated prompt follows the selected UI language.
 
 ### Backtesting and decision signals
 

@@ -105,6 +105,18 @@ class SystemConfigApiTestCase(unittest.TestCase):
         self.assertNotIn("base", {category["category"] for category in self.service.get_schema()["categories"]})
         self.assertIn("STOCK_LIST=600519,000001", self.env_path.read_text(encoding="utf-8"))
 
+    def test_runtime_stock_list_is_available_without_schema_but_hidden_from_editor(self) -> None:
+        self._rewrite_env("LOG_LEVEL=INFO")
+        with patch.dict(os.environ, {"STOCK_LIST": "600519,000001"}):
+            without_schema = self.service.get_config(include_schema=False)
+            with_schema = self.service.get_config(include_schema=True)
+
+        self.assertEqual(
+            {item["key"]: item["value"] for item in without_schema["items"]}["STOCK_LIST"],
+            "600519,000001",
+        )
+        self.assertNotIn("STOCK_LIST", {item["key"] for item in with_schema["items"]})
+
     def test_removed_provider_fields_are_hidden_without_changing_saved_config(self) -> None:
         self._rewrite_env(
             "ANTHROPIC_API_KEY=old-key-value",

@@ -277,6 +277,7 @@ class SystemConfigService:
             llm_channel_match = cls._WEB_SETTINGS_LLM_CHANNEL_SUPPORT_KEY_RE.match(key)
             if (
                 key in registered_keys
+                or key == "STOCK_LIST"
                 or (llm_channel_match and llm_channel_match.group(1) in channel_names)
             ):
                 runtime_map[key] = "" if raw_value is None else str(raw_value)
