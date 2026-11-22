@@ -55,6 +55,15 @@ class StockScope:
             "mode": self.mode,
         }
 
+    def prompt_instruction(self) -> str:
+        if self.mode != "locked":
+            return ""
+        return (
+            "The user selected the stock specified in the stock context for this request. "
+            "Analyze only that stock, even if the question or conversation names another stock. "
+            "Do not use data for another stock."
+        )
+
 
 @dataclass(frozen=True)
 class StockScopeResolution:
@@ -185,6 +194,17 @@ def resolve_stock_scope(
     original_context = dict(context or {})
     message_text = message or ""
     current_code = _normalize_stock_code(original_context.get("stock_code"))
+    if current_code and original_context.get("lock_stock_scope") is True:
+        original_context.pop("allowed_stock_codes", None)
+        original_context["stock_code"] = current_code
+        return StockScopeResolution(
+            effective_context=_with_skills(original_context, skills),
+            stock_scope=StockScope(
+                expected_stock_code=current_code,
+                allowed_stock_codes={current_code},
+                mode="locked",
+            ),
+        )
     invalid_context_code = bool(current_code and _is_denied_candidate(current_code, message_text))
     original_context.pop("allowed_stock_codes", None)
     if invalid_context_code:
