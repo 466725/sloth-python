@@ -85,6 +85,11 @@ If it is unavailable, Ask selects the catalog's default or the first available
 strategy. If the strategy catalog cannot be loaded or is empty, retry
 before sending a question.
 
+Ask displays up to the first six distinct stocks from `STOCK_LIST`, selecting
+the first by default. The selected stock is the analysis target even when the
+question or a linked report mentions another stock. With an empty list, Ask
+continues to use the question or report context. Retry if the list cannot load.
+
 The sidebar language switch applies to Ask controls, built-in strategy labels
 and descriptions, quick questions, conversation dates, local feedback and
 Markdown export headings. Switching languages preserves drafts, strategy
