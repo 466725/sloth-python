@@ -237,6 +237,7 @@ describe('ChatPage', () => {
     expect(await screen.findByRole('radio', { name: 'Bullish trend' })).toBeChecked();
     expect(screen.getByRole('radiogroup', { name: 'Strategies' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Ask' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'History' })).toBeInTheDocument();
     expect(screen.getByText('No conversation history')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Start new conversation' })).not.toBeInTheDocument();
     expect(await screen.findByRole('button', { name: 'Analyze 600519 using Volume breakout' })).toBeInTheDocument();
@@ -640,7 +641,7 @@ describe('ChatPage', () => {
 
     expect(await screen.findByRole('button', { name: 'Switch to conversation 请简要分析 600519' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Start new conversation' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Conversation history' }));
+    fireEvent.click(screen.getByRole('button', { name: 'History' }));
     expect(screen.getAllByRole('button', { name: 'Switch to conversation 请简要分析 600519' })).toHaveLength(2);
     expect(screen.queryByRole('button', { name: 'Start new conversation' })).not.toBeInTheDocument();
   });

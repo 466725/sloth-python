@@ -80,7 +80,7 @@ const en: Record<keyof typeof zh, string> = {
   documentTitle: 'Ask - DSA',
   title: 'Ask',
   description: 'Ask AI about individual stocks for strategy-based trading insights and real-time decision reports.',
-  history: 'Conversation history',
+  history: 'History',
   loadingSessions: 'Loading conversations...',
   noSessions: 'No conversation history',
   noSessionsHint: 'Your conversations will appear here after you start asking questions.',
