@@ -77,6 +77,10 @@ started from the Web app or CLI and uses market-wide context where supported.
 
 ### Ask Stock chat
 
+Saved conversations open at the top so they can be read from the beginning.
+Sending a new analysis still follows the latest messages; scrolling up pauses
+that behavior, and the jump-to-latest button resumes it.
+
 The `/chat` page supports repeated analyses using configured models and the
 application's existing stock-data, analysis, and strategy tools. Built-in
 strategies can be selected explicitly; custom strategies and experimental

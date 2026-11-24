@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createParsedApiError } from '../../api/error';
@@ -1507,6 +1507,62 @@ describe('ChatPage', () => {
         }),
       );
     });
+  });
+
+  it('opens restored and switched conversations at the top without scrolling to the end', async () => {
+    const view = () => <MemoryRouter initialEntries={['/chat']}><ChatPage /></MemoryRouter>;
+    const { rerender } = render(view());
+    mockStoreState.messages = [
+      { id: 'user-1', role: 'user', content: 'Saved question' },
+      { id: 'assistant-1', role: 'assistant', content: 'Saved answer' },
+    ];
+    rerender(view());
+
+    await screen.findByText('Saved answer');
+    await act(async () => { await new Promise((resolve) => window.setTimeout(resolve, 20)); });
+    const viewport = screen.getByTestId('chat-message-scroll');
+    expect(viewport.scrollTop).toBe(0);
+    expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
+
+    Object.defineProperty(viewport, 'clientHeight', { configurable: true, value: 400 });
+    Object.defineProperty(viewport, 'scrollHeight', { configurable: true, value: 1200 });
+    viewport.scrollTop = 800;
+    fireEvent.scroll(viewport);
+    mockStoreState.sessions.push({
+      ...mockStoreState.sessions[0], session_id: 'session-2', title: 'Another conversation',
+    });
+    rerender(view());
+    fireEvent.click(screen.getByRole('button', { name: '切换到对话 Another conversation' }));
+    expect(mockSwitchSession).toHaveBeenCalledWith('session-2');
+    expect(viewport.scrollTop).toBe(0);
+
+    mockStoreState.sessionId = 'session-2';
+    mockStoreState.messages = [];
+    rerender(view());
+    Object.defineProperty(viewport, 'scrollHeight', { configurable: true, value: 400 });
+    fireEvent.scroll(viewport);
+
+    Object.defineProperty(viewport, 'scrollHeight', { configurable: true, value: 1200 });
+    mockStoreState.messages = [{ id: 'assistant-2', role: 'assistant', content: 'Another saved answer' }];
+    rerender(view());
+    await screen.findByText('Another saved answer');
+    await act(async () => { await new Promise((resolve) => window.setTimeout(resolve, 20)); });
+    expect(viewport.scrollTop).toBe(0);
+    expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it('still follows the latest messages when sending a new analysis', async () => {
+    const view = () => <MemoryRouter initialEntries={['/chat']}><ChatPage /></MemoryRouter>;
+    const { rerender } = render(view());
+    await screen.findByDisplayValue('使用策略 趋势分析 分析股票 600519');
+    fireEvent.click(screen.getByRole('button', { name: '发送' }));
+    expect(mockStartStream).toHaveBeenCalled();
+
+    mockStoreState.loading = true;
+    mockStoreState.messages = [{ id: 'new-user', role: 'user', content: 'New analysis' }];
+    rerender(view());
+
+    await waitFor(() => expect(HTMLElement.prototype.scrollIntoView).toHaveBeenCalled());
   });
 
   it('shows a jump-to-latest action when new content arrives while the user is away from bottom', async () => {

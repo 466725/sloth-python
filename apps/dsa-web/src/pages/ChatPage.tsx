@@ -86,7 +86,8 @@ const ChatPage: React.FC = () => {
   const sendToastTimerRef = useRef<number | null>(null);
   const followUpHydrationTokenRef = useRef(0);
   const followUpContextRef = useRef<ChatFollowUpContext | null>(null);
-  const shouldStickToBottomRef = useRef(true);
+  const shouldStickToBottomRef = useRef(false);
+  const pendingScrollToTopRef = useRef(true);
   const pendingScrollBehaviorRef = useRef<ScrollBehavior>('auto');
 
   // Cleanup timers on unmount
@@ -131,6 +132,11 @@ const ChatPage: React.FC = () => {
   const syncScrollState = useCallback(() => {
     const viewport = messagesViewportRef.current;
     if (!viewport) return;
+    if (pendingScrollToTopRef.current) return;
+    if (viewport.scrollHeight <= viewport.clientHeight) {
+      setShowJumpToBottom(false);
+      return;
+    }
     const nearBottom = isNearBottom({
       scrollTop: viewport.scrollTop,
       clientHeight: viewport.clientHeight,
@@ -145,9 +151,20 @@ const ChatPage: React.FC = () => {
   }, []);
 
   const requestScrollToBottom = useCallback((behavior: ScrollBehavior = 'auto') => {
+    pendingScrollToTopRef.current = false;
     shouldStickToBottomRef.current = true;
     pendingScrollBehaviorRef.current = behavior;
     setShowJumpToBottom(false);
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    pendingScrollToTopRef.current = true;
+    shouldStickToBottomRef.current = false;
+    pendingScrollBehaviorRef.current = 'auto';
+    setShowJumpToBottom(false);
+    if (messagesViewportRef.current) {
+      messagesViewportRef.current.scrollTop = 0;
+    }
   }, []);
 
   const handleMessagesScroll = useCallback(() => {
@@ -155,10 +172,27 @@ const ChatPage: React.FC = () => {
   }, [syncScrollState]);
 
   useEffect(() => {
-    syncScrollState();
-  }, [syncScrollState, sessionId]);
+    pendingScrollToTopRef.current = true;
+    shouldStickToBottomRef.current = false;
+    pendingScrollBehaviorRef.current = 'auto';
+    if (messagesViewportRef.current) {
+      messagesViewportRef.current.scrollTop = 0;
+    }
+  }, [sessionId]);
 
   useEffect(() => {
+    if (pendingScrollToTopRef.current) {
+      if (messages.length === 0) return;
+      const frame = window.requestAnimationFrame(() => {
+        const viewport = messagesViewportRef.current;
+        if (!viewport) return;
+        viewport.scrollTop = 0;
+        shouldStickToBottomRef.current = false;
+        pendingScrollToTopRef.current = false;
+        setShowJumpToBottom(viewport.scrollHeight > viewport.clientHeight);
+      });
+      return () => window.cancelAnimationFrame(frame);
+    }
     const behavior = pendingScrollBehaviorRef.current;
     const shouldAutoScroll = shouldStickToBottomRef.current;
     if (!shouldAutoScroll) {
@@ -334,10 +368,10 @@ const ChatPage: React.FC = () => {
   const resetDeletedSession = useCallback(() => {
     followUpContextRef.current = null;
     setActiveStockContext(null);
-    requestScrollToBottom('auto');
+    scrollToTop();
     useAgentChatStore.getState().resetDeletedSession();
     setSidebarOpen(false);
-  }, [requestScrollToBottom]);
+  }, [scrollToTop]);
 
   const handleSwitchSession = useCallback((targetSessionId: string) => {
     if (targetSessionId === sessionId) {
@@ -346,10 +380,10 @@ const ChatPage: React.FC = () => {
     }
     followUpContextRef.current = null;
     setActiveStockContext(null);
-    requestScrollToBottom('auto');
+    scrollToTop();
     switchSession(targetSessionId);
     setSidebarOpen(false);
-  }, [requestScrollToBottom, sessionId, switchSession]);
+  }, [scrollToTop, sessionId, switchSession]);
 
   const confirmDelete = useCallback(() => {
     if (!deleteConfirmId) return;
