@@ -1144,6 +1144,19 @@ textarea {
   pointer-events: none;
 }
 
+.chat-history-panel,
+.glass-card.chat-history-panel,
+.glass-card.chat-conversation-panel {
+  border-color: var(--border-accent);
+}
+
+.glass-card.chat-conversation-panel::before,
+.glass-card.chat-conversation-panel::after,
+.glass-card.chat-history-panel::before,
+.glass-card.chat-history-panel::after {
+  display: none;
+}
+
 .home-panel-card {
   --terminal-card-border: var(--home-panel-border);
   --terminal-card-border-hover: var(--home-panel-border-hover);
