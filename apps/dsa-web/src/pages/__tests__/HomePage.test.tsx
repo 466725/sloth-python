@@ -183,6 +183,7 @@ describe('HomePage', () => {
     navigateMock.mockReset();
     window.localStorage.clear();
     useStockPoolStore.getState().resetDashboardState();
+    vi.mocked(historyApi.getStockBarList).mockResolvedValue({ total: 0, items: [] });
     vi.mocked(analysisApi.getTasks).mockResolvedValue({
       total: 0,
       pending: 0,
@@ -244,6 +245,81 @@ describe('HomePage', () => {
     expect(historyApi.getMarkdown).not.toHaveBeenCalled();
   });
 
+  it('opens the top stock-bar report even when recent history is empty', async () => {
+    vi.mocked(historyApi.getList).mockResolvedValue({
+      total: 0, page: 1, limit: 20, items: [],
+    });
+    vi.mocked(historyApi.getStockBarList).mockResolvedValue({
+      total: 1,
+      items: [{
+        id: historyItem.id,
+        stockCode: historyItem.stockCode,
+        stockName: historyItem.stockName,
+        analysisCount: 1,
+        lastAnalysisTime: '2026-01-18T08:00:00Z',
+      }],
+    });
+    vi.mocked(historyApi.getDetail).mockResolvedValue(historyReport);
+
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
+
+    expect(await screen.findByText(historyReport.summary.analysisSummary)).toBeInTheDocument();
+    expect(historyApi.getDetail).toHaveBeenCalledWith(historyItem.id);
+  });
+
+  it('waits for market history and opens the first report in the merged sidebar', async () => {
+    let releaseMarketHistory!: () => void;
+    const marketHistoryReady = new Promise<void>((resolve) => {
+      releaseMarketHistory = resolve;
+    });
+    vi.mocked(historyApi.getList).mockImplementation(async (params = {}) => {
+      if (params.reportType === 'market_review') {
+        await marketHistoryReady;
+        return {
+          total: 1, page: 1, limit: 10,
+          items: [{ ...marketReviewHistoryItem, createdAt: '2026-03-19T08:00:00Z' }],
+        };
+      }
+      return { total: 1, page: 1, limit: 20, items: [historyItem] };
+    });
+    vi.mocked(historyApi.getStockBarList).mockResolvedValue({
+      total: 1,
+      items: [{
+        id: historyItem.id,
+        stockCode: historyItem.stockCode,
+        stockName: historyItem.stockName,
+        analysisCount: 1,
+        lastAnalysisTime: historyItem.createdAt,
+      }],
+    });
+    vi.mocked(historyApi.getDetail).mockResolvedValue(marketReviewHistoryReport);
+
+    render(<MemoryRouter><HomePage /></MemoryRouter>);
+    await screen.findByRole('button', { name: /600519/ });
+    expect(historyApi.getDetail).not.toHaveBeenCalled();
+    releaseMarketHistory();
+
+    expect(await screen.findByText('大盘复盘摘要')).toBeInTheDocument();
+    expect(historyApi.getDetail).toHaveBeenCalledTimes(1);
+    expect(historyApi.getDetail).toHaveBeenCalledWith(marketReviewHistoryItem.id);
+  });
+
+  it('shows the stock-code instruction when all history is empty', async () => {
+    window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'en');
+    vi.mocked(historyApi.getList).mockResolvedValue({
+      total: 0, page: 1, limit: 20, items: [],
+    });
+    vi.mocked(historyApi.getStockBarList).mockResolvedValue({ total: 0, items: [] });
+
+    render(
+      <MemoryRouter><UiLanguageProvider><HomePage /></UiLanguageProvider></MemoryRouter>,
+    );
+
+    expect(await screen.findByText('Enter a stock code to analyze.')).toBeInTheDocument();
+    expect(historyApi.getDetail).not.toHaveBeenCalled();
+    expect(screen.queryByText(/pick a historical report from the left/)).not.toBeInTheDocument();
+  });
+
   it('loads markdown only after opening the full report drawer', async () => {
     vi.mocked(historyApi.getList).mockResolvedValue({
       total: 1,
@@ -289,7 +365,7 @@ describe('HomePage', () => {
 
     expect(await screen.findByText('开始分析')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '开始分析', level: 3 })).toBeInTheDocument();
-    expect(screen.getByText('输入股票代码进行分析，或从左侧选择历史报告查看。')).toBeInTheDocument();
+    expect(screen.getByText('输入股票代码进行分析。')).toBeInTheDocument();
     expect(screen.getByText('暂无个股记录')).toBeInTheDocument();
   });
 
@@ -1122,7 +1198,7 @@ describe('HomePage', () => {
       </MemoryRouter>,
     );
 
-    await screen.findByText('趋势维持强势');
+    await screen.findByText('大盘复盘摘要');
 
     fireEvent.click(screen.getByRole('button', { name: '大盘复盘' }));
 

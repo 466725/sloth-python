@@ -115,7 +115,10 @@ const HomePage: React.FC = () => {
     selectedReport,
     isLoadingReport,
     isHistoryTrendOpen,
+    historyItems,
+    isLoadingHistory,
     marketReviewHistoryItems,
+    isLoadingMarketReviewHistory,
     stockHistoryItems,
     stockHistoryTotal,
     stockHistoryHasMore,
@@ -127,7 +130,6 @@ const HomePage: React.FC = () => {
     markdownDrawerOpen,
     setQuery,
     clearError,
-    loadInitialHistory,
     refreshHistory,
     loadMarketReviewHistory,
     refreshMarketReviewHistory,
@@ -381,7 +383,7 @@ const HomePage: React.FC = () => {
   }, [setupStatus, uiLanguage]);
 
   useDashboardLifecycle({
-    loadInitialHistory,
+    loadInitialHistory: refreshHistory,
     refreshHistory,
     loadMarketReviewHistory,
     refreshMarketReviewHistory,
@@ -734,6 +736,22 @@ const HomePage: React.FC = () => {
     });
   }, [marketReviewHistoryItems, stockBarItems, t]);
 
+  const initialReportSelectionRef = useRef(false);
+  useEffect(() => {
+    if (initialReportSelectionRef.current || selectedReport || isLoadingReport
+      || marketReviewReport || isLoadingHistory || isLoadingStockBar
+      || isLoadingMarketReviewHistory) {
+      return;
+    }
+    const firstReport = mergedStockBarItems[0] ?? historyItems[0];
+    if (firstReport) {
+      initialReportSelectionRef.current = true;
+      void selectHistoryItem(firstReport.id);
+    }
+  }, [historyItems, isLoadingHistory, isLoadingMarketReviewHistory, isLoadingReport,
+    isLoadingStockBar, marketReviewReport, mergedStockBarItems, selectedReport,
+    selectHistoryItem]);
+
   const sidebarContent = useMemo(
     () => (
       <div className="flex min-h-0 h-full flex-col gap-3 overflow-hidden">
@@ -1039,7 +1057,8 @@ const HomePage: React.FC = () => {
                 onDismiss={clearError}
               />
             ) : null}
-            {!marketReviewReport && isLoadingReport ? (
+            {!marketReviewReport && (isLoadingReport || (!selectedReport
+              && (isLoadingHistory || isLoadingStockBar || isLoadingMarketReviewHistory))) ? (
               <div className="flex h-full flex-col items-center justify-center">
                 <DashboardStateBlock title={t("home.loadingReport")} loading />
               </div>

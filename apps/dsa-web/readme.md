@@ -64,6 +64,9 @@ without repeating API calls. Rule names and backend diagnostics remain unchanged
 
 ### Analysis and reports
 
+Home automatically opens the top historical report shown in the left stock list.
+When history is empty, it displays "Enter a stock code to analyze."
+
 From the home page, select a symbol to start an analysis and follow its task
 progress. Reports include the conclusion, risks, data-source context, and any
 available quality details; completed reports are available in history. Reports
