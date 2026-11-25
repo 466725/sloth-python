@@ -33,7 +33,6 @@ type LocalizedFeedback = string | ((language: UiLanguage) => string);
 const resolveFeedback = (feedback: LocalizedFeedback, language: UiLanguage) =>
   typeof feedback === 'function' ? feedback(language) : feedback;
 
-const CONTEXT_COMPRESSION_CONFIG_KEY = 'AGENT_CONTEXT_COMPRESSION_ENABLED';
 type ActiveStockContext = Pick<ChatFollowUpContext, 'stock_code' | 'stock_name'>;
 
 const getMessageSkillNames = (msg: Message): string[] => {
@@ -70,12 +69,6 @@ const ChatPage: React.FC = () => {
     type: 'success' | 'error';
     message: LocalizedFeedback;
   } | null>(null);
-  const [contextCompressionEnabled, setContextCompressionEnabled] = useState(false);
-  const [contextCompressionLoaded, setContextCompressionLoaded] = useState(false);
-  const [contextCompressionSaving, setContextCompressionSaving] = useState(false);
-  const [contextCompressionConfigVersion, setContextCompressionConfigVersion] = useState('');
-  const [contextCompressionMaskToken, setContextCompressionMaskToken] = useState('******');
-  const [contextCompressionError, setContextCompressionError] = useState<LocalizedFeedback | null>(null);
   const [copiedMessages, setCopiedMessages] = useState<Set<string>>(new Set());
   const [showJumpToBottom, setShowJumpToBottom] = useState(false);
   const [activeStockContext, setActiveStockContext] = useState<ActiveStockContext | null>(null);
@@ -269,77 +262,6 @@ const ChatPage: React.FC = () => {
       });
     return () => { active = false; };
   }, [stocksLoadAttempt]);
-
-  useEffect(() => {
-    let active = true;
-
-    void systemConfigApi.getConfig(false)
-      .then((config) => {
-        if (!active) {
-          return;
-        }
-        const enabledItem = config.items.find((item) => item.key === CONTEXT_COMPRESSION_CONFIG_KEY);
-        setContextCompressionEnabled(String(enabledItem?.value ?? '').trim().toLowerCase() === 'true');
-        setContextCompressionConfigVersion(config.configVersion);
-        setContextCompressionMaskToken(config.maskToken || '******');
-        setContextCompressionLoaded(true);
-        setContextCompressionError(null);
-      })
-      .catch((error) => {
-        if (!active) {
-          return;
-        }
-        const parsed = getParsedApiError(error);
-        setContextCompressionLoaded(false);
-        setContextCompressionError(() => (language: UiLanguage) => parsed.message || CHAT_TEXT[language].compressionReadFailed);
-        console.error('Failed to load context compression setting:', error);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  const updateContextCompressionEnabled = useCallback(
-    async (nextEnabled: boolean) => {
-      if (!contextCompressionLoaded || contextCompressionSaving) {
-        return;
-      }
-
-      const previousEnabled = contextCompressionEnabled;
-      setContextCompressionEnabled(nextEnabled);
-      setContextCompressionSaving(true);
-      setContextCompressionError(null);
-
-      try {
-        const result = await systemConfigApi.update({
-          configVersion: contextCompressionConfigVersion,
-          maskToken: contextCompressionMaskToken,
-          reloadNow: true,
-          items: [
-            {
-              key: CONTEXT_COMPRESSION_CONFIG_KEY,
-              value: nextEnabled ? 'true' : 'false',
-            },
-          ],
-        });
-        setContextCompressionConfigVersion(result.configVersion || contextCompressionConfigVersion);
-      } catch (error) {
-        const parsed = getParsedApiError(error);
-        setContextCompressionEnabled(previousEnabled);
-        setContextCompressionError(() => (language: UiLanguage) => parsed.message || CHAT_TEXT[language].compressionSaveFailed);
-      } finally {
-        setContextCompressionSaving(false);
-      }
-    },
-    [
-      contextCompressionConfigVersion,
-      contextCompressionEnabled,
-      contextCompressionLoaded,
-      contextCompressionMaskToken,
-      contextCompressionSaving,
-    ],
-  );
 
   const selectedSkill = skills.find((skill) => skill.id === selectedSkillId);
   const promptForSkill = (skill: SkillInfo | undefined) => skill && selectedStockCode
@@ -1102,41 +1024,6 @@ const ChatPage: React.FC = () => {
                   variant="info"
                   title={text.loadingFollowUp}
                   message={text.loadingFollowUpHint}
-                  className="rounded-xl px-3 py-2 text-xs shadow-none"
-                />
-              ) : null}
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/6 bg-surface/25 px-3 py-2 md:border-0 md:bg-transparent md:px-0">
-                <label
-                  className={cn(
-                    'inline-flex items-center gap-2 text-sm',
-                    contextCompressionLoaded && !contextCompressionSaving
-                      ? 'cursor-pointer text-foreground'
-                      : 'cursor-not-allowed text-muted-text',
-                  )}
-                >
-                  <input
-                    type="checkbox"
-                    checked={contextCompressionEnabled}
-                    disabled={!contextCompressionLoaded || contextCompressionSaving}
-                    onChange={(event) => void updateContextCompressionEnabled(event.target.checked)}
-                    className="chat-skill-checkbox"
-                  />
-                  <span className="font-medium">{text.compression}</span>
-                  <span className="text-xs text-muted-text">{text.compressionHint}</span>
-                </label>
-                <span className="text-xs text-muted-text">
-                  {contextCompressionSaving
-                    ? text.saving
-                    : contextCompressionEnabled
-                      ? text.enabled
-                      : text.disabled}
-                </span>
-              </div>
-              {contextCompressionError ? (
-                <InlineAlert
-                  variant="danger"
-                  title={text.compressionNotSaved}
-                  message={resolveFeedback(contextCompressionError, language)}
                   className="rounded-xl px-3 py-2 text-xs shadow-none"
                 />
               ) : null}

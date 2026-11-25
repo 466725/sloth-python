@@ -193,27 +193,6 @@ beforeEach(() => {
   mockDeleteChatSession.mockResolvedValue(undefined);
   mockSendChat.mockResolvedValue({ success: true });
   mockGetWatchlist.mockResolvedValue(['600519']);
-  mockGetSystemConfig.mockResolvedValue({
-    configVersion: 'cfg-v1',
-    maskToken: 'mask-token',
-    items: [
-      {
-        key: 'AGENT_CONTEXT_COMPRESSION_ENABLED',
-        value: 'false',
-        rawValueExists: true,
-        isMasked: false,
-      },
-    ],
-  });
-  mockUpdateSystemConfig.mockResolvedValue({
-    success: true,
-    configVersion: 'cfg-v2',
-    appliedCount: 1,
-    skippedMaskedCount: 0,
-    reloadTriggered: true,
-    updatedKeys: ['AGENT_CONTEXT_COMPRESSION_ENABLED'],
-    warnings: [],
-  });
   mockDownloadSession.mockImplementation(() => {});
   mockFormatSessionAsMarkdown.mockReturnValue('# exported session');
 });
@@ -241,7 +220,9 @@ describe('ChatPage', () => {
     expect(screen.getByText('No conversation history')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Start new conversation' })).not.toBeInTheDocument();
     expect(await screen.findByRole('button', { name: 'Analyze 600519 using Volume breakout' })).toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: /Context compression/ })).toBeInTheDocument();
+    expect(screen.queryByRole('checkbox', { name: /Context compression/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('Save tokens in long conversations')).not.toBeInTheDocument();
+    expect(screen.queryByText('Disabled')).not.toBeInTheDocument();
     expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', CHAT_TEXT.en.placeholder);
     expect(document.title).toBe('Ask - DSA');
     expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
@@ -303,7 +284,7 @@ describe('ChatPage', () => {
     expect(screen.getByText('请分析茅台')).toBeInTheDocument();
     expect(screen.getByText('原始中文回复')).toBeInTheDocument();
     expect(mockGetSkills).toHaveBeenCalledTimes(1);
-    expect(mockGetSystemConfig).toHaveBeenCalledTimes(1);
+    expect(mockGetSystemConfig).not.toHaveBeenCalled();
     expect(mockLoadInitialSession).toHaveBeenCalledTimes(1);
     expect(mockStartStream).not.toHaveBeenCalled();
     expect(mockUpdateSystemConfig).not.toHaveBeenCalled();
@@ -501,24 +482,16 @@ describe('ChatPage', () => {
     );
   });
 
-  it('updates context compression controls and saving feedback without repeating the save', async () => {
-    const save = createDeferred<{ configVersion: string }>();
-    mockUpdateSystemConfig.mockReturnValue(save.promise);
+  it('does not display or configure context compression in either language', async () => {
     renderLocalizedChat();
-    const compression = await screen.findByRole('checkbox', { name: /Context compression/ });
-    await waitFor(() => expect(compression).toBeEnabled());
-    fireEvent.click(compression);
-    expect(screen.getByText('Saving...')).toBeInTheDocument();
+    await screen.findByRole('radio', { name: 'Bullish trend' });
+    expect(screen.queryByText('Context compression')).not.toBeInTheDocument();
+    expect(screen.queryByText('Save tokens in long conversations')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
-    expect(screen.getByText('保存中...')).toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: /上下文压缩/ })).toBeChecked();
-    fireEvent.click(screen.getByRole('button', { name: 'English' }));
-    save.resolve({ configVersion: 'cfg-v2' });
-    expect(await screen.findByText('Enabled')).toBeInTheDocument();
-    expect(mockUpdateSystemConfig).toHaveBeenCalledTimes(1);
-    expect(mockUpdateSystemConfig).toHaveBeenCalledWith(expect.objectContaining({
-      items: [{ key: 'AGENT_CONTEXT_COMPRESSION_ENABLED', value: 'true' }],
-    }));
+    expect(screen.queryByText('上下文压缩')).not.toBeInTheDocument();
+    expect(screen.queryByText('节省长会话 token')).not.toBeInTheDocument();
+    expect(mockGetSystemConfig).not.toHaveBeenCalled();
+    expect(mockUpdateSystemConfig).not.toHaveBeenCalled();
   });
 
   it('renders a fixed workspace shell with independent session and message viewports', async () => {
@@ -533,91 +506,6 @@ describe('ChatPage', () => {
     expect(screen.getByTestId('chat-message-scroll')).toBeInTheDocument();
     expect(mockLoadInitialSession).toHaveBeenCalled();
     expect(mockClearCompletionBadge).toHaveBeenCalled();
-  });
-
-  it('loads and saves the global context compression setting from the chat input area', async () => {
-    render(
-      <MemoryRouter initialEntries={['/chat']}>
-        <ChatPage />
-      </MemoryRouter>
-    );
-
-    const compressionToggle = await screen.findByRole('checkbox', { name: /上下文压缩/ });
-
-    await waitFor(() => {
-      expect(compressionToggle).not.toBeDisabled();
-    });
-
-    expect(compressionToggle).not.toBeChecked();
-
-    fireEvent.click(compressionToggle);
-
-    await waitFor(() => {
-      expect(mockUpdateSystemConfig).toHaveBeenCalledWith({
-        configVersion: 'cfg-v1',
-        maskToken: 'mask-token',
-        reloadNow: true,
-        items: [
-          {
-            key: 'AGENT_CONTEXT_COMPRESSION_ENABLED',
-            value: 'true',
-          },
-        ],
-      });
-    });
-
-    expect(compressionToggle).toBeChecked();
-    expect(screen.getByText('已启用')).toBeInTheDocument();
-  });
-
-  it('rolls back the context compression switch when saving fails', async () => {
-    mockGetSystemConfig.mockResolvedValue({
-      configVersion: 'cfg-v1',
-      maskToken: 'mask-token',
-      items: [
-        {
-          key: 'AGENT_CONTEXT_COMPRESSION_ENABLED',
-          value: 'true',
-          rawValueExists: true,
-          isMasked: false,
-        },
-      ],
-    });
-    mockUpdateSystemConfig.mockRejectedValue(
-      createParsedApiError({
-        title: '保存失败',
-        message: '配置服务不可用',
-        category: 'unknown',
-      }),
-    );
-
-    render(
-      <MemoryRouter initialEntries={['/chat']}>
-        <ChatPage />
-      </MemoryRouter>
-    );
-
-    const compressionToggle = await screen.findByRole('checkbox', { name: /上下文压缩/ });
-
-    await waitFor(() => {
-      expect(compressionToggle).toBeChecked();
-      expect(compressionToggle).not.toBeDisabled();
-    });
-
-    fireEvent.click(compressionToggle);
-
-    await waitFor(() => {
-      expect(mockUpdateSystemConfig).toHaveBeenCalledWith(expect.objectContaining({
-        items: [
-          {
-            key: 'AGENT_CONTEXT_COMPRESSION_ENABLED',
-            value: 'false',
-          },
-        ],
-      }));
-      expect(compressionToggle).toBeChecked();
-    });
-    expect(screen.getByText('配置服务不可用')).toBeInTheDocument();
   });
 
   it('does not switch when clicking the current session card', async () => {

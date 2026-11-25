@@ -82,6 +82,8 @@ started from the Web app or CLI and uses market-wide context where supported.
 Saved conversations open at the top so they can be read from the beginning.
 Sending a new analysis still follows the latest messages; scrolling up pauses
 that behavior, and the jump-to-latest button resumes it.
+Ask does not display or change context-compression settings; existing backend
+configuration remains unchanged.
 
 The `/chat` page supports repeated analyses using configured models and the
 application's existing stock-data, analysis, and strategy tools. Built-in
