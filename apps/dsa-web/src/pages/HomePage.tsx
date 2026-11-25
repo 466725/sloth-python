@@ -23,7 +23,6 @@ import { ReportSummary } from "../components/report/ReportSummary";
 import { RunFlowPanel } from "../components/run-flow";
 import { TaskPanel } from "../components/tasks";
 import { useDashboardLifecycle, useHomeDashboardState } from "../hooks";
-import { useWatchlist } from "../hooks/useWatchlist";
 import { useUiLanguage } from "../contexts/UiLanguageContext";
 import type { SetupStatusResponse } from "../types/systemConfig";
 import { normalizeReportLanguage } from "../utils/reportLanguage";
@@ -395,8 +394,6 @@ const HomePage: React.FC = () => {
     refreshActiveTasks,
     removeTask,
   });
-
-  const watchlistState = useWatchlist();
 
   const clearMarketReviewState = useCallback(() => {
     stopMarketReviewPolling();
@@ -1200,12 +1197,6 @@ const HomePage: React.FC = () => {
                     data={selectedReport}
                     isHistory
                     onOpenRunFlow={openHistoryRunFlow}
-                    watchlist={{
-                      isInWatchlist: watchlistState.isInWatchlist,
-                      onToggle: watchlistState.toggleWatchlist,
-                      isActioning: watchlistState.isActioning,
-                      actionMessage: watchlistState.actionMessage,
-                    }}
                   />
                 )}
               </div>

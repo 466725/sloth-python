@@ -41,7 +41,7 @@ Open <http://localhost:5173>. Vite proxies `/api` requests to `http://127.0.0.1:
 
 | Route | Page | What you can do |
 | --- | --- | --- |
-| `/` | Home | Manage the watchlist, start analysis, follow task progress, review the market, browse history, and read Markdown reports |
+| `/` | Home | Start analysis, follow task progress, review the market, browse history, and read Markdown reports |
 | `/chat` | Ask Stock | Analyze configured stocks using a selected strategy |
 | `/decision-signals` | Decision Signals | Review action tendency, evidence, risks, and follow-up watch conditions |
 | `/backtest` | Backtest | Evaluate historical rules against available market data |
@@ -66,6 +66,8 @@ without repeating API calls. Rule names and backend diagnostics remain unchanged
 
 Home automatically opens the top historical report shown in the left stock list.
 When history is empty, it displays "Enter a stock code to analyze."
+Report overviews do not include Watchlist actions; the market-sentiment card
+aligns with the top of the report overview.
 
 From the home page, select a symbol to start an analysis and follow its task
 progress. Reports include the conclusion, risks, data-source context, and any

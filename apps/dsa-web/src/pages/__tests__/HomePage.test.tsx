@@ -245,6 +245,25 @@ describe('HomePage', () => {
     expect(historyApi.getMarkdown).not.toHaveBeenCalled();
   });
 
+  it('shows report sentiment without the Watchlist card or its actions', async () => {
+    window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'en');
+    vi.mocked(historyApi.getList).mockResolvedValue({
+      total: 1, page: 1, limit: 20, items: [historyItem],
+    });
+    vi.mocked(historyApi.getDetail).mockResolvedValue(historyReport);
+    vi.mocked(systemConfigApi.getWatchlist).mockResolvedValue(['600519']);
+
+    render(
+      <MemoryRouter><UiLanguageProvider><HomePage /></UiLanguageProvider></MemoryRouter>,
+    );
+
+    expect(await screen.findByText(historyReport.summary.analysisSummary)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '市场情绪' })).toBeInTheDocument();
+    expect(screen.queryByText('Watchlist')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /(?:Add to|Remove from) watchlist/i })).not.toBeInTheDocument();
+    expect(systemConfigApi.getWatchlist).not.toHaveBeenCalled();
+  });
+
   it('opens the top stock-bar report even when recent history is empty', async () => {
     vi.mocked(historyApi.getList).mockResolvedValue({
       total: 0, page: 1, limit: 20, items: [],
