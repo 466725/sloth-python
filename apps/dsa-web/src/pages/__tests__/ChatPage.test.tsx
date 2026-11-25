@@ -728,7 +728,7 @@ describe('ChatPage', () => {
 
     expect(screen.getByRole('button', { name: '收起策略选择' })).toHaveAttribute('aria-expanded', 'true');
     expect(skillPanel).not.toHaveClass('hidden');
-    expect(skillPanel).toHaveClass('flex');
+    expect(skillPanel).toHaveClass('grid');
 
     fireEvent.click(screen.getByRole('radio', { name: '均线金叉' }));
     await screen.findByRole('radio', { name: '600519' });

@@ -1078,21 +1078,21 @@ const ChatPage: React.FC = () => {
                     role="radiogroup"
                     aria-labelledby="chat-skill-picker-label"
                     className={cn(
-                      mobileSkillPickerOpen ? 'flex' : 'hidden',
-                      'max-h-40 flex-wrap items-start gap-x-5 gap-y-2 overflow-y-auto rounded-xl border border-white/6 bg-surface/25 px-3 py-2 md:flex md:max-h-none md:overflow-visible md:border-0 md:bg-transparent md:p-0',
+                      mobileSkillPickerOpen ? 'grid' : 'hidden',
+                      'max-h-40 grid-cols-[5.5rem_minmax(0,1fr)] items-start gap-x-4 gap-y-2 overflow-y-auto rounded-xl border border-white/6 bg-surface/25 px-3 py-2 md:grid md:max-h-none md:overflow-visible md:border-0 md:bg-transparent md:p-0',
                     )}
                   >
-                    <span id="chat-skill-picker-label" className="w-full text-xs text-muted-text font-medium uppercase tracking-wider">
+                    <span id="chat-skill-picker-label" className="mt-0.5 text-xs leading-5 text-muted-text font-medium uppercase tracking-wider">
                       {text.strategy}
                     </span>
-                    <div className="grid min-w-0 flex-1 grid-cols-2 gap-x-4 gap-y-2 md:grid-cols-4">
+                    <div className="grid min-w-0 grid-cols-2 gap-x-4 gap-y-2 md:grid-cols-4">
                       {skills.map((s) => {
                         const skillText = getChatSkillText(s, language);
                         const checked = selectedSkillId === s.id;
                         return (
                           <label
                             key={s.id}
-                            className="flex min-w-0 items-center gap-1.5 cursor-pointer group relative mt-0.5"
+                            className="flex min-w-0 items-start gap-1.5 cursor-pointer group relative mt-0.5"
                             onMouseEnter={() => setShowSkillDesc(s.id)}
                             onMouseLeave={() => setShowSkillDesc(null)}
                           >
@@ -1102,7 +1102,7 @@ const ChatPage: React.FC = () => {
                               value={s.id}
                               checked={checked}
                               onChange={() => setSelectedSkillId(s.id)}
-                              className="chat-skill-radio"
+                              className="chat-skill-radio mt-[3px]"
                             />
                             <span
                               className={`min-w-0 break-words transition-colors text-sm ${checked ? 'text-foreground font-medium' : 'text-secondary-text group-hover:text-foreground'}`}
@@ -1145,21 +1145,23 @@ const ChatPage: React.FC = () => {
                 <InlineAlert variant="info" message={text.stocksEmpty} className="rounded-xl px-3 py-2 text-xs shadow-none" />
               )}
               {stocksStatus === 'ready' && stockCodes.length > 0 && (
-                <div role="radiogroup" aria-label={text.stocks} className="flex flex-wrap items-center gap-x-5 gap-y-2 px-3 md:px-0">
-                  <span className="text-xs text-muted-text font-medium uppercase tracking-wider">{text.stocks}</span>
-                  {stockCodes.map((code) => (
-                    <label key={code} className="flex items-center gap-1.5 cursor-pointer text-sm">
-                      <input
-                        type="radio"
-                        name="stock"
-                        value={code}
-                        checked={selectedStockCode === code}
-                        onChange={() => setSelectedStockCode(code)}
-                        className="chat-skill-radio"
-                      />
-                      {code}
-                    </label>
-                  ))}
+                <div role="radiogroup" aria-label={text.stocks} className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-start gap-x-4 border border-transparent px-3 md:border-0 md:px-0">
+                  <span className="text-xs leading-5 text-muted-text font-medium uppercase tracking-wider">{text.stocks}</span>
+                  <div className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-2">
+                    {stockCodes.map((code) => (
+                      <label key={code} className="flex items-center gap-1.5 cursor-pointer text-sm">
+                        <input
+                          type="radio"
+                          name="stock"
+                          value={code}
+                          checked={selectedStockCode === code}
+                          onChange={() => setSelectedStockCode(code)}
+                          className="chat-skill-radio"
+                        />
+                        {code}
+                      </label>
+                    ))}
+                  </div>
                 </div>
               )}
 

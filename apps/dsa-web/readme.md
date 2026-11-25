@@ -95,6 +95,9 @@ Ask selects one strategy at a time, defaulting to Bullish Trend when available.
 If it is unavailable, Ask selects the catalog's default or the first available
 strategy. If the strategy catalog cannot be loaded or is empty, retry
 before sending a question.
+Strategy and stock labels share a left column, with their radio groups aligned.
+The eight built-in strategies use four columns and two rows on desktop; mobile
+keeps two columns in the collapsible picker.
 
 Ask displays up to the first six distinct stocks from `STOCK_LIST`, selecting
 the first by default. The selected stock is the analysis target even when a
