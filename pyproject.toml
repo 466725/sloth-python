@@ -48,12 +48,12 @@ requirements = [
   "google-search-results>=2.4.2",
 
   # Database & ORM
-  "sqlalchemy>=2.0.55",
+  "sqlalchemy>=2.0.58",
   "mysql-connector-python",
 
   # Scheduling & Time
   "schedule>=1.2.2",
-  "exchange-calendars>=4.13.2",
+  "exchange-calendars>=4.13.3",
 
   # Retry & Resilience
   "tenacity>=9.2.1",
@@ -71,7 +71,7 @@ requirements = [
   # Browser & UI Automation
   "playwright",
   "pygame; python_version < \"3.14\"",
-  "Appium-Python-Client>=6.1.6",
+  "Appium-Python-Client>=6.1.8",
 
   # Testing & QA
   "pytest",
