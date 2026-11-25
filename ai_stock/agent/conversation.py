@@ -22,6 +22,7 @@ class ConversationSession:
     context: Dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.now)
     last_active: datetime = field(default_factory=datetime.now)
+    turn_lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
     def add_message(self, role: str, content: str) -> int:
         """Add a message to the session history."""

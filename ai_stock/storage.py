@@ -18,6 +18,7 @@ import json
 import logging
 import threading
 import time
+import uuid
 from datetime import datetime, date, timedelta, timezone
 from typing import Optional, List, Dict, Any, TYPE_CHECKING, Tuple, Callable, TypeVar, Union
 
@@ -37,6 +38,7 @@ from sqlalchemy import (
     Text,
     text,
     select,
+    case,
     and_,
     or_,
     delete,
@@ -511,6 +513,16 @@ class ConversationSummary(Base):
     estimated_tokens = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, default=datetime.now, index=True)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, index=True)
+
+
+class AnalysisConversationTopic(Base):
+    """One persisted Ask conversation per stock and strategy."""
+
+    __tablename__ = 'analysis_conversation_topics'
+
+    stock_code = Column(String(20), primary_key=True)
+    strategy_id = Column(String(100), primary_key=True)
+    session_id = Column(String(100), nullable=False, unique=True)
 
 
 class AgentProviderTurn(Base):
@@ -2463,18 +2475,115 @@ class DatabaseManager(metaclass=_DatabaseManagerMeta):
         digest = hashlib.md5(raw_key.encode("utf-8")).hexdigest()
         return f"no-url:{code}:{digest}"
 
+    def resolve_analysis_conversation(
+        self, stock_code: str, strategy_id: str, prompt_variants: list[str]
+    ) -> str:
+        """Reuse a topic or adopt an unmapped legacy session containing only its prompts."""
+        with self.session_scope() as session:
+            topic = session.get(AnalysisConversationTopic, (stock_code, strategy_id))
+            if topic is not None:
+                self._trim_analysis_conversation(session, str(topic.session_id))
+                return str(topic.session_id)
+
+            candidate = session.execute(
+                select(ConversationMessage.session_id)
+                .where(
+                    ConversationMessage.role == "user",
+                    ~ConversationMessage.session_id.in_(
+                        select(AnalysisConversationTopic.session_id)
+                    ),
+                )
+                .group_by(ConversationMessage.session_id)
+                .having(
+                    func.sum(case((ConversationMessage.content.in_(prompt_variants), 0), else_=1))
+                    == 0
+                )
+                .order_by(func.max(ConversationMessage.id).desc())
+                .limit(1)
+            ).scalar()
+            session.execute(
+                sqlite_insert(AnalysisConversationTopic)
+                .values(
+                    stock_code=stock_code,
+                    strategy_id=strategy_id,
+                    session_id=candidate or str(uuid.uuid4()),
+                )
+                .on_conflict_do_nothing(index_elements=["stock_code", "strategy_id"])
+            )
+            session_id = str(
+                session.execute(
+                    select(AnalysisConversationTopic.session_id).where(
+                        AnalysisConversationTopic.stock_code == stock_code,
+                        AnalysisConversationTopic.strategy_id == strategy_id,
+                    )
+                ).scalar_one()
+            )
+            self._trim_analysis_conversation(session, session_id)
+            return session_id
+
+    def trim_analysis_conversation(self, session_id: str, max_responses: int = 5) -> None:
+        """Retain the newest complete turns and any pending user turn."""
+        if max_responses < 1:
+            raise ValueError("max_responses must be positive")
+        with self.session_scope() as session:
+            self._trim_analysis_conversation(session, session_id, max_responses)
+
+    def _trim_analysis_conversation(
+        self, session: Session, session_id: str, max_responses: int = 5
+    ) -> None:
+        rows = session.execute(
+            select(ConversationMessage.id, ConversationMessage.role)
+            .where(ConversationMessage.session_id == session_id)
+            .order_by(ConversationMessage.id)
+        ).all()
+        starts: list[int] = []
+        pending_start: int | None = None
+        for message_id, role in rows:
+            if role == "user" and pending_start is None:
+                pending_start = message_id
+            elif role == "assistant":
+                starts.append(pending_start if pending_start is not None else message_id)
+                pending_start = None
+        if len(starts) <= max_responses:
+            return
+        cutoff = starts[-max_responses]
+        session.execute(
+            delete(AgentProviderTurn).where(
+                AgentProviderTurn.session_id == session_id,
+                or_(
+                    AgentProviderTurn.anchor_user_message_id < cutoff,
+                    AgentProviderTurn.anchor_assistant_message_id < cutoff,
+                ),
+            )
+        )
+        session.execute(
+            delete(ConversationSummary).where(ConversationSummary.session_id == session_id)
+        )
+        session.execute(
+            delete(ConversationMessage).where(
+                ConversationMessage.session_id == session_id,
+                ConversationMessage.id < cutoff,
+            )
+        )
+
     def save_conversation_message(self, session_id: str, role: str, content: str) -> int:
         """
         保存 Agent 对话消息
         """
         with self.session_scope() as session:
-            msg = ConversationMessage(
-                session_id=session_id,
-                role=role,
-                content=content
-            )
+            msg = ConversationMessage(session_id=session_id, role=role, content=content)
             session.add(msg)
             session.flush()
+            if (
+                role == "assistant"
+                and session.execute(
+                    select(AnalysisConversationTopic.session_id).where(
+                        AnalysisConversationTopic.session_id == session_id
+                    )
+                ).scalar()
+                is not None
+            ):
+                self._trim_analysis_conversation(session, session_id)
             return int(msg.id)
 
     def get_conversation_history(self, session_id: str, limit: int = 20) -> List[Dict[str, Any]]:
@@ -2773,7 +2882,7 @@ class DatabaseManager(metaclass=_DatabaseManagerMeta):
                             ConversationMessage.role == "user",
                         )
                     )
-                    .order_by(ConversationMessage.created_at)
+                    .order_by(ConversationMessage.created_at, ConversationMessage.id)
                     .limit(1)
                 ).scalar()
                 title = (first_user_msg or "新对话")[:60]
@@ -2795,7 +2904,7 @@ class DatabaseManager(metaclass=_DatabaseManagerMeta):
             stmt = (
                 select(ConversationMessage)
                 .where(ConversationMessage.session_id == session_id)
-                .order_by(ConversationMessage.created_at)
+                .order_by(ConversationMessage.created_at, ConversationMessage.id)
                 .limit(limit)
             )
             messages = session.execute(stmt).scalars().all()
@@ -2817,6 +2926,11 @@ class DatabaseManager(metaclass=_DatabaseManagerMeta):
             删除的消息数
         """
         with self.session_scope() as session:
+            session.execute(
+                delete(AnalysisConversationTopic).where(
+                    AnalysisConversationTopic.session_id == session_id
+                )
+            )
             session.execute(
                 delete(AgentProviderTurn).where(
                     AgentProviderTurn.session_id == session_id

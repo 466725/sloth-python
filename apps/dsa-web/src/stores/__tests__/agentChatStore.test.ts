@@ -5,6 +5,7 @@ vi.mock('../../api/agent', () => ({
   agentApi: {
     getChatSessions: vi.fn(async () => []),
     getChatSessionMessages: vi.fn(async () => []),
+    resolveAnalysisSession: vi.fn(),
     chatStream: vi.fn(),
   },
 }));
@@ -80,6 +81,109 @@ describe('agentChatStore.resetDeletedSession', () => {
 });
 
 describe('agentChatStore.startStream', () => {
+  const analysisTopic = {
+    stock_code: '600519',
+    strategy_id: 'bull_trend',
+    prompt_variants: ['Use strategy Bullish trend to analyze stock 600519'],
+  };
+
+  it.each([true, false])('routes a generated prompt to its topic history (existing: %s)', async (existing) => {
+    useAgentChatStore.setState({
+      messages: [{ id: 'unrelated', role: 'assistant', content: 'Different topic' }],
+      sessions: existing ? [{
+        session_id: 'topic-session', title: analysisTopic.prompt_variants[0],
+        message_count: 2, created_at: null, last_active: null,
+      }] : [],
+    });
+    const history = existing ? [
+      { id: '1', role: 'user' as const, content: analysisTopic.prompt_variants[0], created_at: null },
+      { id: '2', role: 'assistant' as const, content: 'Earlier answer', created_at: null },
+    ] : [];
+    vi.mocked(agentApi.resolveAnalysisSession).mockResolvedValue({
+      session_id: 'topic-session', messages: history,
+    });
+    const saved = [
+      ...history,
+      { id: '3', role: 'user', content: analysisTopic.prompt_variants[0], created_at: null },
+      { id: '4', role: 'assistant', content: 'New answer', created_at: null },
+    ];
+    vi.mocked(agentApi.chatStream).mockImplementation(async (payload) => {
+      expect(payload.session_id).toBe('topic-session');
+      expect(useAgentChatStore.getState().messages.map((m) => m.content)).toEqual([
+        ...history.map((m) => m.content), analysisTopic.prompt_variants[0],
+      ]);
+      expect(useAgentChatStore.getState().sessions).toHaveLength(1);
+      return createStreamResponse([`data: ${JSON.stringify({
+        type: 'done', success: true, content: 'New answer', messages: saved,
+      })}`]);
+    });
+
+    await useAgentChatStore.getState().startStream({
+      message: analysisTopic.prompt_variants[0], analysis_topic: analysisTopic,
+    });
+
+    expect(agentApi.resolveAnalysisSession).toHaveBeenCalledWith(analysisTopic, { signal: expect.any(AbortSignal) });
+    expect(useAgentChatStore.getState().sessionId).toBe('topic-session');
+    expect(localStorage.getItem('dsa_chat_session_id')).toBe('topic-session');
+    expect(useAgentChatStore.getState().messages.map((m) => m.content)).toEqual(saved.map((m) => m.content));
+  });
+
+  it('does not send or append to unrelated history when topic resolution fails', async () => {
+    const messages = [{ id: 'old', role: 'assistant' as const, content: 'Existing topic' }];
+    useAgentChatStore.setState({ messages });
+    vi.mocked(agentApi.resolveAnalysisSession).mockRejectedValue(new Error('Topic lookup failed'));
+
+    await useAgentChatStore.getState().startStream({
+      message: analysisTopic.prompt_variants[0], analysis_topic: analysisTopic,
+    });
+
+    expect(agentApi.chatStream).not.toHaveBeenCalled();
+    expect(useAgentChatStore.getState().messages).toEqual(messages);
+    expect(useAgentChatStore.getState().chatError?.rawMessage).toBe('Topic lookup failed');
+    expect(useAgentChatStore.getState().loading).toBe(false);
+  });
+
+  it('ignores a topic lookup that finishes after the user switches history', async () => {
+    const pending = createDeferred<{ session_id: string; messages: [] }>();
+    vi.mocked(agentApi.resolveAnalysisSession).mockReturnValue(pending.promise);
+    const stream = useAgentChatStore.getState().startStream({
+      message: analysisTopic.prompt_variants[0], analysis_topic: analysisTopic,
+    });
+    await useAgentChatStore.getState().switchSession('another-history');
+    pending.resolve({ session_id: 'topic-session', messages: [] });
+    await stream;
+
+    expect(agentApi.chatStream).not.toHaveBeenCalled();
+    expect(useAgentChatStore.getState().sessionId).toBe('another-history');
+  });
+
+  it.each([true, false])('uses the persisted latest-five-turn snapshot (success: %s)', async (success) => {
+    const history = Array.from({ length: 6 }, (_, index) => [
+      { id: `${index}-u`, role: 'user' as const, content: analysisTopic.prompt_variants[0], created_at: null },
+      { id: `${index}-a`, role: 'assistant' as const, content: `Answer ${index}`, created_at: null },
+    ]).flat();
+    vi.mocked(agentApi.resolveAnalysisSession).mockResolvedValue({
+      session_id: 'topic-session', messages: history.slice(0, 10),
+    });
+    vi.mocked(agentApi.chatStream).mockResolvedValue(createStreamResponse([
+      `data: ${JSON.stringify({
+        type: 'done', success, content: 'Answer 5',
+        error: success ? null : 'Analysis failed', messages: history.slice(2),
+      })}`,
+    ]));
+
+    await useAgentChatStore.getState().startStream({
+      message: analysisTopic.prompt_variants[0], analysis_topic: analysisTopic,
+    });
+
+    const state = useAgentChatStore.getState();
+    expect(state.messages).toHaveLength(10);
+    expect(state.messages.filter((m) => m.role === 'assistant').map((m) => m.content)).toEqual([
+      'Answer 1', 'Answer 2', 'Answer 3', 'Answer 4', 'Answer 5',
+    ]);
+    expect(state.chatError === null).toBe(success);
+  });
+
   it('appends the user message and final assistant message from the SSE stream', async () => {
     vi.mocked(agentApi.chatStream).mockResolvedValue(
       createStreamResponse([

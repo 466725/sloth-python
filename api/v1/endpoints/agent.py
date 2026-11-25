@@ -11,10 +11,12 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import AliasChoices, BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic_core import PydanticCustomError
 
 from ai_stock.config import get_config
 from ai_stock.services.agent_model_service import list_agent_model_deployments
+from ai_stock.stock_data.base import canonical_stock_code
 
 # Tool name -> Chinese display name mapping
 TOOL_DISPLAY_NAMES: Dict[str, str] = {
@@ -40,6 +42,28 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+
+class AnalysisTopic(BaseModel):
+    stock_code: str = Field(min_length=1, max_length=20)
+    strategy_id: str = Field(min_length=1, max_length=100)
+    prompt_variants: list[str] = Field(min_length=1, max_length=2)
+
+    @field_validator("stock_code")
+    @classmethod
+    def normalize_stock_code(cls, value: str) -> str:
+        normalized = canonical_stock_code(value)
+        if not normalized:
+            raise PydanticCustomError("analysis_stock_code", "Invalid analysis stock code")
+        return normalized
+
+    @field_validator("prompt_variants")
+    @classmethod
+    def validate_prompts(cls, value: list[str]) -> list[str]:
+        if any(not prompt.strip() for prompt in value):
+            raise PydanticCustomError("analysis_prompt", "Analysis prompts must not be empty")
+        return value
+
+
 class ChatRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -50,17 +74,81 @@ class ChatRequest(BaseModel):
         validation_alias=AliasChoices("skills", "strategies"),
     )
     context: Optional[Dict[str, Any]] = None  # Previous analysis context for data reuse
+    analysis_topic: AnalysisTopic | None = None
+
+    @model_validator(mode="after")
+    def validate_analysis_topic(self) -> ChatRequest:
+        topic = self.analysis_topic
+        if topic is not None:
+            stock_code = (self.context or {}).get("stock_code")
+            if (
+                not isinstance(stock_code, str)
+                or canonical_stock_code(stock_code) != topic.stock_code
+                or self.skills != [topic.strategy_id]
+                or self.message not in topic.prompt_variants
+            ):
+                raise PydanticCustomError(
+                    "analysis_topic",
+                    "Analysis topic must match the generated prompt, stock and strategy",
+                )
+        return self
 
     @property
     def effective_skills(self) -> Optional[List[str]]:
         """Return skill ids from the unified request shape."""
         return self.skills
 
+
 class ChatResponse(BaseModel):
     success: bool
     content: str
     session_id: str
     error: Optional[str] = None
+
+
+def _resolve_chat_session(request: ChatRequest) -> str:
+    if request.analysis_topic is None:
+        return request.session_id or str(uuid.uuid4())
+    from ai_stock.storage import get_db
+
+    topic = request.analysis_topic
+    return get_db().resolve_analysis_conversation(
+        topic.stock_code, topic.strategy_id, topic.prompt_variants
+    )
+
+
+def _execute_chat(
+    executor: Any,
+    request: ChatRequest,
+    session_id: str,
+    context: dict[str, Any],
+    progress_callback: Any = None,
+) -> tuple[Any, list[dict[str, Any]] | None]:
+    if request.analysis_topic is None:
+        return executor.chat(
+            message=request.message,
+            session_id=session_id,
+            context=context,
+            progress_callback=progress_callback,
+        ), None
+
+    from ai_stock.agent.conversation import conversation_manager
+    from ai_stock.storage import get_db
+
+    # Serialize topic turns so pruning cannot split overlapping question/answer pairs.
+    with conversation_manager.get_or_create(session_id).turn_lock:
+        db = get_db()
+        try:
+            result = executor.chat(
+                message=request.message,
+                session_id=session_id,
+                context=context,
+                progress_callback=progress_callback,
+            )
+        finally:
+            db.trim_analysis_conversation(session_id)
+        return result, db.get_conversation_messages(session_id)
+
 
 class SkillInfo(BaseModel):
     id: str
@@ -155,7 +243,7 @@ async def agent_chat(request: ChatRequest):
     if not config.is_agent_available():
         raise HTTPException(status_code=400, detail="Agent mode is not enabled")
         
-    session_id = request.session_id or str(uuid.uuid4())
+    session_id = _resolve_chat_session(request)
     
     try:
         skills = request.effective_skills
@@ -170,10 +258,9 @@ async def agent_chat(request: ChatRequest):
 
         # Offload the blocking call to a thread to avoid blocking the event loop.
         loop = asyncio.get_running_loop()
-        result = await loop.run_in_executor(
+        result, _ = await loop.run_in_executor(
             None,
-            lambda: executor.chat(message=request.message, session_id=session_id,
-                                  context=ctx),
+            lambda: _execute_chat(executor, request, session_id, ctx),
         )
 
         return ChatResponse(
@@ -202,6 +289,20 @@ class SessionsResponse(BaseModel):
 class SessionMessagesResponse(BaseModel):
     session_id: str
     messages: List[Dict[str, Any]]
+
+
+@router.post("/chat/analysis-session", response_model=SessionMessagesResponse)
+def resolve_analysis_session(topic: AnalysisTopic):
+    """Resolve a stock/strategy history without creating a visible empty history item."""
+    from ai_stock.storage import get_db
+
+    db = get_db()
+    session_id = db.resolve_analysis_conversation(
+        topic.stock_code, topic.strategy_id, topic.prompt_variants
+    )
+    return SessionMessagesResponse(
+        session_id=session_id, messages=db.get_conversation_messages(session_id)
+    )
 
 
 @router.get("/chat/sessions", response_model=SessionsResponse)
@@ -386,7 +487,7 @@ async def agent_chat_stream(request: ChatRequest):
     if not config.is_agent_available():
         raise HTTPException(status_code=400, detail="Agent mode is not enabled")
 
-    session_id = request.session_id or str(uuid.uuid4())
+    session_id = _resolve_chat_session(request)
     loop = asyncio.get_running_loop()
     queue: asyncio.Queue = asyncio.Queue()
 
@@ -407,11 +508,8 @@ async def agent_chat_stream(request: ChatRequest):
     def run_sync():
         try:
             executor = _build_executor(config, skills or None)
-            result = executor.chat(
-                message=request.message,
-                session_id=session_id,
-                progress_callback=progress_callback,
-                context=stream_ctx,
+            result, retained_messages = _execute_chat(
+                executor, request, session_id, stream_ctx, progress_callback,
             )
             asyncio.run_coroutine_threadsafe(
                 queue.put({
@@ -421,6 +519,7 @@ async def agent_chat_stream(request: ChatRequest):
                     "error": result.error,
                     "total_steps": result.total_steps,
                     "session_id": session_id,
+                    **({"messages": retained_messages} if retained_messages is not None else {}),
                 }),
                 loop,
             )

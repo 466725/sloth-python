@@ -415,9 +415,18 @@ describe('ChatPage', () => {
     fireEvent.click(screen.getByRole('button', { name: '发送' }));
     expect(mockStartStream).toHaveBeenCalledWith(
       expect.objectContaining({ message: '使用策略 均线金叉 分析股票 AAPL', skills: ['ma_golden_cross'],
-        context: expect.objectContaining({ stock_code: 'AAPL' }) }),
+        context: expect.objectContaining({ stock_code: 'AAPL' }),
+        analysis_topic: {
+          stock_code: 'AAPL', strategy_id: 'ma_golden_cross',
+          prompt_variants: [
+            'Use strategy Moving average golden cross to analyze stock AAPL',
+            '使用策略 均线金叉 分析股票 AAPL',
+          ],
+        },
+      }),
       expect.anything(),
     );
+    expect(mockStartStream.mock.calls.at(-1)?.[0]).not.toHaveProperty('session_id');
     expect(screen.getByRole('textbox')).toHaveValue('使用策略 均线金叉 分析股票 AAPL');
   });
 

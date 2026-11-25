@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { agentApi } from '../api/agent';
-import type { ChatSessionItem, ChatStreamRequest } from '../api/agent';
+import type { ChatSessionItem, ChatSessionMessage, ChatStreamRequest } from '../api/agent';
 import {
   getParsedApiError,
   isApiRequestError,
@@ -45,6 +45,21 @@ type StreamFailureEvent = {
   error?: unknown;
   message?: unknown;
 };
+
+type ChatStreamEvent = ProgressStep & StreamFailureEvent & {
+  messages?: ChatSessionMessage[];
+  session_id?: string;
+};
+
+function restoreMessages(saved: ChatSessionMessage[], current: Message[]): Message[] {
+  const byId = new Map(current.map((message) => [message.id, message]));
+  return saved.map((message) => ({
+    ...byId.get(message.id),
+    id: message.id,
+    role: message.role,
+    content: message.content,
+  }));
+}
 
 function getFirstMeaningfulStreamError(...candidates: Array<unknown>): unknown {
   for (const candidate of candidates) {
@@ -226,9 +241,9 @@ export const useAgentChatStore = create<AgentChatState & AgentChatActions>((set,
     prevAc?.abort();
 
     const ac = new AbortController();
-    set({ abortController: ac });
+    set({ abortController: ac, loading: true, progressSteps: [], chatError: null });
 
-    const streamSessionId = payload.session_id || storeSessionId;
+    let streamSessionId = payload.session_id || storeSessionId;
     const skillNames = meta?.skillNames?.length
       ? meta.skillNames
       : [meta?.skillName ?? '通用'];
@@ -244,51 +259,72 @@ export const useAgentChatStore = create<AgentChatState & AgentChatActions>((set,
       skillName,
     };
 
-    set((s) => ({
-      messages: [...s.messages, userMessage],
-      loading: true,
-      progressSteps: [],
-      chatError: null,
-      sessions: s.sessions.some((x) => x.session_id === streamSessionId)
-        ? s.sessions
-        : [
-            {
-              session_id: streamSessionId,
-              title: payload.message.slice(0, 60),
-              message_count: 1,
-              created_at: new Date().toISOString(),
-              last_active: new Date().toISOString(),
-            },
-            ...s.sessions,
-          ],
-    }));
-
+    let retainedMessages: ChatSessionMessage[] | null = null;
+    const currentProgressSteps: ProgressStep[] = [];
     try {
-      const response = await agentApi.chatStream(payload, { signal: ac.signal });
+      if (payload.analysis_topic) {
+        const history = await agentApi.resolveAnalysisSession(payload.analysis_topic, { signal: ac.signal });
+        if (ac.signal.aborted || get().abortController !== ac) return;
+        streamSessionId = history.session_id;
+        set((s) => ({
+          sessionId: streamSessionId,
+          messages: restoreMessages(history.messages, s.messages),
+        }));
+        localStorage.setItem(STORAGE_KEY_SESSION, streamSessionId);
+      }
+      set((s) => ({
+        messages: [...s.messages, userMessage],
+        sessions: s.sessions.some((x) => x.session_id === streamSessionId)
+          ? s.sessions
+          : [
+              {
+                session_id: streamSessionId,
+                title: payload.message.slice(0, 60),
+                message_count: 1,
+                created_at: new Date().toISOString(),
+                last_active: new Date().toISOString(),
+              },
+              ...s.sessions,
+            ],
+      }));
+
+      const response = await agentApi.chatStream(
+        { ...payload, session_id: streamSessionId }, { signal: ac.signal },
+      );
       const reader = response.body!.getReader();
       const decoder = new TextDecoder();
       let buf = '';
       let finalContent: string | null = null;
-      const currentProgressSteps: ProgressStep[] = [];
-        const processLine = (line: string) => {
-          if (!line.startsWith('data: ')) return;
+      const processLine = (line: string) => {
+        if (!line.startsWith('data: ')) return;
 
-          const event = JSON.parse(line.slice(6)) as ProgressStep;
-          if (event.type === 'done') {
-            const doneEvent = event as unknown as StreamFailureEvent;
-            if (doneEvent.success === false) {
-              throw getStreamFailureError(doneEvent, '大模型调用出错，请检查 API Key 配置');
-            }
-            finalContent = doneEvent.content ?? '';
-            return;
+        const event = JSON.parse(line.slice(6)) as ChatStreamEvent;
+        if (event.type === 'done') {
+          if (payload.analysis_topic && event.session_id
+            && !ac.signal.aborted && get().sessionId === streamSessionId) {
+            streamSessionId = event.session_id;
+            set({ sessionId: streamSessionId });
+            localStorage.setItem(STORAGE_KEY_SESSION, streamSessionId);
           }
+          retainedMessages = payload.analysis_topic ? event.messages ?? null : null;
+          if (event.success === false) {
+            throw getStreamFailureError(event, '大模型调用出错，请检查 API Key 配置');
+          }
+          if (payload.analysis_topic && retainedMessages === null) {
+            throw getParsedApiError('Analysis stream did not return saved conversation history');
+          }
+          finalContent = event.content ?? '';
+          return;
+        }
 
-          if (event.type === 'error') {
-            throw getStreamFailureError(event as unknown as StreamFailureEvent, '分析出错');
-          }
+        if (event.type === 'error') {
+          throw getStreamFailureError(event, '分析出错');
+        }
 
         currentProgressSteps.push(event);
-        set((s) => ({ progressSteps: [...s.progressSteps, event] }));
+        if (!ac.signal.aborted && get().abortController === ac) {
+          set((s) => ({ progressSteps: [...s.progressSteps, event] }));
+        }
       };
 
       while (true) {
@@ -318,12 +354,15 @@ export const useAgentChatStore = create<AgentChatState & AgentChatActions>((set,
           }
         }
       }
+      if (payload.analysis_topic && retainedMessages === null) {
+        throw getParsedApiError('Analysis stream did not return saved conversation history');
+      }
 
       const { sessionId: currentSessionId, currentRoute } = get();
       const shouldAppend =
         currentSessionId === streamSessionId && !ac.signal.aborted;
 
-      if (shouldAppend) {
+      if (shouldAppend && retainedMessages === null) {
         set((s) => ({
           messages: [
             ...s.messages,
@@ -345,7 +384,8 @@ export const useAgentChatStore = create<AgentChatState & AgentChatActions>((set,
         set({ completionBadge: true });
       }
     } catch (error: unknown) {
-      if (error instanceof Error && error.name === 'AbortError') {
+      if (ac.signal.aborted || get().abortController !== ac
+        || (error instanceof Error && error.name === 'AbortError')) {
         // User-initiated abort: silent, no badge
       } else {
         set({ chatError: getParsedApiError(error) });
@@ -357,6 +397,22 @@ export const useAgentChatStore = create<AgentChatState & AgentChatActions>((set,
     } finally {
       const { abortController: currentAc } = get();
       if (currentAc === ac) {
+        if (retainedMessages !== null && get().sessionId === streamSessionId && !ac.signal.aborted) {
+          const saved = restoreMessages(retainedMessages, get().messages);
+          const last = saved.at(-1);
+          if (last?.role === 'assistant') {
+            const messageMeta = {
+              skills: payload.skills, skill: payload.skills?.[0],
+              skillNames, skillName,
+            };
+            Object.assign(last, messageMeta, { thinkingSteps: [...currentProgressSteps] });
+            const lastUser = saved.at(-2);
+            if (lastUser?.role === 'user' && lastUser.content === payload.message) {
+              Object.assign(lastUser, messageMeta);
+            }
+          }
+          set({ messages: saved });
+        }
         set({
           loading: false,
           progressSteps: [],

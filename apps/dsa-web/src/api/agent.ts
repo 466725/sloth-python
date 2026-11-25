@@ -14,6 +14,18 @@ export interface ChatRequest {
 export interface ChatStreamRequest extends ChatRequest {
   session_id?: string;
   context?: unknown;
+  analysis_topic?: AnalysisTopic;
+}
+
+export interface AnalysisTopic {
+  stock_code: string;
+  strategy_id: string;
+  prompt_variants: string[];
+}
+
+export interface ChatSessionResponse {
+  session_id: string;
+  messages: ChatSessionMessage[];
 }
 
 export interface ChatResponse {
@@ -67,6 +79,15 @@ export const agentApi = {
   async getChatSessionMessages(sessionId: string): Promise<ChatSessionMessage[]> {
     const response = await apiClient.get<{ messages: ChatSessionMessage[] }>(`/api/v1/agent/chat/sessions/${sessionId}`);
     return response.data.messages;
+  },
+  async resolveAnalysisSession(
+    topic: AnalysisTopic,
+    options?: ChatStreamOptions,
+  ): Promise<ChatSessionResponse> {
+    const response = await apiClient.post<ChatSessionResponse>(
+      '/api/v1/agent/chat/analysis-session', topic, { signal: options?.signal },
+    );
+    return response.data;
   },
   async deleteChatSession(sessionId: string): Promise<void> {
     await apiClient.delete(`/api/v1/agent/chat/sessions/${sessionId}`);

@@ -165,6 +165,11 @@ const ChatPage: React.FC = () => {
   }, [syncScrollState]);
 
   useEffect(() => {
+    if (useAgentChatStore.getState().loading) {
+      pendingScrollToTopRef.current = false;
+      shouldStickToBottomRef.current = true;
+      return;
+    }
     pendingScrollToTopRef.current = true;
     shouldStickToBottomRef.current = false;
     pendingScrollBehaviorRef.current = 'auto';
@@ -382,9 +387,17 @@ const ChatPage: React.FC = () => {
 
     const payload = {
       message: msgText,
-      session_id: sessionId,
       skills: usedSkillIds,
       context: { ...contextForSend, lock_stock_scope: true },
+      analysis_topic: {
+        stock_code: selectedStockCode,
+        strategy_id: usedSkillId,
+        prompt_variants: (['en', 'zh'] as const).map((promptLanguage) =>
+          formatUiText(CHAT_TEXT[promptLanguage].generatedPrompt, {
+            strategy: getChatSkillText(usedSkill, promptLanguage).name,
+            stock: selectedStockCode,
+          })),
+      },
     };
     followUpHydrationTokenRef.current += 1;
     followUpContextRef.current = null;

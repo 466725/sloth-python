@@ -110,6 +110,21 @@ When both a stock and strategy are selected, Ask displays a read-only generated
 prompt. Changing either selection updates the prompt; quick questions also use
 the selected stock.
 
+Send resolves history by stock code and strategy ID, independently of UI language
+or the currently selected history item. It reuses a matching conversation or
+creates a new history item when the analysis starts. An older conversation is
+reused only if all its user messages match that topic's generated prompts;
+mixed-topic histories remain unchanged.
+Each topic retains at most five AI responses and their corresponding prompts.
+Saving a sixth response permanently removes the oldest complete turn and its
+provider traces, and invalidates any summary of deleted messages. This limit is
+enforced in the database, not just hidden in the UI. Deleting a conversation also
+removes its topic mapping, so the next Send starts fresh.
+The backend creates `analysis_conversation_topics` automatically on startup.
+Deploy the updated backend and frontend together; no environment changes are
+required. Other API callers that omit `analysis_topic` retain their existing
+session behavior.
+
 The sidebar language switch applies to Ask controls, built-in strategy labels
 and descriptions, quick questions, conversation dates, local feedback and
 Markdown export headings. Switching languages preserves strategy selections and
