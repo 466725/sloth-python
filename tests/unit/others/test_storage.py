@@ -400,6 +400,33 @@ class TestStorage(unittest.TestCase):
                     os.environ[key] = value
             temp_dir.cleanup()
 
+    def test_disabling_wal_switches_existing_database_to_delete_journaling(self):
+        DatabaseManager.reset_instance()
+        Config.reset_instance()
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, "existing_wal.db")
+            with sqlite3.connect(path) as connection:
+                connection.execute("PRAGMA journal_mode=WAL")
+                connection.execute("CREATE TABLE retained_data (value TEXT)")
+                connection.execute("INSERT INTO retained_data VALUES ('preserved')")
+            connection.close()
+            try:
+                with patch.dict(os.environ, {"SQLITE_WAL_ENABLED": "false"}):
+                    Config.reset_instance()
+                    db = DatabaseManager(db_url=f"sqlite:///{path}")
+                    with db.get_session() as session:
+                        connection = session.connection()
+                        self.assertEqual(
+                            connection.exec_driver_sql("PRAGMA journal_mode").scalar(), "delete"
+                        )
+                        self.assertEqual(
+                            connection.exec_driver_sql("SELECT value FROM retained_data").scalar(),
+                            "preserved",
+                        )
+            finally:
+                DatabaseManager.reset_instance()
+                Config.reset_instance()
+
     def test_direct_construction_serializes_before_get_instance(self):
         DatabaseManager.reset_instance()
         Config.reset_instance()

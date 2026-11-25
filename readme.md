@@ -230,6 +230,22 @@ does not override this container path. To choose another container path, set
 `DOCKER_DATABASE_PATH` for Compose and ensure its directory is persistently
 mounted. SQLite databases are excluded from the Docker build context.
 
+Compose defaults to SQLite rollback journaling (`SQLITE_WAL_ENABLED=false`),
+because WAL shared-memory locking can fail on Windows/Docker Desktop bind
+mounts with `disk I/O error`. Local Python runs still use `SQLITE_WAL_ENABLED`
+from `.env`. Set `DOCKER_SQLITE_WAL_ENABLED=true` only on a filesystem that
+supports SQLite WAL locking reliably.
+Do not open the live Docker SQLite file from Windows database tools such as
+DBeaver; inspect a backup instead. Native Windows and container access can
+interfere with SQLite locking, and an open database tool can block a journal-mode
+change even after the containers stop.
+Before changing journal mode on an existing deployment, stop **both** `server`
+and `analyzer`, back up the database together with any `-wal` and `-shm`
+sidecars, and recreate both services with the same setting. Never delete
+sidecars while a database user is running or discard a nonempty WAL. If
+rollback is needed, stop both services before restoring the complete backup
+and previous setting.
+
 If upgrading an existing deployment that used a database outside `/app/data`,
 back up both the running database and the host database before recreating the
 container, then migrate the desired database to the persistent location. Do not

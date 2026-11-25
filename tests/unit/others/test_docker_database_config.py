@@ -23,17 +23,23 @@ class TestDockerDatabaseConfig(unittest.TestCase):
             docker_dir.mkdir()
             shutil.copyfile(source, docker_dir / "docker-compose.yml")
             env_file = root / ".env"
-            env_file.write_text("DATABASE_PATH=./ai_stock/stock_data/stock_analysis.db\n")
+            env_file.write_text(
+                "DATABASE_PATH=./ai_stock/stock_data/stock_analysis.db\nSQLITE_WAL_ENABLED=true\n"
+            )
             env = os.environ.copy()
 
-            for override, expected in (
-                (None, "/app/data/stock_analysis.db"),
-                ("/app/data/custom.db", "/app/data/custom.db"),
+            for override, expected, wal_override in (
+                (None, "/app/data/stock_analysis.db", None),
+                ("/app/data/custom.db", "/app/data/custom.db", None),
+                (None, "/app/data/stock_analysis.db", "true"),
             ):
-                with self.subTest(override=override):
+                with self.subTest(override=override, wal_override=wal_override):
                     env.pop("DOCKER_DATABASE_PATH", None)
+                    env.pop("DOCKER_SQLITE_WAL_ENABLED", None)
                     if override is not None:
                         env["DOCKER_DATABASE_PATH"] = override
+                    if wal_override is not None:
+                        env["DOCKER_SQLITE_WAL_ENABLED"] = wal_override
                     result = subprocess.run(
                         [
                             "docker",
@@ -55,6 +61,9 @@ class TestDockerDatabaseConfig(unittest.TestCase):
                     for service_name in ("server", "analyzer"):
                         service = services[service_name]
                         self.assertEqual(service["environment"]["DATABASE_PATH"], expected)
+                        self.assertEqual(
+                            service["environment"]["SQLITE_WAL_ENABLED"], wal_override or "false"
+                        )
                         self.assertTrue(
                             any(
                                 volume["target"] == "/app/data"

@@ -1244,8 +1244,9 @@ class DatabaseManager(metaclass=_DatabaseManagerMeta):
             cursor = dbapi_connection.cursor()
             try:
                 cursor.execute(f"PRAGMA busy_timeout={int(self._sqlite_busy_timeout_ms)}")
-                if self._sqlite_file_db and self._sqlite_wal_enabled:
-                    cursor.execute("PRAGMA journal_mode=WAL")
+                if self._sqlite_file_db:
+                    journal_mode = "WAL" if self._sqlite_wal_enabled else "DELETE"
+                    cursor.execute(f"PRAGMA journal_mode={journal_mode}")
             except Exception as exc:
                 logger.warning("初始化 SQLite PRAGMA 失败: %s", exc)
             finally:
