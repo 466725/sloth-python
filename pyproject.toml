@@ -53,7 +53,7 @@ requirements = [
 
   # Scheduling & Time
   "schedule>=1.2.2",
-  "exchange-calendars>=4.13.2",
+  "exchange-calendars>=4.13.3",
 
   # Retry & Resilience
   "tenacity>=9.2.1",

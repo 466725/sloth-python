@@ -69,7 +69,7 @@ mysql-connector-python
 # Scheduling & Time
 # ===================================
 schedule>=1.2.2
-exchange-calendars>=4.13.2
+exchange-calendars>=4.13.3
 
 # ===================================
 # Retry & Resilience
