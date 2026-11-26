@@ -179,7 +179,7 @@ class AlertApiTestCase(unittest.TestCase):
     def test_rule_name_is_generated_and_not_client_editable(self) -> None:
         rule = self._create_rule({"name": "Custom rule name"})
 
-        self.assertEqual(rule["name"], "600519 change up 1800.0%")
+        self.assertEqual(rule["name"], "600519 up 1800.0%")
         update_resp = self.client.patch(
             f"/api/v1/alerts/rules/{rule['id']}",
             json={"name": "Updated custom name"},
@@ -190,6 +190,24 @@ class AlertApiTestCase(unittest.TestCase):
         detail_resp = self.client.get(f"/api/v1/alerts/rules/{rule['id']}")
         self.assertEqual(detail_resp.status_code, 200)
         self.assertEqual(detail_resp.json()["name"], rule["name"])
+
+    def test_legacy_generated_rule_name_is_compacted_but_custom_names_are_preserved(self) -> None:
+        rule = self._create_rule()
+        with self.db.get_session() as session:
+            stored_rule = session.query(AlertRuleRecord).filter_by(id=rule["id"]).one()
+            stored_rule.name = "600519 change up 1800.0%"
+            session.commit()
+
+        detail_resp = self.client.get(f"/api/v1/alerts/rules/{rule['id']}")
+        self.assertEqual(detail_resp.json()["name"], "600519 up 1800.0%")
+
+        with self.db.get_session() as session:
+            stored_rule = session.query(AlertRuleRecord).filter_by(id=rule["id"]).one()
+            stored_rule.name = "Legacy custom name"
+            session.commit()
+
+        detail_resp = self.client.get(f"/api/v1/alerts/rules/{rule['id']}")
+        self.assertEqual(detail_resp.json()["name"], "Legacy custom name")
 
     def test_retired_cleanup_rolls_back_all_deletions_on_error(self) -> None:
         repo = AlertRepository(self.db)
@@ -346,7 +364,7 @@ class AlertApiTestCase(unittest.TestCase):
         detail = detail_resp.json()
         self.assertTrue(detail["enabled"])
         self.assertEqual(detail["severity"], "warning")
-        self.assertEqual(detail["name"], "600519 change up 1800.0%")
+        self.assertEqual(detail["name"], "600519 up 1800.0%")
 
     def test_rule_update_allows_null_for_reserved_policy_fields(self) -> None:
         rule = self._create_rule(

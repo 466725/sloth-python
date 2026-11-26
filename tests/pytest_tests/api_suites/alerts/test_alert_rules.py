@@ -59,7 +59,7 @@ class TestCreateAlertRule(BaseAPITest):
         )
 
         body = self.assert_ok(response)
-        assert body["name"] == "600519 change up 3.0%"
+        assert body["name"] == "600519 up 3.0%"
 
     def test_creates_rule_with_normalized_parameters(
         self, api_client: TestClient, api_spec: dict[str, Any]

@@ -633,13 +633,26 @@ class AlertService:
         return data
 
     def _serialize_rule_base(self, row: AlertRuleRecord) -> Dict[str, Any]:
+        parameters = self._load_json(row.parameters, default={})
+        name = row.name
+        if (
+            row.alert_type == "price_change_percent"
+            and "direction" in parameters
+            and "change_pct" in parameters
+            and name == f"{row.target} change {parameters['direction']} {parameters['change_pct']}%"
+        ):
+            name = self._default_rule_name(
+                target=row.target,
+                alert_type=row.alert_type,
+                parameters=parameters,
+            )
         return {
             "id": row.id,
-            "name": row.name,
+            "name": name,
             "target_scope": row.target_scope,
             "target": row.target,
             "alert_type": row.alert_type,
-            "parameters": self._load_json(row.parameters, default={}),
+            "parameters": parameters,
             "severity": row.severity,
             "enabled": bool(row.enabled),
             "source": row.source,
@@ -748,7 +761,7 @@ class AlertService:
     @staticmethod
     def _default_rule_name(*, target: str, alert_type: str, parameters: Dict[str, Any]) -> str:
         if alert_type == "price_change_percent":
-            return f"{target} change {parameters['direction']} {parameters['change_pct']}%"
+            return f"{target} {parameters['direction']} {parameters['change_pct']}%"
         return f"{target} {alert_type}"
 
     @staticmethod
