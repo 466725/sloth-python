@@ -68,6 +68,10 @@ describe('AlertRuleList', () => {
     expect(ruleCells[1]).toHaveTextContent('涨跌幅');
     expect(ruleCells[1]).not.toHaveTextContent('警告');
     expect(ruleCells[2]).toHaveTextContent('警告');
+    expect(within(ruleCells[1]).getByText('涨跌幅')).toHaveClass('text-secondary-text');
+    expect(within(ruleCells[2]).getByText('警告')).toHaveClass('text-secondary-text');
+    expect(within(ruleCells[3]).getByText('已启用')).toHaveClass('text-secondary-text');
+    expect(ruleCells[4]).toHaveClass('text-secondary-text');
     expect(screen.queryByText('40 条规则')).not.toBeInTheDocument();
     expect(screen.queryByText('来源：api')).not.toBeInTheDocument();
     expect(screen.queryByText('600519')).not.toBeInTheDocument();

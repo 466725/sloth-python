@@ -121,15 +121,20 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
                     <div className="font-medium text-foreground">{rule.name}</div>
                   </td>
                   <td className="px-3 py-3">
-                    <Badge variant="info">{ALERT_TYPE_LABELS[language][rule.alertType] ?? rule.alertType}</Badge>
+                    <Badge variant="info" className="text-secondary-text">
+                      {ALERT_TYPE_LABELS[language][rule.alertType] ?? rule.alertType}
+                    </Badge>
                   </td>
                   <td className="px-3 py-3">
-                    <Badge variant={rule.severity === 'critical' ? 'danger' : rule.severity === 'warning' ? 'warning' : 'default'}>
+                    <Badge
+                      variant={rule.severity === 'critical' ? 'danger' : rule.severity === 'warning' ? 'warning' : 'default'}
+                      className="text-secondary-text"
+                    >
                       {ALERT_SEVERITY_LABELS[language][rule.severity] ?? rule.severity}
                     </Badge>
                   </td>
                   <td className="px-3 py-3">
-                    <Badge variant={rule.enabled ? 'success' : 'default'}>
+                    <Badge variant={rule.enabled ? 'success' : 'default'} className="text-secondary-text">
                       {rule.enabled ? text.enabled : text.disabled}
                     </Badge>
                   </td>
