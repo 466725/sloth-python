@@ -534,8 +534,8 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
         runtime email routing matches the same equivalence used in
         validate_structured()."""
         env = {
-            "STOCK_LIST": "600519,HK00700",
-            "STOCK_GROUP_1": "SH600519,1810.HK",
+            "STOCK_LIST": "600519,000001",
+            "STOCK_GROUP_1": "SH600519,000001.SZ",
             "EMAIL_GROUP_1": "user@example.com",
         }
 
@@ -543,7 +543,7 @@ class ConfigEnvCompatibilityTestCase(unittest.TestCase):
             config = Config._load_from_env()
 
         stocks, emails = config.stock_email_groups[0]
-        self.assertEqual(stocks, ["600519", "HK01810"])
+        self.assertEqual(stocks, ["600519", "000001"])
         self.assertEqual(emails, ["user@example.com"])
 
 

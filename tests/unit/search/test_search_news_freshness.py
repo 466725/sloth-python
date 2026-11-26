@@ -1289,7 +1289,7 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
                         title="董事会公告",
                         snippet="股份回购事项。",
                         url="",
-                        source="hkexnews",
+                        source="cninfo",
                         published_date=fresh,
                     ),
                     _result(
@@ -1614,7 +1614,6 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
     def test_suffixed_stock_codes_keep_canonical_identity_terms(self) -> None:
         """Suffixed market codes should still emit canonical direct-match variants."""
         cases = (
-            ("00700.HK", {"00700", "HK00700"}),
             ("600519.SH", {"600519", "600519.SH"}),
             ("AAPL.US", {"AAPL", "NASDAQ:AAPL", "NYSE:AAPL"}),
         )
@@ -1623,11 +1622,12 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
                 terms = set(SearchService._stock_code_identity_terms(stock_code))
                 self.assertTrue(expected_terms.issubset(terms))
 
+        self.assertNotIn("HK00700", SearchService._stock_code_identity_terms("00700.HK"))
+
     def test_suffixed_market_codes_score_canonical_code_hits_as_direct(self) -> None:
         """Canonical code hits from suffixed inputs should be direct company news."""
         fresh = datetime.now().date().isoformat()
         cases = (
-            ("00700.HK", "HK00700 announces buyback"),
             ("600519.SH", "600519 发布回购公告"),
             ("AAPL.US", "AAPL announces quarterly results"),
         )
@@ -1644,6 +1644,13 @@ class SearchNewsFreshnessTestCase(unittest.TestCase):
                 )
                 self.assertEqual(scored.relevance_category, "direct_company_news")
                 self.assertIn("股票代码", "；".join(scored.relevance_reasons or []))
+
+        unsupported = SearchService._score_news_relevance(
+            _result("HK00700 announces buyback", fresh),
+            stock_code="00700.HK",
+            stock_name="Unmatched Name",
+        )
+        self.assertNotEqual(unsupported.relevance_category, "direct_company_news")
 
     def test_us_ticker_matches_before_known_dotted_market_suffix(self) -> None:
         """Ticker boundaries should allow explicit market suffixes from news feeds."""

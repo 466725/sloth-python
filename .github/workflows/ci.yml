@@ -72,17 +72,17 @@ jobs:
       - name: Install Playwright browsers
         run: python -m playwright install --with-deps
 
-      - name: Run pytest regression tests (excluding ai)
-        run: python -m pytest -m "not ai" --tb=short --maxfail=5
-
-      - name: Run Robot Framework regression tests
-        run: python -m robot --outputdir temps/test-results-robot tests/robot_tests/
-
       - name: Install Allure CLI
         run: |
           curl -fsSL "https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.tgz" \
             | tar -xz -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/allure-${ALLURE_VERSION}/bin" >> "$GITHUB_PATH"
+
+      - name: Run pytest regression tests (excluding ai)
+        run: python -m pytest -m "not ai" --tb=short --maxfail=5
+
+      - name: Run Robot Framework regression tests
+        run: python -m robot --outputdir temps/test-results-robot tests/robot_tests/
 
       - name: Generate Allure report
         if: always()

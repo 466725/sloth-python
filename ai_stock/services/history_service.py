@@ -130,6 +130,8 @@ class HistoryService:
 
         if normalized.startswith("HK") and normalized[2:].isdigit():
             add_hk_variants(normalized[2:])
+        elif normalized.endswith(".HK") and normalized[:-3].isdigit() and len(normalized[:-3]) <= 5:
+            add_hk_variants(normalized[:-3])
         elif normalized.isdigit() and len(normalized) == 5:
             add_hk_variants(normalized)
         elif normalized.isdigit() and len(normalized) == 6:

@@ -103,6 +103,33 @@ class TestAgentChatStream(BaseAPITest):
 
         self.assert_validation_error(response, field="message")
 
+class TestResolveAnalysisSession(BaseAPITest):
+    """``POST /api/v1/agent/chat/analysis-session``."""
+
+    ENDPOINT = "/api/v1/agent/chat/analysis-session"
+    METHOD = "post"
+
+    def test_resolves_an_empty_session(
+        self, api_client: TestClient, api_spec: dict[str, Any]
+    ) -> None:
+        response = api_client.post(
+            self.ENDPOINT,
+            json={
+                "stock_code": "600519",
+                "strategy_id": "test-strategy",
+                "prompt_variants": ["Analyze this stock"],
+            },
+        )
+
+        body = self.assert_matches_spec(api_spec, response)
+        assert body["session_id"]
+        assert body["messages"] == []
+
+    def test_rejects_missing_topic_fields(self, api_client: TestClient) -> None:
+        response = api_client.post(self.ENDPOINT, json={})
+
+        self.assert_validation_error(response, field="stock_code")
+
 class TestAgentResearch(BaseAPITest):
     """``POST /api/v1/agent/research``."""
 

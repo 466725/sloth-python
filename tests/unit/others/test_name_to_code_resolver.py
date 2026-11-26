@@ -27,7 +27,7 @@ from ai_stock.services.name_to_code_resolver import (
 
 class TestIsCodeLike:
     def test_a_share_5_digits(self):
-        assert _is_code_like("60051") is True
+        assert _is_code_like("60051") is False
         assert _is_code_like("600519") is True
 
     def test_a_share_6_digits(self):
@@ -42,7 +42,7 @@ class TestIsCodeLike:
         assert _is_code_like("BJ600519") is False
 
     def test_hk_5_digits(self):
-        assert _is_code_like("00700") is True
+        assert _is_code_like("00700") is False
 
     def test_us_stock_letters(self):
         assert _is_code_like("AAPL") is True
@@ -120,16 +120,16 @@ class TestResolveNameToCode:
 
     def test_local_map_exact_match(self):
         assert resolve_name_to_code("贵州茅台") == "600519"
-        assert resolve_name_to_code("腾讯控股") == "00700"
+        assert resolve_name_to_code("阿里巴巴") == "BABA"
 
     def test_returns_none_for_empty_or_invalid_input(self):
         assert resolve_name_to_code("") is None
         assert resolve_name_to_code("   ") is None
         assert resolve_name_to_code(None) is None  # type: ignore
 
+    @patch("ai_stock.services.name_to_code_resolver._LOCAL_AMBIGUOUS_NAMES", {"重复名称"})
     def test_ambiguous_name_returns_none(self):
-        # "阿里巴巴" maps to both BABA and 09988 in STOCK_NAME_MAP
-        assert resolve_name_to_code("阿里巴巴") is None
+        assert resolve_name_to_code("重复名称") is None
 
     @patch("ai_stock.services.name_to_code_resolver._get_akshare_name_to_code")
     def test_akshare_fallback_when_not_in_local(self, mock_akshare):
