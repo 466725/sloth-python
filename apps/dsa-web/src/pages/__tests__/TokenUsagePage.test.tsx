@@ -104,6 +104,7 @@ describe('TokenUsagePage', () => {
     renderPage();
 
     expect(await screen.findByRole('heading', { name: 'Token 用量监控' })).toBeInTheDocument();
+    expect(screen.queryByText('Usage', { exact: true })).not.toBeInTheDocument();
     expect(screen.getByRole('main')).toHaveClass('max-w-6xl');
     expect(await screen.findByText('400')).toBeInTheDocument();
     expect(screen.getAllByText('openai/gpt-test')).toHaveLength(2);
@@ -120,6 +121,7 @@ describe('TokenUsagePage', () => {
     renderPage();
 
     expect(await screen.findByRole('heading', { name: 'Token usage' })).toBeInTheDocument();
+    expect(screen.queryByText('Usage', { exact: true })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Today' })).toBeInTheDocument();
     expect(screen.getAllByText('Stock analysis')).toHaveLength(2);
     expect(screen.getByText('Latest 50 LLM token audit records.')).toBeInTheDocument();

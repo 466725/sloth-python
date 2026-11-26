@@ -145,7 +145,6 @@ const TokenUsagePage: React.FC = () => {
     <AppPage className="max-w-6xl">
       <div className="space-y-5">
         <PageHeader
-          eyebrow={t('usage.eyebrow')}
           title={t('usage.title')}
           description={t('usage.description')}
           actions={(
