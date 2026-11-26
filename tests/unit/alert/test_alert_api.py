@@ -73,7 +73,6 @@ class AlertApiTestCase(unittest.TestCase):
 
     def _create_rule(self, payload: dict | None = None) -> dict:
         body = {
-            "name": "Moutai price change",
             "target_scope": "single_symbol",
             "target": "600519",
             "alert_type": "price_change_percent",
@@ -176,6 +175,21 @@ class AlertApiTestCase(unittest.TestCase):
                     "target": "600519", "alert_type": "price_change_percent",
                     "parameters": {"direction": "up", "change_pct": value},
                 })
+
+    def test_rule_name_is_generated_and_not_client_editable(self) -> None:
+        rule = self._create_rule({"name": "Custom rule name"})
+
+        self.assertEqual(rule["name"], "600519 change up 1800.0%")
+        update_resp = self.client.patch(
+            f"/api/v1/alerts/rules/{rule['id']}",
+            json={"name": "Updated custom name"},
+        )
+        self.assertEqual(update_resp.status_code, 400)
+        self.assertEqual(update_resp.json()["error"], "validation_error")
+
+        detail_resp = self.client.get(f"/api/v1/alerts/rules/{rule['id']}")
+        self.assertEqual(detail_resp.status_code, 200)
+        self.assertEqual(detail_resp.json()["name"], rule["name"])
 
     def test_retired_cleanup_rolls_back_all_deletions_on_error(self) -> None:
         repo = AlertRepository(self.db)
@@ -322,7 +336,7 @@ class AlertApiTestCase(unittest.TestCase):
     def test_rule_update_rejects_null_for_non_nullable_fields(self) -> None:
         rule = self._create_rule()
 
-        for field_name in ("enabled", "severity", "name"):
+        for field_name in ("enabled", "severity"):
             resp = self.client.patch(f"/api/v1/alerts/rules/{rule['id']}", json={field_name: None})
             self.assertEqual(resp.status_code, 400, resp.text)
             self.assertEqual(resp.json()["error"], "validation_error")
@@ -332,7 +346,7 @@ class AlertApiTestCase(unittest.TestCase):
         detail = detail_resp.json()
         self.assertTrue(detail["enabled"])
         self.assertEqual(detail["severity"], "warning")
-        self.assertEqual(detail["name"], "Moutai price change")
+        self.assertEqual(detail["name"], "600519 change up 1800.0%")
 
     def test_rule_update_allows_null_for_reserved_policy_fields(self) -> None:
         rule = self._create_rule(
@@ -355,7 +369,6 @@ class AlertApiTestCase(unittest.TestCase):
         self._create_rule()
         self._create_rule(
             {
-                "name": "CATL drop",
                 "target": "300750",
                 "alert_type": "price_change_percent",
                 "parameters": {"direction": "down", "change_pct": 3.5},

@@ -18,7 +18,6 @@ TargetRecordStatusValue = Literal["triggered", "skipped", "degraded", "failed"]
 
 
 class AlertRuleCreateRequest(BaseModel):
-    name: Optional[str] = Field(None, max_length=64)
     target_scope: TargetScopeValue = "single_symbol"
     target: str = Field(..., min_length=1, max_length=64)
     alert_type: AlertTypeValue
@@ -30,7 +29,6 @@ class AlertRuleCreateRequest(BaseModel):
 
 
 class AlertRuleUpdateRequest(BaseModel):
-    name: Optional[str] = Field(None, max_length=64)
     target_scope: Optional[TargetScopeValue] = None
     target: Optional[str] = Field(None, min_length=1, max_length=64)
     alert_type: Optional[AlertTypeValue] = None

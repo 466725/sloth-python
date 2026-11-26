@@ -40,3 +40,9 @@ def test_alert_guide_documents_delivery_cleanup_and_rollback():
         "database backup",
     ):
         assert required in text
+
+
+def test_alert_guide_does_not_request_a_custom_rule_name():
+    text = DOC.read_text(encoding="utf-8")
+    assert '"name": "Daily decline"' not in text
+    assert "clients do not provide a custom name" in text

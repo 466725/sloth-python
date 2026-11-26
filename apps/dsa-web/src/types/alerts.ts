@@ -40,7 +40,6 @@ export interface AlertRuleListResponse {
 }
 
 export interface AlertRuleCreateRequest {
-  name?: string;
   targetScope?: AlertTargetScope;
   target: string;
   alertType: AlertType;

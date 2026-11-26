@@ -58,7 +58,8 @@ remain in their original language.
 The Alert Center also follows the sidebar language for its page title, trigger
 history, market-phase labels, notification attempts, validation and local
 create/test feedback. Language changes preserve form drafts and loaded records
-without repeating API calls. Rule names and backend diagnostics remain unchanged.
+without repeating API calls. Generated rule names and backend diagnostics remain
+unchanged.
 
 ## Workflows and shared features
 
@@ -414,12 +415,13 @@ the negative threshold; enter the threshold as a positive number for either
 direction. If a quote or valid change percentage is unavailable, evaluation is
 skipped. Evaluation errors are recorded as failures with sanitized diagnostics.
 A failed rule does not stop the worker from evaluating other rules.
+The backend generates each rule's display name from its symbol and change
+parameters; clients do not provide a custom name.
 
 Example request for `POST /api/v1/alerts/rules`:
 
 ```json
 {
-  "name": "Daily decline",
   "target_scope": "single_symbol",
   "target": "600519",
   "alert_type": "price_change_percent",

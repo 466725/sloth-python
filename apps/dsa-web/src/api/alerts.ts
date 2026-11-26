@@ -21,7 +21,6 @@ function omitUndefined(input: Record<string, unknown>): Record<string, unknown> 
 
 function toSnakeRulePayload(payload: AlertRuleCreateRequest): Record<string, unknown> {
   const request: Record<string, unknown> = {};
-  if (payload.name !== undefined) request.name = payload.name;
   if (payload.targetScope !== undefined) request.target_scope = payload.targetScope;
   if (payload.target !== undefined) request.target = payload.target;
   if (payload.alertType !== undefined) request.alert_type = payload.alertType;

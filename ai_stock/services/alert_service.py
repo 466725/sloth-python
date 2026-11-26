@@ -99,6 +99,7 @@ class AlertService:
         merged = self._serialize_rule_base(row)
         merged.update(payload)
         fields = self._normalize_rule_payload(merged, source=merged.get("source") or "api")
+        fields["name"] = row.name
         updated = self.repo.update_rule(rule_id, fields)
         if updated is None:
             raise AlertNotFoundError(f"Alert rule not found: {rule_id}")
@@ -529,12 +530,8 @@ class AlertService:
         except ValueError as exc:
             raise AlertServiceError(str(exc)) from exc
 
-        name = str(payload.get("name") or "").strip()
-        if not name:
-            name = self._default_rule_name(target=target, alert_type=alert_type, parameters=parameters)
-
         return {
-            "name": name[:64],
+            "name": self._default_rule_name(target=target, alert_type=alert_type, parameters=parameters),
             "target_scope": target_scope,
             "target": target,
             "alert_type": alert_type,

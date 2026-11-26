@@ -23,7 +23,6 @@ interface AlertRuleFormProps {
 export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmitting = false }) => {
   const { language } = useUiLanguage();
   const text = ALERT_FORM_TEXT[language];
-  const [name, setName] = useState('');
   const [target, setTarget] = useState('');
   const [stockCodes, setStockCodes] = useState<string[]>([]);
   const [stockCodesLoading, setStockCodesLoading] = useState(true);
@@ -75,7 +74,6 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
     }
     setFormError(null);
     const submitted = await onSubmit({
-      name: name.trim() || undefined,
       targetScope: 'single_symbol',
       target: validation.normalized,
       alertType: 'price_change_percent',
@@ -84,7 +82,6 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
       enabled,
     });
     if (submitted === false) return;
-    setName('');
     setTarget('');
     setChangePct('');
     setChangeDirection('up');
@@ -95,14 +92,6 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
     <Card title={text.cardTitle} subtitle={text.cardSubtitle} variant="bordered" padding="md">
       <form className="space-y-4" noValidate onSubmit={(event) => void handleSubmit(event)}>
         <div className="grid gap-4 md:grid-cols-2">
-          <Input
-            label={text.ruleName}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder={text.ruleNamePlaceholder}
-            disabled={isSubmitting}
-          />
-          <Input label={text.targetScope} value={ALERT_SCOPE_LABELS[language].single_symbol} readOnly />
           <Select
             label={text.targetCode}
             value={target}
@@ -110,7 +99,6 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
             disabled={isSubmitting || stockCodesLoading || Boolean(stockCodesError) || stockCodes.length === 0}
             onChange={setTarget}
           />
-          <Input label={text.ruleType} value={ALERT_TYPE_LABELS[language].price_change_percent} readOnly />
           <Select
             label={text.severity}
             value={severity}
@@ -120,15 +108,6 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
               if (value === 'info' || value === 'warning' || value === 'critical') setSeverity(value);
             }}
           />
-        </div>
-        {stockCodesLoading ? (
-          <p role="status" className="text-sm text-secondary-text">{text.loadingStocks}</p>
-        ) : null}
-        {stockCodesError ? <ApiErrorAlert error={stockCodesError} /> : null}
-        {!stockCodesLoading && !stockCodesError && stockCodes.length === 0 ? (
-          <p role="status" className="text-sm text-secondary-text">{text.noStocksConfigured}</p>
-        ) : null}
-        <div className="grid gap-4 md:grid-cols-2">
           <Select
             label={text.direction}
             value={changeDirection}
@@ -147,7 +126,16 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
             onChange={(event) => setChangePct(event.target.value)}
             disabled={isSubmitting}
           />
+          <Input label={text.targetScope} value={ALERT_SCOPE_LABELS[language].single_symbol} readOnly />
+          <Input label={text.ruleType} value={ALERT_TYPE_LABELS[language].price_change_percent} readOnly />
         </div>
+        {stockCodesLoading ? (
+          <p role="status" className="text-sm text-secondary-text">{text.loadingStocks}</p>
+        ) : null}
+        {stockCodesError ? <ApiErrorAlert error={stockCodesError} /> : null}
+        {!stockCodesLoading && !stockCodesError && stockCodes.length === 0 ? (
+          <p role="status" className="text-sm text-secondary-text">{text.noStocksConfigured}</p>
+        ) : null}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Checkbox
             label={text.enableAfterCreate}

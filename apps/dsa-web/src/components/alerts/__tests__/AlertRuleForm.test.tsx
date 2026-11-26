@@ -31,6 +31,21 @@ describe('AlertRuleForm', () => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
 
     await screen.findByRole('option', { name: '600519' });
+    expect(screen.queryByLabelText('规则名称')).not.toBeInTheDocument();
+    const orderedControls = [
+      screen.getByLabelText('标的代码'),
+      screen.getByLabelText('严重级别'),
+      screen.getByLabelText('方向'),
+      screen.getByLabelText('涨跌幅阈值（%）'),
+      screen.getByLabelText('创建后立即启用'),
+      screen.getByRole('button', { name: '创建规则' }),
+    ];
+    for (let index = 0; index < orderedControls.length - 1; index += 1) {
+      expect(
+        orderedControls[index].compareDocumentPosition(orderedControls[index + 1])
+          & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    }
     expect(screen.getByLabelText('规则类型')).toHaveValue('涨跌幅');
     expect(screen.getByLabelText('规则类型')).toHaveAttribute('readonly');
     expect(screen.getByLabelText('目标范围')).toHaveValue('单标的');
@@ -47,13 +62,11 @@ describe('AlertRuleForm', () => {
   it('submits an upward price change rule', async () => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
     await screen.findByRole('option', { name: '600519' });
-    fireEvent.change(screen.getByLabelText('规则名称'), { target: { value: '茅台涨跌幅' } });
     fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: '600519' } });
     fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '2.5' } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({
-      name: '茅台涨跌幅',
       targetScope: 'single_symbol',
       target: '600519',
       alertType: 'price_change_percent',

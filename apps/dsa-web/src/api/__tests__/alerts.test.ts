@@ -90,7 +90,6 @@ describe('alertsApi', () => {
     });
 
     const created = await alertsApi.createRule({
-      name: 'change rule',
       targetScope: 'single_symbol',
       target: 'AAPL',
       alertType: 'price_change_percent',
@@ -100,7 +99,6 @@ describe('alertsApi', () => {
     });
 
     expect(post).toHaveBeenCalledWith('/api/v1/alerts/rules', {
-      name: 'change rule',
       target_scope: 'single_symbol',
       target: 'AAPL',
       alert_type: 'price_change_percent',

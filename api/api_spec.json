@@ -5828,18 +5828,6 @@
       },
       "AlertRuleCreateRequest": {
         "properties": {
-          "name": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 64
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Name"
-          },
           "target_scope": {
             "type": "string",
             "const": "single_symbol",
@@ -6235,18 +6223,6 @@
       },
       "AlertRuleUpdateRequest": {
         "properties": {
-          "name": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 64
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Name"
-          },
           "target_scope": {
             "anyOf": [
               {

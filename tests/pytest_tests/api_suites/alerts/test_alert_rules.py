@@ -16,7 +16,6 @@ pytestmark = pytest.mark.api
 def valid_rule_payload(**overrides: Any) -> dict[str, Any]:
     """Return the smallest payload the alert service accepts."""
     payload: dict[str, Any] = {
-        "name": "茅台上涨提醒",
         "target_scope": "single_symbol",
         "target": "600519",
         "alert_type": "price_change_percent",
@@ -45,6 +44,22 @@ class TestCreateAlertRule(BaseAPITest):
 
     ENDPOINT = "/api/v1/alerts/rules"
     METHOD = "post"
+
+    def test_rule_names_are_generated_and_not_request_fields(
+        self, api_client: TestClient, api_spec: dict[str, Any]
+    ) -> None:
+        schemas = api_spec["components"]["schemas"]
+        assert "name" not in schemas["AlertRuleCreateRequest"]["properties"]
+        assert "name" not in schemas["AlertRuleUpdateRequest"]["properties"]
+        assert "name" in schemas["AlertRuleItem"]["properties"]
+
+        response = api_client.post(
+            self.ENDPOINT,
+            json=valid_rule_payload(name="Custom rule name"),
+        )
+
+        body = self.assert_ok(response)
+        assert body["name"] == "600519 change up 3.0%"
 
     def test_creates_rule_with_normalized_parameters(
         self, api_client: TestClient, api_spec: dict[str, Any]
