@@ -284,40 +284,38 @@ const AlertsPage: React.FC = () => {
       ) : null}
       {rulesError ? <ApiErrorAlert error={rulesError} onDismiss={() => setRulesError(null)} /> : null}
 
-      <div className="grid items-stretch gap-5 xl:grid-cols-[380px_minmax(0,1fr)]">
+      <div className="flex flex-col gap-5">
         <AlertRuleForm onSubmit={handleCreateRule} isSubmitting={createLoading} />
-        <div className="flex h-full min-h-0 flex-col gap-4">
-          <AlertRuleList
-            className="flex h-full min-h-0 flex-col"
-            rules={rules}
-            total={rulesTotal}
-            page={rulesPage}
-            pageSize={PAGE_SIZE}
-            isLoading={rulesLoading}
-            enabledFilter={enabledFilter}
-            alertTypeFilter={alertTypeFilter}
-            onEnabledFilterChange={(value) => {
-              setEnabledFilter(value);
-              setRulesPage(1);
-            }}
-            onAlertTypeFilterChange={(value) => {
-              setAlertTypeFilter(value);
-              setRulesPage(1);
-            }}
-            onPageChange={setRulesPage}
-            onToggleEnabled={(rule) => void handleToggleEnabled(rule)}
-            onDelete={(rule) => void handleDeleteRule(rule)}
-            onTest={(rule) => void handleTestRule(rule)}
-            busyRule={busyRule}
+        <AlertRuleList
+          className="flex w-full min-w-0 flex-col"
+          rules={rules}
+          total={rulesTotal}
+          page={rulesPage}
+          pageSize={PAGE_SIZE}
+          isLoading={rulesLoading}
+          enabledFilter={enabledFilter}
+          alertTypeFilter={alertTypeFilter}
+          onEnabledFilterChange={(value) => {
+            setEnabledFilter(value);
+            setRulesPage(1);
+          }}
+          onAlertTypeFilterChange={(value) => {
+            setAlertTypeFilter(value);
+            setRulesPage(1);
+          }}
+          onPageChange={setRulesPage}
+          onToggleEnabled={(rule) => void handleToggleEnabled(rule)}
+          onDelete={(rule) => void handleDeleteRule(rule)}
+          onTest={(rule) => void handleTestRule(rule)}
+          busyRule={busyRule}
+        />
+        {testResult ? (
+          <InlineAlert
+            title={text.testResult}
+            variant={testVariant(testResult)}
+            message={renderTestResultMessage(testResult, language)}
           />
-          {testResult ? (
-            <InlineAlert
-              title={text.testResult}
-              variant={testVariant(testResult)}
-              message={renderTestResultMessage(testResult, language)}
-            />
-          ) : null}
-        </div>
+        ) : null}
       </div>
 
       {triggersError ? <ApiErrorAlert error={triggersError} onDismiss={() => setTriggersError(null)} /> : null}

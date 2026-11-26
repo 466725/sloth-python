@@ -173,6 +173,26 @@ describe('AlertsPage', () => {
     expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
   });
 
+  it('stacks the full-width create and rules panels before trigger history', async () => {
+    renderLocalizedPage();
+    await screen.findByText('No notification attempts');
+
+    const formTitle = screen.getByRole('heading', { name: 'Create alert rule' });
+    const rulesTitle = screen.getByRole('heading', { name: 'Alert rules' });
+    const formPanel = formTitle.parentElement?.parentElement;
+    const rulesPanel = rulesTitle.parentElement?.parentElement;
+    if (!formPanel || !rulesPanel) throw new Error('Alert panel cards were not rendered');
+
+    expect(formPanel).toHaveClass('w-full');
+    expect(rulesPanel).toHaveClass('w-full');
+    expect(formPanel.parentElement).toBe(rulesPanel.parentElement);
+    expect(formPanel.parentElement).toHaveClass('flex', 'flex-col');
+    expect(
+      formPanel.compareDocumentPosition(rulesPanel) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Trigger history' })).toBeInTheDocument();
+  });
+
   it('updates loaded history, phase, notifications and form drafts without refetching on language changes', async () => {
     listRules.mockResolvedValue({ items: [{ ...rule, name: 'Price alert' }], total: 1, page: 1, pageSize: 20 });
     listTriggers.mockResolvedValue({
