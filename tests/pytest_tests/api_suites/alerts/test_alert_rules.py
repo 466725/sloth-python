@@ -79,6 +79,7 @@ class TestCreateAlertRule(BaseAPITest):
         [
             ({"alert_type": "volume_spike"}, "alert_type"),
             ({"target_scope": "sector"}, "target_scope"),
+            ({"target_scope": "watchlist"}, "target_scope"),
             ({"severity": "fatal"}, "severity"),
             ({"target": ""}, "target"),
             ({"target": "x" * 65}, "target"),

@@ -2,14 +2,14 @@ import type React from 'react';
 import { useEffect, useState } from 'react';
 import { getParsedApiError, type ParsedApiError } from '../../api/error';
 import { systemConfigApi } from '../../api/systemConfig';
-import type { AlertDirection, AlertRuleCreateRequest, AlertSeverity, AlertTargetScope } from '../../types/alerts';
+import type { AlertDirection, AlertRuleCreateRequest, AlertSeverity } from '../../types/alerts';
 import { useUiLanguage } from '../../contexts/UiLanguageContext';
 import { formatUiText } from '../../i18n/uiText';
 import {
   ALERT_CHANGE_DIRECTION_OPTIONS,
   ALERT_FORM_TEXT,
+  ALERT_SCOPE_LABELS,
   ALERT_SEVERITY_OPTIONS,
-  ALERT_TARGET_SCOPE_OPTIONS,
   ALERT_TYPE_LABELS,
 } from '../../locales/featureText';
 import { validateStockCode } from '../../utils/validation';
@@ -24,7 +24,6 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
   const { language } = useUiLanguage();
   const text = ALERT_FORM_TEXT[language];
   const [name, setName] = useState('');
-  const [targetScope, setTargetScope] = useState<AlertTargetScope>('single_symbol');
   const [target, setTarget] = useState('');
   const [stockCodes, setStockCodes] = useState<string[]>([]);
   const [stockCodesLoading, setStockCodesLoading] = useState(true);
@@ -64,14 +63,10 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    let resolvedTarget = 'default';
-    if (targetScope === 'single_symbol') {
-      const validation = validateStockCode(target);
-      if (!validation.valid) {
-        setFormError({ kind: 'stockCode', message: validation.message });
-        return;
-      }
-      resolvedTarget = validation.normalized;
+    const validation = validateStockCode(target);
+    if (!validation.valid) {
+      setFormError({ kind: 'stockCode', message: validation.message });
+      return;
     }
     const parsedChangePct = Number(changePct);
     if (!Number.isFinite(parsedChangePct) || parsedChangePct <= 0) {
@@ -81,8 +76,8 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
     setFormError(null);
     const submitted = await onSubmit({
       name: name.trim() || undefined,
-      targetScope,
-      target: resolvedTarget,
+      targetScope: 'single_symbol',
+      target: validation.normalized,
       alertType: 'price_change_percent',
       parameters: { direction: changeDirection, changePct: parsedChangePct },
       severity,
@@ -107,30 +102,14 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
             placeholder={text.ruleNamePlaceholder}
             disabled={isSubmitting}
           />
+          <Input label={text.targetScope} value={ALERT_SCOPE_LABELS[language].single_symbol} readOnly />
           <Select
-            label={text.targetScope}
-            value={targetScope}
-            options={ALERT_TARGET_SCOPE_OPTIONS[language]}
-            disabled={isSubmitting}
-            onChange={(value) => {
-              if (value !== 'single_symbol' && value !== 'watchlist') return;
-              setTargetScope(value);
-              setChangeDirection('up');
-              setChangePct('');
-              setFormError(null);
-            }}
+            label={text.targetCode}
+            value={target}
+            options={stockCodeOptions}
+            disabled={isSubmitting || stockCodesLoading || Boolean(stockCodesError) || stockCodes.length === 0}
+            onChange={setTarget}
           />
-          {targetScope === 'single_symbol' ? (
-            <Select
-              label={text.targetCode}
-              value={target}
-              options={stockCodeOptions}
-              disabled={isSubmitting || stockCodesLoading || Boolean(stockCodesError) || stockCodes.length === 0}
-              onChange={setTarget}
-            />
-          ) : (
-            <Input label={text.target} value="default" disabled />
-          )}
           <Input label={text.ruleType} value={ALERT_TYPE_LABELS[language].price_change_percent} readOnly />
           <Select
             label={text.severity}
@@ -142,11 +121,11 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
             }}
           />
         </div>
-        {targetScope === 'single_symbol' && stockCodesLoading ? (
+        {stockCodesLoading ? (
           <p role="status" className="text-sm text-secondary-text">{text.loadingStocks}</p>
         ) : null}
-        {targetScope === 'single_symbol' && stockCodesError ? <ApiErrorAlert error={stockCodesError} /> : null}
-        {targetScope === 'single_symbol' && !stockCodesLoading && !stockCodesError && stockCodes.length === 0 ? (
+        {stockCodesError ? <ApiErrorAlert error={stockCodesError} /> : null}
+        {!stockCodesLoading && !stockCodesError && stockCodes.length === 0 ? (
           <p role="status" className="text-sm text-secondary-text">{text.noStocksConfigured}</p>
         ) : null}
         <div className="grid gap-4 md:grid-cols-2">

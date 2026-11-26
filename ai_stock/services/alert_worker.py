@@ -204,27 +204,27 @@ class AlertWorker:
         for row in self.service.repo.list_enabled_rules(limit=ALERT_WORKER_RULE_LIMIT):
             try:
                 cooldown_policy = self.service._load_json(row.cooldown_policy, default=None)
-                for payload in self.service.build_runtime_payloads(row, config=config, include_overflow_payload=False):
-                    if len(runtime_rules) >= ALERT_WORKER_RULE_LIMIT:
-                        logger.warning(
-                            "[AlertWorker] Runtime rule limit reached at %s; skipping remaining expanded rules",
-                            ALERT_WORKER_RULE_LIMIT,
-                        )
-                        break
-                    runtime_rules.append(
-                        RuntimeAlertRule(
-                            key=payload.key,
-                            rule=payload.rule,
-                            source="db",
-                            severity=row.severity,
-                            cooldown_policy=cooldown_policy,
-                            effective_target=payload.effective_target,
-                            display_target=payload.display_target,
-                        )
-                    )
-                    seen_keys.add(payload.key)
+                payload = self.service.build_runtime_payload(row)
+                if payload is None:
+                    continue
                 if len(runtime_rules) >= ALERT_WORKER_RULE_LIMIT:
+                    logger.warning(
+                        "[AlertWorker] Runtime rule limit reached at %s; skipping remaining rules",
+                        ALERT_WORKER_RULE_LIMIT,
+                    )
                     break
+                runtime_rules.append(
+                    RuntimeAlertRule(
+                        key=payload.key,
+                        rule=payload.rule,
+                        source="db",
+                        severity=row.severity,
+                        cooldown_policy=cooldown_policy,
+                        effective_target=payload.effective_target,
+                        display_target=payload.display_target,
+                    )
+                )
+                seen_keys.add(payload.key)
             except Exception as exc:
                 logger.warning("[AlertWorker] Skip invalid persisted alert rule %s: %s", getattr(row, "id", "?"), exc)
 

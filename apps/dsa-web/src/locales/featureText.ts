@@ -25,22 +25,21 @@ export const ALERT_TYPE_LABELS: Record<UiLanguage, Record<AlertType, string>> = 
   en: { price_change_percent: 'Price change' },
 };
 export const ALERT_SEVERITY_LABELS: Record<UiLanguage, Record<string, string>> = { zh: { info: '提示', warning: '警告', critical: '严重' }, en: { info: 'Info', warning: 'Warning', critical: 'Critical' } };
-export const ALERT_SCOPE_LABELS: Record<UiLanguage, Record<AlertTargetScope, string>> = { zh: { single_symbol: '单标的', watchlist: '自选股' }, en: { single_symbol: 'Single symbol', watchlist: 'Watchlist' } };
+export const ALERT_SCOPE_LABELS: Record<UiLanguage, Record<AlertTargetScope, string>> = { zh: { single_symbol: '单标的' }, en: { single_symbol: 'Single symbol' } };
 export const ALERT_DIRECTION_LABELS = {
   zh: { upChange: '上涨', downChange: '下跌' },
   en: { upChange: 'up', downChange: 'down' },
 } as const;
 export const ALERT_LIST_TEXT = {
-  zh: { title: '告警规则', subtitle: '{total} 条规则', enabledFilter: '启停状态', alertTypeFilter: '规则类型', loadingRules: '正在加载规则', emptyTitle: '暂无告警规则', emptyDescription: '创建规则后，后台评估任务会按轮询周期处理已启用的告警。', rule: '规则', target: '目标', type: '类型', parameters: '参数', status: '状态', cooldown: '冷却', updatedAt: '更新时间', action: '操作', source: '来源：{source}', enabled: '已启用', disabled: '已停用', coolingDown: '冷却中', notCoolingDown: '未冷却', childTargetCooldown: '子目标见触发历史', test: '测试', testing: '测试中', disabling: '停用中', enabling: '启用中', disable: '停用', enable: '启用', delete: '删除', cancel: '取消', deleteAria: '删除 {name}', deleteTitle: '删除告警规则', deleteMessage: '确认删除「{name}」吗？该操作不会删除已有触发历史。' },
-  en: { title: 'Alert rules', subtitle: '{total} rules', enabledFilter: 'Status', alertTypeFilter: 'Rule type', loadingRules: 'Loading rules', emptyTitle: 'No alert rules', emptyDescription: 'After rules are created, background evaluation processes enabled alerts on the polling schedule.', rule: 'Rule', target: 'Target', type: 'Type', parameters: 'Parameters', status: 'Status', cooldown: 'Cooldown', updatedAt: 'Updated', action: 'Actions', source: 'Source: {source}', enabled: 'Enabled', disabled: 'Disabled', coolingDown: 'Cooling down', notCoolingDown: 'Not cooling down', childTargetCooldown: 'Per-target cooldowns are in trigger history', test: 'Test', testing: 'Testing', disabling: 'Disabling', enabling: 'Enabling', disable: 'Disable', enable: 'Enable', delete: 'Delete', cancel: 'Cancel', deleteAria: 'Delete {name}', deleteTitle: 'Delete alert rule', deleteMessage: 'Delete "{name}"? Existing trigger history will be kept.' },
+  zh: { title: '告警规则', subtitle: '{total} 条规则', enabledFilter: '启停状态', alertTypeFilter: '规则类型', loadingRules: '正在加载规则', emptyTitle: '暂无告警规则', emptyDescription: '创建规则后，后台评估任务会按轮询周期处理已启用的告警。', rule: '规则', target: '目标', type: '类型', parameters: '参数', status: '状态', cooldown: '冷却', updatedAt: '更新时间', action: '操作', source: '来源：{source}', enabled: '已启用', disabled: '已停用', coolingDown: '冷却中', notCoolingDown: '未冷却', test: '测试', testing: '测试中', disabling: '停用中', enabling: '启用中', disable: '停用', enable: '启用', delete: '删除', cancel: '取消', deleteAria: '删除 {name}', deleteTitle: '删除告警规则', deleteMessage: '确认删除「{name}」吗？该操作不会删除已有触发历史。' },
+  en: { title: 'Alert rules', subtitle: '{total} rules', enabledFilter: 'Status', alertTypeFilter: 'Rule type', loadingRules: 'Loading rules', emptyTitle: 'No alert rules', emptyDescription: 'After rules are created, background evaluation processes enabled alerts on the polling schedule.', rule: 'Rule', target: 'Target', type: 'Type', parameters: 'Parameters', status: 'Status', cooldown: 'Cooldown', updatedAt: 'Updated', action: 'Actions', source: 'Source: {source}', enabled: 'Enabled', disabled: 'Disabled', coolingDown: 'Cooling down', notCoolingDown: 'Not cooling down', test: 'Test', testing: 'Testing', disabling: 'Disabling', enabling: 'Enabling', disable: 'Disable', enable: 'Enable', delete: 'Delete', cancel: 'Cancel', deleteAria: 'Delete {name}', deleteTitle: 'Delete alert rule', deleteMessage: 'Delete "{name}"? Existing trigger history will be kept.' },
 } as const;
 export const ALERT_ENABLED_FILTER_OPTIONS: Record<UiLanguage, Array<Option<'all' | 'enabled' | 'disabled'>>> = { zh: [{ value: 'all', label: '全部状态' }, { value: 'enabled', label: '已启用' }, { value: 'disabled', label: '已停用' }], en: [{ value: 'all', label: 'All statuses' }, { value: 'enabled', label: 'Enabled' }, { value: 'disabled', label: 'Disabled' }] };
 export const ALERT_TYPE_FILTER_OPTIONS: Record<UiLanguage, Array<Option<'all' | AlertType>>> = { zh: [{ value: 'all', label: '全部类型' }, ...alertTypes.map((value) => ({ value, label: ALERT_TYPE_LABELS.zh[value] }))], en: [{ value: 'all', label: 'All types' }, ...alertTypes.map((value) => ({ value, label: ALERT_TYPE_LABELS.en[value] }))] };
 export const ALERT_FORM_TEXT = {
-  zh: { cardTitle: '创建告警规则', cardSubtitle: 'Web 告警中心', ruleName: '规则名称', ruleNamePlaceholder: '可选，例如 茅台涨跌幅', targetScope: '目标范围', targetCode: '标的代码', target: '目标', ruleType: '规则类型', severity: '严重级别', direction: '方向', changePctThreshold: '涨跌幅阈值（%）', enableAfterCreate: '创建后立即启用', creating: '创建中...', create: '创建规则', positiveNumber: '{label}必须是大于 0 的数字', invalidStockCode: '股票代码格式不正确', loadingStocks: '正在加载自选股票...', noStocksConfigured: '自选股票列表为空，请先在 .env 的 STOCK_LIST 中配置股票代码。' },
-  en: { cardTitle: 'Create alert rule', cardSubtitle: 'Web alert center', ruleName: 'Rule name', ruleNamePlaceholder: 'Optional, e.g. Moutai price change', targetScope: 'Target scope', targetCode: 'Symbol', target: 'Target', ruleType: 'Rule type', severity: 'Severity', direction: 'Direction', changePctThreshold: 'Change threshold (%)', enableAfterCreate: 'Enable immediately', creating: 'Creating...', create: 'Create rule', positiveNumber: '{label} must be a number greater than 0', invalidStockCode: 'Invalid stock code format', loadingStocks: 'Loading watchlist stocks...', noStocksConfigured: 'The stock list is empty. Configure stock codes in .env under STOCK_LIST.' },
+  zh: { cardTitle: '创建告警规则', cardSubtitle: 'Web 告警中心', ruleName: '规则名称', ruleNamePlaceholder: '可选，例如 茅台涨跌幅', targetScope: '目标范围', targetCode: '标的代码', ruleType: '规则类型', severity: '严重级别', direction: '方向', changePctThreshold: '涨跌幅阈值（%）', enableAfterCreate: '创建后立即启用', creating: '创建中...', create: '创建规则', positiveNumber: '{label}必须是大于 0 的数字', invalidStockCode: '股票代码格式不正确', loadingStocks: '正在加载股票列表...', noStocksConfigured: '股票列表为空，请先在 .env 的 STOCK_LIST 中配置股票代码。' },
+  en: { cardTitle: 'Create alert rule', cardSubtitle: 'Web alert center', ruleName: 'Rule name', ruleNamePlaceholder: 'Optional, e.g. Moutai price change', targetScope: 'Target scope', targetCode: 'Symbol', ruleType: 'Rule type', severity: 'Severity', direction: 'Direction', changePctThreshold: 'Change threshold (%)', enableAfterCreate: 'Enable immediately', creating: 'Creating...', create: 'Create rule', positiveNumber: '{label} must be a number greater than 0', invalidStockCode: 'Invalid stock code format', loadingStocks: 'Loading configured stock list...', noStocksConfigured: 'The stock list is empty. Configure stock codes in .env under STOCK_LIST.' },
 } as const;
-export const ALERT_TARGET_SCOPE_OPTIONS: Record<UiLanguage, Array<Option<AlertTargetScope>>> = { zh: Object.entries(ALERT_SCOPE_LABELS.zh).map(([value, label]) => ({ value: value as AlertTargetScope, label })), en: Object.entries(ALERT_SCOPE_LABELS.en).map(([value, label]) => ({ value: value as AlertTargetScope, label })) };
 export const ALERT_SEVERITY_OPTIONS: Record<UiLanguage, Array<Option<'info' | 'warning' | 'critical'>>> = { zh: Object.entries(ALERT_SEVERITY_LABELS.zh).map(([value, label]) => ({ value: value as 'info' | 'warning' | 'critical', label })), en: Object.entries(ALERT_SEVERITY_LABELS.en).map(([value, label]) => ({ value: value as 'info' | 'warning' | 'critical', label })) };
 export const ALERT_CHANGE_DIRECTION_OPTIONS: Record<UiLanguage, Array<Option<'up' | 'down'>>> = { zh: [{ value: 'up', label: '上涨达到' }, { value: 'down', label: '下跌达到' }], en: [{ value: 'up', label: 'Rises by' }, { value: 'down', label: 'Falls by' }] };
 
@@ -48,7 +47,7 @@ export const ALERT_PAGE_TEXT = {
   zh: {
     documentTitle: '告警中心 - DSA',
     title: '告警中心',
-    description: '管理单标的和自选股涨跌幅告警，执行一次性测试，并查看后台评估任务记录的触发历史与邮件通知诊断。',
+    description: '管理单标的涨跌幅告警，执行一次性测试，并查看后台评估任务记录的触发历史与邮件通知诊断。',
     createdTitle: '创建成功',
     createdMessage: '已创建告警规则「{name}」',
     close: '关闭',
@@ -73,7 +72,7 @@ export const ALERT_PAGE_TEXT = {
   en: {
     documentTitle: 'Alert Center - DSA',
     title: 'Alert Center',
-    description: 'Manage price-change alerts for individual symbols and watchlists, run one-time tests, and review trigger history and notification diagnostics from background evaluations.',
+    description: 'Manage price-change alerts for individual symbols, run one-time tests, and review trigger history and notification diagnostics from background evaluations.',
     createdTitle: 'Rule created',
     createdMessage: 'Created alert rule "{name}"',
     close: 'Close',

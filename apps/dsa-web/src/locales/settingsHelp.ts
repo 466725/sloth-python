@@ -611,11 +611,11 @@ const settingsHelpZhCN: SettingsHelpMap = {
     summary: '通过 JSON 数组配置涨跌幅告警规则。',
     usage: 'JSON 数组格式，每条规则包含 alert_type、stock_code、direction 和 change_pct。仅支持 price_change_percent，方向为 up 或 down，百分比阈值必须大于 0。',
     valueNotes: [
-      '自选股涨跌幅规则需通过 Alert API 或 Web 告警中心管理，不在此 JSON 中配置。',
+      '涨跌幅告警规则需通过 Alert API 或 Web 告警中心管理，不在此 JSON 中配置。',
       '规则在定时模式下由事件监控定期评估。',
     ],
     impact: ['影响后台告警检测和通知推送。'],
-    notes: ['该字段为 Legacy 配置方式，自选股规则请使用告警中心。'],
+    notes: ['该字段为 Legacy 配置方式，告警规则请使用告警中心。'],
   },
   // ------------------------------------------------------------------
   // Backtest configuration
@@ -1405,11 +1405,11 @@ const settingsHelpEnUS: SettingsHelpMap = {
     summary: 'Configures price change alert rules via a JSON array.',
     usage: 'Each JSON rule has alert_type, stock_code, direction, and change_pct. Only price_change_percent is supported, with up or down direction and a positive percentage threshold.',
     valueNotes: [
-      'Watchlist price change rules are managed through the Alert API or Web alert center, not this JSON.',
+      'Price change alert rules are managed through the Alert API or Web alert center, not this JSON.',
       'Rules are evaluated periodically by the event monitor in schedule mode.',
     ],
     impact: ['Affects background alert detection and notification delivery.'],
-    notes: ['This is a legacy configuration method. For watchlist rules, use the alert center.'],
+    notes: ['This is a legacy configuration method. Use the alert center to manage rules.'],
   },
   // ------------------------------------------------------------------
   // Backtest configuration

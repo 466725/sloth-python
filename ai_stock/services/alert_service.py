@@ -8,8 +8,9 @@ import json
 import logging
 import math
 import re
+from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from ai_stock.agent.events import (
     EventMonitor,
@@ -23,19 +24,7 @@ from ai_stock.analysis_context_pack_overview import (
 )
 from ai_stock.market_phase_summary import MARKET_PHASE_SUMMARY_KEY, extract_market_phase_summary
 from ai_stock.repositories.alert_repo import AlertRepository
-from ai_stock.services.alert_runtime import (
-    DRY_RUN_TARGET_TIMEOUT_SECONDS,
-    DRY_RUN_TOTAL_TIMEOUT_SECONDS,
-    SYMBOL_BATCH_TARGET_SCOPES,
-    RuntimeAlertPayload,
-    StaticAlertEvaluation,
-    aggregate_dry_run_results,
-    evaluate_static_alert,
-    expand_symbol_targets,
-    make_static_payload,
-    normalize_batch_target_scope_target,
-    result_to_target_result,
-)
+
 from ai_stock.services.decision_signal_summary import summarize_decision_signal
 from ai_stock.storage import (
     AlertCooldownRecord,
@@ -47,11 +36,21 @@ from ai_stock.storage import (
 from ai_stock.utils.sanitize import sanitize_diagnostic_text
 
 SUPPORTED_ALERT_TYPES = frozenset({"price_change_percent"})
-SUPPORTED_TARGET_SCOPES = frozenset({"single_symbol", "watchlist"})
+SUPPORTED_TARGET_SCOPES = frozenset({"single_symbol"})
 SUPPORTED_SEVERITIES = frozenset({"info", "warning", "critical"})
 NULLABLE_RULE_UPDATE_FIELDS = frozenset({"cooldown_policy", "notification_policy"})
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class RuntimeAlertPayload:
+    """Runtime rule plus the identity used for cooldown/history."""
+
+    key: str
+    rule: Any
+    effective_target: str
+    display_target: str
 
 
 class AlertServiceError(ValueError):
@@ -146,14 +145,25 @@ class AlertService:
         if row is None:
             raise AlertNotFoundError(f"Alert rule not found: {rule_id}")
 
-        payloads = self.build_runtime_payloads(row)
+        payload = self.build_runtime_payload(row)
+        if payload is None:
+            return {
+                "rule_id": rule_id,
+                "target_scope": None,
+                "status": "evaluation_error",
+                "triggered": False,
+                "observed_value": None,
+                "message": "Alert rule has an unsupported target scope or type",
+                "evaluated_count": 0,
+                "triggered_count": 0,
+                "degraded_count": 0,
+                "skipped_count": 0,
+                "target_results": [],
+            }
         monitor = EventMonitor()
         try:
-            if len(payloads) == 1 and row.target_scope == "single_symbol":
-                result = asyncio.run(self._evaluate_rule(payloads[0].rule, monitor, daily_cache=None))
-                return self._dry_run_response_for_single(payloads[0], result, target_scope=row.target_scope)
-            results = asyncio.run(self._evaluate_runtime_payloads(payloads, monitor))
-            return aggregate_dry_run_results(rule_id, row.target_scope, results)
+            result = asyncio.run(self._evaluate_rule(payload.rule, monitor, daily_cache=None))
+            return self._dry_run_response_for_single(payload, result)
         except Exception as exc:
             sanitized_message = self._sanitize_text(str(exc) or "Alert evaluation failed")
             return {
@@ -183,81 +193,23 @@ class AlertService:
     ) -> Dict[str, Any]:
         if isinstance(rule, PriceChangeAlert):
             return await self._evaluate_price_change(rule, monitor)
-        if isinstance(rule, StaticAlertEvaluation):
-            return evaluate_static_alert(rule)
         return self._evaluation_error(rule, f"unsupported runtime alert type: {rule.alert_type}")
 
-    async def _evaluate_runtime_payloads(
-        self,
-        payloads: List[RuntimeAlertPayload],
-        monitor: EventMonitor,
-    ) -> List[Dict[str, Any]]:
-        semaphore = asyncio.Semaphore(8)
-        daily_cache: Dict[Any, Any] = {}
-
-        async def _evaluate_one(payload: RuntimeAlertPayload) -> Dict[str, Any]:
-            async with semaphore:
-                try:
-                    result = await asyncio.wait_for(
-                        self._evaluate_rule(payload.rule, monitor, daily_cache=daily_cache),
-                        timeout=DRY_RUN_TARGET_TIMEOUT_SECONDS,
-                    )
-                except asyncio.TimeoutError:
-                    result = {
-                        "rule_id": self._runtime_rule_id(payload.rule),
-                        "status": "not_triggered",
-                        "record_status": "skipped",
-                        "triggered": False,
-                        "observed_value": None,
-                        "threshold": self._threshold_for_rule(payload.rule),
-                        "data_source": self._data_source_for_rule(payload.rule),
-                        "data_timestamp": None,
-                        "reason": "dry-run evaluation timed out",
-                        "message": "dry-run evaluation timed out",
-                    }
-                except Exception as exc:
-                    sanitized_message = self._sanitize_text(str(exc) or "Alert evaluation failed")
-                    result = {
-                        "rule_id": self._runtime_rule_id(payload.rule),
-                        "status": "evaluation_error",
-                        "record_status": "failed",
-                        "triggered": False,
-                        "observed_value": None,
-                        "threshold": self._threshold_for_rule(payload.rule),
-                        "data_source": self._data_source_for_rule(payload.rule),
-                        "data_timestamp": None,
-                        "reason": sanitized_message,
-                        "message": sanitized_message,
-                    }
-                return result_to_target_result(payload, result)
-
-        tasks = [asyncio.create_task(_evaluate_one(payload)) for payload in payloads]
-        done, pending = await asyncio.wait(tasks, timeout=DRY_RUN_TOTAL_TIMEOUT_SECONDS)
-        for task in pending:
-            task.cancel()
-        output: List[Dict[str, Any]] = []
-        for task in done:
-            output.append(task.result())
-        for task, payload in zip(tasks, payloads):
-            if task in pending:
-                output.append({
-                    "target": payload.effective_target,
-                    "display_target": payload.display_target,
-                    "status": "not_triggered",
-                    "record_status": "skipped",
-                    "triggered": False,
-                    "observed_value": None,
-                    "threshold": None,
-                    "message": "dry-run evaluation timed out",
-                })
-        return output
-
     @staticmethod
-    def _dry_run_response_for_single(payload: RuntimeAlertPayload, result: Dict[str, Any], *, target_scope: str) -> Dict[str, Any]:
-        target_result = result_to_target_result(payload, result)
+    def _dry_run_response_for_single(payload: RuntimeAlertPayload, result: Dict[str, Any]) -> Dict[str, Any]:
+        target_result = {
+            "target": payload.effective_target,
+            "display_target": payload.display_target,
+            "status": result.get("status") or "evaluation_error",
+            "record_status": result.get("record_status"),
+            "triggered": bool(result.get("triggered")),
+            "observed_value": result.get("observed_value"),
+            "threshold": result.get("threshold"),
+            "message": result.get("message") or result.get("reason") or "",
+        }
         response = {
             "rule_id": result.get("rule_id") or 0,
-            "target_scope": target_scope,
+            "target_scope": "single_symbol",
             "status": result.get("status") or "evaluation_error",
             "triggered": bool(result.get("triggered")),
             "observed_value": result.get("observed_value"),
@@ -570,13 +522,12 @@ class AlertService:
             raise AlertServiceError(f"unsupported severity: {severity}")
 
         parameters = self._normalize_parameters(alert_type, payload.get("parameters") or {})
-        target = self._normalize_target(target_scope, target)
-        if target_scope == "single_symbol":
-            serialized_rule = {"stock_code": target, "alert_type": alert_type, **parameters}
-            try:
-                validate_event_alert_rule(serialized_rule)
-            except ValueError as exc:
-                raise AlertServiceError(str(exc)) from exc
+        target = target.strip()
+        serialized_rule = {"stock_code": target, "alert_type": alert_type, **parameters}
+        try:
+            validate_event_alert_rule(serialized_rule)
+        except ValueError as exc:
+            raise AlertServiceError(str(exc)) from exc
 
         name = str(payload.get("name") or "").strip()
         if not name:
@@ -600,15 +551,6 @@ class AlertService:
             if value is None and field_name not in NULLABLE_RULE_UPDATE_FIELDS:
                 raise AlertServiceError(f"{field_name} must not be null")
 
-
-    def _normalize_target(self, target_scope: str, target: str) -> str:
-        if target_scope == "single_symbol":
-            return target.strip()
-        try:
-            normalized = normalize_batch_target_scope_target(target_scope, target)
-            return normalized
-        except ValueError as exc:
-            raise AlertServiceError(str(exc)) from exc
 
     def _normalize_parameters(self, alert_type: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
         if not isinstance(parameters, dict):
@@ -635,13 +577,7 @@ class AlertService:
             raise AlertServiceError(f"{field_name} must be finite and > 0")
         return number
 
-    def build_runtime_payloads(
-        self,
-        row: AlertRuleRecord,
-        *,
-        config: Optional[Any] = None,
-        include_overflow_payload: bool = True,
-    ) -> List[RuntimeAlertPayload]:
+    def build_runtime_payload(self, row: AlertRuleRecord) -> RuntimeAlertPayload | None:
         data = self._serialize_rule_base(row)
         if data["target_scope"] not in SUPPORTED_TARGET_SCOPES or data["alert_type"] not in SUPPORTED_ALERT_TYPES:
             logger.info(
@@ -650,95 +586,21 @@ class AlertService:
                 data["target_scope"],
                 data["alert_type"],
             )
-            return []
+            return None
         parent_key = self._semantic_key(
             data["target_scope"],
             data["target"],
             data["alert_type"],
             data["parameters"],
         )
-
-        if data["target_scope"] in SYMBOL_BATCH_TARGET_SCOPES:
-            if config is None:
-                from ai_stock.config import get_config
-
-                config = get_config()
-            try:
-                targets, overflow_count = expand_symbol_targets(
-                    target_scope=data["target_scope"],
-                    target=data["target"],
-                    config=config,
-                )
-            except Exception as exc:
-                return [
-                    make_static_payload(
-                        parent_key=parent_key,
-                        rule_id=int(data["id"] or 0),
-                        alert_type=data["alert_type"],
-                        effective_target=f"{data['target_scope']}:{data['target']}",
-                        display_target=f"{data['target_scope']} {data['target']}",
-                        message=self._sanitize_text(str(exc) or "target expansion failed"),
-                        record_status="failed",
-                    )
-                ]
-
-            payloads: List[RuntimeAlertPayload] = []
-            for target in targets:
-                child_data = dict(data)
-                child_data["target"] = target.symbol
-                rule = self._to_runtime_rule(row, child_data)
-                effective_target = target.symbol
-                payloads.append(
-                    RuntimeAlertPayload(
-                        key=f"{parent_key}|{effective_target}",
-                        rule=rule,
-                        effective_target=effective_target,
-                        display_target=target.display_target,
-                    )
-                )
-            if overflow_count:
-                if include_overflow_payload:
-                    payloads.append(
-                        make_static_payload(
-                            parent_key=parent_key,
-                            rule_id=int(data["id"] or 0),
-                            alert_type=data["alert_type"],
-                            effective_target=f"{data['target_scope']}:{data['target']}:overflow",
-                            display_target="展开目标超限",
-                            message=f"Skipped {overflow_count} targets over soft cap",
-                            record_status="degraded",
-                        )
-                    )
-                logger.warning(
-                    "[AlertService] Alert rule %s expansion exceeded soft cap by %s targets",
-                    data["id"],
-                    overflow_count,
-                )
-            if not payloads:
-                scope_label = "watchlist"
-                payloads.append(
-                    make_static_payload(
-                        parent_key=parent_key,
-                        rule_id=int(data["id"] or 0),
-                        alert_type=data["alert_type"],
-                        effective_target=f"{data['target_scope']}:{data['target']}",
-                        display_target=scope_label,
-                        message=f"No {scope_label} targets to evaluate",
-                        record_status="skipped",
-                    )
-                )
-            return payloads
-
         rule = self._to_runtime_rule(row, data)
         effective_target = str(data["target"])
-        return [
-            RuntimeAlertPayload(
-                key=parent_key,
-                rule=rule,
-                effective_target=effective_target,
-                display_target=effective_target,
-            )
-        ]
+        return RuntimeAlertPayload(
+            key=parent_key,
+            rule=rule,
+            effective_target=effective_target,
+            display_target=effective_target,
+        )
 
     def _to_runtime_rule(self, row: AlertRuleRecord, data: Optional[Dict[str, Any]] = None):
         data = data or self._serialize_rule_base(row)

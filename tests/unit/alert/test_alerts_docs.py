@@ -9,7 +9,7 @@ def test_alert_guide_only_documents_price_change_rules():
     text = DOC.read_text(encoding="utf-8")
     assert "price_change_percent" in text
     assert "single_symbol" in text
-    assert "watchlist" in text
+    assert '"target_scope": "watchlist"' not in text
     for retired in (
         "price_cross",
         "volume_spike",

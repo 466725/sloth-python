@@ -3,7 +3,7 @@ import type { DecisionSignalItem } from './decisionSignals';
 
 export type AlertType = 'price_change_percent';
 export type AlertSeverity = 'info' | 'warning' | 'critical';
-export type AlertTargetScope = 'single_symbol' | 'watchlist';
+export type AlertTargetScope = 'single_symbol';
 export type AlertDirection = 'up' | 'down';
 export type AlertDryRunStatus = 'triggered' | 'not_triggered' | 'evaluation_error';
 export type AlertTriggerStatus = 'triggered' | 'skipped' | 'degraded' | 'failed';
@@ -55,7 +55,7 @@ export interface AlertDeleteResponse {
 
 export interface AlertRuleTestResponse {
   ruleId: number;
-  targetScope?: AlertTargetScope | string | null;
+  targetScope?: AlertTargetScope | null;
   status: AlertDryRunStatus;
   triggered: boolean;
   observedValue?: unknown;

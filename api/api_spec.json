@@ -92,6 +92,48 @@
         }
       }
     },
+    "/api/v1/agent/chat/analysis-session": {
+      "post": {
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Resolve Analysis Session",
+        "description": "Resolve a stock/strategy history without creating a visible empty history item.",
+        "operationId": "resolve_analysis_session_api_v1_agent_chat_analysis_session_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalysisTopic"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionMessagesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/agent/chat/sessions": {
       "get": {
         "tags": [
@@ -2984,10 +3026,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "enum": [
-                    "single_symbol",
-                    "watchlist"
-                  ],
+                  "const": "single_symbol",
                   "type": "string"
                 },
                 {
@@ -5576,48 +5615,6 @@
           }
         }
       }
-    },
-    "/api/v1/agent/chat/analysis-session": {
-      "post": {
-        "tags": [
-          "Agent"
-        ],
-        "summary": "Resolve Analysis Session",
-        "description": "Resolve a stock/strategy history without creating a visible empty history item.",
-        "operationId": "resolve_analysis_session_api_v1_agent_chat_analysis_session_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AnalysisTopic"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SessionMessagesResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
@@ -5845,10 +5842,7 @@
           },
           "target_scope": {
             "type": "string",
-            "enum": [
-              "single_symbol",
-              "watchlist"
-            ],
+            "const": "single_symbol",
             "title": "Target Scope",
             "default": "single_symbol"
           },
@@ -5927,10 +5921,7 @@
           },
           "target_scope": {
             "type": "string",
-            "enum": [
-              "single_symbol",
-              "watchlist"
-            ],
+            "const": "single_symbol",
             "title": "Target Scope"
           },
           "target": {
@@ -6170,7 +6161,8 @@
           "target_scope": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "const": "single_symbol"
               },
               {
                 "type": "null"
@@ -6259,10 +6251,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "enum": [
-                  "single_symbol",
-                  "watchlist"
-                ]
+                "const": "single_symbol"
               },
               {
                 "type": "null"
@@ -6994,6 +6983,38 @@
           "stock_code": "600519",
           "stock_name": "贵州茅台"
         }
+      },
+      "AnalysisTopic": {
+        "properties": {
+          "stock_code": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Stock Code"
+          },
+          "strategy_id": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Strategy Id"
+          },
+          "prompt_variants": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 1,
+            "title": "Prompt Variants"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stock_code",
+          "strategy_id",
+          "prompt_variants"
+        ],
+        "title": "AnalysisTopic"
       },
       "AnalyzeRequest": {
         "properties": {
@@ -15044,38 +15065,6 @@
         ],
         "title": "WatchlistResponse",
         "description": "自选队列响应"
-      },
-      "AnalysisTopic": {
-        "properties": {
-          "stock_code": {
-            "type": "string",
-            "maxLength": 20,
-            "minLength": 1,
-            "title": "Stock Code"
-          },
-          "strategy_id": {
-            "type": "string",
-            "maxLength": 100,
-            "minLength": 1,
-            "title": "Strategy Id"
-          },
-          "prompt_variants": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "maxItems": 2,
-            "minItems": 1,
-            "title": "Prompt Variants"
-          }
-        },
-        "type": "object",
-        "required": [
-          "stock_code",
-          "strategy_id",
-          "prompt_variants"
-        ],
-        "title": "AnalysisTopic"
       }
     }
   }

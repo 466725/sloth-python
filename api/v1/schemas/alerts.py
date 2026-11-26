@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from api.v1.schemas.history import AnalysisContextPackOverview
 from api.v1.schemas.market_phase import MarketPhaseSummary
 
-TargetScopeValue = Literal["single_symbol", "watchlist"]
+TargetScopeValue = Literal["single_symbol"]
 AlertTypeValue = Literal["price_change_percent"]
 SeverityValue = Literal["info", "warning", "critical"]
 DryRunStatusValue = Literal["triggered", "not_triggered", "evaluation_error"]
@@ -84,7 +84,7 @@ class AlertRuleTargetResult(BaseModel):
 
 class AlertRuleTestResponse(BaseModel):
     rule_id: int
-    target_scope: Optional[str] = None
+    target_scope: Optional[TargetScopeValue] = None
     status: DryRunStatusValue
     triggered: bool
     observed_value: Optional[Any] = None

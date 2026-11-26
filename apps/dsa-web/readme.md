@@ -146,8 +146,8 @@ subsequent daily bars. They do not place orders.
 ### Alerts and notifications
 
 The [Alert Center](#alert-center) supports percentage price-change rules for a
-single symbol or the configured watchlist. Alert evaluation and email delivery
-are described in that guide and the [email notification guide](#email-notifications).
+single symbol. Alert evaluation and email delivery are described in that guide
+and the [email notification guide](#email-notifications).
 
 ### Symbol lookup
 
@@ -401,8 +401,8 @@ supports the following fields:
 | Field | Supported values and meaning |
 | --- | --- |
 | `alert_type` | `price_change_percent` only |
-| `target_scope` | `single_symbol` or `watchlist` |
-| `target` | A stock symbol for `single_symbol`; `default` for `watchlist` |
+| `target_scope` | `single_symbol` only |
+| `target` | A single stock symbol; the Web form lists symbols from `STOCK_LIST` |
 | `parameters.direction` | `up` or `down` |
 | `parameters.change_pct` | A finite number greater than zero, in percent; `3` means 3% |
 | `severity` | `info`, `warning`, or `critical` |
@@ -428,13 +428,6 @@ Example request for `POST /api/v1/alerts/rules`:
   "enabled": true
 }
 ```
-
-For a watchlist rule, send `"target_scope": "watchlist"` and
-`"target": "default"`. Each worker cycle refreshes the configured `STOCK_LIST`,
-removes duplicate symbols, and expands the rule to at most 100 symbols. Trigger
-history and cooldowns are tracked per expanded symbol. An empty watchlist is
-recorded as skipped. A dry run has a 10-second per-target timeout and a 30-second
-total timeout; its response includes at most 20 target details.
 
 ### Background evaluation and notifications
 
@@ -469,7 +462,7 @@ fingerprint; this state is not persisted across application restarts.
 ### Legacy JSON rules
 
 `AGENT_EVENT_ALERT_RULES_JSON` accepts a JSON array of single-symbol percentage
-change rules. It does not support watchlist expansion:
+change rules:
 
 ```dotenv
 AGENT_EVENT_ALERT_RULES_JSON=[{"stock_code":"600519","alert_type":"price_change_percent","direction":"up","change_pct":3}]
@@ -511,10 +504,13 @@ introduce automatic trading behavior.
 
 When the alert repository is initialized (for example, on an alert API request or
 when the background worker starts), it permanently deletes rules whose
-`alert_type` is not `price_change_percent`, together with their associated
-trigger history, notification attempts, and cooldown records. The deletion is
-performed transactionally and is idempotent. Supported percentage-change rules
-and their records are preserved. Unlinked legacy history is not deleted.
+`alert_type` is not `price_change_percent` or whose `target_scope` is not
+`single_symbol`. The deletion is transactional and idempotent. Retired alert
+types also have their trigger history, notification attempts, and cooldown
+records removed; deleted watchlist-scope rules retain their trigger and
+notification history, while their cooldown records are removed. Supported
+percentage-change rules and their records are preserved. Unlinked legacy history
+is not deleted.
 
 Unsupported rules in private environment configuration are not removed from the
 file; invalid entries are skipped at runtime and should be cleaned up manually.

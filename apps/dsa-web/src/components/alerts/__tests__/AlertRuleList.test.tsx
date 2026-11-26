@@ -99,21 +99,6 @@ describe('AlertRuleList', () => {
     expect(onToggleEnabled).toHaveBeenCalledWith(rules[0]);
   });
 
-  it('renders watchlist downward percentages and per-target cooldown guidance', () => {
-    renderList({
-      rules: [{
-        ...rules[0],
-        targetScope: 'watchlist',
-        target: 'default',
-        parameters: { direction: 'down', changePct: 2.5 },
-      }],
-    });
-    expect(screen.getByText('default')).toBeInTheDocument();
-    expect(screen.getByText('自选股')).toBeInTheDocument();
-    expect(screen.getByText('下跌 2.5%')).toBeInTheDocument();
-    expect(screen.getByText('子目标见触发历史')).toBeInTheDocument();
-  });
-
   it('shows loading text only for the active rule operation', () => {
     renderList({ busyRule: { id: 1, action: 'toggle' } });
 

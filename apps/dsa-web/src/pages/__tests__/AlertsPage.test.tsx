@@ -303,7 +303,7 @@ describe('AlertsPage', () => {
   it('loads rules, trigger history, and notification empty state', async () => {
     render(<AlertsPage />);
 
-    expect(screen.getByText('管理单标的和自选股涨跌幅告警，执行一次性测试，并查看后台评估任务记录的触发历史与邮件通知诊断。')).toBeInTheDocument();
+    expect(screen.getByText('管理单标的涨跌幅告警，执行一次性测试，并查看后台评估任务记录的触发历史与邮件通知诊断。')).toBeInTheDocument();
     expect(await screen.findByText('茅台涨跌幅')).toBeInTheDocument();
     expect(await screen.findByText('600519 price up 3%')).toBeInTheDocument();
     expect(await screen.findByText('暂无通知尝试记录')).toBeInTheDocument();
@@ -328,48 +328,6 @@ describe('AlertsPage', () => {
     expect(screen.getByText(/600519 price up 3%/)).toBeInTheDocument();
     expect(screen.getByText(/观察值：3\.1/)).toBeInTheDocument();
     expect(screen.queryByText(/realtime_quote/)).not.toBeInTheDocument();
-  });
-
-  it('renders batch dry-run summary and target results', async () => {
-    testRule.mockResolvedValueOnce({
-      ruleId: 1,
-      targetScope: 'watchlist',
-      status: 'triggered',
-      triggered: true,
-      observedValue: 11,
-      message: 'Evaluated 2 targets',
-      evaluatedCount: 2,
-      triggeredCount: 1,
-      degradedCount: 1,
-      skippedCount: 0,
-      targetResults: [
-        {
-          target: '600519',
-          displayTarget: '自选股 - 600519',
-          status: 'triggered',
-          recordStatus: 'triggered',
-          triggered: true,
-          observedValue: 11,
-          message: 'triggered',
-        },
-        {
-          target: '000001',
-          displayTarget: '自选股 - 000001',
-          status: 'not_triggered',
-          recordStatus: 'degraded',
-          triggered: false,
-          observedValue: null,
-          message: 'degraded',
-        },
-      ],
-    });
-    render(<AlertsPage />);
-
-    fireEvent.click(await screen.findByRole('button', { name: '测试' }));
-
-    expect(await screen.findByText(/评估 2 · 触发 1 · 降级 1 · 跳过 0/)).toBeInTheDocument();
-    expect(screen.getByText('自选股 - 600519')).toBeInTheDocument();
-    expect(screen.getByText(/not_triggered \/ degraded/)).toBeInTheDocument();
   });
 
   it('creates a rule through the page form and reloads rules', async () => {

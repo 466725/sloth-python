@@ -10,7 +10,7 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
-from sqlalchemy import and_, delete, desc, func, select
+from sqlalchemy import and_, delete, desc, func, or_, select
 
 from ai_stock.storage import (
     AlertCooldownRecord,
@@ -31,17 +31,23 @@ class AlertRepository:
         self.delete_retired_rules()
 
     def delete_retired_rules(self) -> int:
-        """Permanently remove unsupported rules and their dependent records."""
+        """Remove unsupported rules and stale runtime state."""
         retired_ids = select(AlertRuleRecord.id).where(
+            or_(
+                AlertRuleRecord.alert_type != "price_change_percent",
+                AlertRuleRecord.target_scope != "single_symbol",
+            )
+        )
+        retired_type_ids = select(AlertRuleRecord.id).where(
             AlertRuleRecord.alert_type != "price_change_percent"
         )
-        trigger_ids = select(AlertTriggerRecord.id).where(
-            AlertTriggerRecord.rule_id.in_(retired_ids)
+        retired_type_trigger_ids = select(AlertTriggerRecord.id).where(
+            AlertTriggerRecord.rule_id.in_(retired_type_ids)
         )
         with self.db.get_session() as session:
             session.execute(
                 delete(AlertNotificationRecord).where(
-                    AlertNotificationRecord.trigger_id.in_(trigger_ids)
+                    AlertNotificationRecord.trigger_id.in_(retired_type_trigger_ids)
                 ),
                 execution_options={"synchronize_session": False},
             )
@@ -50,7 +56,7 @@ class AlertRepository:
                 execution_options={"synchronize_session": False},
             )
             session.execute(
-                delete(AlertTriggerRecord).where(AlertTriggerRecord.rule_id.in_(retired_ids)),
+                delete(AlertTriggerRecord).where(AlertTriggerRecord.rule_id.in_(retired_type_ids)),
                 execution_options={"synchronize_session": False},
             )
             result = session.execute(
@@ -61,7 +67,7 @@ class AlertRepository:
             deleted = int(result.rowcount)
         if deleted:
             logger.warning(
-                "[AlertRepository] Permanently deleted %d retired alert rules and their history",
+                "[AlertRepository] Permanently deleted %d unsupported alert rules",
                 deleted,
             )
         return deleted

@@ -34,15 +34,6 @@ function isCoolingDown(rule: AlertRuleItem): boolean {
   return rule.cooldownActive === true;
 }
 
-function formatTarget(rule: AlertRuleItem): string {
-  if (rule.targetScope === 'watchlist') return 'default';
-  return rule.target;
-}
-
-function hasChildTargetCooldown(rule: AlertRuleItem): boolean {
-  return rule.targetScope === 'watchlist';
-}
-
 interface AlertRuleListProps {
   rules: AlertRuleItem[];
   total: number;
@@ -145,7 +136,7 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
                     <div className="mt-1 text-xs text-muted-text">{formatUiText(text.source, { source: rule.source })}</div>
                   </td>
                   <td className="px-3 py-3 text-secondary-text">
-                    <div className="font-mono">{formatTarget(rule)}</div>
+                    <div className="font-mono">{rule.target}</div>
                     <div className="mt-1 text-xs">{ALERT_SCOPE_LABELS[language][rule.targetScope] ?? rule.targetScope}</div>
                   </td>
                   <td className="px-3 py-3">
@@ -165,9 +156,6 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
                   <td className="px-3 py-3 text-xs text-secondary-text">
                     <div>{isCoolingDown(rule) ? text.coolingDown : text.notCoolingDown}</div>
                     <div className="mt-1">{formatDateTime(rule.cooldownUntil)}</div>
-                    {hasChildTargetCooldown(rule) ? (
-                      <div className="mt-1 text-muted-text">{text.childTargetCooldown}</div>
-                    ) : null}
                   </td>
                   <td className="px-3 py-3 text-xs text-secondary-text">{formatDateTime(rule.updatedAt ?? rule.createdAt)}</td>
                   <td className="px-3 py-3">

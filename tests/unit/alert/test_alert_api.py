@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 import os
 import sys
@@ -107,6 +106,13 @@ class AlertApiTestCase(unittest.TestCase):
                 self.assertEqual(self.client.get(
                     "/api/v1/alerts/rules", params={"alert_type": retired},
                 ).status_code, 422)
+        for request in (
+            ("post", "/api/v1/alerts/rules", {"target_scope": "watchlist"}),
+            ("patch", f"/api/v1/alerts/rules/{rule['id']}", {"target_scope": "watchlist"}),
+        ):
+            method, endpoint, payload = request
+            with self.subTest(method=method):
+                self.assertEqual(getattr(self.client, method)(endpoint, json=payload).status_code, 422)
         self.assertEqual(self.client.get("/api/v1/alerts/rules").json()["total"], 1)
         self.assertEqual(self.client.post("/api/v1/alerts/rules", json={
             "target_scope": "market", "target": "cn", "alert_type": "price_change_percent",
@@ -128,7 +134,11 @@ class AlertApiTestCase(unittest.TestCase):
                 "alert_type": alert_type, "parameters": "{}", "enabled": False,
             })
             retired_ids.append(row.id)
-        for rule_id in [retained["id"], *retired_ids]:
+        retired_scope = repo.create_rule({
+            "name": "Watchlist rule", "target_scope": "watchlist", "target": "default",
+            "alert_type": "price_change_percent", "parameters": "{}", "enabled": False,
+        })
+        for rule_id in [retained["id"], *retired_ids, retired_scope.id]:
             trigger = repo.create_trigger({
                 "rule_id": rule_id, "target": "600519", "status": "triggered",
             })
@@ -147,15 +157,15 @@ class AlertApiTestCase(unittest.TestCase):
         self.assertEqual(cleaned_repo.delete_retired_rules(), 0)
         with self.db.get_session() as session:
             self.assertEqual([row.id for row in session.query(AlertRuleRecord).all()], [retained["id"]])
-            triggers = session.query(AlertTriggerRecord).all()
-            self.assertEqual([row.rule_id for row in triggers], [retained["id"]])
+            triggers = {row.rule_id: row for row in session.query(AlertTriggerRecord).all()}
+            self.assertEqual(set(triggers), {retained["id"], retired_scope.id})
             self.assertEqual(
-                [row.trigger_id for row in session.query(AlertNotificationRecord).all()],
-                [triggers[0].id],
+                {row.trigger_id for row in session.query(AlertNotificationRecord).all()},
+                {triggers[retained["id"]].id, triggers[retired_scope.id].id},
             )
             self.assertEqual(
-                [row.rule_id for row in session.query(AlertCooldownRecord).all()],
-                [retained["id"]],
+                {row.rule_id for row in session.query(AlertCooldownRecord).all()},
+                {retained["id"]},
             )
 
     def test_price_change_threshold_rejects_nonfinite_or_nonpositive_values(self) -> None:
@@ -378,57 +388,6 @@ class AlertApiTestCase(unittest.TestCase):
                 },
             )
             self.assertEqual(resp.status_code, 422, resp.text)
-
-    def test_p6_watchlist_dry_run_aggregates_targets_without_stock_code_validation(self) -> None:
-        rule = self._create_rule({
-            "name": "Watchlist breakout",
-            "target_scope": "watchlist",
-            "target": "default",
-            "alert_type": "price_change_percent",
-            "parameters": {"direction": "up", "change_pct": 10},
-        })
-
-        async def _quote(_monitor, stock_code):
-            return SimpleNamespace(change_pct=11.0 if stock_code == "600519" else 9.0)
-
-        with patch("ai_stock.agent.events.EventMonitor._get_realtime_quote", new=_quote):
-            resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
-
-        self.assertEqual(resp.status_code, 200, resp.text)
-        payload = resp.json()
-        self.assertEqual(payload["target_scope"], "watchlist")
-        self.assertTrue(payload["triggered"])
-        self.assertGreaterEqual(payload["evaluated_count"], 1)
-        self.assertEqual(payload["triggered_count"], 1)
-        self.assertEqual(payload["target_results"][0]["target"], "600519")
-
-    def test_p6_watchlist_dry_run_timeout_counts_target_as_skipped(self) -> None:
-        rule = self._create_rule({
-            "name": "Watchlist slow",
-            "target_scope": "watchlist",
-            "target": "default",
-            "alert_type": "price_change_percent",
-            "parameters": {"direction": "up", "change_pct": 10},
-        })
-
-        async def _slow_quote(_monitor, _stock_code):
-            await asyncio.sleep(0.05)
-            return SimpleNamespace(change_pct=11.0)
-
-        with patch("ai_stock.services.alert_service.DRY_RUN_TARGET_TIMEOUT_SECONDS", 0.001), patch(
-            "ai_stock.agent.events.EventMonitor._get_realtime_quote",
-            new=_slow_quote,
-        ):
-            resp = self.client.post(f"/api/v1/alerts/rules/{rule['id']}/test")
-
-        self.assertEqual(resp.status_code, 200, resp.text)
-        payload = resp.json()
-        self.assertEqual(payload["status"], "not_triggered")
-        self.assertFalse(payload["triggered"])
-        self.assertEqual(payload["evaluated_count"], 1)
-        self.assertEqual(payload["skipped_count"], 1)
-        self.assertEqual(payload["target_results"][0]["record_status"], "skipped")
-        self.assertIn("timed out", payload["target_results"][0]["message"])
 
     def test_rejects_unsupported_and_invalid_rules(self) -> None:
         unsupported = self.client.post(

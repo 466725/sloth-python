@@ -27,17 +27,18 @@ describe('AlertRuleForm', () => {
     window.localStorage.clear();
   });
 
-  it('offers stock list symbols in a dropdown and retains single symbol/watchlist scopes', async () => {
+  it('offers stock list symbols and fixes the target scope to a read-only single symbol input', async () => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
 
     await screen.findByRole('option', { name: '600519' });
     expect(screen.getByLabelText('规则类型')).toHaveValue('涨跌幅');
     expect(screen.getByLabelText('规则类型')).toHaveAttribute('readonly');
+    expect(screen.getByLabelText('目标范围')).toHaveValue('单标的');
+    expect(screen.getByLabelText('目标范围').tagName).toBe('INPUT');
+    expect(screen.getByLabelText('目标范围')).toHaveAttribute('readonly');
     expect(screen.getByLabelText('标的代码').tagName).toBe('SELECT');
     expect(Array.from((screen.getByLabelText('标的代码') as HTMLSelectElement).options).map((option) => option.value))
       .toEqual(['', '600519', 'AAPL']);
-    expect(within(screen.getByLabelText('目标范围')).getAllByRole('option').filter((option) => !option.hasAttribute('disabled')).map((option) => option.getAttribute('value')))
-      .toEqual(['single_symbol', 'watchlist']);
     expect(within(screen.getByLabelText('方向')).getAllByRole('option').filter((option) => !option.hasAttribute('disabled')).map((option) => option.getAttribute('value')))
       .toEqual(['up', 'down']);
     expect(screen.getAllByRole('spinbutton')).toHaveLength(1);
@@ -69,8 +70,9 @@ describe('AlertRuleForm', () => {
     await screen.findByRole('option', { name: 'AAPL' });
     expect(screen.getByLabelText('Rule type')).toHaveValue('Price change');
     expect(screen.getByLabelText('Rule type')).toHaveAttribute('readonly');
-    expect(within(screen.getByLabelText('Target scope')).getAllByRole('option').filter((option) => !option.hasAttribute('disabled')).map((option) => option.textContent))
-      .toEqual(['Single symbol', 'Watchlist']);
+    expect(screen.getByLabelText('Target scope')).toHaveValue('Single symbol');
+    expect(screen.getByLabelText('Target scope').tagName).toBe('INPUT');
+    expect(screen.getByLabelText('Target scope')).toHaveAttribute('readonly');
     expect(screen.getAllByRole('spinbutton')).toHaveLength(1);
     fireEvent.change(screen.getByLabelText('Symbol'), { target: { value: 'AAPL' } });
     fireEvent.change(screen.getByLabelText('Change threshold (%)'), { target: { value: '-2' } });
@@ -140,26 +142,11 @@ describe('AlertRuleForm', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it('submits a watchlist rule without requiring a stock code', async () => {
-    render(<AlertRuleForm onSubmit={onSubmit} />);
-    fireEvent.change(screen.getByLabelText('目标范围'), { target: { value: 'watchlist' } });
-    expect(screen.queryByLabelText('标的代码')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('目标')).toHaveValue('default');
-    fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '10' } });
-    fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
-    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
-      targetScope: 'watchlist',
-      target: 'default',
-      alertType: 'price_change_percent',
-      parameters: { direction: 'up', changePct: 10 },
-    })));
-  });
-
   it('shows a visible error when the configured stock list cannot be loaded', async () => {
-    vi.mocked(systemConfigApi.getWatchlist).mockRejectedValueOnce(new Error('watchlist unavailable'));
+    vi.mocked(systemConfigApi.getWatchlist).mockRejectedValueOnce(new Error('stock list unavailable'));
     render(<AlertRuleForm onSubmit={onSubmit} />);
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('watchlist unavailable');
+    expect(await screen.findByRole('alert')).toHaveTextContent('stock list unavailable');
     expect(screen.getByLabelText('标的代码')).toBeDisabled();
   });
 
