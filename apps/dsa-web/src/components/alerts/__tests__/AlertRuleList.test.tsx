@@ -88,8 +88,20 @@ describe('AlertRuleList', () => {
   it('runs test and toggles enabled state', () => {
     renderList();
 
-    fireEvent.click(screen.getAllByRole('button', { name: '测试' })[0]);
-    fireEvent.click(screen.getAllByRole('button', { name: '停用' })[0]);
+    const table = within(screen.getByRole('table'));
+    const actionsHeader = table.getByRole('columnheader', { name: '操作' });
+    expect(actionsHeader).toHaveClass('text-center');
+    const actionCell = within(table.getAllByRole('row')[1]).getAllByRole('cell')[5];
+    const testButton = within(actionCell).getByRole('button', { name: '测试' });
+    const disableButton = within(actionCell).getByRole('button', { name: '停用' });
+    expect(testButton).toHaveClass('bg-success', 'text-black');
+    expect(testButton.querySelector('svg')).toBeInTheDocument();
+    expect(disableButton).toHaveClass('bg-warning', 'text-black');
+    expect(disableButton.querySelector('svg')).toBeInTheDocument();
+    expect(testButton.parentElement).toHaveClass('justify-center');
+
+    fireEvent.click(testButton);
+    fireEvent.click(disableButton);
 
     expect(onTest).toHaveBeenCalledWith(rules[0]);
     expect(onToggleEnabled).toHaveBeenCalledWith(rules[0]);

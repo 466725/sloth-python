@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useState } from 'react';
-import { Bell, Trash2 } from 'lucide-react';
+import { Bell, FlaskConical, Pause, Play, Trash2 } from 'lucide-react';
 import { Badge, Button, Card, ConfirmDialog, EmptyState, Pagination, Select } from '../common';
 import { useUiLanguage } from '../../contexts/UiLanguageContext';
 import { formatUiText } from '../../i18n/uiText';
@@ -111,7 +111,7 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
                 <th className="px-3 py-2 font-medium">{text.severity}</th>
                 <th className="px-3 py-2 font-medium">{text.status}</th>
                 <th className="px-3 py-2 font-medium">{text.updatedAt}</th>
-                <th className="px-3 py-2 text-right font-medium">{text.action}</th>
+                <th className="px-3 py-2 text-center font-medium">{text.action}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
@@ -135,25 +135,31 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
                   </td>
                   <td className="px-3 py-3 text-xs text-secondary-text">{formatDateTime(rule.updatedAt ?? rule.createdAt)}</td>
                   <td className="px-3 py-3">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-center gap-2">
                       <Button
                         size="xsm"
                         variant="outline"
+                        className="border-success bg-success text-black hover:bg-success/90"
                         onClick={() => onTest(rule)}
                         isLoading={isRuleActionBusy(rule, 'test')}
                         loadingText={text.testing}
                         disabled={isRuleBusy(rule) && !isRuleActionBusy(rule, 'test')}
                       >
+                        <FlaskConical className="h-3.5 w-3.5" />
                         {text.test}
                       </Button>
                       <Button
                         size="xsm"
                         variant={rule.enabled ? 'secondary' : 'primary'}
+                        className={rule.enabled ? 'border-warning bg-warning text-black hover:bg-warning/90' : undefined}
                         onClick={() => onToggleEnabled(rule)}
                         isLoading={isRuleActionBusy(rule, 'toggle')}
                         loadingText={rule.enabled ? text.disabling : text.enabling}
                         disabled={isRuleBusy(rule) && !isRuleActionBusy(rule, 'toggle')}
                       >
+                        {rule.enabled
+                          ? <Pause className="h-3.5 w-3.5" />
+                          : <Play className="h-3.5 w-3.5" />}
                         {rule.enabled ? text.disable : text.enable}
                       </Button>
                       <Button
