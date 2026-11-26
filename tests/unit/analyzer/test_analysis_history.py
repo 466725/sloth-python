@@ -205,7 +205,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             self.assertEqual(row.stop_loss, 110.0)
             self.assertEqual(row.take_profit, 150.0)
 
-    def test_history_display_resolves_bare_jp_kr_code_from_stock_pool(self) -> None:
+    def test_history_display_preserves_phase_for_unsupported_market_code(self) -> None:
         result = self._build_result()
         result.code = "005930"
         result.name = "Samsung Electronics"
@@ -223,8 +223,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             "analysis_intent": "postmarket",
             "warnings": ["legacy_snapshot"],
         }
-        expected_phase_summary = {**persisted_phase_summary, "market": "kr"}
-        expected_phase_summary["minutes_to_open"] = None
+        expected_phase_summary = persisted_phase_summary
 
         saved = self.db.save_analysis_history(
             result=result,
@@ -247,7 +246,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertEqual(detail["stock_code"], "005930.KS")
         self.assertEqual(detail["market_phase_summary"], expected_phase_summary)
 
-    def test_history_display_rebuilds_market_phase_summary_for_legacy_cn_snapshot(self) -> None:
+    def test_history_display_preserves_legacy_cn_snapshot_for_unsupported_market(self) -> None:
         result = self._build_result()
         result.code = "005930"
         result.name = "Samsung Electronics"
@@ -283,10 +282,7 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertEqual(items[0]["stock_code"], "005930.KS")
         rebuilt = items[0]["market_phase_summary"]
         self.assertIsNotNone(rebuilt)
-        self.assertEqual(rebuilt["market"], "kr")
-        self.assertEqual(rebuilt["market_local_time"], "2026-01-01T11:00:00+09:00")
-        self.assertEqual(rebuilt["effective_daily_bar_date"], "2025-12-30")
-        self.assertIsNone(rebuilt["minutes_to_open"])
+        self.assertEqual(rebuilt, persisted_phase_summary)
 
     def test_history_filter_and_stock_bar_merge_bare_and_resolved_jp_kr_codes(self) -> None:
         if get_stock_bar is None:
@@ -856,6 +852,13 @@ class AnalysisHistoryTestCase(unittest.TestCase):
         self.assertEqual(hk_from_prefix["total"], 3)
         self.assertEqual(
             {item["stock_code"] for item in hk_from_prefix["items"]},
+            {"1810.HK", "01810.HK", "HK01810"},
+        )
+
+        hk_from_unpadded_suffix = service.get_history_list(stock_code="1810.HK", page=1, limit=10)
+        self.assertEqual(hk_from_unpadded_suffix["total"], 3)
+        self.assertEqual(
+            {item["stock_code"] for item in hk_from_unpadded_suffix["items"]},
             {"1810.HK", "01810.HK", "HK01810"},
         )
 

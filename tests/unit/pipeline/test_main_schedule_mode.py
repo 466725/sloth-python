@@ -130,7 +130,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
         thread_cls.assert_not_called()
 
     def test_standalone_run_resolves_stocks_before_run_full_analysis(self) -> None:
-        args = self._make_args(stocks="005930")
+        args = self._make_args(stocks="aapl")
         config = self._make_config(run_immediately=True)
 
         with patch("main.parse_arguments", return_value=args), \
@@ -142,7 +142,7 @@ class MainScheduleModeTestCase(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         run_full_analysis.assert_called_once()
         _, _, stock_codes = run_full_analysis.call_args.args
-        self.assertEqual(stock_codes, ["005930.KS"])
+        self.assertEqual(stock_codes, ["AAPL"])
 
     def test_schedule_mode_reload_uses_latest_runtime_config(self) -> None:
         args = self._make_args(schedule=True)

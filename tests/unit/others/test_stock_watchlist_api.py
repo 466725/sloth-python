@@ -23,24 +23,24 @@ class FakeSystemConfigService:
         self.update_calls.append(self.stock_list)
 
 
-def test_watchlist_add_deduplicates_raw_hk_code_against_prefixed_variant() -> None:
-    service = FakeSystemConfigService("00700")
+def test_watchlist_add_deduplicates_raw_cn_code_against_prefixed_variant() -> None:
+    service = FakeSystemConfigService("600519")
 
     response = add_to_watchlist(
-        WatchlistRequest(stock_code="HK00700"),
+        WatchlistRequest(stock_code="SH600519"),
         service=service,
     )
 
-    assert response.stock_codes == ["00700"]
-    assert service.stock_list == "00700"
+    assert response.stock_codes == ["600519"]
+    assert service.stock_list == "600519"
     assert service.update_calls == []
 
 
-def test_watchlist_remove_deletes_raw_hk_code_from_prefixed_variant_request() -> None:
-    service = FakeSystemConfigService("00700")
+def test_watchlist_remove_deletes_raw_cn_code_from_prefixed_variant_request() -> None:
+    service = FakeSystemConfigService("600519")
 
     response = remove_from_watchlist(
-        WatchlistRequest(stock_code="HK00700"),
+        WatchlistRequest(stock_code="SH600519"),
         service=service,
     )
 
