@@ -118,7 +118,7 @@ class PersistedIntelligenceAnalysisIntegrationTestCase(unittest.TestCase):
         self.assertIn("SH-prefixed symbol feed", context)
         self.assertIn("SH-suffixed symbol feed", context)
 
-    def test_pipeline_loads_hk_symbol_intelligence_with_plain_code_scope(self) -> None:
+    def test_pipeline_does_not_match_unsupported_hk_symbol_variants(self) -> None:
         repo = IntelligenceRepository()
         now = datetime.now()
         repo.upsert_items([
@@ -160,10 +160,7 @@ class PersistedIntelligenceAnalysisIntegrationTestCase(unittest.TestCase):
                     market="hk",
                 )
 
-                self.assertIsNotNone(context)
-                assert context is not None
-                self.assertIn("Plain HK code symbol feed", context)
-                self.assertIn("Trimmed HK code symbol feed", context)
+                self.assertIsNone(context)
 
     def test_market_review_merges_persisted_market_intelligence(self) -> None:
         analyzer = MarketAnalyzer(config=self.config, region="cn")

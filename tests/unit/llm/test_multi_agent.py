@@ -3,7 +3,7 @@
 Tests for the multi-agent architecture modules.
 
 Covers:
-- _extract_stock_code: Chinese boundary, HK, US, common word filtering
+- _extract_stock_code: Chinese boundary, unsupported markets, US, common word filtering
 - AgentContext / AgentOpinion / StageResult protocol basics
 - AgentOrchestrator: pipeline execution, mode selection, error handling
 - StrategyRouter: regime detection, manual mode, user override
@@ -77,13 +77,13 @@ class TestExtractStockCode(unittest.TestCase):
     # --- HK ---
 
     def test_hk_lowercase(self):
-        self.assertEqual(_extract_stock_code("look at hk00700"), "HK00700")
+        self.assertEqual(_extract_stock_code("look at hk00700"), "")
 
     def test_hk_uppercase(self):
-        self.assertEqual(_extract_stock_code("HK00700 analysis"), "HK00700")
+        self.assertEqual(_extract_stock_code("HK00700 analysis"), "")
 
     def test_hk_chinese(self):
-        self.assertEqual(_extract_stock_code("分析hk00700"), "HK00700")
+        self.assertEqual(_extract_stock_code("分析hk00700"), "")
 
     def test_hk_not_match_alpha_prefix(self):
         """Letters before 'hk' should not prevent match."""
@@ -267,7 +267,7 @@ class TestStockScopeResolution(unittest.TestCase):
         self.assertEqual(result.effective_context["stock_name"], "匿名标的")
         self.assertEqual(result.stock_scope.allowed_stock_codes, {"600519", "AAPL"})
 
-    def test_compare_allows_plain_five_digit_hk_code(self):
+    def test_compare_does_not_add_plain_five_digit_hk_code(self):
         result = resolve_stock_scope(
             "比较 01810 和 AAPL",
             {"stock_code": "600519", "stock_name": "匿名标的"},
@@ -276,7 +276,7 @@ class TestStockScopeResolution(unittest.TestCase):
         self.assertEqual(result.stock_scope.mode, "compare")
         self.assertEqual(result.effective_context["stock_code"], "600519")
         self.assertEqual(result.effective_context["stock_name"], "匿名标的")
-        self.assertEqual(result.stock_scope.allowed_stock_codes, {"600519", "HK01810", "AAPL"})
+        self.assertEqual(result.stock_scope.allowed_stock_codes, {"600519", "AAPL"})
 
     def test_compare_hints_allow_multiple_codes_without_switching_context(self):
         cases = [
@@ -381,22 +381,22 @@ class TestStockScopeResolution(unittest.TestCase):
 
     def test_compare_does_not_treat_exchange_affixes_as_standalone_tickers(self):
         cases = [
-            ("比较 01810 和 AAPL", {"600519", "HK01810", "AAPL"}, set()),
-            ("比较 1810.HK 和 AAPL", {"600519", "HK01810", "AAPL"}, {"HK"}),
-            ("比较 0700.HK 和 600519", {"600519", "HK00700"}, {"HK"}),
+            ("比较 01810 和 AAPL", {"600519", "AAPL"}, set()),
+            ("比较 1810.HK 和 AAPL", {"600519", "AAPL"}, {"HK"}),
+            ("比较 0700.HK 和 600519", {"600519"}, {"HK"}),
             ("比较 600519.SH 和 AAPL", {"600519", "AAPL"}, {"SH"}),
             ("比较 000001.SZ 和 AAPL", {"600519", "000001", "AAPL"}, {"SZ"}),
             ("比较 600519.SS 和 AAPL", {"600519", "AAPL"}, {"SS"}),
-            ("比较 1810.hk 和 tsla", {"600519", "HK01810", "TSLA"}, {"HK"}),
+            ("比较 1810.hk 和 tsla", {"600519", "TSLA"}, {"HK"}),
             ("比较 SH600519 和 AAPL", {"600519", "AAPL"}, {"SH"}),
             ("比较 SZ000001 和 AAPL", {"600519", "000001", "AAPL"}, {"SZ"}),
             ("比较 BJ920748 和 AAPL", {"600519", "920748", "AAPL"}, {"BJ"}),
-            ("比较 HK01810 和 AAPL", {"600519", "HK01810", "AAPL"}, {"HK"}),
-            ("比较 hk01810 和 tsla", {"600519", "HK01810", "TSLA"}, {"HK"}),
+            ("比较 HK01810 和 AAPL", {"600519", "AAPL"}, {"HK"}),
+            ("比较 hk01810 和 tsla", {"600519", "TSLA"}, {"HK"}),
             ("比较 600519 SH 和 AAPL", {"600519", "AAPL"}, {"SH"}),
             ("比较 000001 SZ 和 AAPL", {"600519", "000001", "AAPL"}, {"SZ"}),
             ("比较 920748 BJ 和 AAPL", {"600519", "920748", "AAPL"}, {"BJ"}),
-            ("比较 01810 HK 和 AAPL", {"600519", "HK01810", "AAPL"}, {"HK"}),
+            ("比较 01810 HK 和 AAPL", {"600519", "AAPL"}, {"HK"}),
             ("比较 600519 SS 和 AAPL", {"600519", "AAPL"}, {"SS"}),
         ]
 

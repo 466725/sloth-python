@@ -430,7 +430,7 @@ class TestAgentExecutor(unittest.TestCase):
         self.assertEqual(len(tool_messages), 1)
         self.assertIn("stock_scope_violation", tool_messages[0]["content"])
 
-    def test_run_agent_loop_allows_explicit_allowed_stock_code_and_hk_equivalent(self):
+    def test_run_agent_loop_allows_explicit_allowed_stock_code_and_cn_equivalent(self):
         executed_calls = []
         registry = _make_stock_registry(executed_calls)
         adapter = _make_mock_adapter()
@@ -438,13 +438,13 @@ class TestAgentExecutor(unittest.TestCase):
             LLMResponse(
                 content="Need quote.",
                 tool_calls=[
-                    ToolCall(id="quote_1", name="get_realtime_quote", arguments={"stock_code": "1810.HK"}),
+                    ToolCall(id="quote_1", name="get_realtime_quote", arguments={"stock_code": "000001.SZ"}),
                 ],
                 usage={"total_tokens": 10},
                 provider="openai",
             ),
             LLMResponse(
-                content="AAPL and HK allowed.",
+                content="Comparison allowed.",
                 tool_calls=[],
                 usage={"total_tokens": 10},
                 provider="openai",
@@ -454,20 +454,20 @@ class TestAgentExecutor(unittest.TestCase):
         result = run_agent_loop(
             messages=[
                 {"role": "system", "content": "system"},
-                {"role": "user", "content": "比较 HK01810 和 600519"},
+                {"role": "user", "content": "比较 SZ000001 和 600519"},
             ],
             tool_registry=registry,
             llm_adapter=adapter,
             max_steps=3,
             stock_scope=StockScope(
                 expected_stock_code="600519",
-                allowed_stock_codes={"600519", "HK01810"},
+                allowed_stock_codes={"600519", "000001"},
                 mode="compare",
             ),
         )
 
         self.assertTrue(result.success)
-        self.assertEqual(executed_calls, [("quote", "1810.HK")])
+        self.assertEqual(executed_calls, [("quote", "000001.SZ")])
         self.assertFalse(result.tool_calls_log[0].get("guarded", False))
 
     def test_run_agent_loop_allows_compare_hint_stock_code(self):
@@ -510,7 +510,7 @@ class TestAgentExecutor(unittest.TestCase):
         self.assertEqual(executed_calls, [("quote", "AAPL")])
         self.assertFalse(result.tool_calls_log[0].get("guarded", False))
 
-    def test_run_agent_loop_allows_plain_hk_code_from_compare_scope(self):
+    def test_run_agent_loop_blocks_unsupported_plain_hk_code_from_compare_scope(self):
         executed_calls = []
         registry = _make_stock_registry(executed_calls)
         adapter = _make_mock_adapter()
@@ -524,7 +524,7 @@ class TestAgentExecutor(unittest.TestCase):
                 provider="openai",
             ),
             LLMResponse(
-                content="Compared allowed HK stock.",
+                content="Unsupported stock was blocked.",
                 tool_calls=[],
                 usage={"total_tokens": 10},
                 provider="openai",
@@ -546,9 +546,9 @@ class TestAgentExecutor(unittest.TestCase):
 
         self.assertTrue(result.success)
         self.assertEqual(scope.mode, "compare")
-        self.assertEqual(scope.allowed_stock_codes, {"600519", "HK01810", "AAPL"})
-        self.assertEqual(executed_calls, [("quote", "01810")])
-        self.assertFalse(result.tool_calls_log[0].get("guarded", False))
+        self.assertEqual(scope.allowed_stock_codes, {"600519", "AAPL"})
+        self.assertEqual(executed_calls, [])
+        self.assertTrue(result.tool_calls_log[0]["guarded"])
 
     def test_run_agent_loop_allows_choice_compare_stock_codes(self):
         executed_calls = []
@@ -1229,8 +1229,8 @@ class TestAgentExecutor(unittest.TestCase):
         self.assertFalse(result.tool_calls_log[0]["success"])
         self.assertFalse(result.tool_calls_log[0]["cached"])
 
-    def test_non_retriable_tool_failure_is_cached_across_hk_variants(self):
-        """Equivalent HK code variants should not re-execute a non-retriable failing tool."""
+    def test_non_retriable_tool_failure_is_cached_across_cn_variants(self):
+        """Equivalent CN code variants should not re-execute a non-retriable failing tool."""
         calls = []
 
         def _quote(stock_code):
@@ -1258,7 +1258,7 @@ class TestAgentExecutor(unittest.TestCase):
             LLMResponse(
                 content="",
                 tool_calls=[
-                    ToolCall(id="q1", name="get_realtime_quote", arguments={"stock_code": "hk01810"}),
+                    ToolCall(id="q1", name="get_realtime_quote", arguments={"stock_code": "sz000001"}),
                 ],
                 usage={"total_tokens": 10},
                 provider="openai",
@@ -1266,7 +1266,7 @@ class TestAgentExecutor(unittest.TestCase):
             LLMResponse(
                 content="",
                 tool_calls=[
-                    ToolCall(id="q2", name="get_realtime_quote", arguments={"stock_code": "1810.HK"}),
+                    ToolCall(id="q2", name="get_realtime_quote", arguments={"stock_code": "000001.SZ"}),
                 ],
                 usage={"total_tokens": 10},
                 provider="openai",
@@ -1280,10 +1280,10 @@ class TestAgentExecutor(unittest.TestCase):
         ]
 
         executor = AgentExecutor(registry, adapter, max_steps=5)
-        result = executor.run("Analyze HK01810")
+        result = executor.run("Analyze SZ000001")
 
         self.assertTrue(result.success)
-        self.assertEqual(calls, ["hk01810"])
+        self.assertEqual(calls, ["sz000001"])
         self.assertEqual(len(result.tool_calls_log), 2)
         self.assertFalse(result.tool_calls_log[0]["cached"])
         self.assertTrue(result.tool_calls_log[1]["cached"])
