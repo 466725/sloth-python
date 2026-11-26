@@ -104,11 +104,12 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
         </div>
       ) : (
         <div className="min-h-0 flex-1 overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
+          <table className="w-full min-w-[820px] text-left text-sm">
             <thead className="border-b border-border/60 text-xs uppercase text-muted-text">
               <tr>
                 <th className="px-3 py-2 font-medium">{text.rule}</th>
                 <th className="px-3 py-2 font-medium">{text.type}</th>
+                <th className="px-3 py-2 font-medium">{text.severity}</th>
                 <th className="px-3 py-2 font-medium">{text.status}</th>
                 <th className="px-3 py-2 font-medium">{text.updatedAt}</th>
                 <th className="px-3 py-2 text-right font-medium">{text.action}</th>
@@ -122,12 +123,12 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
                     <div className="mt-1 text-xs text-muted-text">{formatUiText(text.source, { source: rule.source })}</div>
                   </td>
                   <td className="px-3 py-3">
-                    <div className="flex flex-col items-start gap-1">
-                      <Badge variant="info">{ALERT_TYPE_LABELS[language][rule.alertType] ?? rule.alertType}</Badge>
-                      <Badge variant={rule.severity === 'critical' ? 'danger' : rule.severity === 'warning' ? 'warning' : 'default'}>
-                        {ALERT_SEVERITY_LABELS[language][rule.severity] ?? rule.severity}
-                      </Badge>
-                    </div>
+                    <Badge variant="info">{ALERT_TYPE_LABELS[language][rule.alertType] ?? rule.alertType}</Badge>
+                  </td>
+                  <td className="px-3 py-3">
+                    <Badge variant={rule.severity === 'critical' ? 'danger' : rule.severity === 'warning' ? 'warning' : 'default'}>
+                      {ALERT_SEVERITY_LABELS[language][rule.severity] ?? rule.severity}
+                    </Badge>
                   </td>
                   <td className="px-3 py-3">
                     <Badge variant={rule.enabled ? 'success' : 'default'}>

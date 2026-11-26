@@ -60,7 +60,14 @@ describe('AlertRuleList', () => {
 
     expect(screen.getByText('茅台涨跌幅')).toBeInTheDocument();
     expect(screen.getAllByText('涨跌幅').length).toBeGreaterThan(0);
-    expect(within(screen.getByRole('table')).getAllByRole('columnheader')).toHaveLength(5);
+    const table = within(screen.getByRole('table'));
+    expect(table.getAllByRole('columnheader')).toHaveLength(6);
+    expect(table.getByRole('columnheader', { name: '类型' })).toBeInTheDocument();
+    expect(table.getByRole('columnheader', { name: '严重级别' })).toBeInTheDocument();
+    const ruleCells = within(table.getAllByRole('row')[1]).getAllByRole('cell');
+    expect(ruleCells[1]).toHaveTextContent('涨跌幅');
+    expect(ruleCells[1]).not.toHaveTextContent('警告');
+    expect(ruleCells[2]).toHaveTextContent('警告');
     expect(screen.queryByText('600519')).not.toBeInTheDocument();
     expect(screen.queryByText('上涨 3%')).not.toBeInTheDocument();
     expect(screen.queryByText('冷却中')).not.toBeInTheDocument();
