@@ -33,8 +33,8 @@ class IntelAgent(BaseAgent):
 
     def system_prompt(self, ctx: AgentContext) -> str:
         return """\
-You are an **Intelligence & Sentiment Agent** specialising in A-shares, \
-HK, and US equities.
+You are an **Intelligence & Sentiment Agent** specialising in A-shares and \
+US equities.
 
 Your task: gather the latest news, announcements, and risk signals for \
 the given stock, then produce a structured JSON opinion.
@@ -87,7 +87,7 @@ Return **only** a JSON object:
             "1. Call search_comprehensive_intel to get latest news, company announcements "
             "(公司公告), risk events, and earnings outlook.\n"
             "2. Call get_capital_flow to obtain main-force (主力) capital flow data "
-            "(A-share only; skip for HK/US).\n"
+            "(A-share only; skip for US).\n"
             "3. Output the JSON opinion including capital_flow_signal."
         )
         return "\n".join(parts)

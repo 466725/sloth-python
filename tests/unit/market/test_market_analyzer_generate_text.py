@@ -115,7 +115,7 @@ class TestAnalyzerGenerateText:
         assert _legacy_market_group("") == "unknown"
         assert _legacy_market_group("unknown") == "unknown"
         assert _legacy_market_group("600519") == "cn"
-        assert _legacy_market_group("hk00700") == "hk"
+        assert _legacy_market_group("hk00700") == "unknown"
         assert _legacy_market_group("AAPL") == "us"
 
     def test_legacy_audit_marker_specs_use_language_and_optional_context(self):

@@ -18,6 +18,7 @@ from ai_stock.services.market_light_service import (
     MARKET_LIGHT_HISTORY_BATCH_SIZE,
     build_current_snapshot,
     load_previous_snapshot,
+    normalize_market_region,
 )
 from ai_stock.storage import AnalysisHistory, DatabaseManager
 
@@ -204,6 +205,10 @@ class MarketLightServiceTestCase(unittest.TestCase):
         analyzer.build_market_light_snapshot.assert_called_once_with(overview)
         self.assertEqual(snapshot["region"], "cn")
         self.assertEqual(snapshot["score"], 33)
+
+    def test_normalize_market_region_rejects_unsupported_markets(self) -> None:
+        with self.assertRaisesRegex(ValueError, "one of cn, us"):
+            normalize_market_region("hk")
 
 
 if __name__ == "__main__":

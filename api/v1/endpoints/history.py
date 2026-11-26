@@ -65,7 +65,7 @@ def _normalize_code_for_grouping(code: str) -> str:
     """Normalize stock code for deduplication grouping.
 
     Delegates to data_provider.base.normalize_stock_code which handles
-    SH600519, 600519.SH, HK00700, 00700.HK, BJ920748, etc.
+    SH600519, 600519.SH, BJ920748, or AAPL.
     """
     from ai_stock.stock_data.base import normalize_stock_code
     return normalize_stock_code(code or "")

@@ -78,10 +78,7 @@ export function SuggestionsList({
 
 const MARKET_BADGE_CONFIG = {
   CN: { label: 'A股', className: 'border-danger/25 bg-danger/10 text-danger' },
-  HK: { label: '港股', className: 'border-success/25 bg-success/10 text-success' },
   US: { label: '美股', className: 'border-cyan/25 bg-cyan/10 text-cyan' },
-  JP: { label: '日股', className: 'border-indigo-500/25 bg-indigo-500/10 text-indigo-500' },
-  KR: { label: '韩股', className: 'border-rose-500/25 bg-rose-500/10 text-rose-500' },
   INDEX: { label: '指数', className: 'border-purple/25 bg-purple/10 text-purple' },
   ETF: { label: 'ETF', className: 'border-warning/25 bg-warning/10 text-warning' },
   BSE: { label: '北交所', className: 'border-orange-500/25 bg-orange-500/10 text-orange-500' },

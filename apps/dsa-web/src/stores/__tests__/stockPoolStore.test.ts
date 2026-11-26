@@ -510,32 +510,18 @@ describe('stockPoolStore', () => {
     expect(analysisApi.analyzeAsync).not.toHaveBeenCalled();
   });
 
-  it('accepts HK suffix codes from autocomplete without local validation errors', async () => {
-    vi.mocked(analysisApi.analyzeAsync).mockResolvedValue({
-      taskId: 'task-hk-1',
-      stockCode: '00700.HK',
-      status: 'pending',
-      message: 'accepted',
-    } as never);
-
+  it('rejects unsupported market codes from autocomplete before calling the API', async () => {
     await useStockPoolStore.getState().submitAnalysis({
       stockCode: '00700.HK',
-      stockName: '腾讯控股',
+      stockName: 'Unsupported stock',
       originalQuery: '00700',
       selectionSource: 'autocomplete',
     });
 
     const state = useStockPoolStore.getState();
-    expect(state.inputError).toBeUndefined();
+    expect(state.inputError).toBe('股票代码格式不正确');
     expect(state.isAnalyzing).toBe(false);
-    expect(analysisApi.analyzeAsync).toHaveBeenCalledWith(expect.objectContaining({
-      stockCode: '00700.HK',
-      reportType: 'detailed',
-      stockName: '腾讯控股',
-      originalQuery: '00700',
-      selectionSource: 'autocomplete',
-      notify: true,
-    }));
+    expect(analysisApi.analyzeAsync).not.toHaveBeenCalled();
   });
 
   it('merges newly discovered history items during silent refresh', async () => {

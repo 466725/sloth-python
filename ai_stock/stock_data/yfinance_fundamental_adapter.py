@@ -1,25 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-Yfinance fundamental adapter for HK/US markets (fail-open).
+Yfinance fundamental adapter for US stocks (fail-open).
 
 Mirrors the bundle shape of `AkshareFundamentalAdapter.get_fundamental_bundle`
 so it can be plugged into `data_provider.base.get_fundamental_context()`
-without changing downstream consumers. Adds HK/US-specific fields:
+without changing downstream consumers. Adds US-specific fields:
 
-- ``earnings.financial_report.currency`` — financial statement currency
-  (``USD`` / ``HKD`` / ``CNY``) from ``info.financialCurrency``. For HK ADRs
-  yfinance commonly reports ``financialCurrency=CNY`` while trades settle in
-  HKD, so this differs from the dividend currency below.
+- ``earnings.financial_report.currency`` — financial statement currency from
+  ``info.financialCurrency``.
 - ``earnings.dividend.currency`` — trading / dividend currency from
-  ``info.currency`` (e.g. HKD for 0700.HK). Used to suffix 港元/美元/元 for
-  per-share cash dividends and to scope the TTM yield denominator.
+  ``info.currency``. Used to scope the TTM yield denominator.
 - ``earnings.dividend.ttm_dividend_yield_pct`` — computed as
   ``ttm_cash_dividend_per_share / latest_price * 100``, both sides in the
   trading currency (info.currentPrice/regularMarketPrice/previousClose).
   ``info.dividendYield`` is only used as a last-resort fallback and is
   passed through as-is (current yfinance reports it in percent units).
 - ``belong_boards`` — derived from ``info.sector`` + ``info.industry``; the CN
-  pipeline derives it from AkShare 板块名单, this is the HK/US analogue.
+  pipeline derives it from AkShare 板块名单.
 
 This adapter intentionally treats every yfinance call as best-effort and never
 raises to caller. Partial metadata is allowed; downstream `_infer_block_status` will
@@ -126,17 +123,15 @@ def _convert_to_yf_symbol(stock_code: str) -> str:
     code = (stock_code or "").strip().upper()
     if not code:
         return code
-    if code.startswith("HK"):
-        digits = code[2:].lstrip("0") or "0"
-        return f"{digits.zfill(4)}.HK"
+    if code.startswith("HK") or code.endswith((".HK", ".T", ".KS", ".KQ")):
+        raise ValueError(f"Unsupported stock market code: {code}")
     if "." in code:
         return code
-    # Assume US ticker by default for non-HK / non-CN callers
     return code
 
 
 class YfinanceFundamentalAdapter:
-    """HK/US fundamental adapter backed by yfinance.
+    """US fundamental adapter backed by yfinance.
 
     Returns the same bundle keys as :class:`AkshareFundamentalAdapter` so the
     aggregation in :func:`data_provider.base.get_fundamental_context` can stay
@@ -161,7 +156,11 @@ class YfinanceFundamentalAdapter:
             result["errors"].append(f"import_yfinance:{type(exc).__name__}")
             return result
 
-        symbol = _convert_to_yf_symbol(stock_code)
+        try:
+            symbol = _convert_to_yf_symbol(stock_code)
+        except ValueError as exc:
+            result["errors"].append(f"unsupported_symbol:{exc}")
+            return result
         if not symbol:
             result["errors"].append("empty_symbol")
             return result
@@ -176,10 +175,7 @@ class YfinanceFundamentalAdapter:
             result["errors"].append(f"info:{type(exc).__name__}:{exc}")
             info = {}
 
-        # Financial statements (income/cashflow) are reported in `financialCurrency`;
-        # for HK ADRs that is often CNY even when the stock trades in HKD. Dividends
-        # and live price are paid/quoted in `currency` — keep them separate so the
-        # renderer can suffix per-block currency tags correctly.
+        # Keep statement currency separate from trading currency for dividend yield.
         financial_currency = str(info.get("financialCurrency") or info.get("currency") or "").upper() or None
         dividend_currency = str(info.get("currency") or info.get("financialCurrency") or "").upper() or None
 

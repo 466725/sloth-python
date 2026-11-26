@@ -5,7 +5,7 @@
 ===================================
 
 职责：
-1. 按市场（A股/港股/美股）判断当日是否为交易日
+1. 按市场（A股/美股）判断当日是否为交易日
 2. 按市场时区取“今日”日期，避免服务器 UTC 导致日期错误
 3. 支持 per-stock 过滤：只分析当日开市市场的股票
 4. 提供 regular-session 市场阶段推断基线，不改变现有分析入口行为
@@ -36,21 +36,18 @@ except ImportError:
     )
 
 # Market -> exchange code (exchange-calendars)
-MARKET_EXCHANGE = {"cn": "XSHG", "hk": "XHKG", "us": "XNYS", "jp": "XTKS", "kr": "XKRX"}
+MARKET_EXCHANGE = {"cn": "XSHG", "us": "XNYS"}
 
 # Market -> IANA timezone for "today"
 MARKET_TIMEZONE = {
     "cn": "Asia/Shanghai",
-    "hk": "Asia/Hong_Kong",
     "us": "America/New_York",
-    "jp": "Asia/Tokyo",
-    "kr": "Asia/Seoul",
 }
 
 # P0 market phase baseline (Issue #1386). This is an intentionally small
 # regular-session inference layer; it does not change existing fail-open
 # trading-day filtering or effective-date behavior.
-_CLOSING_AUCTION_WINDOW_MINUTES = {"cn": 3, "hk": 10, "us": 5}
+_CLOSING_AUCTION_WINDOW_MINUTES = {"cn": 3, "us": 5}
 _SUPPORTED_ANALYSIS_PHASES = {
     "auto",
     "premarket",
@@ -113,26 +110,16 @@ def get_market_for_stock(code: str) -> Optional[str]:
     Infer market region for a stock code.
 
     Returns:
-        'cn' | 'hk' | 'us' | 'jp' | 'kr' | None (None = unrecognized, fail-open: treat as open)
+        'cn' | 'us' | None (None = unrecognized, fail-open: treat as open)
     """
     if not code or not isinstance(code, str):
         return None
     code = (code or "").strip().upper()
 
-    from ai_stock.stock_data import is_us_stock_code, is_us_index_code, is_hk_stock_code
+    from ai_stock.stock_data import is_us_stock_code, is_us_index_code
 
     if is_us_stock_code(code) or is_us_index_code(code):
         return "us"
-    if is_hk_stock_code(code):
-        return "hk"
-    if code.endswith(".T"):
-        base = code[:-2]
-        if base.isdigit() and len(base) in (4, 5):
-            return "jp"
-    if code.endswith((".KS", ".KQ")):
-        base = code.rsplit(".", 1)[0]
-        if base.isdigit() and len(base) == 6:
-            return "kr"
     # A-share: 6-digit numeric
     if code.isdigit() and len(code) == 6:
         return "cn"
@@ -146,7 +133,7 @@ def is_market_open(market: str, check_date: date) -> bool:
     Fail-open: returns True if exchange-calendars unavailable or date out of range.
 
     Args:
-        market: 'cn' | 'hk' | 'us'
+        market: 'cn' | 'us'
         check_date: Date to check
 
     Returns:
@@ -521,10 +508,10 @@ def get_open_markets_today() -> Set[str]:
     Get markets that are open today (by each market's local timezone).
 
     Returns:
-        Set of market keys ('cn', 'hk', 'us') that are trading today
+        Set of market keys ('cn', 'us') that are trading today
     """
     if not _XCALS_AVAILABLE:
-        return {"cn", "hk", "us"}
+        return {"cn", "us"}
     result: Set[str] = set()
     for mkt, tz_name in MARKET_TIMEZONE.items():
         try:
@@ -545,20 +532,20 @@ def compute_effective_region(
     Compute effective market review region given config and open markets.
 
     Args:
-        config_region: From MARKET_REVIEW_REGION ('cn' | 'hk' | 'us' | 'both')
+        config_region: From MARKET_REVIEW_REGION ('cn' | 'us' | 'both')
         open_markets: Markets open today
 
     Returns:
         None: caller uses config default (check disabled)
         '': all relevant markets closed, skip market review
-        'cn' | 'hk' | 'us' | 'both': effective subset for today
+        'cn' | 'us' | 'both': effective subset for today
     """
-    if config_region not in ("cn", "hk", "us", "both"):
+    if config_region not in ("cn", "us", "both"):
         config_region = "cn"
-    if config_region in ("cn", "hk", "us"):
+    if config_region in ("cn", "us"):
         return config_region if config_region in open_markets else ""
     # both: return only the markets that are actually open today
-    parts = [m for m in ("cn", "hk", "us") if m in open_markets]
+    parts = [m for m in ("cn", "us") if m in open_markets]
     if not parts:
         return ""
     if len(parts) == 1:

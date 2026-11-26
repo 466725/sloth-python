@@ -39,7 +39,7 @@ REDACTION_MARKERS = ("[REDACTED]", "[REDACTED_URL]")
 TERMINAL_STATUSES = frozenset({"expired", "invalidated", "closed", "archived"})
 BULLISH_ACTIONS = frozenset({"buy", "add"})
 DEFENSIVE_ACTIONS = frozenset({"reduce", "sell", "avoid"})
-VALID_MARKETS = {"cn", "hk", "us", "jp", "kr"}
+VALID_MARKETS = {"cn", "us"}
 INTRADAY_PHASES = frozenset({
     MarketPhase.PREMARKET.value,
     MarketPhase.INTRADAY.value,
@@ -48,7 +48,6 @@ INTRADAY_PHASES = frozenset({
 })
 DEFAULT_INTRADAY_TTL_HOURS = {
     "cn": 4.0,
-    "hk": 5.5,
     "us": 6.5,
 }
 
@@ -794,8 +793,7 @@ class DecisionSignalService:
         if market is not None:
             return [normalized]
 
-        hk_normalized = cls._normalize_hk_stock_code(str(stock_code).strip())
-        return list(dict.fromkeys([normalized, hk_normalized]))
+        return [normalized]
 
     @classmethod
     def normalize_stock_code_for_signal(cls, value: Any, *, market: Optional[str] = None) -> str:
@@ -808,8 +806,6 @@ class DecisionSignalService:
         raw = str(value or "").strip()
         if market == "us":
             code = canonical_stock_code(raw)
-        elif market == "hk":
-            code = cls._normalize_hk_stock_code(raw)
         else:
             code = canonical_stock_code(normalize_stock_code(raw))
         if not code:
@@ -817,22 +813,10 @@ class DecisionSignalService:
         return code
 
     @staticmethod
-    def _normalize_hk_stock_code(value: str) -> str:
-        normalized = canonical_stock_code(normalize_stock_code(value))
-        digits = ""
-        if normalized.startswith("HK"):
-            digits = normalized[2:]
-        elif normalized.isdigit():
-            digits = normalized
-        if digits.isdigit() and 1 <= len(digits) <= 5:
-            return f"HK{digits.zfill(5)}"
-        return normalized
-
-    @staticmethod
     def _normalize_market(value: Any) -> str:
         market = str(value or "").strip().lower()
         if market not in VALID_MARKETS:
-            raise ValueError("market must be one of cn, hk, us, jp, kr")
+            raise ValueError("market must be one of cn, us")
         return market
 
     @classmethod

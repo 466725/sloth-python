@@ -120,10 +120,8 @@ def extract_stock_codes(text: str) -> List[str]:
 
     for pattern, flags in (
         (r"(?<![a-zA-Z])(?:SH|SZ|BJ)\d{6}(?!\d)", re.IGNORECASE),
-        (r"(?<![a-zA-Z])hk\d{4,5}(?!\d)", re.IGNORECASE),
-        (r"(?<![a-zA-Z])\d{1,5}\.HK(?![a-zA-Z])", re.IGNORECASE),
         (r"(?<!\d)(?:[03648]\d{5}|92\d{4})(?!\d)", 0),
-        (r"(?<!\d)\d{5}(?!\d)", 0),
+        (r"(?<!\d)\d{6}(?!\d)", 0),
         (r"(?<![a-zA-Z.])([A-Z]{2,5}(?:\.[A-Z]{1,2})?)(?![a-zA-Z0-9])", 0),
     ):
         for match in re.finditer(pattern, text, flags):

@@ -137,7 +137,7 @@ class MarketAnalyzer:
         self.search_service = search_service
         self.analyzer = analyzer
         self.data_manager = DataFetcherManager()
-        self.region = region if region in ("cn", "us", "hk") else "cn"
+        self.region = region if region in ("cn", "us") else "cn"
         self.profile: MarketProfile = get_profile(self.region)
         self.strategy = get_market_strategy_blueprint(self.region)
 
@@ -158,8 +158,6 @@ class MarketAnalyzer:
         review_language = review_language or self._get_review_language()
         if self.region == "us":
             return "US market" if review_language == "en" else "美股市场"
-        if self.region == "hk":
-            return "Hong Kong market" if review_language == "en" else "港股市场"
         if review_language == "en":
             return "A-share market"
         return "A股市场"
@@ -168,15 +166,13 @@ class MarketAnalyzer:
         """Return the turnover unit label for the current market/language."""
         if self.region == "us":
             return "USD bn" if self._get_review_language() == "en" else "十亿美元"
-        if self.region == "hk":
-            return "HKD bn" if self._get_review_language() == "en" else "十亿港元"
         return "CNY 100m" if self._get_review_language() == "en" else "亿"
 
     def _format_turnover_value(self, amount_raw: float) -> str:
         """Format raw turnover according to market-specific units."""
         if amount_raw == 0.0:
             return "N/A"
-        if self.region in ("us", "hk"):
+        if self.region == "us":
             return f"{amount_raw / 1e9:.2f}"
         if amount_raw > 1e6:
             return f"{amount_raw / 1e8:.0f}"
@@ -192,7 +188,7 @@ class MarketAnalyzer:
 
     def _get_review_title(self, date: str) -> str:
         if self._get_review_language() == "en":
-            market_names = {"us": "US Market Recap", "hk": "HK Market Recap"}
+            market_names = {"us": "US Market Recap"}
             market_name = market_names.get(self.region, "A-share Market Recap")
             return f"## {date} {market_name}"
         return f"## {date} 大盘复盘"
@@ -201,39 +197,10 @@ class MarketAnalyzer:
         if self._get_review_language() == "en":
             if self.region == "us":
                 return "Analyze the key moves in the S&P 500, Nasdaq, Dow, and other major indices."
-            if self.region == "hk":
-                return "Analyze the key moves in the HSI, Hang Seng Tech, HSCEI, and other major indices."
             return "Analyze the price action in the SSE, SZSE, ChiNext, and other major indices."
         return self.profile.prompt_index_hint
 
     def _get_strategy_prompt_block(self) -> str:
-        if self.region == "hk" and self._get_review_language() == "en":
-            return """## Strategy Blueprint: Hong Kong Market Regime Strategy
-Focus on HSI trend, southbound flow dynamics, and sector rotation to define next-session risk posture.
-
-### Strategy Principles
-- Read market regime from HSI, HSTECH, and HSCEI alignment first.
-- Track southbound capital flow as a key sentiment driver.
-- Translate recap into actionable risk-on/risk-off stance with clear invalidation points.
-
-### Analysis Dimensions
-- Trend Regime: Classify the market as momentum, range, or risk-off.
-  - Are HSI/HSTECH/HSCEI directionally aligned
-  - Did volume confirm the move
-  - Are key index levels reclaimed or lost
-- Capital Flows: Map southbound flow and macro narrative into equity risk appetite.
-  - Southbound net flow direction and magnitude
-  - USD/HKD and China policy implications
-  - Breadth and leadership concentration
-- Sector Themes: Identify persistent leaders and vulnerable laggards.
-  - Tech/internet platform trend persistence
-  - Financials/property sensitivity to policy shifts
-  - Defensive vs growth factor rotation
-
-### Action Framework
-- Risk-on: broad index breakout with expanding southbound participation.
-- Neutral: mixed index signals; focus on selective relative strength.
-- Risk-off: failed breakouts and rising volatility; prioritize capital preservation."""
         if self.region == "us" and self._get_review_language() == "zh":
             return """## 美股市场三段式复盘策略
 聚焦指数趋势、宏观叙事与板块轮动，给出次日风控与仓位框架。
@@ -283,12 +250,6 @@ Focus on index trend, liquidity, and sector rotation to shape the next-session t
 
     def _get_strategy_markdown_block(self, review_language: str | None = None) -> str:
         review_language = review_language or self._get_review_language()
-        if self.region == "hk" and review_language == "en":
-            return """### 6. Strategy Framework
-- **Trend Regime**: Classify the market as momentum, range, or risk-off based on HSI/HSTECH/HSCEI alignment.
-- **Capital Flows**: Track southbound flow direction and macro narrative for risk appetite signals.
-- **Sector Themes**: Focus on tech/internet platform persistence and financials/property policy sensitivity.
-"""
         if self.region == "us" and review_language == "zh":
             return """### 六、策略框架
 - **趋势结构**：判断市场在进攻、震荡与防守中的状态是否一致。
@@ -490,7 +451,6 @@ Focus on index trend, liquidity, and sector rotation to shape the next-session t
         market_names = {
             "cn": "大盘" if review_language == "zh" else "A-share market",
             "us": "美股市场" if review_language == "zh" else "US market",
-            "hk": "港股市场" if review_language == "zh" else "HK market",
         }
         
         try:
@@ -1390,7 +1350,7 @@ Output the report content directly, no extra commentary.
 - **Leaders**: {top_text or "N/A"}
 - **Laggards**: {bottom_text or "N/A"}
 """
-            market_names = {"us": "US Market Recap", "hk": "HK Market Recap"}
+            market_names = {"us": "US Market Recap"}
             market_name = market_names.get(self.region, "A-share Market Recap")
             report = f"""## {overview.date} {market_name}
 
@@ -1411,7 +1371,7 @@ Market conditions can change quickly. The data above is for reference only and d
 """
             return report
 
-        market_labels = {"cn": "A股", "us": "美股", "hk": "港股"}
+        market_labels = {"cn": "A股", "us": "美股"}
         market_label = market_labels.get(self.region, "A股")
         dashboard_block = self._build_stats_block(overview)
         indices_block = self._build_indices_block(overview)

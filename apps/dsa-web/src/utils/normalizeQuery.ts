@@ -34,7 +34,7 @@ export function containsChinese(query: string): boolean {
 
 /**
  * Extract market suffix from stock code
- * Example: 600519.SH -> SH, 00700.HK -> HK
+ * Example: 600519.SH -> SH, AAPL.US -> US
  */
 export function extractMarketSuffix(code: string): string | null {
   const match = code.match(/\.([A-Z]+)$/);
@@ -43,7 +43,7 @@ export function extractMarketSuffix(code: string): string | null {
 
 /**
  * Remove market suffix from stock code
- * Example: 600519.SH -> 600519, 00700.HK -> 00700
+ * Example: 600519.SH -> 600519, AAPL.US -> AAPL
  */
 export function removeMarketSuffix(code: string): string {
   return code.replace(/\.[A-Z]+$/, '');
@@ -65,8 +65,7 @@ export function normalizeStockCode(code: string): string {
  */
 export function isStockCodeLike(query: string): boolean {
   const normalized = normalizeQuery(query);
-  // Contains numbers and no Chinese, possibly a stock code
-  return /\d/.test(normalized) && !containsChinese(normalized);
+  return /^(?:\d{6}(?:\.(?:SH|SZ|SS|BJ))?|(?:SH|SZ|BJ)\d{6})$/i.test(normalized);
 }
 
 /**

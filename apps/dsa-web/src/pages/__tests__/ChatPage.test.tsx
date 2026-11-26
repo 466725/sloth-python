@@ -1507,13 +1507,11 @@ describe('extractStockCodeFromMessage', () => {
     expect(extractStockCodeFromMessage('002460')).toBe('002460');
   });
 
-  it('returns HK prefixed code (normalized)', () => {
-    expect(extractStockCodeFromMessage('分析 hk00700')).toBe('HK00700');
-  });
-
-  it('returns .HK suffix code (normalized to canonical)', () => {
-    expect(extractStockCodeFromMessage('00700.HK')).toBe('HK00700');
-    expect(extractStockCodeFromMessage('1810.HK')).toBe('HK01810');
+  it('rejects unsupported market codes in chat text', () => {
+    expect(extractStockCodeFromMessage('分析 hk00700')).toBeNull();
+    expect(extractStockCodeFromMessage('00700.HK')).toBeNull();
+    expect(extractStockCodeFromMessage('7203.T')).toBeNull();
+    expect(extractStockCodeFromMessage('005930.KS')).toBeNull();
   });
 
   it('returns code with .SH/.SZ suffix (normalized)', () => {
@@ -1589,15 +1587,12 @@ describe('extractStockCodeFromMessage', () => {
     expect(extractStockCodesFromMessage('hello tsla')).toEqual([]);
   });
 
-  it('returns all HK and A-share variants without exchange affix tokens', () => {
-    expect(extractStockCodesFromMessage('比较 01810 和 AAPL')).toEqual(['HK01810', 'AAPL']);
-    expect(extractStockCodesFromMessage('比较 1810.HK 和 AAPL')).toEqual(['HK01810', 'AAPL']);
+  it('returns supported A-share variants without exchange affix tokens', () => {
     expect(extractStockCodesFromMessage('比较 600519.SH 和 AAPL')).toEqual(['600519', 'AAPL']);
     expect(extractStockCodesFromMessage('比较 000001.SZ 和 SS')).toEqual(['000001']);
     expect(extractStockCodesFromMessage('比较 SH600519 和 AAPL')).toEqual(['600519', 'AAPL']);
     expect(extractStockCodesFromMessage('比较 SZ000001 和 AAPL')).toEqual(['000001', 'AAPL']);
     expect(extractStockCodesFromMessage('比较 BJ920748 和 AAPL')).toEqual(['920748', 'AAPL']);
-    expect(extractStockCodesFromMessage('比较 HK01810 和 AAPL')).toEqual(['HK01810', 'AAPL']);
   });
 
   it('does not return denied abbreviations in multi-code extraction', () => {

@@ -108,8 +108,7 @@ work.
 
 ## 3. Project overview
 
-- The project is a stock-analysis system covering A-shares, Hong Kong stocks,
-  and U.S. equities.
+- The project is a stock-analysis system covering A-shares and U.S. equities.
 - The main workflow is: fetch data → analyze technicals and search news →
   generate an LLM-assisted analysis/report → optionally send notifications.
 - Key entry points:

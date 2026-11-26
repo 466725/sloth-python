@@ -71,7 +71,7 @@ class _RecordingFetcher(BaseFetcher):
 
 class TestFetcherLogging(unittest.TestCase):
     @patch("ai_stock.stock_data.efinance_fetcher.get_config")
-    def test_efinance_rejects_hk_daily_without_calling_eastmoney(self, mock_get_config):
+    def test_efinance_rejects_unsupported_daily_code_without_calling_eastmoney(self, mock_get_config):
         mock_get_config.return_value = types.SimpleNamespace(enable_eastmoney_patch=False)
         fetcher = EfinanceFetcher(sleep_min=0, sleep_max=0)
 
@@ -80,7 +80,7 @@ class TestFetcherLogging(unittest.TestCase):
                 fetcher.get_daily_data("1211.HK", start_date="2026-05-01", end_date="2026-05-08")
 
         mock_fetch_stock_data.assert_not_called()
-        self.assertIn("不支持港股日线", str(captured.exception))
+        self.assertIn("Unsupported stock code", str(captured.exception))
 
     def test_efinance_logs_eastmoney_endpoint_on_remote_disconnect(self):
         fetcher = EfinanceFetcher()

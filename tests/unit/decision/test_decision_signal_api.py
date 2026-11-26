@@ -843,23 +843,24 @@ def test_dedup_distinguishes_source_type_for_weak_report_ids(client_and_db) -> N
     assert manual_list_resp.json()["total"] == 1
 
 
-def test_stock_filter_codes_cover_market_optional_hk_without_widening_other_markets() -> None:
+def test_stock_filter_codes_cover_supported_market_code_formats() -> None:
     from ai_stock.services.decision_signal_service import DecisionSignalService
 
     cases = [
-        ("00700", None, ["00700", "HK00700"]),
-        ("HK00700", None, ["HK00700"]),
-        ("00700.HK", None, ["HK00700"]),
-        ("00700", "hk", ["HK00700"]),
         ("600519", None, ["600519"]),
         ("600519.SH", None, ["600519"]),
+        ("600519", "cn", ["600519"]),
         ("AAPL", None, ["AAPL"]),
+        ("AAPL", "us", ["AAPL"]),
     ]
     for raw_code, market, expected_codes in cases:
         assert DecisionSignalService._stock_filter_codes(raw_code, market=market) == expected_codes
+    for market in ("hk", "jp", "kr"):
+        with pytest.raises(ValueError, match="market must be one of cn, us"):
+            DecisionSignalService._normalize_optional_market(market)
 
 
-def test_hk_stock_identity_variants_deduplicate_and_latest_matches(client_and_db) -> None:
+def test_a_share_identity_variants_deduplicate_and_latest_matches(client_and_db) -> None:
     client, _db = client_and_db
 
     first_resp = client.post(
@@ -867,25 +868,25 @@ def test_hk_stock_identity_variants_deduplicate_and_latest_matches(client_and_db
         json=_payload(
             source_report_id=3501,
             trace_id="trace-3501-a",
-            stock_code="00700",
-            stock_name="Tencent",
-            market="hk",
+            stock_code="600519",
+            stock_name="贵州茅台",
+            market="cn",
         ),
     )
     assert first_resp.status_code == 200, first_resp.text
     first = first_resp.json()
     assert first["created"] is True
-    assert first["item"]["stock_code"] == "HK00700"
+    assert first["item"]["stock_code"] == "600519"
 
-    for raw_code, trace_id in (("HK00700", "trace-3501-b"), ("00700.HK", "trace-3501-c")):
+    for raw_code, trace_id in (("SH600519", "trace-3501-b"), ("600519.SH", "trace-3501-c")):
         duplicate_resp = client.post(
             "/api/v1/decision-signals",
             json=_payload(
                 source_report_id=3501,
                 trace_id=trace_id,
                 stock_code=raw_code,
-                stock_name="Tencent",
-                market="hk",
+                stock_name="贵州茅台",
+                market="cn",
             ),
         )
         assert duplicate_resp.status_code == 200, duplicate_resp.text
@@ -894,18 +895,18 @@ def test_hk_stock_identity_variants_deduplicate_and_latest_matches(client_and_db
         assert duplicate["item"]["id"] == first["item"]["id"]
 
     latest_resp = client.get(
-        "/api/v1/decision-signals/latest/00700",
-        params={"market": "hk"},
+        "/api/v1/decision-signals/latest/600519.SH",
+        params={"market": "cn"},
     )
     assert latest_resp.status_code == 200, latest_resp.text
     assert latest_resp.json()["total"] == 1
     assert latest_resp.json()["items"][0]["id"] == first["item"]["id"]
 
     latest_cases = [
-        ("00700", {}),
-        ("HK00700", {}),
-        ("00700.HK", {}),
-        ("00700", {"market": "hk"}),
+        ("600519", {}),
+        ("SH600519", {}),
+        ("600519.SH", {}),
+        ("600519", {"market": "cn"}),
     ]
     for raw_code, params in latest_cases:
         latest_resp = client.get(f"/api/v1/decision-signals/latest/{raw_code}", params=params)
@@ -915,10 +916,10 @@ def test_hk_stock_identity_variants_deduplicate_and_latest_matches(client_and_db
         assert latest_payload["items"][0]["id"] == first["item"]["id"]
 
     list_cases = [
-        ("00700", {}),
-        ("HK00700", {}),
-        ("00700.HK", {}),
-        ("00700", {"market": "hk"}),
+        ("600519", {}),
+        ("SH600519", {}),
+        ("600519.SH", {}),
+        ("600519", {"market": "cn"}),
     ]
     for raw_code, params in list_cases:
         list_resp = client.get(
@@ -947,16 +948,16 @@ def test_dedup_distinguishes_market_for_same_symbol(client_and_db) -> None:
     assert us_resp.status_code == 200, us_resp.text
     assert us_resp.json()["created"] is True
 
-    hk_resp = client.post(
+    cn_resp = client.post(
         "/api/v1/decision-signals",
         json=_payload(
             source_report_id=3601,
-            trace_id="trace-3601-hk",
+            trace_id="trace-3601-cn",
             stock_code="DUPL",
-            stock_name="Duplicate HK",
-            market="hk",
+            stock_name="Duplicate CN",
+            market="cn",
         ),
     )
-    assert hk_resp.status_code == 200, hk_resp.text
-    assert hk_resp.json()["created"] is True
-    assert hk_resp.json()["item"]["id"] != us_resp.json()["item"]["id"]
+    assert cn_resp.status_code == 200, cn_resp.text
+    assert cn_resp.json()["created"] is True
+    assert cn_resp.json()["item"]["id"] != us_resp.json()["item"]["id"]

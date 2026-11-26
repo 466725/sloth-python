@@ -18,8 +18,8 @@ class TestIsCodeLike:
     def test_plain_6_digit(self):
         assert is_code_like("600519") is True
 
-    def test_plain_5_digit(self):
-        assert is_code_like("00700") is True
+    def test_plain_5_digit_rejected(self):
+        assert is_code_like("00700") is False
 
     def test_4_digit_rejected(self):
         assert is_code_like("6001") is False
@@ -40,21 +40,12 @@ class TestIsCodeLike:
     def test_suffix_lowercase(self):
         assert is_code_like("600519.sh") is True
 
-    # --- HK suffix format ---
-    def test_suffix_hk(self):
-        assert is_code_like("00700.HK") is True
-
-    def test_suffix_hk_lowercase(self):
-        assert is_code_like("00700.hk") is True
-
-    def test_suffix_hk_short_code(self):
-        assert is_code_like("1810.HK") is True
-
-    def test_suffix_hk_rejects_6_digit_base(self):
-        assert is_code_like("600519.HK") is False
-
     def test_suffix_sh_rejects_5_digit_base(self):
         assert is_code_like("00700.SH") is False
+
+    def test_unsupported_market_suffixes_rejected(self):
+        for code in ("00700.HK", "7203.T", "005930.KS", "035720.KQ"):
+            assert is_code_like(code) is False
 
     # --- Exchange prefix format (Issue #6 fix) ---
     def test_prefix_sh_upper(self):
@@ -71,18 +62,6 @@ class TestIsCodeLike:
 
     def test_prefix_bj_rejects_non_bse_base(self):
         assert is_code_like("BJ600519") is False
-
-    def test_prefix_hk(self):
-        assert is_code_like("HK00700") is True
-
-    def test_prefix_hk_lower(self):
-        assert is_code_like("hk00700") is True
-
-    def test_prefix_hk_short_code(self):
-        assert is_code_like("HK700") is True
-
-    def test_prefix_hk_rejects_6_digit_base(self):
-        assert is_code_like("HK600519") is False
 
     # --- US tickers ---
     def test_us_ticker(self):
@@ -107,8 +86,8 @@ class TestNormalizeCode:
     def test_plain_6_digit(self):
         assert normalize_code("600519") == "600519"
 
-    def test_plain_5_digit(self):
-        assert normalize_code("00700") == "00700"
+    def test_plain_5_digit_rejected(self):
+        assert normalize_code("00700") is None
 
     def test_whitespace_stripped(self):
         assert normalize_code("  600519  ") == "600519"
@@ -129,20 +108,12 @@ class TestNormalizeCode:
     def test_suffix_ss_strips(self):
         assert normalize_code("600000.SS") == "600000"
 
-    def test_suffix_hk_strips(self):
-        assert normalize_code("00700.HK") == "00700"
-
-    def test_suffix_hk_lowercase_strips(self):
-        assert normalize_code("00700.hk") == "00700"
-
-    def test_suffix_hk_short_code_is_zero_padded(self):
-        assert normalize_code("1810.HK") == "01810"
-
-    def test_suffix_hk_rejects_6_digit_base(self):
-        assert normalize_code("600519.HK") is None
-
     def test_suffix_sh_rejects_5_digit_base(self):
         assert normalize_code("00700.SH") is None
+
+    def test_unsupported_market_suffixes_rejected(self):
+        for code in ("00700.HK", "7203.T", "005930.KS", "035720.KQ"):
+            assert normalize_code(code) is None
 
     # --- Exchange prefix format (Issue #6 fix) ---
     def test_prefix_sh_upper(self):
@@ -159,18 +130,6 @@ class TestNormalizeCode:
 
     def test_prefix_bj_rejects_non_bse_base(self):
         assert normalize_code("BJ600519") is None
-
-    def test_prefix_hk(self):
-        assert normalize_code("HK00700") == "00700"
-
-    def test_prefix_hk_lower(self):
-        assert normalize_code("hk00700") == "00700"
-
-    def test_prefix_hk_short_code_is_zero_padded(self):
-        assert normalize_code("HK700") == "00700"
-
-    def test_prefix_hk_rejects_6_digit_base(self):
-        assert normalize_code("HK600519") is None
 
     # --- US tickers ---
     def test_us_ticker(self):
@@ -189,11 +148,8 @@ class TestNormalizeCode:
 
 
 class TestResolveIndexStockCodeForAnalysis:
-    def test_resolves_via_stock_index(self):
-        with patch("ai_stock.stock_data.stock_index_loader.resolve_index_stock_code", return_value="005930.KS"):
-            assert resolve_index_stock_code_for_analysis("005930") == "005930.KS"
-
-    def test_falls_back_to_canonical_when_index_miss(self):
-        with patch("ai_stock.stock_data.stock_index_loader.resolve_index_stock_code", return_value=None):
+    def test_does_not_resolve_codes_through_other_market_index(self):
+        with patch("ai_stock.stock_data.stock_index_loader.resolve_index_stock_code") as resolve:
             assert resolve_index_stock_code_for_analysis("005930") == "005930"
             assert resolve_index_stock_code_for_analysis("AAPL") == "AAPL"
+        resolve.assert_not_called()

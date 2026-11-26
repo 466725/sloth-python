@@ -82,10 +82,6 @@ def normalize_stock_code(stock_code: str) -> str:
     - '600519.SH'   -> '600519'   (strip .SH suffix)
     - '000001.SZ'   -> '000001'   (strip .SZ suffix)
     - '920748.BJ'   -> '920748'   (strip .BJ suffix, BSE)
-    - 'HK00700'     -> 'HK00700'  (keep HK prefix for HK stocks)
-    - '1810.HK'     -> 'HK01810'  (normalize HK suffix to canonical prefix form)
-    - '7203.T'      -> '7203.T'   (keep Japan Yahoo suffix form)
-    - '005930.KS'   -> '005930.KS' (keep Korea Yahoo suffix form)
     - 'AAPL'        -> 'AAPL'     (keep US stock ticker as-is)
 
     This function is applied at the DataProviderManager layer so that
@@ -93,12 +89,6 @@ def normalize_stock_code(stock_code: str) -> str:
     """
     code = stock_code.strip()
     upper = code.upper()
-
-    # Normalize HK prefix to a canonical 5-digit form (e.g. hk1810 -> HK01810)
-    if upper.startswith('HK') and not upper.startswith('HK.'):
-        candidate = upper[2:]
-        if candidate.isdigit() and 1 <= len(candidate) <= 5:
-            return f"HK{candidate.zfill(5)}"
 
     # Strip SH/SZ prefix (e.g. SH600519 -> 600519)
     if upper.startswith(('SH', 'SZ')) and not upper.startswith('SH.') and not upper.startswith('SZ.'):
@@ -126,15 +116,8 @@ def normalize_stock_code(stock_code: str) -> str:
             return candidate
 
     # Strip .SH/.SZ/.BJ suffix (e.g. 600519.SH -> 600519, 920748.BJ -> 920748)
-    # while preserving explicit Yahoo suffix forms for JP/KR.
     if '.' in code:
         base, suffix = code.rsplit('.', 1)
-        if suffix.upper() == 'T' and base.isdigit() and len(base) in (4, 5):
-            return f"{base}.{suffix.upper()}"
-        if suffix.upper() in ('KS', 'KQ') and base.isdigit() and len(base) == 6:
-            return f"{base}.{suffix.upper()}"
-        if suffix.upper() == 'HK' and base.isdigit() and 1 <= len(base) <= 5:
-            return f"HK{base.zfill(5)}"
         if base.upper() in ('SH', 'SS', 'SZ', 'BJ') and suffix.isdigit():
             return suffix
         if suffix.upper() in ('SH', 'SZ', 'SS', 'BJ') and base.isdigit():
@@ -152,42 +135,6 @@ def _is_us_market(code: str) -> bool:
 
     normalized = (code or "").strip().upper()
     return is_us_index_code(normalized) or is_us_stock_code(normalized)
-
-
-def _is_hk_market(code: str) -> bool:
-    """
-    判定是否为港股代码。
-
-    支持 `HK00700` 及纯 5 位数字形式（A 股 ETF/股票常见为 6 位）。
-    """
-    normalized = (code or "").strip().upper()
-    if normalized.endswith(".HK"):
-        base = normalized[:-3]
-        return base.isdigit() and 1 <= len(base) <= 5
-    if normalized.startswith("HK"):
-        digits = normalized[2:]
-        return digits.isdigit() and 1 <= len(digits) <= 5
-    if normalized.isdigit() and len(normalized) == 5:
-        return True
-    return False
-
-
-def _is_jp_market(code: str) -> bool:
-    """判定是否为日本 Yahoo Finance suffix 代码（如 7203.T）。"""
-    normalized = (code or "").strip().upper()
-    if not normalized.endswith(".T"):
-        return False
-    base = normalized[:-2]
-    return base.isdigit() and len(base) in (4, 5)
-
-
-def _is_kr_market(code: str) -> bool:
-    """判定是否为韩国 Yahoo Finance suffix 代码（如 005930.KS / 035720.KQ）。"""
-    normalized = (code or "").strip().upper()
-    if not normalized.endswith((".KS", ".KQ")):
-        return False
-    base = normalized.rsplit(".", 1)[0]
-    return base.isdigit() and len(base) == 6
 
 
 def _is_etf_code(code: str) -> bool:
@@ -230,16 +177,13 @@ def _is_meaningful_chip_distribution(chip: Any) -> bool:
 
 
 def _market_tag(code: str) -> str:
-    """返回市场标签: cn/us/hk/jp/kr."""
-    if _is_us_market(code):
+    """Return the supported market tag, or unsupported for other symbols."""
+    normalized = normalize_stock_code(code)
+    if _is_us_market(normalized):
         return "us"
-    if _is_hk_market(code):
-        return "hk"
-    if _is_jp_market(code):
-        return "jp"
-    if _is_kr_market(code):
-        return "kr"
-    return "cn"
+    if normalized.isdigit() and len(normalized) == 6:
+        return "cn"
+    return "unsupported"
 
 
 def is_bse_code(code: str) -> bool:
@@ -295,7 +239,6 @@ def canonical_stock_code(code: str) -> str:
         'aapl'    -> 'AAPL'
         'AAPL'    -> 'AAPL'
         '600519'  -> '600519'  (digits are unchanged)
-        'hk00700' -> 'HK00700'
     """
     return (code or "").strip().upper()
 
@@ -475,6 +418,12 @@ class BaseFetcher(ABC):
         logger.info(f"[{self.name}] 开始获取 {stock_code} 日线数据: 范围={start_date} ~ {end_date}")
         
         try:
+            if _market_tag(stock_code) == "unsupported":
+                raise DataFetchError(
+                    f"Unsupported stock code '{stock_code}'; only six-digit A-share codes "
+                    "and US tickers are supported"
+                )
+
             # Step 1: 获取原始数据
             raw_df = self._fetch_raw_data(stock_code, start_date, end_date)
             
@@ -606,8 +555,8 @@ class DataFetcherManager:
     _DAILY_MARKET_FETCHER_SUPPORT = {
         "EfinanceFetcher": {"cn"},
         "TencentFetcher": {"cn"},
-        "AkshareFetcher": {"cn", "hk"},
-        "YfinanceFetcher": {"cn", "hk", "us"},
+        "AkshareFetcher": {"cn"},
+        "YfinanceFetcher": {"cn", "us"},
         "FinnhubFetcher": {"us"},
         "AlphaVantageFetcher": {"us"},
     }
@@ -1199,28 +1148,26 @@ class DataFetcherManager:
         errors = []
         request_start = time.time()
 
-        # 快速路径：美股使用专用数据源路由；港股先过滤不支持港股日线的数据源
-        #   - 配置长桥凭据后: Longbridge 为首选, YFinance/AkShare 兜底
-        #   - 未配置长桥:     YFinance 为首选（美股）, 通用 fetcher 循环（港股）
-        #   - 美股指数:       始终 YFinance 为首选（Longbridge 不提供指数K线）
+        # 美股使用专用数据源路由；A 股使用通用优先级与故障切换。
         is_us_index = is_us_index_code(stock_code)
         is_us = is_us_index or is_us_stock_code(stock_code)
-        is_hk = (not is_us) and _is_hk_market(stock_code)
-        is_jp = (not is_us) and (not is_hk) and _is_jp_market(stock_code)
-        is_kr = (not is_us) and (not is_hk) and _is_kr_market(stock_code)
-        market = "us" if is_us else "hk" if is_hk else "jp" if is_jp else "kr" if is_kr else "cn"
+        if not is_us and not (stock_code.isdigit() and len(stock_code) == 6):
+            raise DataFetchError(
+                f"Unsupported stock code {stock_code!r}; only six-digit A-share codes and US tickers are supported"
+            )
+        market = "us" if is_us else "cn"
         if market != "cn":
             fetchers = self._filter_daily_fetchers_for_market(fetchers, market)
         fetchers = self._filter_fetchers_by_capability(fetchers, capability="daily_data")
         total_fetchers = len(fetchers)
 
         if total_fetchers == 0:
-            market_label = "美股指数" if is_us_index else "美股" if is_us else "港股" if is_hk else "A股"
+            market_label = "美股指数" if is_us_index else "美股" if is_us else "A股"
             error_summary = f"{market_label} {stock_code} 获取失败:\n暂无可用数据源"
             logger.error(f"[数据源终止] {stock_code} 获取失败: {error_summary}")
             raise DataFetchError(error_summary)
 
-        # 美股（含美股指数）使用专用路由；港股走下方通用数据源循环
+        # 美股（含美股指数）使用专用路由。
         # Failover chain: Finnhub(P2) -> AlphaVantage(P3) -> Yfinance(P4) -> Longbridge(P5)
         # When Longbridge preferred: Longbridge -> Finnhub -> AlphaVantage -> Yfinance
         if is_us:
@@ -1552,8 +1499,6 @@ class DataFetcherManager:
 
     @staticmethod
     def _realtime_fetcher_token(fetcher_name: str, **kw) -> str:
-        if fetcher_name == "AkshareFetcher" and kw.get("source") == "hk":
-            return "akshare_hk"
         mapping = {
             "YfinanceFetcher": "yfinance",
             "AkshareFetcher": "akshare",
@@ -1630,45 +1575,23 @@ class DataFetcherManager:
             logger.debug(f"[实时行情] 功能已禁用，跳过 {stock_code}")
             return None
 
-        # ----------------------------------------------------------
-        # 美股 (指数 + 个股) / 港股 — 专用双源路由
-        #   配置长桥后: Longbridge 首选, YFinance/AkShare 补充
-        #   未配置长桥: YFinance/AkShare 首选, Longbridge 补充
-        #   美股指数:   始终 YFinance 首选（Longbridge 不提供指数行情）
-        # ----------------------------------------------------------
+        # US stocks use a dedicated route; A-shares use configured provider priority.
         is_us_index = is_us_index_code(stock_code)
         is_us = is_us_index or _is_us_code(stock_code)
-        is_hk = (not is_us) and _is_hk_market(stock_code)
-        is_jp = (not is_us) and (not is_hk) and _is_jp_market(stock_code)
-        is_kr = (not is_us) and (not is_hk) and _is_kr_market(stock_code)
-
-        if is_jp or is_kr:
-            market_label = "日股" if is_jp else "韩股"
-            quote = self._try_fetcher_quote(stock_code, "YfinanceFetcher")
-            if quote is not None:
-                logger.info(f"[实时行情] {market_label} {stock_code} 成功获取 (来源: YfinanceFetcher)")
-                return self._enrich_realtime_quote(
-                    quote,
-                    realtime_cache_ttl=getattr(config, "realtime_cache_ttl", None),
-                )
-            if log_final_failure:
-                logger.info(f"[实时行情] {market_label} {stock_code} 无可用数据源")
+        if not is_us and not (stock_code.isdigit() and len(stock_code) == 6):
+            logger.warning(
+                "[实时行情] Unsupported stock code %r; only six-digit A-share codes and US tickers are supported",
+                stock_code,
+            )
             return None
 
-        if is_us or is_hk:
+        if is_us:
             prefer_lb = self._longbridge_preferred() and not is_us_index
-            if is_us:
-                primary_src = "YfinanceFetcher"
-                secondary_src = "YfinanceFetcher"
-                market_label = "美股指数" if is_us_index else "美股"
-                primary_kw: dict = {}
-                secondary_kw: dict = {}
-            else:
-                primary_src = "AkshareFetcher"
-                secondary_src = "AkshareFetcher"
-                market_label = "港股"
-                primary_kw = {"source": "hk"} if primary_src == "AkshareFetcher" else {}
-                secondary_kw = {"source": "hk"} if secondary_src == "AkshareFetcher" else {}
+            primary_src = "YfinanceFetcher"
+            secondary_src = "YfinanceFetcher"
+            market_label = "美股指数" if is_us_index else "美股"
+            primary_kw: dict = {}
+            secondary_kw: dict = {}
 
             primary_token = self._realtime_fetcher_token(primary_src, **primary_kw)
             primary_quote = self._try_fetcher_quote(stock_code, primary_src, **primary_kw)
@@ -2299,6 +2222,10 @@ class DataFetcherManager:
 
     def get_main_indices(self, region: str = "cn") -> List[Dict[str, Any]]:
         """获取主要指数实时行情（自动切换数据源）"""
+        if region not in {"cn", "us"}:
+            raise DataFetchError(f"Unsupported market region: {region}")
+        if region not in {"cn", "us"}:
+            raise DataFetchError(f"Unsupported market region: {region}")
         if region == "cn":
             tickflow_fetcher = self._get_tickflow_fetcher()
             if tickflow_fetcher is not None:
@@ -2655,13 +2582,13 @@ class DataFetcherManager:
             **blocks,
         }
 
-    def _build_offshore_fundamental_context(
+    def _build_us_fundamental_context(
         self,
         stock_code: str,
         market: str,
         budget_seconds: Optional[float] = None,
     ) -> Dict[str, Any]:
-        """HK/US fundamental aggregation via yfinance.
+        """US fundamental aggregation via yfinance.
 
         Mirrors :meth:`get_fundamental_context` but skips A-share-specific
         blocks (capital_flow, dragon_tiger, sector rankings). belong_boards is
@@ -2880,11 +2807,16 @@ class DataFetcherManager:
         stock_code = normalize_stock_code(stock_code)
         market = _market_tag(stock_code)
         is_etf = _is_etf_code(stock_code)
-        if market in {"us", "hk", "jp", "kr"}:
-            return self._build_offshore_fundamental_context(
+        if market == "us":
+            return self._build_us_fundamental_context(
                 stock_code,
                 market=market,
                 budget_seconds=budget_seconds,
+            )
+        if market != "cn":
+            return self._build_market_not_supported(
+                market=market,
+                reason="unsupported stock market",
             )
 
         stage_timeout = float(

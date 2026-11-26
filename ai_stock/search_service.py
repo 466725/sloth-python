@@ -1871,7 +1871,7 @@ class SearchService:
     2. 自动故障转移
     3. 结果聚合和格式化
     4. 数据源失败时的增强搜索（股价、走势等）
-    5. 港股/美股自动使用英文搜索关键词
+    5. 美股自动使用英文搜索关键词
     """
     
     # 增强搜索关键词模板（A股 中文）
@@ -1883,7 +1883,7 @@ class SearchService:
         "{name} {code} 涨跌 成交量",
     ]
 
-    # 增强搜索关键词模板（港股/美股 英文）
+    # 增强搜索关键词模板（美股英文）
     ENHANCED_SEARCH_KEYWORDS_EN = [
         "{name} stock price today",
         "{name} {code} latest quote trend",
@@ -1923,22 +1923,22 @@ class SearchService:
         "peers", "competitors", "supply chain", "market share",
     )
     _MACRO_NEWS_TERMS = (
-        "大盘", "市场", "指数", "宏观", "央行", "利率", "通胀", "a股", "港股",
+        "大盘", "市场", "指数", "宏观", "央行", "利率", "通胀", "a股",
         "美股", "纳指", "标普", "market", "index", "fed", "inflation",
         "interest rate", "nasdaq", "s&p 500", "dow jones",
     )
     _OFFICIAL_SOURCE_TERMS = (
-        "cninfo", "sse.com", "szse.cn", "hkexnews", "sec.gov", "nasdaq.com",
+        "cninfo", "sse.com", "szse.cn", "sec.gov", "nasdaq.com",
         "nyse.com", "上交所", "深交所", "港交所", "证券交易所",
     )
     _OFFICIAL_SOURCE_HOSTS = (
-        "cninfo.com.cn", "sse.com", "sse.com.cn", "szse.cn", "hkexnews.hk",
+        "cninfo.com.cn", "sse.com", "sse.com.cn", "szse.cn",
         "sec.gov", "nasdaq.com", "nyse.com",
     )
     _OFFICIAL_SOURCE_LABELS = (
-        "cninfo", "hkexnews", "巨潮资讯", "巨潮资讯网",
-        "上交所", "深交所", "港交所", "证券交易所",
-        "上海证券交易所", "深圳证券交易所", "香港交易所", "香港联合交易所",
+        "cninfo", "巨潮资讯", "巨潮资讯网",
+        "上交所", "深交所", "证券交易所",
+        "上海证券交易所", "深圳证券交易所",
     )
     _LOW_QUALITY_DOWNLOAD_ACTION_TERMS = (
         "下载", "安装", "下载安装", "下载安装到手机", "下载链接",
@@ -2123,18 +2123,8 @@ class SearchService:
     
     @staticmethod
     def _is_foreign_stock(stock_code: str) -> bool:
-        """判断是否为港股或美股"""
-        code = stock_code.strip()
-        # 美股：1-5个大写字母，可能包含点（如 BRK.B）
-        if SearchService._US_STOCK_RE.match(code):
-            return True
-        # 港股：带 hk 前缀或 5位纯数字
-        lower = code.lower()
-        if lower.startswith('hk'):
-            return True
-        if code.isdigit() and len(code) == 5:
-            return True
-        return False
+        """Return whether the code is a supported US equity or index."""
+        return SearchService._is_us_stock(stock_code)
 
     @classmethod
     def _contains_chinese_text(cls, value: Optional[str]) -> bool:
@@ -2237,7 +2227,7 @@ class SearchService:
 
     # A-share ETF code prefixes (Shanghai 51/52/56/58, Shenzhen 15/16/18)
     _A_ETF_PREFIXES = ('51', '52', '56', '58', '15', '16', '18')
-    _ETF_NAME_KEYWORDS = ('ETF', 'FUND', 'TRUST', 'INDEX', 'TRACKER', 'UNIT')  # US/HK ETF name hints
+    _ETF_NAME_KEYWORDS = ('ETF', 'FUND', 'TRUST', 'INDEX', 'TRACKER', 'UNIT')
 
     @staticmethod
     def is_index_or_etf(stock_code: str, stock_name: str) -> bool:
@@ -2254,7 +2244,7 @@ class SearchService:
         # US index (SPX, DJI, IXIC etc.)
         if is_us_index_code(code):
             return True
-        # US/HK ETF: foreign symbol + name contains fund-like keywords
+        # US ETF: ticker + name contains fund-like keywords
         if SearchService._is_foreign_stock(code):
             name_upper = (stock_name or '').upper()
             return any(kw in name_upper for kw in SearchService._ETF_NAME_KEYWORDS)
@@ -2362,9 +2352,7 @@ class SearchService:
         code_for_variants = upper
         if "." in upper:
             base, suffix = upper.rsplit(".", 1)
-            if suffix == "HK" and base.isdigit() and 1 <= len(base) <= 5:
-                code_for_variants = f"HK{base.zfill(5)}"
-            elif suffix in {"SH", "SZ", "SS", "BJ"} and base.isdigit() and len(base) == 6:
+            if suffix in {"SH", "SZ", "SS", "BJ"} and base.isdigit() and len(base) == 6:
                 code_for_variants = base
             elif suffix == "US" and re.fullmatch(r"[A-Z]{1,5}", base):
                 code_for_variants = base
@@ -2375,23 +2363,6 @@ class SearchService:
             cls._append_unique(terms, upper)
             if code_for_variants != upper:
                 cls._append_unique(terms, code_for_variants)
-
-        lower = code_for_variants.lower()
-        hk_digits = ""
-        if lower.startswith("hk"):
-            hk_digits = re.sub(r"\D", "", code_for_variants)
-        elif code_for_variants.isdigit() and len(code_for_variants) == 5:
-            hk_digits = code_for_variants
-
-        if hk_digits:
-            padded = hk_digits.zfill(5)
-            short = str(int(hk_digits)) if hk_digits.isdigit() else hk_digits.lstrip("0")
-            cls._append_unique(terms, padded)
-            cls._append_unique(terms, f"HK{padded}")
-            cls._append_unique(terms, f"{padded}.HK")
-            cls._append_unique(terms, f"{short}.HK")
-            cls._append_unique(terms, f"HKEX:{short}")
-            return terms
 
         if code_for_variants.isdigit() and len(code_for_variants) == 6:
             suffix = ".SH" if code_for_variants.startswith(("5", "6", "9")) else ".SZ"
@@ -3371,7 +3342,7 @@ class SearchService:
         elif prefer_chinese:
             query = f"{stock_name} {stock_code} 股票 最新消息"
         elif is_foreign:
-            # 港股/美股使用英文搜索关键词
+            # US stocks use English search keywords.
             query = f"{stock_name} {stock_code} stock latest news"
         else:
             # 默认主查询：股票名称 + 核心关键词

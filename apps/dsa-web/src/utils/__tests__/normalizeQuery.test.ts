@@ -50,7 +50,7 @@ describe('normalizeQuery', () => {
 
     test('preserves special characters', () => {
       expect(normalizeQuery('600519.SH')).toBe('600519.sh');
-      expect(normalizeQuery('00700.HK')).toBe('00700.hk');
+      expect(normalizeQuery('AAPL.US')).toBe('aapl.us');
     });
   });
 
@@ -110,10 +110,6 @@ describe('normalizeQuery', () => {
       expect(extractMarketSuffix('000001.SZ')).toBe('SZ');
     });
 
-    test('extracts HK stock market suffix', () => {
-      expect(extractMarketSuffix('00700.HK')).toBe('HK');
-    });
-
     test('extracts US stock market suffix', () => {
       expect(extractMarketSuffix('AAPL.US')).toBe('US');
     });
@@ -133,10 +129,6 @@ describe('normalizeQuery', () => {
     test('removes A-share market suffix', () => {
       expect(removeMarketSuffix('600519.SH')).toBe('600519');
       expect(removeMarketSuffix('000001.SZ')).toBe('000001');
-    });
-
-    test('removes HK stock market suffix', () => {
-      expect(removeMarketSuffix('00700.HK')).toBe('00700');
     });
 
     test('removes US stock market suffix', () => {
@@ -187,7 +179,9 @@ describe('normalizeQuery', () => {
 
     test('identifies codes with market suffix', () => {
       expect(isStockCodeLike('600519.SH')).toBe(true);
-      expect(isStockCodeLike('00700.HK')).toBe(true);
+      expect(isStockCodeLike('00700.HK')).toBe(false);
+      expect(isStockCodeLike('7203.T')).toBe(false);
+      expect(isStockCodeLike('005930.KS')).toBe(false);
       // US stock codes without numbers return false for isStockCodeLike
       expect(isStockCodeLike('AAPL.US')).toBe(false);
     });
@@ -211,8 +205,9 @@ describe('normalizeQuery', () => {
       expect(isStockCodeLike('maotai')).toBe(false);
     });
 
-    test('identifies pure numbers', () => {
-      expect(isStockCodeLike('12345')).toBe(true);
+    test('identifies supported six-digit numeric stock codes', () => {
+      expect(isStockCodeLike('600519')).toBe(true);
+      expect(isStockCodeLike('12345')).toBe(false);
     });
 
     test('handles empty strings', () => {

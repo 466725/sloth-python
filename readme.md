@@ -550,12 +550,12 @@ DSA combines market data, technical analysis, news, and language models to produ
 
 | Area | What it provides |
 | --- | --- |
-| Analysis | Reports for A-shares, Hong Kong stocks, U.S. equities, and supported Japan/Korea symbols |
+| Analysis | Reports for A-shares and U.S. equities |
 | Data and research | Quotes, historical bars, technical indicators, fundamentals, news, and source-quality context where available |
 | Web workspace | Watchlists, reports, history, strategy chat, backtesting, alerts, and settings |
 | Operations | CLI, FastAPI/Web service, local scheduler, Docker, and optional email delivery |
 
-Coverage varies by market and provider. Japan (`.T`) and Korea (`.KS` / `.KQ`) rely mainly on YFinance for daily bars, basic or delayed quotes, and technical indicators. Real-time quotes, complete symbol lists, full fundamentals, and region-specific market data may be unavailable. Missing data is not a zero value or a market signal.
+The application supports A-share and U.S. equities. Provider coverage may vary by market; missing data is not a zero value or a market signal.
 
 ### Trading strategies
 

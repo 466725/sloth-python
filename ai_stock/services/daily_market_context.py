@@ -30,8 +30,8 @@ MARKET_REVIEW_HISTORY_CODE = "MARKET"
 MARKET_REVIEW_REPORT_TYPE = "market_review"
 
 
-_REGION_LABEL_ZH = {"cn": "A股", "hk": "港股", "us": "美股"}
-_REGION_LABEL_EN = {"cn": "A-share", "hk": "HK", "us": "US"}
+_REGION_LABEL_ZH = {"cn": "A股", "us": "美股"}
+_REGION_LABEL_EN = {"cn": "A-share", "us": "US"}
 _VALID_REGIONS = frozenset(_REGION_LABEL_ZH)
 _UNTRUSTED_MARKET_SUMMARY_SENTINELS = (
     "BEGIN_UNTRUSTED_MARKET_SUMMARY",

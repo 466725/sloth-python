@@ -220,7 +220,7 @@ class EffectiveTradingDateTestCase(unittest.TestCase):
 
         self.assertEqual(result, date(2026, 3, 26))
 
-    def test_calendar_error_falls_back_to_market_local_date(self):
+    def test_unsupported_market_falls_back_to_utc_date(self):
         current_time = datetime(2026, 3, 27, 18, 0, tzinfo=timezone.utc)
 
         with patch.object(trading_calendar, "_XCALS_AVAILABLE", True), patch.object(
@@ -229,9 +229,9 @@ class EffectiveTradingDateTestCase(unittest.TestCase):
                 SimpleNamespace(get_calendar=lambda _ex: (_ for _ in ()).throw(RuntimeError("boom"))),
                 create=True,
         ):
-            result = trading_calendar.get_effective_trading_date("hk", current_time=current_time)
+            result = trading_calendar.get_effective_trading_date("unknown", current_time=current_time)
 
-        self.assertEqual(result, date(2026, 3, 28))
+        self.assertEqual(result, date(2026, 3, 27))
 
 
 class InferMarketPhaseTestCase(unittest.TestCase):
@@ -307,7 +307,7 @@ class InferMarketPhaseTestCase(unittest.TestCase):
 
         self.assertEqual(result, trading_calendar.MarketPhase.NON_TRADING)
 
-    def test_hk_phase_boundaries_include_lunch_and_ten_minute_closing_window(self):
+    def test_unsupported_market_phase_is_unknown(self):
         fake_calendar = _FakeCalendar(
             sessions=[date(2026, 3, 27)],
             close_hour=16,
@@ -317,32 +317,11 @@ class InferMarketPhaseTestCase(unittest.TestCase):
             break_end=time(13, 0),
         )
 
-        cases = (
-            (
-                datetime(2026, 3, 27, 12, 0, tzinfo=ZoneInfo("Asia/Hong_Kong")),
-                trading_calendar.MarketPhase.LUNCH_BREAK,
-            ),
-            (
-                datetime(2026, 3, 27, 13, 0, tzinfo=ZoneInfo("Asia/Hong_Kong")),
-                trading_calendar.MarketPhase.INTRADAY,
-            ),
-            (
-                datetime(2026, 3, 27, 15, 49, tzinfo=ZoneInfo("Asia/Hong_Kong")),
-                trading_calendar.MarketPhase.INTRADAY,
-            ),
-            (
-                datetime(2026, 3, 27, 15, 50, tzinfo=ZoneInfo("Asia/Hong_Kong")),
-                trading_calendar.MarketPhase.CLOSING_AUCTION,
-            ),
-            (
-                datetime(2026, 3, 27, 16, 0, tzinfo=ZoneInfo("Asia/Hong_Kong")),
-                trading_calendar.MarketPhase.POSTMARKET,
-            ),
+        current_time = datetime(2026, 3, 27, 13, 0, tzinfo=ZoneInfo("Asia/Hong_Kong"))
+        self.assertEqual(
+            self._infer_with_calendar("hk", current_time, fake_calendar),
+            trading_calendar.MarketPhase.UNKNOWN,
         )
-
-        for current_time, expected in cases:
-            with self.subTest(current_time=current_time):
-                self.assertEqual(self._infer_with_calendar("hk", current_time, fake_calendar), expected)
 
     def test_us_phase_boundaries_skip_nat_lunch_break(self):
         fake_calendar = _FakeCalendar(
@@ -723,17 +702,17 @@ class MarketPhaseContextTestCase(unittest.TestCase):
 class ComputeEffectiveRegionTestCase(unittest.TestCase):
     """Regression tests for compute_effective_region subset logic."""
 
-    def test_both_all_open_returns_comma_joined_three(self):
+    def test_both_all_open_returns_only_supported_markets(self):
         result = trading_calendar.compute_effective_region("both", {"cn", "hk", "us"})
-        self.assertEqual(result, "cn,hk,us")
+        self.assertEqual(result, "cn,us")
 
     def test_both_cn_us_open_returns_comma_joined_two(self):
         result = trading_calendar.compute_effective_region("both", {"cn", "us"})
         self.assertEqual(result, "cn,us")
 
-    def test_both_cn_hk_open_returns_comma_joined_two(self):
+    def test_both_ignores_unsupported_open_markets(self):
         result = trading_calendar.compute_effective_region("both", {"cn", "hk"})
-        self.assertEqual(result, "cn,hk")
+        self.assertEqual(result, "cn")
 
     def test_both_single_market_open_returns_single(self):
         result = trading_calendar.compute_effective_region("both", {"us"})
@@ -742,12 +721,6 @@ class ComputeEffectiveRegionTestCase(unittest.TestCase):
     def test_both_no_market_open_returns_empty(self):
         result = trading_calendar.compute_effective_region("both", set())
         self.assertEqual(result, "")
-
-    def test_single_region_open(self):
-        self.assertEqual(trading_calendar.compute_effective_region("hk", {"cn", "hk", "us"}), "hk")
-
-    def test_single_region_closed(self):
-        self.assertEqual(trading_calendar.compute_effective_region("hk", {"cn", "us"}), "")
 
     def test_invalid_region_defaults_to_cn(self):
         result = trading_calendar.compute_effective_region("invalid", {"cn"})

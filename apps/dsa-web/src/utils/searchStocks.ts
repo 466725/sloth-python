@@ -11,6 +11,8 @@ import type { StockIndexItem, StockSuggestion } from '../types/stockIndex';
 import { normalizeQuery } from './normalizeQuery';
 import { MATCH_SCORE, SEARCH_CONFIG } from './stockIndexFields';
 
+const SUPPORTED_STOCK_MARKETS = new Set(['CN', 'US', 'INDEX', 'ETF', 'BSE']);
+
 export interface SearchOptions {
   /** Limit on number of results to return */
   limit?: number;
@@ -41,7 +43,7 @@ export function searchStocks(
   // Filter index
   const filteredIndex = index.filter(item => {
     if (activeOnly && !item.active) return false;
-    return true;
+    return SUPPORTED_STOCK_MARKETS.has(item.market);
   });
 
   // Calculate match score for each item

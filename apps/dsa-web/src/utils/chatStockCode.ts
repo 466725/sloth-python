@@ -60,8 +60,6 @@ export function extractStockCodesFromMessage(message: string): string[] {
     /\b(SH\d{6})\b/gi,
     /\b(SZ\d{6})\b/gi,
     /\b(BJ\d{6})\b/gi,
-    /\b(hk\d{4,5})\b/gi,
-    /\b(\d{1,5}\.HK)\b/gi,
     /\b(\d{5,6})\b/g,
     /\b([A-Z]{2,5}\.[A-Z]{1,2})\b/g,
     /\b([A-Z]{2,5})\b/g,
@@ -93,6 +91,10 @@ export function extractStockCodesFromMessage(message: string): string[] {
   const stockCodes: string[] = [];
   const seen = new Set<string>();
   for (const match of matches) {
+    const remainingMessage = message.slice(match.index + match.value.length);
+    if (/^\.(?:HK|T|KS|KQ)\b/i.test(remainingMessage)) {
+      continue;
+    }
     if (EXCHANGE_PREFIXES.has(match.value.toUpperCase())) {
       continue;
     }

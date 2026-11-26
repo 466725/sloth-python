@@ -164,6 +164,23 @@ class IntelligenceServiceTestCase(unittest.TestCase):
         self.assertIsNotNone(saved_source)
         self.assertEqual(saved_source.last_error, "fetch failed: upstream request failed")
 
+    def test_fetch_rejects_legacy_source_for_unsupported_market(self) -> None:
+        source = self.service.repo.create_source({
+            "name": "legacy-hk-feed",
+            "url": "https://feeds.example.com/rss.xml",
+            "source_type": "rss",
+            "enabled": True,
+            "scope_type": "market",
+            "scope_value": INTELLIGENCE_ITEM_NULL_SCOPE_VALUE,
+            "market": "hk",
+        })
+
+        with patch("ai_stock.services.intelligence_service.requests.get") as mock_get:
+            with self.assertRaisesRegex(IntelligenceServiceError, "unsupported market: hk"):
+                self.service.fetch_source(source.id)
+
+        mock_get.assert_not_called()
+
     def test_fetch_newsnow_http_error_does_not_expose_source_query_secret(self) -> None:
         secret_url = "https://newsnow.example.com/api/s?id=cls-hot&token=super-secret"
         source = self.service.create_source({
@@ -278,12 +295,23 @@ class IntelligenceServiceTestCase(unittest.TestCase):
         self.assertEqual(result["sample_items"][0]["url"], "https://news.example.com/good")
 
     def test_source_templates_can_create_disabled_source(self) -> None:
-        templates = self.service.list_source_templates(market="hk")
+        templates = self.service.list_source_templates(market="us")
         self.assertGreaterEqual(templates["total"], 1)
-        created = self.service.create_source_from_template("hkex-news", {"enabled": False, "name": "hkex-template-copy"})
-        self.assertEqual(created["name"], "hkex-template-copy")
-        self.assertEqual(created["market"], "hk")
+        created = self.service.create_source_from_template(
+            "sec-company-news", {"enabled": False, "name": "sec-template-copy"}
+        )
+        self.assertEqual(created["name"], "sec-template-copy")
+        self.assertEqual(created["market"], "us")
         self.assertFalse(created["enabled"])
+
+    def test_create_source_rejects_unsupported_market(self) -> None:
+        with self.assertRaisesRegex(IntelligenceServiceError, "unsupported market: hk"):
+            self.service.create_source({
+                "name": "unsupported-market",
+                "url": "https://feeds.example.com/rss.xml",
+                "scope_type": "market",
+                "market": "hk",
+            })
 
     def test_newsnow_source_fetches_json_items(self) -> None:
         source = self.service.create_source({

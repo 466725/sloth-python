@@ -99,7 +99,7 @@ class TestFetcherSourceOptimization(unittest.TestCase):
             )
 
     @patch("ai_stock.config.get_config")
-    def test_hk_daily_route_skips_temporarily_unavailable_longbridge(self, mock_get_config):
+    def test_unsupported_daily_code_is_rejected_before_provider_fallback(self, mock_get_config):
         mock_get_config.return_value = SimpleNamespace(
             longbridge_app_key="app-key",
             longbridge_app_secret="app-secret",
@@ -118,11 +118,10 @@ class TestFetcherSourceOptimization(unittest.TestCase):
 
         manager = DataFetcherManager(fetchers=[longbridge, akshare])
 
-        df, source = manager.get_daily_data("HK00700", start_date="2026-05-01", end_date="2026-05-08")
+        with self.assertRaises(DataFetchError):
+            manager.get_daily_data("HK00700", start_date="2026-05-01", end_date="2026-05-08")
 
-        self.assertFalse(df.empty)
-        self.assertEqual(source, "AkshareFetcher")
-        akshare.get_daily_data.assert_called_once()
+        akshare.get_daily_data.assert_not_called()
         longbridge.get_daily_data.assert_not_called()
 
 

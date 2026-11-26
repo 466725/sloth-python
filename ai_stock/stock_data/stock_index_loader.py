@@ -86,7 +86,11 @@ def _load_stock_index_payload(index_path: Path) -> list:
 def _build_stock_name_map(raw_items: list) -> Dict[str, str]:
     stock_name_map: Dict[str, str] = {}
     for item in raw_items:
-        if not isinstance(item, list) or len(item) < 3:
+        if (
+            not isinstance(item, list)
+            or len(item) < 7
+            or item[6] not in {"CN", "US", "BSE"}
+        ):
             continue
 
         canonical_code, display_code, name_zh = item[0], item[1], item[2]

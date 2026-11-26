@@ -28,8 +28,8 @@ describe('useWatchlist', () => {
     mockRemoveFromWatchlist.mockResolvedValue([]);
   });
 
-  it('matches raw HK watchlist entries against prefixed and suffixed variants', async () => {
-    mockGetWatchlist.mockResolvedValue(['00700']);
+  it('matches A-share watchlist entries against exchange-suffixed variants', async () => {
+    mockGetWatchlist.mockResolvedValue(['600519']);
 
     const { result } = renderHook(() => useWatchlist());
 
@@ -37,14 +37,12 @@ describe('useWatchlist', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.isInWatchlist('00700')).toBe(true);
-    expect(result.current.isInWatchlist('HK00700')).toBe(true);
-    expect(result.current.isInWatchlist('00700.HK')).toBe(true);
-    expect(result.current.isInWatchlist('HK01810')).toBe(false);
+    expect(result.current.isInWatchlist('600519.SH')).toBe(true);
+    expect(result.current.isInWatchlist('000001.SZ')).toBe(false);
   });
 
-  it('removes the matched raw watchlist entry instead of adding a duplicate variant', async () => {
-    mockGetWatchlist.mockResolvedValue(['00700']);
+  it('removes the matched raw A-share watchlist entry instead of adding a duplicate variant', async () => {
+    mockGetWatchlist.mockResolvedValue(['600519']);
     mockRemoveFromWatchlist.mockResolvedValue([]);
 
     const { result } = renderHook(() => useWatchlist());
@@ -54,10 +52,10 @@ describe('useWatchlist', () => {
     });
 
     await act(async () => {
-      await result.current.toggleWatchlist('HK00700');
+      await result.current.toggleWatchlist('600519.SH');
     });
 
-    expect(mockRemoveFromWatchlist).toHaveBeenCalledWith('00700');
+    expect(mockRemoveFromWatchlist).toHaveBeenCalledWith('600519');
     expect(mockAddToWatchlist).not.toHaveBeenCalled();
     await waitFor(() => {
       expect(result.current.watchlistCodes).toEqual([]);

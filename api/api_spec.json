@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Daily Stock Analysis API",
-    "description": "A股/港股/美股自选股智能分析系统 API\n\n## 功能模块\n- 股票分析：触发 AI 智能分析\n- 历史记录：查询历史分析报告\n- 股票数据：获取行情数据\n\n## Access\nThis API has no built-in authentication. Expose it only on trusted networks or behind an authenticated reverse proxy.",
+    "description": "A股/美股自选股智能分析系统 API\n\n## 功能模块\n- 股票分析：触发 AI 智能分析\n- 历史记录：查询历史分析报告\n- 股票数据：获取行情数据\n\n## Access\nThis API has no built-in authentication. Expose it only on trusted networks or behind an authenticated reverse proxy.",
     "version": "1.0.0"
   },
   "paths": {
@@ -3803,10 +3803,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Optional market filter: cn/hk/us/jp/kr",
+              "description": "Optional market filter: cn/us",
               "title": "Market"
             },
-            "description": "Optional market filter: cn/hk/us/jp/kr"
+            "description": "Optional market filter: cn/us"
           },
           {
             "name": "stock_code",
@@ -4461,10 +4461,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Optional market filter: cn/hk/us/jp/kr",
+              "description": "Optional market filter: cn/us",
               "title": "Market"
             },
-            "description": "Optional market filter: cn/hk/us/jp/kr"
+            "description": "Optional market filter: cn/us"
           },
           {
             "name": "limit",
@@ -8073,10 +8073,7 @@
             "type": "string",
             "enum": [
               "cn",
-              "hk",
-              "us",
-              "jp",
-              "kr"
+              "us"
             ],
             "title": "Market"
           },
@@ -9241,10 +9238,7 @@
                 "type": "string",
                 "enum": [
                   "cn",
-                  "hk",
-                  "us",
-                  "jp",
-                  "kr"
+                  "us"
                 ]
               },
               {
@@ -10621,10 +10615,7 @@
             "type": "string",
             "enum": [
               "cn",
-              "hk",
               "us",
-              "jp",
-              "kr",
               "global"
             ],
             "title": "Market",
@@ -10859,10 +10850,7 @@
                 "type": "string",
                 "enum": [
                   "cn",
-                  "hk",
                   "us",
-                  "jp",
-                  "kr",
                   "global"
                 ]
               },

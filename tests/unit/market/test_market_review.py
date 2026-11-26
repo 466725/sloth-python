@@ -58,12 +58,12 @@ class MarketReviewLocalizationTestCase(unittest.TestCase):
         cases = [
             (None, ["cn"]),
             ("", ["cn"]),
-            ("both", ["cn", "hk", "us"]),
+            ("both", ["cn", "us"]),
             (" CN,US,cn ", ["cn", "us"]),
             ("us,cn,us", ["cn", "us"]),
             ("eu,apac", ["cn"]),
             (",,", ["cn"]),
-            ("HK", ["hk"]),
+            ("HK", ["cn"]),
             ("invalid", ["cn"]),
         ]
 

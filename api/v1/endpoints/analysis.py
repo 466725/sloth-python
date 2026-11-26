@@ -181,6 +181,8 @@ def _is_obviously_invalid_analysis_input(text: str) -> bool:
     """Reject mixed alphanumeric noise and unsupported symbols early."""
     if not text or is_code_like(text):
         return False
+    if text.isdigit() and len(text) != 6:
+        return True
 
     if not _SUPPORTED_FREE_TEXT_RE.fullmatch(text):
         return True
@@ -209,7 +211,7 @@ def _resolve_and_normalize_input(raw_value: str) -> str:
         raise _invalid_analysis_input_error()
 
     resolved = resolve_name_to_code(text)
-    if resolved:
+    if resolved and is_code_like(resolved):
         return canonical_stock_code(resolved)
 
     raise _invalid_analysis_input_error()

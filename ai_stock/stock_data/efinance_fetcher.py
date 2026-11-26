@@ -60,7 +60,6 @@ from .base import (
     is_st_stock,
     is_kc_cy_stock,
     normalize_stock_code,
-    _is_hk_market,
     _is_etf_code as _is_a_share_etf_code,
 )
 from .realtime_types import (
@@ -375,11 +374,6 @@ class EfinanceFetcher(BaseFetcher):
         if _is_us_code(stock_code):
             raise DataFetchError(f"EfinanceFetcher 不支持美股 {stock_code}，请使用 AkshareFetcher 或 YfinanceFetcher")
 
-        # efinance 的历史 K 线接口在港股代码上可能返回非预期市场数据，
-        # 明确跳过并交给 AkShare/YFinance/Longbridge 等港股路径兜底。
-        if _is_hk_market(stock_code):
-            raise DataFetchError(f"EfinanceFetcher 不支持港股日线 {stock_code}，请使用 AkshareFetcher 或其他港股数据源")
-        
         # 根据代码类型选择不同的获取方法
         if _is_etf_code(stock_code):
             return self._fetch_etf_data(stock_code, start_date, end_date)

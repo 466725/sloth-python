@@ -195,8 +195,8 @@ describe('DecisionSignalsPage', () => {
     renderPage();
     await screen.findByText('贵州茅台');
 
-    expect(within(screen.getByLabelText('市场')).getByRole('option', { name: '日股' })).toHaveValue('jp');
-    expect(within(screen.getByLabelText('市场')).getByRole('option', { name: '韩股' })).toHaveValue('kr');
+    expect(within(screen.getByLabelText('市场')).getByRole('option', { name: 'A 股' })).toHaveValue('cn');
+    expect(within(screen.getByLabelText('市场')).getByRole('option', { name: '美股' })).toHaveValue('us');
     expect(within(screen.getByLabelText('阶段')).getByRole('option', { name: '午间休市' })).toHaveValue('lunch_break');
     expect(within(screen.getByLabelText('阶段')).getByRole('option', { name: '集合竞价' })).toHaveValue('closing_auction');
     expect(within(screen.getByLabelText('来源')).getByRole('option', { name: '大盘复盘' })).toHaveValue('market_review');
@@ -206,7 +206,7 @@ describe('DecisionSignalsPage', () => {
     window.localStorage.setItem('dsa.uiLanguage', 'en');
     vi.mocked(decisionSignalsApi.list).mockResolvedValueOnce(listResponse([
       makeSignal({
-        market: 'jp',
+        market: 'us',
         marketPhase: 'closing_auction',
         horizon: '10d',
         planQuality: 'partial',
@@ -216,11 +216,11 @@ describe('DecisionSignalsPage', () => {
     renderPage();
 
     expect(await screen.findByRole('heading', { name: 'AI signals' })).toBeInTheDocument();
-    expect(within(screen.getByLabelText('Market')).getByRole('option', { name: 'Japan' })).toHaveValue('jp');
-    expect(within(screen.getByLabelText('Market')).getByRole('option', { name: 'Korea' })).toHaveValue('kr');
+    expect(within(screen.getByLabelText('Market')).getByRole('option', { name: 'A-shares' })).toHaveValue('cn');
+    expect(within(screen.getByLabelText('Market')).getByRole('option', { name: 'US' })).toHaveValue('us');
     expect(within(screen.getByLabelText('Phase')).getByRole('option', { name: 'Closing auction' })).toHaveValue('closing_auction');
     expect(within(screen.getByLabelText('Source')).getByRole('option', { name: 'Market review' })).toHaveValue('market_review');
-    expect(screen.getAllByText('Japan').length).toBeGreaterThan(1);
+    expect(screen.getAllByText('US').length).toBeGreaterThan(1);
     // Horizon is rendered as a boxed metric (separate label/value elements), unlike the inline "key: value" spans below.
     expect(screen.getByText('Horizon')).toBeInTheDocument();
     expect(screen.getByText('10 days')).toBeInTheDocument();
@@ -281,7 +281,7 @@ describe('DecisionSignalsPage', () => {
       }));
     });
 
-    fireEvent.change(marketSelect, { target: { value: 'hk' } });
+    fireEvent.change(marketSelect, { target: { value: 'us' } });
     fireEvent.change(screen.getByLabelText('最新股票代码'), {
       target: { value: '600519' },
     });

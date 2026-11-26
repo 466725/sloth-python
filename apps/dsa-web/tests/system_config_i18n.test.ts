@@ -114,7 +114,6 @@ describe('systemConfigI18n option label localization', () => {
     ['LOG_LEVEL', 'ERROR', undefined, '错误'],
     ['LOG_LEVEL', 'CRITICAL', undefined, '严重'],
     ['MARKET_REVIEW_REGION', 'cn', undefined, 'A 股'],
-    ['MARKET_REVIEW_REGION', 'hk', undefined, '港股'],
     ['MARKET_REVIEW_REGION', 'us', undefined, '美股'],
     ['MARKET_REVIEW_REGION', 'both', undefined, '全部市场'],
     ['MARKET_REVIEW_COLOR_SCHEME', 'green_up', 'Green Up / Red Down', '绿涨红跌'],

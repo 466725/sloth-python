@@ -224,26 +224,26 @@ def test_outcome_run_retries_transient_unable_by_default(client_and_db) -> None:
     assert second_data["items"][0]["stock_return_pct"] == 5.0
 
 
-def test_outcome_run_uses_hk_alias_stock_code_filter(client_and_db) -> None:
+def test_outcome_run_uses_a_share_alias_stock_code_filter(client_and_db) -> None:
     client, db = client_and_db
     created_resp = client.post(
         "/api/v1/decision-signals",
         json=_payload(
-            stock_code="00700",
-            stock_name="Tencent",
-            market="hk",
+            stock_code="600519",
+            stock_name="贵州茅台",
+            market="cn",
             horizon="1d",
-            trace_id="trace-outcome-api-hk",
+            trace_id="trace-outcome-api-cn",
         ),
     )
     assert created_resp.status_code == 200, created_resp.text
     signal_id = created_resp.json()["item"]["id"]
-    assert created_resp.json()["item"]["stock_code"] == "HK00700"
-    _seed_bars(db, code="HK00700")
+    assert created_resp.json()["item"]["stock_code"] == "600519"
+    _seed_bars(db, code="600519")
 
     run_resp = client.post(
         "/api/v1/decision-signals/outcomes/run",
-        json={"stock_code": "00700", "horizons": ["1d"]},
+        json={"stock_code": "600519.SH", "market": "cn", "horizons": ["1d"]},
     )
     assert run_resp.status_code == 200, run_resp.text
     run_data = run_resp.json()
@@ -253,7 +253,7 @@ def test_outcome_run_uses_hk_alias_stock_code_filter(client_and_db) -> None:
 
     force_resp = client.post(
         "/api/v1/decision-signals/outcomes/run",
-        json={"stock_code": "00700", "horizons": ["1d"], "force": True},
+        json={"stock_code": "SH600519", "market": "cn", "horizons": ["1d"], "force": True},
     )
     assert force_resp.status_code == 200, force_resp.text
     force_data = force_resp.json()

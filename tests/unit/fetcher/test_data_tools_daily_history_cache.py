@@ -120,7 +120,7 @@ class DailyHistoryCacheToolTest(unittest.TestCase):
         self.assertEqual(result["actual_records"], 40)
         manager.get_daily_data.assert_not_called()
 
-    def test_prefers_normalized_candidate_when_dates_and_counts_tie(self) -> None:
+    def test_preserves_original_cached_code_when_legacy_aliases_tie(self) -> None:
         target = date(2026, 4, 24)
         db = _FakeDb(
             {
@@ -134,7 +134,7 @@ class DailyHistoryCacheToolTest(unittest.TestCase):
              patch("ai_stock.services.history_loader._get_fetcher_manager", return_value=manager):
             result = self._run_with_frozen_date(target, "1810.HK", days=60)
 
-        self.assertEqual(result["code"], "HK01810")
+        self.assertEqual(result["code"], "1810.HK")
         self.assertEqual(result["actual_records"], 30)
         manager.get_daily_data.assert_not_called()
 

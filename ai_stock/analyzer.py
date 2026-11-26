@@ -168,7 +168,11 @@ def _legacy_market_group(stock_code: Any) -> str:
     if not code or code.lower() == "unknown":
         return "unknown"
     market = detect_market(code)
-    return market if market in {"cn", "hk", "us"} else "unknown"
+    if market == "us":
+        return "us"
+    if re.fullmatch(r"(?:\d{6}|(?:SH|SZ|BJ)\d{6}|\d{6}\.(?:SH|SZ|SS|BJ))", code, re.IGNORECASE):
+        return "cn"
+    return "unknown"
 
 
 def _legacy_audit_marker_specs(

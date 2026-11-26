@@ -38,9 +38,11 @@ export async function loadStockIndex(): Promise<IndexLoadResult> {
     const items = isCompressedFormat(data)
       ? unpackTuples(data as StockIndexTuple[])
       : data as StockIndexItem[];
+    const supportedMarkets = new Set(['CN', 'US', 'INDEX', 'ETF', 'BSE']);
+    const supportedItems = items.filter(item => supportedMarkets.has(item.market));
 
     return {
-      data: items,
+      data: supportedItems,
       loaded: true,
       fallback: false,
     };

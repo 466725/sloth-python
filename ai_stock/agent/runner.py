@@ -103,26 +103,13 @@ def serialize_tool_result(result: Any) -> str:
 
 
 def _normalize_tool_stock_code(value: Any) -> Any:
-    """Canonicalize stock code arguments so equivalent HK variants share one cache key."""
+    """Canonicalize supported stock-code arguments for stable tool-cache keys."""
     if not isinstance(value, str):
         return value
 
     text = value.strip().upper()
     if not text:
         return text
-
-    if text.endswith(".HK"):
-        base = text[:-3]
-        if base.isdigit() and 1 <= len(base) <= 5:
-            return f"HK{base.zfill(5)}"
-
-    if text.startswith("HK"):
-        base = text[2:]
-        if base.isdigit() and 1 <= len(base) <= 5:
-            return f"HK{base.zfill(5)}"
-
-    if text.isdigit() and len(text) == 5:
-        return f"HK{text}"
 
     try:
         from ai_stock.stock_data.base import canonical_stock_code, normalize_stock_code

@@ -10,7 +10,7 @@ export type DecisionSignalSourceType = 'analysis' | 'agent' | 'alert' | 'market_
 export type DecisionSignalStatus = 'active' | 'expired' | 'invalidated' | 'closed' | 'archived';
 export type DecisionSignalPlanQuality = 'complete' | 'partial' | 'minimal' | 'unknown';
 export type DecisionSignalHorizon = 'intraday' | '1d' | '3d' | '5d' | '10d' | 'swing' | 'long';
-export type DecisionSignalMarket = 'cn' | 'hk' | 'us' | 'jp' | 'kr';
+export type DecisionSignalMarket = 'cn' | 'us';
 export type DecisionSignalOutcomeEvalStatus = 'completed' | 'unable';
 export type DecisionSignalOutcomeValue = 'hit' | 'miss' | 'neutral';
 export type DecisionSignalFeedbackValue = 'useful' | 'not_useful';
@@ -20,7 +20,7 @@ export interface DecisionSignalItem {
   id: number;
   stockCode: string;
   stockName?: string | null;
-  market: DecisionSignalMarket;
+  market: string;
   sourceType: DecisionSignalSourceType;
   sourceAgent?: string | null;
   sourceReportId?: number | null;
@@ -144,7 +144,7 @@ export interface DecisionSignalOutcomeItem {
   minLow?: number | null;
   stockReturnPct?: number | null;
   action?: DecisionAction | null;
-  market?: DecisionSignalMarket | null;
+  market?: string | null;
   marketPhase?: MarketPhaseValue | null;
   sourceType?: DecisionSignalSourceType | null;
   sourceAgent?: string | null;

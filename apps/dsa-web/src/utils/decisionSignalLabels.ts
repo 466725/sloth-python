@@ -11,10 +11,7 @@ type Translator = (key: UiTextKey) => string;
 
 const MARKET_LABEL_KEYS: Record<DecisionSignalMarket, UiTextKey> = {
   cn: 'decisionSignals.market.cn',
-  hk: 'decisionSignals.market.hk',
   us: 'decisionSignals.market.us',
-  jp: 'decisionSignals.market.jp',
-  kr: 'decisionSignals.market.kr',
 };
 
 const MARKET_PHASE_LABEL_KEYS: Record<MarketPhaseValue, UiTextKey> = {
@@ -63,10 +60,11 @@ function translatedKnownValue<Value extends string>(
 }
 
 export function getDecisionSignalMarketLabel(
-  market: DecisionSignalMarket | null | undefined,
+  market: string | null | undefined,
   t: Translator,
 ): string {
-  return translatedKnownValue(market, MARKET_LABEL_KEYS, t);
+  if (market !== 'cn' && market !== 'us') return '-';
+  return t(MARKET_LABEL_KEYS[market]) || '-';
 }
 
 export function getDecisionSignalMarketPhaseLabel(

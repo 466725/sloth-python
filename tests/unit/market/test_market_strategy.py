@@ -73,7 +73,7 @@ class TestMarketAnalyzerStrategyPrompt(unittest.TestCase):
 
     def test_market_stats_passes_market_review_purpose(self):
         analyzer = MarketAnalyzer.__new__(MarketAnalyzer)
-        analyzer.region = "hk"
+        analyzer.region = "cn"
         analyzer.data_manager = MagicMock()
         analyzer.data_manager.get_market_stats.return_value = {
             "up_count": 3,
@@ -88,7 +88,7 @@ class TestMarketAnalyzerStrategyPrompt(unittest.TestCase):
         analyzer._get_market_statistics(overview)
 
         analyzer.data_manager.get_market_stats.assert_called_once_with(
-            purpose="market_review:hk"
+            purpose="market_review:cn"
         )
         self.assertEqual(overview.up_count, 3)
 

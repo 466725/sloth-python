@@ -18,7 +18,7 @@
 from .base import BaseFetcher, DataFetcherManager
 from .efinance_fetcher import EfinanceFetcher
 from .tencent_fetcher import TencentFetcher
-from .akshare_fetcher import AkshareFetcher, is_hk_stock_code
+from .akshare_fetcher import AkshareFetcher
 from .yfinance_fetcher import YfinanceFetcher
 from .finnhub_fetcher import FinnhubFetcher
 from .alphavantage_fetcher import AlphaVantageFetcher
@@ -35,7 +35,6 @@ __all__ = [
     'AlphaVantageFetcher',
     'is_us_index_code',
     'is_us_stock_code',
-    'is_hk_stock_code',
     'get_us_index_yf_symbol',
     'US_INDEX_MAPPING',
 ]

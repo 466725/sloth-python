@@ -87,11 +87,10 @@ class YfinanceFetcher(BaseFetcher):
         Yahoo Finance 代码格式：
         - A股沪市：600519.SS (Shanghai Stock Exchange)
         - A股深市：000001.SZ (Shenzhen Stock Exchange)
-        - 港股：0700.HK (Hong Kong Stock Exchange)
         - 美股：AAPL, TSLA, GOOGL (无需后缀)
 
         Args:
-            stock_code: 原始代码，如 '600519', 'hk00700', 'AAPL'
+            stock_code: 原始代码，如 '600519' 或 'AAPL'
 
         Returns:
             Yahoo Finance 格式代码
@@ -99,8 +98,6 @@ class YfinanceFetcher(BaseFetcher):
         Examples:
             >>> fetcher._convert_stock_code('600519')
             '600519.SS'
-            >>> fetcher._convert_stock_code('hk00700')
-            '0700.HK'
             >>> fetcher._convert_stock_code('AAPL')
             'AAPL'
         """
@@ -117,20 +114,11 @@ class YfinanceFetcher(BaseFetcher):
             logger.debug(f"识别为美股代码: {code}")
             return code
 
-        # 日股/韩股 MVP：显式 Yahoo Finance suffix-only 代码，原样传给 Yahoo。
-        if self._is_jp_kr_suffix_stock(code):
-            logger.debug(f"识别为日韩 Yahoo suffix 代码: {code}")
-            return code
-
-        # 港股：hk前缀 -> .HK后缀
-        if code.startswith('HK'):
-            hk_code = code[2:].lstrip('0') or '0'  # 去除前导0，但保留至少一个0
-            hk_code = hk_code.zfill(4)  # 补齐到4位
-            logger.debug(f"转换港股代码: {stock_code} -> {hk_code}.HK")
-            return f"{hk_code}.HK"
+        if code.startswith("HK") or code.endswith((".HK", ".T", ".KS", ".KQ")):
+            raise DataFetchError(f"Unsupported stock market code: {code}")
 
         # 已经包含后缀的情况
-        if '.SS' in code or '.SZ' in code or '.HK' in code or '.BJ' in code:
+        if '.SS' in code or '.SZ' in code or '.BJ' in code:
             return code
 
         # 去除可能的 .SH 后缀
@@ -326,20 +314,15 @@ class YfinanceFetcher(BaseFetcher):
 
     def get_main_indices(self, region: str = "cn") -> Optional[List[Dict[str, Any]]]:
         """
-        获取主要指数行情 (Yahoo Finance)，支持 A 股、美股与港股。
+        获取主要指数行情 (Yahoo Finance)，支持 A 股与美股。
         region=us 时委托给 _get_us_main_indices。
-        region=hk 时委托给 _get_hk_main_indices。
         """
+        if region not in {"cn", "us"}:
+            raise DataFetchError(f"Unsupported market region: {region}")
         import yfinance as yf
 
         if region == "us":
             return self.get_us_main_indices(yf)
-        if region == "hk":
-            return self._get_hk_main_indices(yf)
-        if region == "jp":
-            return self._get_jp_main_indices(yf)
-        if region == "kr":
-            return self._get_kr_main_indices(yf)
 
         # A 股指数：akshare 代码 -> (yfinance 代码, 显示名称)
         yf_mapping = {
@@ -395,38 +378,6 @@ class YfinanceFetcher(BaseFetcher):
 
         except Exception as e:
             logger.error(f"[Yfinance] 获取美股指数行情失败: {e}")
-
-        return None
-
-    def _get_hk_main_indices(self, yf) -> Optional[List[Dict[str, Any]]]:
-        """获取港股主要指数行情（HSI、HSTECH、HSCEI），复用 fetch_yf_ticker_data"""
-        # Yahoo Finance 港股指数符号映射：
-        # - HSI -> ^HSI
-        # - HSTECH -> HSTECH.HK（不是 ^HSTECH）
-        # - HSCEI -> ^HSCE（不是 ^HSCEI）
-        # 该映射由离线单测 tests/test_yfinance_hk_indices.py 固化，避免在线依赖导致非确定性失败。
-        hk_indices = {
-            'HSI': ('^HSI', '恒生指数'),
-            'HSTECH': ('HSTECH.HK', '恒生科技指数'),
-            'HSCEI': ('^HSCE', '国企指数'),
-        }
-        results = []
-        try:
-            for code, (yf_symbol, name) in hk_indices.items():
-                try:
-                    item = self.fetch_yf_ticker_data(yf, yf_symbol, name, code)
-                    if item:
-                        results.append(item)
-                        logger.debug(f"[Yfinance] 获取港股指数 {name} 成功")
-                except Exception as e:
-                    logger.warning(f"[Yfinance] 获取港股指数 {name} 失败: {e}")
-
-            if results:
-                logger.info(f"[Yfinance] 成功获取 {len(results)} 个港股指数行情")
-                return results
-
-        except Exception as e:
-            logger.error(f"[Yfinance] 获取港股指数行情失败: {e}")
 
         return None
 
@@ -698,9 +649,9 @@ class YfinanceFetcher(BaseFetcher):
                 index_name=index_name,
             )
 
-        # 仅处理美股股票或 JP/KR suffix-only 股票
-        if not (self._is_us_stock(stock_code) or self._is_jp_kr_suffix_stock(stock_code)):
-            logger.debug(f"[Yfinance] {stock_code} 不是美股或日韩 suffix 代码，跳过")
+        # 仅处理美股股票
+        if not self._is_us_stock(stock_code):
+            logger.debug(f"[Yfinance] {stock_code} 不是美股代码，跳过")
             return None
 
         try:

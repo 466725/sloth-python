@@ -28,7 +28,7 @@ from ai_stock.services.run_diagnostics import sanitize_diagnostic_text
 logger = logging.getLogger(__name__)
 _ALLOWED_SOURCE_TYPES = {"rss", "atom", "newsnow"}
 _ALLOWED_SCOPE_TYPES = {"symbol", "market", "sector"}
-_ALLOWED_MARKETS = {"cn", "hk", "us", "jp", "kr", "global"}
+_ALLOWED_MARKETS = {"cn", "us", "global"}
 _PRIVATE_HOSTNAMES = {"localhost", "localhost.localdomain"}
 _MAX_FEED_BYTES = 2 * 1024 * 1024
 _MAX_FEED_REDIRECTS = 5
@@ -45,15 +45,6 @@ _BUILTIN_SOURCE_TEMPLATES = [
         "scope_type": "market",
         "market": "us",
         "description": "SEC official press release RSS feed for US market evidence.",
-    },
-    {
-        "template_id": "hkex-news",
-        "name": "HKEX Market News",
-        "source_type": "rss",
-        "url": "https://www.hkex.com.hk/Services/RSS-Feeds/News-Releases?sc_lang=en",
-        "scope_type": "market",
-        "market": "hk",
-        "description": "HKEX public news entry for Hong Kong market evidence. Test before enabling.",
     },
     {
         "template_id": "global-marketwatch",
@@ -78,7 +69,7 @@ _NEWSNOW_DEFAULT_SOURCE_DEFS = [
         "name": "NewsNow 雪球热门股票",
         "source_id": "xueqiu-hotstock",
         "market": "cn",
-        "description": "NewsNow 雪球热门股票，适合捕捉 A 股和港美股散户关注度。",
+        "description": "NewsNow 雪球热门股票，适合捕捉 A 股和美股散户关注度。",
     },
     {
         "template_id": "newsnow-wallstreetcn-quick",
@@ -93,13 +84,6 @@ _NEWSNOW_DEFAULT_SOURCE_DEFS = [
         "source_id": "jin10",
         "market": "global",
         "description": "NewsNow 金十数据实时财经消息，适合全球宏观和外盘事件。",
-    },
-    {
-        "template_id": "newsnow-gelonghui",
-        "name": "NewsNow 格隆汇事件",
-        "source_id": "gelonghui",
-        "market": "hk",
-        "description": "NewsNow 格隆汇事件资讯，适合港股和中概股市场上下文。",
     },
 ]
 
@@ -207,6 +191,9 @@ class IntelligenceService:
             raise IntelligenceServiceError(f"Intelligence source not found: {source_id}")
         if not source.enabled:
             raise IntelligenceServiceError(f"Intelligence source is disabled: {source_id}")
+        market = str(source.market or "").strip().lower()
+        if market not in _ALLOWED_MARKETS:
+            raise IntelligenceServiceError(f"unsupported market: {market}")
         now = datetime.now()
         try:
             entries = self._fetch_feed_entries(self._source_to_fields(source), limit=self.config.news_intel_max_items_per_source)

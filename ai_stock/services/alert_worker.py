@@ -428,7 +428,7 @@ class AlertWorker:
         if is_us_index_code(stock_code):
             return None
         market = get_market_for_stock(stock_code)
-        if market not in {"cn", "hk", "us"}:
+        if market not in {"cn", "us"}:
             return None
         return stock_code, market
 

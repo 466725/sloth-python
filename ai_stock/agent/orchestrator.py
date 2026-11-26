@@ -1392,7 +1392,7 @@ _COMMON_WORDS: set[str] = {
     # Finance/analysis jargon that looks like tickers
     "BUY", "SELL", "HOLD", "LONG", "PUT", "CALL",
     "ETF", "IPO", "RSI", "EPS", "PEG", "ROE", "ROA",
-    "USA", "USD", "CNY", "HKD", "EUR", "GBP",
+    "USA", "USD", "CNY", "HK", "EUR", "GBP",
     "STOCK", "TRADE", "PRICE", "INDEX", "FUND",
     "HIGH", "LOW", "OPEN", "CLOSE", "STOP", "LOSS",
     "TREND", "BULL", "BEAR", "RISK", "CASH", "BOND",
@@ -1423,10 +1423,6 @@ def _extract_stock_code(text: str) -> str:
     m = re.search(r'(?<!\d)((?:[03648]\d{5}|92\d{4}))(?!\d)', text)
     if m:
         return m.group(1)
-    # HK — same lookaround approach
-    m = re.search(r'(?<![a-zA-Z])(hk\d{5})(?!\d)', text, re.IGNORECASE)
-    if m:
-        return m.group(1).upper()
     # US ticker — require 2+ uppercase letters bounded by non-alpha chars.
     for match in re.finditer(r'(?<![a-zA-Z])([A-Z]{2,5}(?:\.[A-Z]{1,2})?)(?![a-zA-Z])', text):
         candidate = match.group(1)

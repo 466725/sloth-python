@@ -11,7 +11,7 @@ import {
   getPopularStocks,
   groupStocksByMarket,
 } from '../stockIndexLoader';
-import type { StockIndexItem } from '../../types/stockIndex';
+import type { StockIndexData, StockIndexItem } from '../../types/stockIndex';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 // Mock fetch
@@ -43,18 +43,6 @@ describe('stockIndexLoader', () => {
       assetType: 'stock',
       active: true,
       popularity: 90,
-    },
-    {
-      canonicalCode: '00700.HK',
-      displayCode: '00700',
-      nameZh: '腾讯控股',
-      pinyinFull: 'tengxunkonggu',
-      pinyinAbbr: 'txkg',
-      aliases: ['腾讯'],
-      market: 'HK',
-      assetType: 'stock',
-      active: true,
-      popularity: 95,
     },
     {
       canonicalCode: 'AAPL.US',
@@ -99,6 +87,48 @@ describe('stockIndexLoader', () => {
       expect(result.fallback).toBe(false);
       expect(result.data).toEqual(mockIndexData);
       expect(result.error).toBeUndefined();
+    });
+
+    test('filters unsupported markets from legacy object-format indexes', async () => {
+      const legacyData = [
+        ...mockIndexData,
+        {
+          canonicalCode: '00700.HK',
+          displayCode: '00700',
+          nameZh: '腾讯控股',
+          market: 'HK',
+          assetType: 'stock',
+          active: true,
+        },
+        {
+          canonicalCode: '7203.T',
+          displayCode: '7203.T',
+          nameZh: '丰田汽车',
+          market: 'JP',
+          assetType: 'stock',
+          active: true,
+        },
+        {
+          canonicalCode: '005930.KS',
+          displayCode: '005930.KS',
+          nameZh: '三星电子',
+          market: 'KR',
+          assetType: 'stock',
+          active: true,
+        },
+      ] as unknown as StockIndexData;
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => legacyData,
+      } as unknown as Response);
+
+      const result = await loadStockIndex();
+
+      expect(result.data.map((item) => item.market)).not.toContain('HK');
+      expect(result.data.map((item) => item.market)).not.toContain('JP');
+      expect(result.data.map((item) => item.market)).not.toContain('KR');
+      expect(result.data.map((item) => item.market)).toContain('US');
+      expect(result.data.map((item) => item.market)).toContain('CN');
     });
 
     test('successfully loads compressed format index (tuple format)', async () => {
@@ -293,7 +323,7 @@ describe('stockIndexLoader', () => {
       expect(result).toHaveLength(3);
       expect(result[0].canonicalCode).toBe('600519.SH'); // popularity: 100
       expect(result[1].canonicalCode).toBe('AAPL.US');   // popularity: 98
-      expect(result[2].canonicalCode).toBe('00700.HK'); // popularity: 95
+      expect(result[2].canonicalCode).toBe('000001.SZ'); // popularity: 90
     });
 
     test('filters out inactive stocks', () => {
@@ -378,9 +408,8 @@ describe('stockIndexLoader', () => {
     test('groups different markets correctly', () => {
       const result = groupStocksByMarket(mockIndexData);
 
-      expect(result.size).toBe(3); // CN, HK, US
+      expect(result.size).toBe(2); // CN, US
       expect(result.get('CN')).toHaveLength(2);
-      expect(result.get('HK')).toHaveLength(1);
       expect(result.get('US')).toHaveLength(1);
     });
 
