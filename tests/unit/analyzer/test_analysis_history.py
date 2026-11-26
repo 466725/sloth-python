@@ -861,6 +861,11 @@ class AnalysisHistoryTestCase(unittest.TestCase):
             {item["stock_code"] for item in hk_from_unpadded_suffix["items"]},
             {"1810.HK", "01810.HK", "HK01810"},
         )
+        self.assertEqual(
+            set(service._history_code_filter_candidates("1810.hk")),
+            {"1810.HK", "01810.HK", "HK01810"},
+        )
+        self.assertEqual(service._history_code_filter_candidates("123456.HK"), ["123456.HK"])
 
     def test_history_list_matches_sh_and_ss_suffixed_variants(self) -> None:
         """SH suffix and legacy `.SS` variants should be treated as the same A-share stock."""
