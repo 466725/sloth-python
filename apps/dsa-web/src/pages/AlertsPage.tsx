@@ -264,7 +264,6 @@ const AlertsPage: React.FC = () => {
   return (
     <AppPage className="space-y-5 max-w-6xl">
       <PageHeader
-        eyebrow="Alert Center"
         title={text.title}
         description={text.description}
       />

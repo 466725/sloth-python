@@ -31,6 +31,7 @@ describe('AlertRuleForm', () => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
 
     await screen.findByRole('option', { name: '600519' });
+    expect(screen.queryByText('Web 告警中心')).not.toBeInTheDocument();
     const controlGrid = screen.getByLabelText('标的代码').closest('.grid');
     expect(controlGrid).toHaveClass('md:grid-cols-2', 'lg:grid-cols-3');
     expect(screen.queryByLabelText('规则名称')).not.toBeInTheDocument();

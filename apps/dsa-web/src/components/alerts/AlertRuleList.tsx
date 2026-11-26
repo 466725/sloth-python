@@ -70,7 +70,6 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
   return (
     <Card
       title={text.title}
-      subtitle={formatUiText(text.subtitle, { total })}
       variant="bordered"
       padding="md"
       className={className}
@@ -120,7 +119,6 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
                 <tr key={rule.id} className="align-top">
                   <td className="px-3 py-3">
                     <div className="font-medium text-foreground">{rule.name}</div>
-                    <div className="mt-1 text-xs text-muted-text">{formatUiText(text.source, { source: rule.source })}</div>
                   </td>
                   <td className="px-3 py-3">
                     <Badge variant="info">{ALERT_TYPE_LABELS[language][rule.alertType] ?? rule.alertType}</Badge>
