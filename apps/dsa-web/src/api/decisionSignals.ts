@@ -5,7 +5,6 @@ import type {
   DecisionSignalFeedbackItem,
   DecisionSignalFeedbackRequest,
   DecisionSignalItem,
-  DecisionSignalLatestParams,
   DecisionSignalListParams,
   DecisionSignalListResponse,
   DecisionSignalMutationResponse,
@@ -197,13 +196,6 @@ function toOutcomeStatsParams(params: DecisionSignalOutcomeStatsParams = {}): Re
   }) as Record<string, string | string[]>;
 }
 
-function toLatestParams(params: DecisionSignalLatestParams = {}): Record<string, string | number> {
-  return omitUndefined({
-    market: params.market,
-    limit: params.limit,
-  }) as Record<string, string | number>;
-}
-
 function toSnakeStatusPayload(payload: DecisionSignalStatusUpdateRequest): Record<string, unknown> {
   return omitUndefined({
     status: payload.status,
@@ -218,15 +210,6 @@ function toSnakeFeedbackPayload(payload: DecisionSignalFeedbackRequest): Record<
     note: payload.note,
     source: payload.source,
   });
-}
-
-function toLatestStockCodePath(stockCode: string): string {
-  if (stockCode.includes('/')) {
-    throw new Error(
-      'DecisionSignal latest stockCode cannot contain "/" because the backend route accepts a single path segment; use 600519 or AAPL.',
-    );
-  }
-  return encodeURIComponent(stockCode);
 }
 
 export const decisionSignalsApi = {
@@ -248,17 +231,6 @@ export const decisionSignalsApi = {
   async get(signalId: number): Promise<DecisionSignalItem> {
     const response = await apiClient.get<Record<string, unknown>>(`/api/v1/decision-signals/${signalId}`);
     return toDecisionSignalItem(response.data);
-  },
-
-  async getLatest(
-    stockCode: string,
-    params: DecisionSignalLatestParams = {},
-  ): Promise<DecisionSignalListResponse> {
-    const response = await apiClient.get<Record<string, unknown>>(
-      `/api/v1/decision-signals/latest/${toLatestStockCodePath(stockCode)}`,
-      { params: toLatestParams(params) },
-    );
-    return toDecisionSignalListResponse(response.data);
   },
 
   async updateStatus(

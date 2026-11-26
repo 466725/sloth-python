@@ -214,31 +214,6 @@ describe('decisionSignalsApi', () => {
     );
   });
 
-  it('gets latest signals with a backend-supported stock code path', async () => {
-    get.mockResolvedValueOnce({
-      data: {
-        items: [],
-        total: 0,
-        page: 1,
-        page_size: 2,
-      },
-    });
-
-    const response = await decisionSignalsApi.getLatest('AAPL', { market: 'us', limit: 2 });
-
-    expect(get).toHaveBeenCalledWith('/api/v1/decision-signals/latest/AAPL', {
-      params: { market: 'us', limit: 2 },
-    });
-    expect(response.pageSize).toBe(2);
-  });
-
-  it('rejects slash-containing latest stock codes before calling an unsupported backend path', async () => {
-    await expect(decisionSignalsApi.getLatest('AAPL/INVALID', { market: 'us' })).rejects.toThrow(
-      'DecisionSignal latest stockCode cannot contain "/"',
-    );
-    expect(get).not.toHaveBeenCalled();
-  });
-
   it('gets one signal and updates status metadata as a full replacement payload', async () => {
     get.mockResolvedValueOnce({
       data: {

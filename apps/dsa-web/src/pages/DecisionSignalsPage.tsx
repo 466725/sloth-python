@@ -57,10 +57,7 @@ type PendingStatusChange = {
   message: string;
 };
 
-type SelectedSignal = {
-  item: DecisionSignalItem;
-  source: 'list' | 'latest';
-};
+type SelectedSignal = { item: DecisionSignalItem };
 
 const MARKET_OPTIONS: DecisionSignalMarket[] = ['cn', 'us'];
 const ACTION_OPTIONS: DecisionAction[] = ['buy', 'add', 'hold', 'reduce', 'sell', 'watch', 'avoid', 'alert'];
@@ -103,15 +100,6 @@ function toListParams(filters: ListFilters, page: number): DecisionSignalListPar
   };
 }
 
-function refreshLatestSelection(
-  current: SelectedSignal | null,
-  latestItems: DecisionSignalItem[],
-): SelectedSignal | null {
-  if (!current || current.source !== 'latest') return current;
-  const refreshed = latestItems.find((item) => item.id === current.item.id);
-  return refreshed ? { source: 'latest', item: refreshed } : null;
-}
-
 function formatStatNumber(value: number | null | undefined): string {
   if (value === null || value === undefined || Number.isNaN(value)) return '-';
   return Number(value).toFixed(2).replace(/\.?0+$/, '');
@@ -145,11 +133,6 @@ const DecisionSignalsPage: React.FC = () => {
   const [outcomeStats, setOutcomeStats] = useState<DecisionSignalOutcomeStatsResponse | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState<ParsedApiError | null>(null);
-  const [latestStockCode, setLatestStockCode] = useState('');
-  const [latestItems, setLatestItems] = useState<DecisionSignalItem[]>([]);
-  const [latestSearched, setLatestSearched] = useState(false);
-  const [latestLoading, setLatestLoading] = useState(false);
-  const [latestError, setLatestError] = useState<ParsedApiError | null>(null);
   const [selectedOutcomes, setSelectedOutcomes] = useState<DecisionSignalOutcomeItem[]>([]);
   const [selectedOutcomesLoading, setSelectedOutcomesLoading] = useState(false);
   const [selectedOutcomesError, setSelectedOutcomesError] = useState<ParsedApiError | null>(null);
@@ -159,7 +142,6 @@ const DecisionSignalsPage: React.FC = () => {
   const [feedbackSaving, setFeedbackSaving] = useState(false);
   const requestIdRef = useRef(0);
   const statsRequestIdRef = useRef(0);
-  const latestRequestIdRef = useRef(0);
   const detailRequestIdRef = useRef(0);
   const selectedSignalIdRef = useRef<number | null>(null);
   const statusUpdateInFlightRef = useRef(false);
@@ -185,16 +167,15 @@ const DecisionSignalsPage: React.FC = () => {
       setError(null);
       setSelected((current) => {
         if (!current) return current;
-        if (current.source !== 'list') return current;
         const refreshed = response.items.find((item) => item.id === current.item.id);
-        return refreshed ? { source: 'list', item: refreshed } : null;
+        return refreshed ? { item: refreshed } : null;
       });
     } catch (err) {
       if (requestIdRef.current !== requestId) return;
       setError(getParsedApiError(err));
       setItems([]);
       setTotal(0);
-      setSelected((current) => (current?.source === 'list' ? null : current));
+      setSelected(null);
     } finally {
       if (requestIdRef.current === requestId) {
         setLoading(false);
@@ -239,10 +220,6 @@ const DecisionSignalsPage: React.FC = () => {
       statsRequestIdRef.current += 1;
     };
   }, [loadOutcomeStats]);
-
-  useEffect(() => () => {
-    latestRequestIdRef.current += 1;
-  }, []);
 
   useEffect(() => {
     selectedSignalIdRef.current = selected?.item.id ?? null;
@@ -303,35 +280,6 @@ const DecisionSignalsPage: React.FC = () => {
     setPage(1);
   };
 
-  const handleLatestSearch = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const stockCode = latestStockCode.trim();
-    if (!stockCode) return;
-    const requestId = latestRequestIdRef.current + 1;
-    latestRequestIdRef.current = requestId;
-    setLatestLoading(true);
-    setLatestError(null);
-    setLatestSearched(true);
-    try {
-      const response = await decisionSignalsApi.getLatest(stockCode, {
-        market: appliedFilters.market || undefined,
-        limit: 5,
-      });
-      if (latestRequestIdRef.current !== requestId) return;
-      setLatestItems(response.items);
-      setSelected((current) => refreshLatestSelection(current, response.items));
-    } catch (err) {
-      if (latestRequestIdRef.current !== requestId) return;
-      setLatestItems([]);
-      setSelected((current) => refreshLatestSelection(current, []));
-      setLatestError(getParsedApiError(err));
-    } finally {
-      if (latestRequestIdRef.current === requestId) {
-        setLatestLoading(false);
-      }
-    }
-  };
-
   const handleStatusUpdate = async () => {
     if (!pendingStatus || statusUpdateInFlightRef.current) return;
     statusUpdateInFlightRef.current = true;
@@ -341,17 +289,10 @@ const DecisionSignalsPage: React.FC = () => {
         status: pendingStatus.status,
       });
       setPendingStatus(null);
-      setLatestItems((current) => current.flatMap((item) => {
-        if (item.id !== updated.id) return [item];
-        return updated.status === 'active' ? [updated] : [];
-      }));
       setSelected((current) => {
         if (!current || current.item.id !== updated.id) return current;
-        if (current.source === 'latest') {
-          return updated.status === 'active' ? { source: 'latest', item: updated } : null;
-        }
         if (appliedFilters.status && updated.status !== appliedFilters.status) return null;
-        return { source: 'list', item: updated };
+        return { item: updated };
       });
       setError(null);
       await loadSignalsForPage(page);
@@ -521,43 +462,6 @@ const DecisionSignalsPage: React.FC = () => {
           )}
         </Card>
 
-        <Card title={t('decisionSignals.latestTitle')} subtitle={t('decisionSignals.latestDescription')} padding="md">
-          <form className="flex flex-col gap-3 md:flex-row" onSubmit={handleLatestSearch}>
-            <input
-              className="input-surface input-focus-glow h-11 flex-1 rounded-xl border bg-transparent px-3 text-sm"
-              value={latestStockCode}
-              onChange={(event) => setLatestStockCode(event.target.value)}
-              placeholder={t('decisionSignals.latestPlaceholder')}
-              aria-label={t('decisionSignals.latestInput')}
-            />
-            <button type="submit" className="btn-secondary inline-flex h-11 items-center justify-center gap-2" disabled={latestLoading || !latestStockCode.trim()}>
-              <Search className="h-4 w-4" />
-              {t('decisionSignals.latestButton')}
-            </button>
-          </form>
-          {latestError ? <ApiErrorAlert className="mt-3" error={latestError} /> : null}
-          {latestSearched && !latestLoading && !latestError && latestItems.length === 0 ? (
-            <EmptyState
-              className="mt-4 border-none bg-transparent py-6 shadow-none"
-              title={t('decisionSignals.noLatestTitle')}
-              description={t('decisionSignals.noLatestDescription')}
-              icon={<Activity className="h-6 w-6" />}
-            />
-          ) : null}
-          {latestItems.length > 0 ? (
-            <div className="mt-4 grid gap-3 lg:grid-cols-2">
-              {latestItems.map((item) => (
-                <DecisionSignalCard
-                  key={item.id}
-                  item={item}
-                  onSelect={(selectedItem) => setSelected({ source: 'latest', item: selectedItem })}
-                  selected={selected?.item.id === item.id}
-                />
-              ))}
-            </div>
-          ) : null}
-        </Card>
-
         {error ? (
           <ApiErrorAlert
             error={{ ...error, title: t('decisionSignals.errorTitle') }}
@@ -583,7 +487,7 @@ const DecisionSignalsPage: React.FC = () => {
               <DecisionSignalCard
                 key={item.id}
                 item={item}
-                onSelect={(selectedItem) => setSelected({ source: 'list', item: selectedItem })}
+                onSelect={(selectedItem) => setSelected({ item: selectedItem })}
                 selected={selected?.item.id === item.id}
               />
             ))}

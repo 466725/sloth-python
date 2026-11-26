@@ -107,7 +107,7 @@ def _payload(**overrides):
     return payload
 
 
-def test_create_duplicate_list_detail_latest_and_status_update(client_and_db) -> None:
+def test_create_duplicate_list_detail_and_status_update(client_and_db) -> None:
     client, _db = client_and_db
 
     created_resp = client.post("/api/v1/decision-signals", json=_payload())
@@ -149,10 +149,6 @@ def test_create_duplicate_list_detail_latest_and_status_update(client_and_db) ->
     detail_resp = client.get(f"/api/v1/decision-signals/{signal_id}")
     assert detail_resp.status_code == 200, detail_resp.text
     assert detail_resp.json()["id"] == signal_id
-
-    latest_resp = client.get("/api/v1/decision-signals/latest/600519", params={"limit": 1})
-    assert latest_resp.status_code == 200, latest_resp.text
-    assert latest_resp.json()["items"][0]["id"] == signal_id
 
     patch_resp = client.patch(
         f"/api/v1/decision-signals/{signal_id}/status",
@@ -345,11 +341,6 @@ def test_detail_endpoint_lazily_expires_active_signal(client_and_db) -> None:
     assert close_resp.status_code == 200, close_resp.text
     assert close_resp.json()["status"] == "closed"
 
-    latest_resp = client.get("/api/v1/decision-signals/latest/600519")
-    assert latest_resp.status_code == 200, latest_resp.text
-    assert latest_resp.json()["total"] == 0
-
-
 def test_patch_status_rejects_expired_signal_without_expires_at_extension(client_and_db) -> None:
     client, _db = client_and_db
     created_resp = client.post(
@@ -448,7 +439,7 @@ def test_create_refreshes_expired_same_source_when_future_expiry_is_supplied(cli
         assert row.trace_id == "trace-refresh-original"
 
 
-def test_create_invalidates_opposing_active_signal_and_latest_filters_it(client_and_db) -> None:
+def test_create_invalidates_opposing_active_signal_and_list_filters_it(client_and_db) -> None:
     client, _db = client_and_db
     buy_resp = client.post(
         "/api/v1/decision-signals",
@@ -478,11 +469,14 @@ def test_create_invalidates_opposing_active_signal_and_latest_filters_it(client_
     assert old["status"] == "invalidated"
     assert old["metadata"]["invalidated_by_signal_id"] == sell["id"]
 
-    latest_resp = client.get("/api/v1/decision-signals/latest/600519", params={"limit": 5})
-    assert latest_resp.status_code == 200, latest_resp.text
-    latest = latest_resp.json()
-    assert latest["total"] == 1
-    assert latest["items"][0]["id"] == sell["id"]
+    active_resp = client.get(
+        "/api/v1/decision-signals",
+        params={"stock_code": "600519", "status": "active"},
+    )
+    assert active_resp.status_code == 200, active_resp.text
+    active = active_resp.json()
+    assert active["total"] == 1
+    assert active["items"][0]["id"] == sell["id"]
 
 
 def test_create_does_not_refresh_expired_same_source_without_future_active_expiry(client_and_db) -> None:
@@ -571,12 +565,6 @@ def test_timezone_aware_future_expiry_stays_active_in_non_utc_runtime(client_and
         for field_name in ("expires_at", "created_at", "updated_at"):
             assert datetime.fromisoformat(created[field_name]).tzinfo is None
 
-        latest_resp = client.get("/api/v1/decision-signals/latest/600519")
-        assert latest_resp.status_code == 200, latest_resp.text
-        assert latest_resp.json()["total"] == 1
-        assert latest_resp.json()["items"][0]["id"] == created["id"]
-
-
 def test_aware_datetime_range_filters_use_utc_naive_contract(client_and_db) -> None:
     client, _db = client_and_db
 
@@ -658,10 +646,6 @@ def test_corrupt_persisted_json_returns_internal_error_consistently(client_and_d
         (
             client.get(f"/api/v1/decision-signals/{signal_id}"),
             "Get decision signal failed",
-        ),
-        (
-            client.get("/api/v1/decision-signals/latest/600519"),
-            "Get latest decision signals failed",
         ),
     ]
     for resp, message in cases:
@@ -773,11 +757,6 @@ def test_dedup_distinguishes_horizon_and_market_phase(client_and_db) -> None:
     assert list_resp.status_code == 200, list_resp.text
     assert list_resp.json()["total"] == 3
 
-    latest_resp = client.get("/api/v1/decision-signals/latest/600519", params={"limit": 3})
-    assert latest_resp.status_code == 200, latest_resp.text
-    assert latest_resp.json()["total"] == 3
-
-
 def test_dedup_distinguishes_source_type_for_weak_report_ids(client_and_db) -> None:
     client, _db = client_and_db
 
@@ -860,7 +839,7 @@ def test_stock_filter_codes_cover_supported_market_code_formats() -> None:
             DecisionSignalService._normalize_optional_market(market)
 
 
-def test_a_share_identity_variants_deduplicate_and_latest_matches(client_and_db) -> None:
+def test_a_share_identity_variants_deduplicate_and_list_queries_match(client_and_db) -> None:
     client, _db = client_and_db
 
     first_resp = client.post(
@@ -893,27 +872,6 @@ def test_a_share_identity_variants_deduplicate_and_latest_matches(client_and_db)
         duplicate = duplicate_resp.json()
         assert duplicate["created"] is False
         assert duplicate["item"]["id"] == first["item"]["id"]
-
-    latest_resp = client.get(
-        "/api/v1/decision-signals/latest/600519.SH",
-        params={"market": "cn"},
-    )
-    assert latest_resp.status_code == 200, latest_resp.text
-    assert latest_resp.json()["total"] == 1
-    assert latest_resp.json()["items"][0]["id"] == first["item"]["id"]
-
-    latest_cases = [
-        ("600519", {}),
-        ("SH600519", {}),
-        ("600519.SH", {}),
-        ("600519", {"market": "cn"}),
-    ]
-    for raw_code, params in latest_cases:
-        latest_resp = client.get(f"/api/v1/decision-signals/latest/{raw_code}", params=params)
-        assert latest_resp.status_code == 200, latest_resp.text
-        latest_payload = latest_resp.json()
-        assert latest_payload["total"] == 1
-        assert latest_payload["items"][0]["id"] == first["item"]["id"]
 
     list_cases = [
         ("600519", {}),

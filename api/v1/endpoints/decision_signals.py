@@ -265,40 +265,6 @@ def get_outcome_stats(
 
 
 @router.get(
-    "/latest/{stock_code}",
-    response_model=DecisionSignalListResponse,
-    responses={
-        400: {"model": ErrorResponse, "description": "请求参数非法"},
-        422: {"model": ErrorResponse, "description": "路径或查询参数校验失败"},
-        500: {"model": ErrorResponse, "description": "查询失败"},
-    },
-    summary="查询股票最新 active 决策信号",
-    description="返回指定股票最新 active 信号列表；读取前会执行懒过期。",
-    operation_id="getLatestDecisionSignals",
-)
-def get_latest_active(
-    stock_code: str,
-    market: Optional[str] = Query(None, description="Optional market filter: cn/us"),
-    limit: int = Query(1, ge=1, le=100),
-) -> DecisionSignalListResponse:
-    service = DecisionSignalService()
-    try:
-        return DecisionSignalListResponse(
-            **service.get_latest_active(
-                stock_code=stock_code,
-                market=market,
-                limit=limit,
-            )
-        )
-    except DecisionSignalStorageError as exc:
-        raise _internal_error("Get latest decision signals failed", exc)
-    except ValueError as exc:
-        raise _bad_request(exc)
-    except Exception as exc:
-        raise _internal_error("Get latest decision signals failed", exc)
-
-
-@router.get(
     "/{signal_id}",
     response_model=DecisionSignalItem,
     responses={

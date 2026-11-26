@@ -103,11 +103,6 @@ export interface DecisionSignalListParams {
   pageSize?: number;
 }
 
-export interface DecisionSignalLatestParams {
-  market?: DecisionSignalMarket;
-  limit?: number;
-}
-
 export interface DecisionSignalStatusUpdateRequest {
   status: DecisionSignalStatus;
   /** Replaces the persisted metadata object when provided; inner keys are not converted or merged. */

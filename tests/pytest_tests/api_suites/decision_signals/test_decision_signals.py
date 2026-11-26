@@ -183,42 +183,13 @@ class TestGetDecisionSignal(BaseAPITest):
         self.assert_validation_error(response, field="signal_id")
 
 
-class TestLatestDecisionSignals(BaseAPITest):
-    """``GET /api/v1/decision-signals/latest/{stock_code}``."""
+def test_latest_by_stock_endpoint_is_removed(api_client: TestClient, api_spec: dict[str, Any]) -> None:
+    """The dedicated latest-by-stock API is no longer published or available."""
+    endpoint = "/api/v1/decision-signals/latest/{stock_code}"
 
-    ENDPOINT = "/api/v1/decision-signals/latest/{stock_code}"
-    METHOD = "get"
-
-    def test_returns_empty_list_without_signals(
-        self, api_client: TestClient, api_spec: dict[str, Any]
-    ) -> None:
-        """A stock without active signals returns an empty page, not ``404``."""
-        response = api_client.get("/api/v1/decision-signals/latest/600519")
-
-        body = self.assert_matches_spec(api_spec, response)
-        assert body["total"] == 0
-
-    def test_returns_latest_active_signal(
-        self,
-        api_client: TestClient,
-        api_spec: dict[str, Any],
-        create_signal: Callable[..., dict[str, Any]],
-    ) -> None:
-        """Only the requested stock's active signals are returned."""
-        signal = create_signal()
-        create_signal(stock_code="000858", trigger_source="other")
-
-        response = api_client.get("/api/v1/decision-signals/latest/600519")
-
-        body = self.assert_matches_spec(api_spec, response)
-        assert [item["id"] for item in body["items"]] == [signal["id"]]
-
-    @pytest.mark.parametrize("limit", [0, 101])
-    def test_rejects_out_of_range_limit(self, api_client: TestClient, limit: int) -> None:
-        """``limit`` honors the documented 1..100 range."""
-        response = api_client.get("/api/v1/decision-signals/latest/600519", params={"limit": limit})
-
-        self.assert_validation_error(response, field="limit")
+    assert endpoint not in api_spec["paths"]
+    response = api_client.get("/api/v1/decision-signals/latest/600519")
+    assert response.status_code == 404
 
 
 class TestUpdateDecisionSignalStatus(BaseAPITest):
