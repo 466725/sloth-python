@@ -229,21 +229,27 @@ describe('DecisionSignalsPage', () => {
     expect(screen.queryByText('closing_auction')).not.toBeInTheDocument();
   });
 
-  it('passes filter parameters when applying filters', async () => {
+  it('applies dropdown filters immediately without a filter button', async () => {
     renderPage();
     await screen.findByText('贵州茅台');
 
-    fireEvent.change(screen.getByLabelText('市场'), { target: { value: 'cn' } });
+    expect(screen.queryByRole('button', { name: '筛选' })).not.toBeInTheDocument();
+
     fireEvent.change(screen.getByLabelText('股票代码'), { target: { value: '600519' } });
+    fireEvent.change(screen.getByLabelText('市场'), { target: { value: 'cn' } });
     fireEvent.change(screen.getByLabelText('动作'), { target: { value: 'hold' } });
-    fireEvent.click(screen.getByRole('button', { name: '筛选' }));
+    fireEvent.change(screen.getByLabelText('阶段'), { target: { value: 'intraday' } });
+    fireEvent.change(screen.getByLabelText('来源'), { target: { value: 'analysis' } });
+    fireEvent.change(screen.getByLabelText('状态'), { target: { value: 'closed' } });
 
     await waitFor(() => {
       expect(decisionSignalsApi.list).toHaveBeenLastCalledWith(expect.objectContaining({
         market: 'cn',
         stockCode: '600519',
         action: 'hold',
-        status: 'active',
+        marketPhase: 'intraday',
+        sourceType: 'analysis',
+        status: 'closed',
         page: 1,
         pageSize: 20,
       }));
@@ -272,7 +278,7 @@ describe('DecisionSignalsPage', () => {
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText('股票代码'), { target: { value: 'AAPL' } });
-    fireEvent.click(screen.getByRole('button', { name: '筛选' }));
+    fireEvent.submit(screen.getByLabelText('股票代码').closest('form') as HTMLFormElement);
 
     expect(await screen.findByRole('alert')).toHaveTextContent('filter failed');
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
@@ -373,7 +379,7 @@ describe('DecisionSignalsPage', () => {
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText('股票代码'), { target: { value: 'AAPL' } });
-    fireEvent.click(screen.getByRole('button', { name: '筛选' }));
+    fireEvent.submit(screen.getByLabelText('股票代码').closest('form') as HTMLFormElement);
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(screen.getByText('暂无决策信号')).toBeInTheDocument();

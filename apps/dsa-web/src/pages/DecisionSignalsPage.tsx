@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Activity, BarChart3, RefreshCw, Search } from 'lucide-react';
+import { Activity, BarChart3, RefreshCw } from 'lucide-react';
 import { decisionSignalsApi } from '../api/decisionSignals';
 import { getParsedApiError, type ParsedApiError } from '../api/error';
 import {
@@ -280,6 +280,12 @@ const DecisionSignalsPage: React.FC = () => {
     setPage(1);
   };
 
+  const handleFilterChange = (nextFilters: ListFilters) => {
+    setFilters(nextFilters);
+    setAppliedFilters(nextFilters);
+    setPage(1);
+  };
+
   const handleStatusUpdate = async () => {
     if (!pendingStatus || statusUpdateInFlightRef.current) return;
     statusUpdateInFlightRef.current = true;
@@ -356,7 +362,7 @@ const DecisionSignalsPage: React.FC = () => {
             <select
               className="input-surface input-focus-glow h-11 rounded-xl border bg-transparent px-3 text-sm"
               value={filters.market}
-              onChange={(event) => setFilters((current) => ({ ...current, market: event.target.value as ListFilters['market'] }))}
+              onChange={(event) => handleFilterChange({ ...filters, market: event.target.value as ListFilters['market'] })}
               aria-label={t('decisionSignals.market')}
             >
               <option value="">{t('decisionSignals.allMarkets')}</option>
@@ -374,7 +380,7 @@ const DecisionSignalsPage: React.FC = () => {
             <select
               className="input-surface input-focus-glow h-11 rounded-xl border bg-transparent px-3 text-sm"
               value={filters.action}
-              onChange={(event) => setFilters((current) => ({ ...current, action: event.target.value as ListFilters['action'] }))}
+              onChange={(event) => handleFilterChange({ ...filters, action: event.target.value as ListFilters['action'] })}
               aria-label={t('decisionSignals.action')}
             >
               <option value="">{t('decisionSignals.allActions')}</option>
@@ -385,7 +391,7 @@ const DecisionSignalsPage: React.FC = () => {
             <select
               className="input-surface input-focus-glow h-11 rounded-xl border bg-transparent px-3 text-sm"
               value={filters.marketPhase}
-              onChange={(event) => setFilters((current) => ({ ...current, marketPhase: event.target.value as ListFilters['marketPhase'] }))}
+              onChange={(event) => handleFilterChange({ ...filters, marketPhase: event.target.value as ListFilters['marketPhase'] })}
               aria-label={t('decisionSignals.marketPhase')}
             >
               <option value="">{t('decisionSignals.allPhases')}</option>
@@ -396,7 +402,7 @@ const DecisionSignalsPage: React.FC = () => {
             <select
               className="input-surface input-focus-glow h-11 rounded-xl border bg-transparent px-3 text-sm"
               value={filters.sourceType}
-              onChange={(event) => setFilters((current) => ({ ...current, sourceType: event.target.value as ListFilters['sourceType'] }))}
+              onChange={(event) => handleFilterChange({ ...filters, sourceType: event.target.value as ListFilters['sourceType'] })}
               aria-label={t('decisionSignals.source')}
             >
               <option value="">{t('decisionSignals.allSources')}</option>
@@ -407,16 +413,12 @@ const DecisionSignalsPage: React.FC = () => {
             <select
               className="input-surface input-focus-glow h-11 rounded-xl border bg-transparent px-3 text-sm"
               value={filters.status}
-              onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value as ListFilters['status'] }))}
+              onChange={(event) => handleFilterChange({ ...filters, status: event.target.value as ListFilters['status'] })}
               aria-label={t('decisionSignals.status')}
             >
               <option value="">{t('decisionSignals.allStatuses')}</option>
               {STATUS_OPTIONS.map((status) => <option key={status} value={status}>{t(STATUS_LABEL_KEYS[status])}</option>)}
             </select>
-            <button type="submit" className="btn-primary inline-flex h-11 items-center justify-center gap-2 xl:col-start-6">
-              <Search className="h-4 w-4" />
-              {t('decisionSignals.filter')}
-            </button>
           </form>
         </Card>
 
