@@ -40,6 +40,7 @@ const {
   testRule,
   listTriggers,
   listNotifications,
+  getWatchlist,
 } = vi.hoisted(() => ({
   listRules: vi.fn(),
   createRule: vi.fn(),
@@ -49,6 +50,13 @@ const {
   testRule: vi.fn(),
   listTriggers: vi.fn(),
   listNotifications: vi.fn(),
+  getWatchlist: vi.fn(),
+}));
+
+vi.mock('../../api/systemConfig', () => ({
+  systemConfigApi: {
+    getWatchlist,
+  },
 }));
 
 vi.mock('../../api/alerts', () => ({
@@ -118,6 +126,7 @@ beforeEach(() => {
     pageSize: 20,
   });
   listNotifications.mockResolvedValue({ items: [], total: 0, page: 1, pageSize: 20 });
+  getWatchlist.mockResolvedValue(['600519', 'AAPL']);
   testRule.mockResolvedValue({
     ruleId: 1,
     status: 'triggered',
@@ -192,6 +201,7 @@ describe('AlertsPage', () => {
       total: 7,
     });
     const { container } = renderLocalizedPage();
+    await screen.findByRole('option', { name: 'AAPL' });
     await screen.findByText('Alert cooldown');
     expect(screen.getAllByText('US · Intraday')).toHaveLength(5);
     expect(screen.getAllByText('Quality: usable')).toHaveLength(5);
@@ -210,7 +220,7 @@ describe('AlertsPage', () => {
     }
     expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
 
-    fireEvent.change(screen.getByLabelText('Symbol'), { target: { value: 'aapl' } });
+    fireEvent.change(screen.getByLabelText('Symbol'), { target: { value: 'AAPL' } });
     fireEvent.change(screen.getByLabelText('Change threshold (%)'), { target: { value: '2.5' } });
     fireEvent.click(screen.getByRole('button', { name: 'Chinese' }));
     expect(screen.getByRole('heading', { name: '告警中心' })).toBeInTheDocument();
@@ -219,12 +229,12 @@ describe('AlertsPage', () => {
     expect(screen.getAllByText('质量：usable')).toHaveLength(5);
     expect(screen.getByText('业务冷却')).toBeInTheDocument();
     expect(screen.getByText('冷却抑制')).toBeInTheDocument();
-    expect(screen.getByLabelText('标的代码')).toHaveValue('aapl');
+    expect(screen.getByLabelText('标的代码')).toHaveValue('AAPL');
     expect(screen.getByLabelText('涨跌幅阈值（%）')).toHaveValue(2.5);
     expect(document.title).toBe('告警中心 - DSA');
 
     fireEvent.click(screen.getByRole('button', { name: 'English' }));
-    expect(screen.getByLabelText('Symbol')).toHaveValue('aapl');
+    expect(screen.getByLabelText('Symbol')).toHaveValue('AAPL');
     expect(container.textContent).not.toMatch(/\p{Script=Han}/u);
     expect(listRules).toHaveBeenCalledTimes(1);
     expect(listTriggers).toHaveBeenCalledTimes(1);
@@ -251,13 +261,14 @@ describe('AlertsPage', () => {
       ],
     });
     renderLocalizedPage();
+    await screen.findByRole('option', { name: 'AAPL' });
     fireEvent.click(await screen.findByRole('button', { name: 'Test' }));
     expect(await screen.findByText('Test result')).toBeInTheDocument();
     expect(screen.getByText(/Status: triggered · Triggered: Yes · Observed value: 3.1/)).toBeInTheDocument();
     expect(screen.getByText('Evaluated 2 · Triggered 1 · Degraded 1 · Skipped 0')).toBeInTheDocument();
     expect(screen.getByText('not_triggered / degraded')).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText('Symbol'), { target: { value: 'aapl' } });
+    fireEvent.change(screen.getByLabelText('Symbol'), { target: { value: 'AAPL' } });
     fireEvent.change(screen.getByLabelText('Change threshold (%)'), { target: { value: '2' } });
     fireEvent.click(screen.getByRole('button', { name: 'Create rule' }));
     expect(await screen.findByText('Created alert rule "Created alert"')).toBeInTheDocument();
@@ -365,7 +376,8 @@ describe('AlertsPage', () => {
     render(<AlertsPage />);
 
     await screen.findByText('茅台涨跌幅');
-    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'aapl' } });
+    await screen.findByRole('option', { name: 'AAPL' });
+    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'AAPL' } });
     fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '2' } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
 
@@ -384,12 +396,13 @@ describe('AlertsPage', () => {
     render(<AlertsPage />);
 
     await screen.findByText('茅台涨跌幅');
-    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'aapl' } });
+    await screen.findByRole('option', { name: 'AAPL' });
+    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'AAPL' } });
     fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '2' } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
 
     expect(await screen.findByText('加载失败')).toBeInTheDocument();
-    expect(screen.getByLabelText('标的代码')).toHaveValue('aapl');
+    expect(screen.getByLabelText('标的代码')).toHaveValue('AAPL');
     expect(screen.getByLabelText('涨跌幅阈值（%）')).toHaveValue(2);
   });
 

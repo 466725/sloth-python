@@ -1,5 +1,7 @@
 import type React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getParsedApiError, type ParsedApiError } from '../../api/error';
+import { systemConfigApi } from '../../api/systemConfig';
 import type { AlertDirection, AlertRuleCreateRequest, AlertSeverity, AlertTargetScope } from '../../types/alerts';
 import { useUiLanguage } from '../../contexts/UiLanguageContext';
 import { formatUiText } from '../../i18n/uiText';
@@ -11,7 +13,7 @@ import {
   ALERT_TYPE_LABELS,
 } from '../../locales/featureText';
 import { validateStockCode } from '../../utils/validation';
-import { Button, Card, Checkbox, Input, Select } from '../common';
+import { ApiErrorAlert, Button, Card, Checkbox, Input, Select } from '../common';
 
 interface AlertRuleFormProps {
   onSubmit: (payload: AlertRuleCreateRequest) => Promise<boolean | void> | boolean | void;
@@ -24,6 +26,9 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
   const [name, setName] = useState('');
   const [targetScope, setTargetScope] = useState<AlertTargetScope>('single_symbol');
   const [target, setTarget] = useState('');
+  const [stockCodes, setStockCodes] = useState<string[]>([]);
+  const [stockCodesLoading, setStockCodesLoading] = useState(true);
+  const [stockCodesError, setStockCodesError] = useState<ParsedApiError | null>(null);
   const [severity, setSeverity] = useState<AlertSeverity>('warning');
   const [enabled, setEnabled] = useState(true);
   const [changeDirection, setChangeDirection] = useState<AlertDirection>('up');
@@ -36,6 +41,26 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
     : formError?.kind === 'threshold'
       ? formatUiText(text.positiveNumber, { label: text.changePctThreshold })
       : null;
+
+  useEffect(() => {
+    let cancelled = false;
+    void systemConfigApi.getWatchlist()
+      .then((codes) => {
+        if (!cancelled) setStockCodes(codes);
+      })
+      .catch((error) => {
+        if (!cancelled) setStockCodesError(getParsedApiError(error));
+      })
+      .finally(() => {
+        if (!cancelled) setStockCodesLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const stockCodeOptions = Array.from(new Set(stockCodes))
+    .map((stockCode) => ({ value: stockCode, label: stockCode }));
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -96,12 +121,12 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
             }}
           />
           {targetScope === 'single_symbol' ? (
-            <Input
+            <Select
               label={text.targetCode}
               value={target}
-              onChange={(event) => setTarget(event.target.value)}
-              placeholder="600519 / AAPL / hk00700"
-              disabled={isSubmitting}
+              options={stockCodeOptions}
+              disabled={isSubmitting || stockCodesLoading || Boolean(stockCodesError) || stockCodes.length === 0}
+              onChange={setTarget}
             />
           ) : (
             <Input label={text.target} value="default" disabled />
@@ -117,6 +142,13 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({ onSubmit, isSubmit
             }}
           />
         </div>
+        {targetScope === 'single_symbol' && stockCodesLoading ? (
+          <p role="status" className="text-sm text-secondary-text">{text.loadingStocks}</p>
+        ) : null}
+        {targetScope === 'single_symbol' && stockCodesError ? <ApiErrorAlert error={stockCodesError} /> : null}
+        {targetScope === 'single_symbol' && !stockCodesLoading && !stockCodesError && stockCodes.length === 0 ? (
+          <p role="status" className="text-sm text-secondary-text">{text.noStocksConfigured}</p>
+        ) : null}
         <div className="grid gap-4 md:grid-cols-2">
           <Select
             label={text.direction}

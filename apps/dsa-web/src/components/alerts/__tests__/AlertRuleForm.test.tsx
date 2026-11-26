@@ -1,8 +1,15 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AlertRuleForm } from '../AlertRuleForm';
+import { systemConfigApi } from '../../../api/systemConfig';
 import { UiLanguageProvider, useUiLanguage } from '../../../contexts/UiLanguageContext';
 import { UI_LANGUAGE_STORAGE_KEY } from '../../../utils/uiLanguage';
+
+vi.mock('../../../api/systemConfig', () => ({
+  systemConfigApi: {
+    getWatchlist: vi.fn(),
+  },
+}));
 
 function LanguageControls() {
   const { setLanguage } = useUiLanguage();
@@ -15,14 +22,20 @@ describe('AlertRuleForm', () => {
   beforeEach(() => {
     onSubmit.mockReset();
     onSubmit.mockResolvedValue(undefined);
+    vi.mocked(systemConfigApi.getWatchlist).mockReset();
+    vi.mocked(systemConfigApi.getWatchlist).mockResolvedValue(['600519', 'AAPL']);
     window.localStorage.clear();
   });
 
-  it('offers only a read-only price change type and single symbol/watchlist scopes', () => {
+  it('offers stock list symbols in a dropdown and retains single symbol/watchlist scopes', async () => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
 
+    await screen.findByRole('option', { name: '600519' });
     expect(screen.getByLabelText('规则类型')).toHaveValue('涨跌幅');
     expect(screen.getByLabelText('规则类型')).toHaveAttribute('readonly');
+    expect(screen.getByLabelText('标的代码').tagName).toBe('SELECT');
+    expect(Array.from((screen.getByLabelText('标的代码') as HTMLSelectElement).options).map((option) => option.value))
+      .toEqual(['', '600519', 'AAPL']);
     expect(within(screen.getByLabelText('目标范围')).getAllByRole('option').filter((option) => !option.hasAttribute('disabled')).map((option) => option.getAttribute('value')))
       .toEqual(['single_symbol', 'watchlist']);
     expect(within(screen.getByLabelText('方向')).getAllByRole('option').filter((option) => !option.hasAttribute('disabled')).map((option) => option.getAttribute('value')))
@@ -32,6 +45,7 @@ describe('AlertRuleForm', () => {
 
   it('submits an upward price change rule', async () => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
+    await screen.findByRole('option', { name: '600519' });
     fireEvent.change(screen.getByLabelText('规则名称'), { target: { value: '茅台涨跌幅' } });
     fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: '600519' } });
     fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '2.5' } });
@@ -49,9 +63,10 @@ describe('AlertRuleForm', () => {
     expect(screen.getByLabelText('涨跌幅阈值（%）')).toHaveValue(null);
   });
 
-  it('shows only price change controls and positive percentage validation in English', () => {
+  it('shows only price change controls and positive percentage validation in English', async () => {
     window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'en');
     render(<UiLanguageProvider><AlertRuleForm onSubmit={onSubmit} /></UiLanguageProvider>);
+    await screen.findByRole('option', { name: 'AAPL' });
     expect(screen.getByLabelText('Rule type')).toHaveValue('Price change');
     expect(screen.getByLabelText('Rule type')).toHaveAttribute('readonly');
     expect(within(screen.getByLabelText('Target scope')).getAllByRole('option').filter((option) => !option.hasAttribute('disabled')).map((option) => option.textContent))
@@ -66,7 +81,8 @@ describe('AlertRuleForm', () => {
 
   it('submits a downward price change with severity and disabled creation', async () => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
-    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'aapl' } });
+    await screen.findByRole('option', { name: 'AAPL' });
+    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'AAPL' } });
     fireEvent.change(screen.getByLabelText('方向'), { target: { value: 'down' } });
     fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '3.5' } });
     fireEvent.change(screen.getByLabelText('严重级别'), { target: { value: 'critical' } });
@@ -81,8 +97,9 @@ describe('AlertRuleForm', () => {
     })));
   });
 
-  it.each(['', '0', '-3', 'Infinity', 'NaN'])('rejects invalid percentage %j', (value) => {
+  it.each(['', '0', '-3', 'Infinity', 'NaN'])('rejects invalid percentage %j', async (value) => {
     render(<AlertRuleForm onSubmit={onSubmit} />);
+    await screen.findByRole('option', { name: '600519' });
     fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: '600519' } });
     fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
@@ -90,8 +107,10 @@ describe('AlertRuleForm', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it('rejects invalid stock codes', () => {
+  it('rejects invalid stock codes that appear in the configured list', async () => {
+    vi.mocked(systemConfigApi.getWatchlist).mockResolvedValueOnce(['aapl-2026']);
     render(<AlertRuleForm onSubmit={onSubmit} />);
+    await screen.findByRole('option', { name: 'aapl-2026' });
     fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'aapl-2026' } });
     fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '3' } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
@@ -99,15 +118,17 @@ describe('AlertRuleForm', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it.each(['stockCode', 'threshold'])('retranslates an existing %s validation error without resetting inputs', (kind) => {
+  it.each(['stockCode', 'threshold'])('retranslates an existing %s validation error without resetting inputs', async (kind) => {
     window.localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, 'zh');
+    vi.mocked(systemConfigApi.getWatchlist).mockResolvedValueOnce(['invalid-code', 'AAPL']);
     render(
       <UiLanguageProvider>
         <LanguageControls />
         <AlertRuleForm onSubmit={onSubmit} />
       </UiLanguageProvider>,
     );
-    const target = kind === 'stockCode' ? 'invalid-code' : 'aapl';
+    await screen.findByRole('option', { name: 'invalid-code' });
+    const target = kind === 'stockCode' ? 'invalid-code' : 'AAPL';
     fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: target } });
     fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '-2' } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
@@ -134,15 +155,32 @@ describe('AlertRuleForm', () => {
     })));
   });
 
+  it('shows a visible error when the configured stock list cannot be loaded', async () => {
+    vi.mocked(systemConfigApi.getWatchlist).mockRejectedValueOnce(new Error('watchlist unavailable'));
+    render(<AlertRuleForm onSubmit={onSubmit} />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('watchlist unavailable');
+    expect(screen.getByLabelText('标的代码')).toBeDisabled();
+  });
+
+  it('explains when no stock symbols are configured', async () => {
+    vi.mocked(systemConfigApi.getWatchlist).mockResolvedValueOnce([]);
+    render(<AlertRuleForm onSubmit={onSubmit} />);
+
+    expect(await screen.findByText(/STOCK_LIST/)).toBeInTheDocument();
+    expect(screen.getByLabelText('标的代码')).toBeDisabled();
+  });
+
   it('keeps values when submission fails', async () => {
     onSubmit.mockResolvedValueOnce(false);
     render(<AlertRuleForm onSubmit={onSubmit} />);
-    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'aapl' } });
+    await screen.findByRole('option', { name: 'AAPL' });
+    fireEvent.change(screen.getByLabelText('标的代码'), { target: { value: 'AAPL' } });
     fireEvent.change(screen.getByLabelText('方向'), { target: { value: 'down' } });
     fireEvent.change(screen.getByLabelText('涨跌幅阈值（%）'), { target: { value: '2' } });
     fireEvent.click(screen.getByRole('button', { name: '创建规则' }));
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());
-    expect(screen.getByLabelText('标的代码')).toHaveValue('aapl');
+    expect(screen.getByLabelText('标的代码')).toHaveValue('AAPL');
     expect(screen.getByLabelText('涨跌幅阈值（%）')).toHaveValue(2);
     expect(screen.getByLabelText('方向')).toHaveValue('down');
   });
