@@ -3,12 +3,10 @@ import { useState } from 'react';
 import { Bell, Trash2 } from 'lucide-react';
 import { Badge, Button, Card, ConfirmDialog, EmptyState, Pagination, Select } from '../common';
 import { useUiLanguage } from '../../contexts/UiLanguageContext';
-import { formatUiText, type UiLanguage } from '../../i18n/uiText';
+import { formatUiText } from '../../i18n/uiText';
 import {
-  ALERT_DIRECTION_LABELS,
   ALERT_ENABLED_FILTER_OPTIONS,
   ALERT_LIST_TEXT,
-  ALERT_SCOPE_LABELS,
   ALERT_SEVERITY_LABELS,
   ALERT_TYPE_FILTER_OPTIONS,
   ALERT_TYPE_LABELS,
@@ -23,15 +21,6 @@ export type AlertRuleBusyAction = 'test' | 'toggle' | 'delete';
 export interface AlertRuleBusyState {
   id: number;
   action: AlertRuleBusyAction;
-}
-
-function formatParameters(rule: AlertRuleItem, language: UiLanguage): string {
-  const directionLabels = ALERT_DIRECTION_LABELS[language];
-  return `${rule.parameters.direction === 'down' ? directionLabels.downChange : directionLabels.upChange} ${rule.parameters.changePct ?? '--'}%`;
-}
-
-function isCoolingDown(rule: AlertRuleItem): boolean {
-  return rule.cooldownActive === true;
 }
 
 interface AlertRuleListProps {
@@ -115,15 +104,12 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
         </div>
       ) : (
         <div className="min-h-0 flex-1 overflow-x-auto">
-          <table className="w-full min-w-[960px] text-left text-sm">
+          <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="border-b border-border/60 text-xs uppercase text-muted-text">
               <tr>
                 <th className="px-3 py-2 font-medium">{text.rule}</th>
-                <th className="px-3 py-2 font-medium">{text.target}</th>
                 <th className="px-3 py-2 font-medium">{text.type}</th>
-                <th className="px-3 py-2 font-medium">{text.parameters}</th>
                 <th className="px-3 py-2 font-medium">{text.status}</th>
-                <th className="px-3 py-2 font-medium">{text.cooldown}</th>
                 <th className="px-3 py-2 font-medium">{text.updatedAt}</th>
                 <th className="px-3 py-2 text-right font-medium">{text.action}</th>
               </tr>
@@ -135,10 +121,6 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
                     <div className="font-medium text-foreground">{rule.name}</div>
                     <div className="mt-1 text-xs text-muted-text">{formatUiText(text.source, { source: rule.source })}</div>
                   </td>
-                  <td className="px-3 py-3 text-secondary-text">
-                    <div className="font-mono">{rule.target}</div>
-                    <div className="mt-1 text-xs">{ALERT_SCOPE_LABELS[language][rule.targetScope] ?? rule.targetScope}</div>
-                  </td>
                   <td className="px-3 py-3">
                     <div className="flex flex-col items-start gap-1">
                       <Badge variant="info">{ALERT_TYPE_LABELS[language][rule.alertType] ?? rule.alertType}</Badge>
@@ -147,15 +129,10 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
                       </Badge>
                     </div>
                   </td>
-                  <td className="px-3 py-3 text-secondary-text">{formatParameters(rule, language)}</td>
                   <td className="px-3 py-3">
                     <Badge variant={rule.enabled ? 'success' : 'default'}>
                       {rule.enabled ? text.enabled : text.disabled}
                     </Badge>
-                  </td>
-                  <td className="px-3 py-3 text-xs text-secondary-text">
-                    <div>{isCoolingDown(rule) ? text.coolingDown : text.notCoolingDown}</div>
-                    <div className="mt-1">{formatDateTime(rule.cooldownUntil)}</div>
                   </td>
                   <td className="px-3 py-3 text-xs text-secondary-text">{formatDateTime(rule.updatedAt ?? rule.createdAt)}</td>
                   <td className="px-3 py-3">

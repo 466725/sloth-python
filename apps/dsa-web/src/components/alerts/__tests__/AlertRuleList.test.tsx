@@ -59,10 +59,11 @@ describe('AlertRuleList', () => {
     renderList();
 
     expect(screen.getByText('茅台涨跌幅')).toBeInTheDocument();
-    expect(screen.getByText('600519')).toBeInTheDocument();
     expect(screen.getAllByText('涨跌幅').length).toBeGreaterThan(0);
-    expect(screen.getByText('上涨 3%')).toBeInTheDocument();
-    expect(screen.getByText('冷却中')).toBeInTheDocument();
+    expect(within(screen.getByRole('table')).getAllByRole('columnheader')).toHaveLength(5);
+    expect(screen.queryByText('600519')).not.toBeInTheDocument();
+    expect(screen.queryByText('上涨 3%')).not.toBeInTheDocument();
+    expect(screen.queryByText('冷却中')).not.toBeInTheDocument();
     expect(within(screen.getByLabelText('规则类型')).getAllByRole('option').filter((option) => !option.hasAttribute('disabled')).map((option) => option.getAttribute('value')))
       .toEqual(['all', 'price_change_percent']);
 
@@ -73,20 +74,6 @@ describe('AlertRuleList', () => {
     expect(onEnabledFilterChange).toHaveBeenCalledWith('enabled');
     expect(onAlertTypeFilterChange).toHaveBeenCalledWith('price_change_percent');
     expect(onPageChange).toHaveBeenCalledWith(2);
-  });
-
-  it('uses backend cooldownActive instead of parsing cooldownUntil locally', () => {
-    renderList({
-      rules: [
-        {
-          ...rules[0],
-          cooldownUntil: '2099-05-18T10:30:00',
-          cooldownActive: false,
-        },
-      ],
-    });
-
-    expect(screen.getByText('未冷却')).toBeInTheDocument();
   });
 
   it('runs test and toggles enabled state', () => {
