@@ -24,7 +24,6 @@ export const SettingsCategoryNav: React.FC<SettingsCategoryNavProps> = ({
     <div className="h-full rounded-[1.5rem] border settings-border bg-card/94 p-4 shadow-soft-card-strong backdrop-blur-sm">
       <div className="mb-4">
         <p className="settings-accent-text text-xs font-semibold uppercase tracking-[0.3em]">{t('settings.categoryNavTitle')}</p>
-        <p className="mt-1 text-[11px] leading-relaxed text-muted-text">{t('settings.categoryNavDescription')}</p>
       </div>
 
       <div className="space-y-2.5">
