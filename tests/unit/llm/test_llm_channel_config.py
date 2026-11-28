@@ -16,7 +16,6 @@ from ai_stock.config import (
     ANSPIRE_LLM_MODEL_DEFAULT,
     Config,
     get_api_keys_for_model,
-    get_effective_agent_models_to_try,
     get_effective_agent_primary_model,
     normalize_litellm_temperature,
 )
@@ -28,6 +27,22 @@ from ai_stock.services.system_config_service import SystemConfigService
 
 
 class LLMChannelConfigTestCase(unittest.TestCase):
+    @patch("ai_stock.config.setup_env")
+    @patch.object(Config, "_parse_litellm_yaml")
+    def test_yaml_alias_never_routes_to_another_model(self, parse_yaml, _mock_setup_env) -> None:
+        parse_yaml.return_value = [
+            {"model_name": "primary", "litellm_params": {"model": "openai/first", "api_key": "test-key"}},
+            {"model_name": "primary", "litellm_params": {"model": "openai/second", "api_key": "test-key"}},
+            {"model_name": "other", "litellm_params": {"model": "openai/second", "api_key": "test-key"}},
+        ]
+        with patch.dict(os.environ, {"LITELLM_CONFIG": "test.yaml", "LITELLM_MODEL": "primary"}, clear=True):
+            with self.assertLogs("ai_stock.config", level="WARNING"):
+                config = Config._load_from_env()
+        self.assertEqual(
+            [entry["litellm_params"]["model"] for entry in config.llm_model_list],
+            ["openai/first", "openai/second"],
+        )
+
     @patch("ai_stock.config.setup_env")
     def test_existing_multi_keys_use_first_for_ai_but_preserve_anspire_search(self, _mock_setup_env) -> None:
         env = {
@@ -428,7 +443,7 @@ class LLMChannelConfigTestCase(unittest.TestCase):
 
     @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
-    def test_agent_models_to_try_are_deduped_in_order(self, _mock_parse_yaml, _mock_setup_env) -> None:
+    def test_legacy_fallback_settings_are_ignored(self, _mock_parse_yaml, _mock_setup_env) -> None:
         env = {
             "OPENAI_API_KEY": "sk-test-value",
             "LITELLM_MODEL": "gemini/gemini-2.5-flash",
@@ -439,28 +454,8 @@ class LLMChannelConfigTestCase(unittest.TestCase):
         with patch.dict(os.environ, env, clear=True):
             config = Config._load_from_env()
 
-        self.assertEqual(
-            get_effective_agent_models_to_try(config),
-            ["openai/gpt-4o-mini", "gemini/gemini-2.5-flash"],
-        )
-
-    @patch("ai_stock.config.setup_env")
-    @patch.object(Config, "_parse_litellm_yaml", return_value=[])
-    def test_agent_models_to_try_dedupes_semantically_equivalent_openai_models(self, _mock_parse_yaml, _mock_setup_env) -> None:
-        env = {
-            "OPENAI_API_KEY": "sk-test-value",
-            "LITELLM_MODEL": "gemini/gemini-2.5-flash",
-            "AGENT_LITELLM_MODEL": "gpt-4o-mini",
-            "LITELLM_FALLBACK_MODELS": "openai/gpt-4o-mini,gpt-4o-mini",
-        }
-
-        with patch.dict(os.environ, env, clear=True):
-            config = Config._load_from_env()
-
-        self.assertEqual(
-            get_effective_agent_models_to_try(config),
-            ["openai/gpt-4o-mini"],
-        )
+        self.assertEqual(get_effective_agent_primary_model(config), "openai/gpt-4o-mini")
+        self.assertFalse(hasattr(config, "litellm_fallback_models"))
 
     @patch("ai_stock.config.setup_env")
     @patch.object(
@@ -488,10 +483,6 @@ class LLMChannelConfigTestCase(unittest.TestCase):
 
         self.assertEqual(config.agent_litellm_model, "gpt4o")
         self.assertEqual(get_effective_agent_primary_model(config), "gpt4o")
-        self.assertEqual(
-            get_effective_agent_models_to_try(config),
-            ["gpt4o", "openai/gpt-4o-mini"],
-        )
 
     def test_llm_base_url_rejects_ambiguous_parser_syntax(self) -> None:
         invalid_urls = [

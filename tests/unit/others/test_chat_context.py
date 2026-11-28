@@ -246,9 +246,8 @@ def test_bundle_injects_trace_for_configured_fallback_model_with_trace_metadata(
         estimated_tokens=10,
     )
     config = _config(enabled=False)
-    config.agent_litellm_model = "openai/test-model"
-    config.litellm_model = "openai/test-model"
-    config.litellm_fallback_models = ["deepseek/deepseek-chat"]
+    config.agent_litellm_model = "deepseek/deepseek-chat"
+    config.litellm_model = "deepseek/deepseek-chat"
 
     bundle = build_agent_chat_context_bundle(session_id, MagicMock(), config)
 
@@ -264,7 +263,7 @@ def test_bundle_injects_trace_for_configured_fallback_model_with_trace_metadata(
     assert tool_trace["_trace_model"] == "deepseek/deepseek-chat"
 
 
-def test_bundle_trace_is_replayed_only_for_matching_fallback_attempt() -> None:
+def test_bundle_drops_trace_for_unselected_model() -> None:
     db = _reset_db()
     session_id = "chat-trace-fallback-attempt"
     user_id = db.save_conversation_message(session_id, "user", "u1")
@@ -300,19 +299,15 @@ def test_bundle_trace_is_replayed_only_for_matching_fallback_attempt() -> None:
 
     bundle = build_agent_chat_context_bundle(session_id, MagicMock(), config)
     primary_messages = adapter._convert_messages(bundle.context_messages, target_model="openai/test-model")
-    fallback_messages = adapter._convert_messages(bundle.context_messages, target_model="deepseek/deepseek-chat")
 
-    assert bundle.diagnostics["trace_injected"] is True
+    assert bundle.diagnostics["trace_injected"] is False
+    assert bundle.diagnostics["model_mismatch"] == 1
     assert [msg["role"] for msg in primary_messages] == ["user", "assistant"]
     assert primary_messages[-1]["content"] == "a1-final"
     assert all(msg.get("tool_call_id") != "call_1" for msg in primary_messages)
-    assert [msg["role"] for msg in fallback_messages] == ["user", "assistant", "tool", "assistant"]
-    assert fallback_messages[1]["reasoning_content"] == "r"
-    assert fallback_messages[2]["tool_call_id"] == "call_1"
-    assert fallback_messages[-1]["content"] == "a1-final"
 
 
-def test_bundle_matches_slashless_router_alias_fallback_by_resolved_provider() -> None:
+def test_bundle_matches_selected_slashless_router_alias_by_resolved_provider() -> None:
     db = _reset_db()
     session_id = "chat-trace-router-alias"
     user_id = db.save_conversation_message(session_id, "user", "u1")
@@ -340,9 +335,8 @@ def test_bundle_matches_slashless_router_alias_fallback_by_resolved_provider() -
         estimated_tokens=10,
     )
     config = _config(enabled=False)
-    config.agent_litellm_model = "anthropic/claude-test"
+    config.agent_litellm_model = "gpt4o"
     config.litellm_model = "anthropic/claude-test"
-    config.litellm_fallback_models = ["gpt4o"]
     config.llm_model_list = [
         {
             "model_name": "gpt4o",

@@ -11,7 +11,6 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 from ai_stock.config import (
     get_agent_context_compression_preset,
     get_effective_agent_primary_model,
-    get_effective_agent_models_to_try,
 )
 from ai_stock.agent.provider_trace import (
     TRACE_MODEL_KEY,
@@ -140,9 +139,7 @@ def build_agent_chat_context_bundle(
     state = _build_visible_history_state(session_id, llm_adapter, config)
     diagnostics = TraceDiagnostics(visible_tokens=state.visible_tokens)
     db = get_db()
-    candidate_models = get_effective_agent_models_to_try(config)
-    if not candidate_models:
-        candidate_models = [get_effective_agent_primary_model(config)]
+    candidate_models = [get_effective_agent_primary_model(config)]
     candidate_trace_targets = _build_trace_match_targets(candidate_models, config)
     turns = db.get_agent_provider_turns(session_id, must_roundtrip_only=True)
     traces_by_anchor: Dict[int, List[Dict[str, Any]]] = {}

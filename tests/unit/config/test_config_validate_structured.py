@@ -175,7 +175,6 @@ class TestValidateStructuredLLM:
         assert cfg.litellm_model == expected_model
         assert cfg.llm_temperature == 0.7
         assert [model["model_name"] for model in cfg.llm_model_list] == [expected_placeholder]
-        assert cfg.vision_provider_priority == "gemini,openai"
 
     @patch("ai_stock.config.setup_env")
     def test_removed_provider_key_alone_does_not_configure_llm(self, _mock_setup_env):
@@ -519,7 +518,6 @@ class TestVisionKeyValidation:
             ],
             litellm_model="openai/gpt-4o",
             vision_model="openai/gpt-4o",
-            vision_provider_priority="gemini",  # openai excluded from priority
             openai_api_keys=["sk-openai-validkey-xyz"],
             gemini_api_keys=[],
             deepseek_api_keys=[],

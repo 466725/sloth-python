@@ -3,7 +3,7 @@
 
 Covers:
 - generate_text() returns the LLM response on success
-- generate_text() returns None and logs on failure (no exception propagated)
+- generate_text() propagates model failures
 - market_analyzer calls generate_text(), not private analyzer attributes
 - Any provider configuration (Gemini / Anthropic / OpenAI / LLM_CHANNELS)
   does NOT trigger AttributeError (regression guard for the old bypass bug)
@@ -167,11 +167,11 @@ class TestAnalyzerGenerateText:
                 generation_config={"max_tokens": 1024, "temperature": 0.5},
             )
 
-    def test_generate_text_returns_none_on_failure(self):
+    def test_generate_text_propagates_failure(self):
         analyzer = self._make_analyzer()
         with patch.object(analyzer, "_call_litellm", side_effect=Exception("LLM error")):
-            result = analyzer.generate_text("prompt")
-            assert result is None  # must not raise
+            with pytest.raises(Exception, match="LLM error"):
+                analyzer.generate_text("prompt")
 
     def test_generate_text_default_params(self):
         analyzer = self._make_analyzer()
@@ -748,7 +748,7 @@ class TestAnalyzerGenerateText:
         assert calls[0]["temperature"] == 0.2
         assert calls[1]["temperature"] == 1.0
 
-    def test_call_litellm_stream_falls_back_to_non_stream_after_partial_and_falls_back_model(self):
+    def test_call_litellm_reports_failure_after_same_model_stream_retry(self):
         analyzer = self._make_analyzer()
         analyzer._config_override = SimpleNamespace(
             litellm_model="provider/bad-model",
@@ -763,43 +763,25 @@ class TestAnalyzerGenerateText:
             )
             raise RuntimeError("stream disconnected")
 
-        def good_stream():
-            yield SimpleNamespace(
-                choices=[SimpleNamespace(delta=SimpleNamespace(content="fallback"))],
-                usage=SimpleNamespace(prompt_tokens=4, completion_tokens=5, total_tokens=9),
-            )
-
-        fallback_response = SimpleNamespace(
-            choices=[SimpleNamespace(message=SimpleNamespace(content="fallback full"))],
-            usage=SimpleNamespace(prompt_tokens=7, completion_tokens=8, total_tokens=15),
-        )
-
         dispatch_calls = []
 
         def fake_dispatch(model, call_kwargs, **kwargs):
             dispatch_calls.append((model, bool(call_kwargs.get("stream"))))
-            if model == "provider/bad-model":
-                if call_kwargs.get("stream"):
-                    return partial_then_broken_stream()
-                raise RuntimeError("non-stream model broken")
             if call_kwargs.get("stream"):
-                return good_stream()
-            return fallback_response
+                return partial_then_broken_stream()
+            raise RuntimeError("non-stream model broken")
 
         with patch.object(analyzer, "_dispatch_litellm_completion", side_effect=fake_dispatch):
-            text, model_used, usage = analyzer._call_litellm(
-                "prompt",
-                {"max_tokens": 128, "temperature": 0.2},
-                stream=True,
-            )
+            with pytest.raises(RuntimeError, match="provider/bad-model failed: non-stream model broken"):
+                analyzer._call_litellm(
+                    "prompt",
+                    {"max_tokens": 128, "temperature": 0.2},
+                    stream=True,
+                )
 
-        assert text == "fallback"
-        assert model_used == "provider/good-model"
-        _assert_usage_contains(usage, {"prompt_tokens": 4, "completion_tokens": 5, "total_tokens": 9})
         assert dispatch_calls == [
             ("provider/bad-model", True),
             ("provider/bad-model", False),
-            ("provider/good-model", True),
         ]
 
     def test_analyze_integrity_retry_keeps_progress_monotonic(self):
@@ -1066,8 +1048,7 @@ class TestAnalyzerGenerateText:
         assert result.success is True
         assert result.error_message is None
 
-    def test_json_parse_failure_triggers_fallback_model(self):
-        """When the primary model returns non-JSON, _call_litellm must try the fallback model."""
+    def test_json_parse_failure_reports_error_without_switching_models(self):
         analyzer = self._make_analyzer()
         analyzer._config_override = SimpleNamespace(
             litellm_model="provider/primary-model",
@@ -1075,71 +1056,26 @@ class TestAnalyzerGenerateText:
             llm_model_list=[],
         )
 
-        import json as _json
-        valid_json = _json.dumps({"sentiment_score": 70, "trend_prediction": "看多"})
         dispatch_calls = []
 
         def fake_dispatch(model, call_kwargs, **kwargs):
             dispatch_calls.append(model)
-            if "primary" in model:
-                return SimpleNamespace(
-                    choices=[SimpleNamespace(message=SimpleNamespace(content="这不是 JSON 格式的响应"))],
-                    usage=None,
-                )
-            return SimpleNamespace(
-                choices=[SimpleNamespace(message=SimpleNamespace(content=valid_json))],
-                usage=SimpleNamespace(prompt_tokens=10, completion_tokens=20, total_tokens=30),
-            )
-
-        with patch.object(analyzer, "_dispatch_litellm_completion", side_effect=fake_dispatch):
-            text, model_used, usage = analyzer._call_litellm(
-                "test prompt",
-                {"max_tokens": 128, "temperature": 0.7},
-                response_validator=analyzer._validate_json_response,
-            )
-
-        assert "primary" in dispatch_calls[0], "primary model should be tried first"
-        assert len(dispatch_calls) == 2, "fallback model should be tried after primary JSON failure"
-        assert "fallback" in model_used
-        assert valid_json == text
-
-    def test_all_models_invalid_json_raises_all_models_failed_error(self):
-        """When all models return non-JSON, _AllModelsFailedError is raised with last_response_text."""
-        analyzer = self._make_analyzer()
-        analyzer._config_override = SimpleNamespace(
-            litellm_model="provider/primary-model",
-            litellm_fallback_models=["provider/fallback-model"],
-            llm_model_list=[],
-        )
-
-        from ai_stock.analyzer import _AllModelsFailedError
-
-        def fake_dispatch(model, call_kwargs, **kwargs):
             return SimpleNamespace(
                 choices=[SimpleNamespace(message=SimpleNamespace(content="这不是 JSON 格式的响应"))],
                 usage=None,
             )
 
         with patch.object(analyzer, "_dispatch_litellm_completion", side_effect=fake_dispatch):
-            with pytest.raises(_AllModelsFailedError) as exc_info:
+            with pytest.raises(RuntimeError, match="provider/primary-model failed.*JSON"):
                 analyzer._call_litellm(
                     "test prompt",
                     {"max_tokens": 128, "temperature": 0.7},
                     response_validator=analyzer._validate_json_response,
                 )
 
-        assert exc_info.value.last_response_text == "这不是 JSON 格式的响应"
+        assert dispatch_calls == ["provider/primary-model"]
 
-    def test_analyze_all_models_invalid_json_goes_through_post_processing(self):
-        """When all models return non-JSON, analyze() must still run integrity
-        checks, placeholder fill, and persist_llm_usage — no early return.
-
-        With report_integrity_retry=1, the retry loop runs once (re-prompting
-        with complement instructions); when that also yields invalid JSON the
-        exhausted-retries path fires placeholder fill.
-        """
-        from ai_stock.analyzer import AnalysisResult, _AllModelsFailedError
-
+    def test_analyze_reports_model_failure(self):
         analyzer = self._make_analyzer()
         analyzer._config_override = SimpleNamespace(
             gemini_request_delay=0,
@@ -1152,38 +1088,14 @@ class TestAnalyzerGenerateText:
             report_integrity_retry=1,
         )
 
-        # _parse_response on non-JSON text produces a text fallback result
-        text_fallback_result = AnalysisResult(
-            code="600519",
-            name="贵州茅台",
-            sentiment_score=50,
-            trend_prediction="震荡",
-            operation_advice="持有",
-            analysis_summary="部分文本摘要",
-            success=False,
-            error_message="LLM response is not valid JSON; analysis result will not be persisted",
-        )
-
-        all_models_error = _AllModelsFailedError(
-            "all failed",
-            last_response_text="这不是 JSON，而是纯文本分析结果",
-            last_model="provider/fallback-model",
-            last_usage={"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30},
-        )
-
         with patch.object(analyzer, "is_available", return_value=True), \
              patch.object(analyzer, "_get_analysis_system_prompt", return_value="system"), \
              patch.object(analyzer, "_format_prompt", return_value="prompt"), \
              patch.object(
                  analyzer,
                  "_call_litellm",
-                 side_effect=all_models_error,
+                 side_effect=RuntimeError("LLM model provider/primary-model failed: rate limited"),
              ) as mock_call, \
-             patch.object(analyzer, "_parse_response", return_value=text_fallback_result) as mock_parse, \
-             patch.object(analyzer, "_build_market_snapshot", return_value={}), \
-             patch.object(analyzer, "_check_content_integrity", return_value=(False, ["dashboard.core_conclusion.one_sentence"])), \
-             patch.object(analyzer, "_build_integrity_retry_prompt", return_value="retry prompt"), \
-             patch.object(analyzer, "_apply_placeholder_fill") as mock_fill, \
              patch("ai_stock.analyzer.persist_llm_usage") as mock_usage:
 
             result = analyzer.analyze(
@@ -1191,29 +1103,11 @@ class TestAnalyzerGenerateText:
                 news_context="some news",
             )
 
-        # _call_litellm called twice: initial + 1 retry
-        assert mock_call.call_count == 2
-
-        # _parse_response called twice (initial + retry)
-        assert mock_parse.call_count == 2
-        mock_parse.assert_called_with("这不是 JSON，而是纯文本分析结果", "600519", "贵州茅台")
-
-        # Placeholder fill was applied after retry exhaustion
-        mock_fill.assert_called_once()
-        assert "dashboard.core_conclusion.one_sentence" in mock_fill.call_args[0][1]
-
-        # persist_llm_usage was called with the last model and usage
-        mock_usage.assert_called_once()
-        usage_args = mock_usage.call_args
-        assert usage_args[0][0] == {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}
-        assert usage_args[0][1] == "provider/fallback-model"
-        assert usage_args[1]["call_type"] == "analysis"
-        assert usage_args[1]["stock_code"] == "600519"
-
-        # Result is success=False (text fallback), but all fields exist
+        assert mock_call.call_count == 1
+        mock_usage.assert_not_called()
         assert result.success is False
         assert result.code == "600519"
-        assert result.search_performed is True
+        assert "rate limited" in result.error_message
 
 
 # ---------------------------------------------------------------------------
@@ -1271,8 +1165,8 @@ class TestMarketAnalyzerBypassFix:
         assert isinstance(result, str) and len(result) > 0
         ma.analyzer.generate_text.assert_called_once()
 
-    def test_generate_text_none_falls_back_to_template(self):
-        """generate_market_review() falls back to template when generate_text returns None."""
+    def test_generate_text_none_reports_empty_review(self):
+        """An empty model response is not presented as a successful review."""
         from ai_stock.market_analyzer import MarketOverview, MarketIndex
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value=None)
@@ -1288,8 +1182,8 @@ class TestMarketAnalyzerBypassFix:
                 )
             ],
         )
-        result = ma.generate_market_review(overview, [])
-        assert isinstance(result, str) and len(result) > 0
+        with pytest.raises(RuntimeError, match="empty market review"):
+            ma.generate_market_review(overview, [])
         ma.analyzer.generate_text.assert_called_once()
 
     def test_market_review_uses_8192_max_tokens(self):
@@ -1323,6 +1217,7 @@ class TestMarketAnalyzerBypassFix:
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value=None)
         ma.config.report_language = "en"
+        ma.analyzer = None
         overview = MarketOverview(
             date="2026-03-05",
             indices=[
@@ -1360,6 +1255,7 @@ class TestMarketAnalyzerBypassFix:
 
         ma = self._make_market_analyzer_with_mock_generate_text(return_value=None)
         ma.region = "us"
+        ma.analyzer = None
         ma.profile = US_PROFILE
         ma.strategy = get_market_strategy_blueprint("us")
         overview = MarketOverview(

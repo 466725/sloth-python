@@ -124,6 +124,9 @@ class SystemConfigService:
         "INDUSTRY_PROVIDER_MAX_BOARDS",
         "LLM_TIMEOUT_SEC",
         "LLM_MAX_TOKENS",
+        "LITELLM_FALLBACK_MODELS",
+        "GEMINI_MODEL_FALLBACK",
+        "VISION_PROVIDER_PRIORITY",
     }
     _REMOVED_CONFIG_KEY_PREFIXES: Tuple[str, ...] = (
         "ALPHASIFT_",
@@ -1544,26 +1547,10 @@ class SystemConfigService:
             if previous_map.get(key, "").strip() and key in updates and not updates[key].strip():
                 cleared_labels.append(label)
 
-        removed_fallbacks: List[str] = []
-        if "LITELLM_FALLBACK_MODELS" in updates:
-            previous_fallbacks = [
-                item.strip()
-                for item in previous_map.get("LITELLM_FALLBACK_MODELS", "").split(",")
-                if item.strip()
-            ]
-            next_fallbacks = {
-                item.strip()
-                for item in updates["LITELLM_FALLBACK_MODELS"].split(",")
-                if item.strip()
-            }
-            removed_fallbacks = [item for item in previous_fallbacks if item not in next_fallbacks]
-
-        if not cleared_labels and not removed_fallbacks:
+        if not cleared_labels:
             return []
 
         cleaned_targets = list(cleared_labels)
-        if removed_fallbacks:
-            cleaned_targets.append("备选模型中的失效项")
 
         cleaned_text = " / ".join(cleaned_targets)
         warning = (
@@ -2294,7 +2281,6 @@ class SystemConfigService:
             "DATABASE_PATH",
             "LITELLM_CONFIG",
             "LITELLM_MODEL",
-            "LITELLM_FALLBACK_MODELS",
             "AGENT_LITELLM_MODEL",
             "VISION_MODEL",
             "OPENAI_BASE_URL",
@@ -3379,7 +3365,7 @@ class SystemConfigService:
 
     @staticmethod
     def _validate_llm_runtime_selection(effective_map: Dict[str, str]) -> List[Dict[str, Any]]:
-        """Validate selected primary/fallback/vision models against configured channels."""
+        """Validate selected primary and vision models against configured channels."""
         available_models = (
             SystemConfigService._collect_yaml_models_from_map(effective_map)
             or SystemConfigService._collect_llm_channel_models_from_map(effective_map)
@@ -3443,30 +3429,6 @@ class SystemConfigService:
                     "severity": "error",
                     "expected": "enabled channel model or matching legacy API key",
                     "actual": configured_agent_model,
-                }
-            )
-
-        fallback_models = [
-            model.strip()
-            for model in (effective_map.get("LITELLM_FALLBACK_MODELS") or "").split(",")
-            if model.strip()
-        ]
-        invalid_fallbacks = [
-            model for model in fallback_models
-            if not SystemConfigService._has_runtime_source_for_model(model, effective_map)
-        ]
-        if invalid_fallbacks:
-            issues.append(
-                {
-                    "key": "LITELLM_FALLBACK_MODELS",
-                    "code": "missing_runtime_source",
-                    "message": (
-                        "Some fallback models do not have an enabled channel "
-                        "or matching API key available"
-                    ),
-                    "severity": "error",
-                    "expected": "enabled channel models or matching legacy API keys",
-                    "actual": ", ".join(invalid_fallbacks[:3]),
                 }
             )
 
@@ -3537,30 +3499,6 @@ class SystemConfigService:
                     "severity": "error",
                     "expected": "one configured channel model",
                     "actual": configured_agent_model,
-                }
-            )
-
-        fallback_models = [
-            model.strip()
-            for model in (effective_map.get("LITELLM_FALLBACK_MODELS") or "").split(",")
-            if model.strip()
-        ]
-        invalid_fallbacks = [
-            model for model in fallback_models
-            if model not in available_model_set and not _uses_direct_env_provider(model)
-        ]
-        if invalid_fallbacks:
-            issues.append(
-                {
-                    "key": "LITELLM_FALLBACK_MODELS",
-                    "code": "unknown_model",
-                    "message": (
-                        "Fallback models include entries that are not declared by the current enabled channels "
-                        "or advanced model routing config"
-                    ),
-                    "severity": "error",
-                    "expected": ",".join(available_models[:6]),
-                    "actual": ", ".join(invalid_fallbacks[:3]),
                 }
             )
 

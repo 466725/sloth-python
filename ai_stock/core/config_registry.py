@@ -184,44 +184,6 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         ],
         "warning_codes": ["inherits_primary_when_empty"],
     },
-    "LITELLM_FALLBACK_MODELS": {
-        "title": "Fallback Models",
-        "description": "Comma-separated fallback models tried when the primary model fails (e.g. gemini/gemini-3-flash-preview,openai/gpt-5.4-mini). Useful for cross-provider redundancy.",
-        "category": "ai_model",
-        "data_type": "string",
-        "ui_control": "text",
-        "is_sensitive": False,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": None,
-        "options": [],
-        "validation": {},
-        "display_order": 2,
-        "help_key": "settings.ai_model.LITELLM_FALLBACK_MODELS",
-        "examples": [
-            "LITELLM_FALLBACK_MODELS=deepseek/deepseek-v4-pro,gemini/gemini-3-flash-preview",
-            "LITELLM_FALLBACK_MODELS=openai/gpt-5.4-mini",
-        ],
-        "docs": [
-            {
-                "label": "LLM 配置指南",
-                "href": "https://github.com/466725/sloth-python/blob/main/docs/LLM_CONFIG_GUIDE.md",
-            },
-            {
-                "label": "完整指南：AI 模型配置",
-                "href": "https://github.com/466725/sloth-python/blob/main/docs/full-guide.md#ai-模型配置",
-            },
-            {
-                "label": "LiteLLM Providers（官方）",
-                "href": "https://docs.litellm.ai/docs/providers",
-            },
-            {
-                "label": "LiteLLM config（官方）",
-                "href": "https://docs.litellm.ai/docs/proxy/configs",
-            },
-        ],
-        "warning_codes": ["fallback_models_must_be_available"],
-    },
     # ------------------------------------------------------------------
     # AI Model – Multi-channel LLM configuration
     # ------------------------------------------------------------------
@@ -873,20 +835,6 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "options": [],
         "validation": {},
         "display_order": 20,
-    },
-    "GEMINI_MODEL_FALLBACK": {
-        "title": "Gemini Fallback Model",
-        "description": "Fallback Gemini model name (used when LITELLM_FALLBACK_MODELS is not set and primary is Gemini).",
-        "category": "ai_model",
-        "data_type": "string",
-        "ui_control": "text",
-        "is_sensitive": False,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": "gemini-3-flash-preview",
-        "options": [],
-        "validation": {},
-        "display_order": 21,
     },
     "GEMINI_TEMPERATURE": {
         "title": "Gemini Temperature",
@@ -2994,15 +2942,6 @@ _FIELD_HELP_METADATA: Dict[str, Dict[str, Any]] = {
         "examples": [
             "GEMINI_MODEL=gemini-3.1-pro-preview",
             "LITELLM_MODEL=gemini/gemini-3.1-pro-preview",
-        ],
-        "docs": _DOC_LLM_CONFIG,
-        "warning_codes": ["legacy_provider_setting"],
-    },
-    "GEMINI_MODEL_FALLBACK": {
-        "help_key": "settings.ai_model.legacy_provider_params",
-        "examples": [
-            "GEMINI_MODEL_FALLBACK=gemini-3-flash-preview",
-            "LITELLM_FALLBACK_MODELS=gemini/gemini-3-flash-preview",
         ],
         "docs": _DOC_LLM_CONFIG,
         "warning_codes": ["legacy_provider_setting"],

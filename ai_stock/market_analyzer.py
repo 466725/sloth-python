@@ -546,11 +546,7 @@ Focus on index trend, liquidity, and sector rotation to shape the next-session t
             # Inject structured data tables into LLM prose sections
             return self._inject_data_into_review(review, overview, news)
 
-        logger.warning(
-            "[大盘] %s action=generate_review status=fallback_template reason=empty_llm_response",
-            self._log_context(),
-        )
-        return self._generate_template_review(overview, news)
+        raise RuntimeError("LLM returned an empty market review")
 
     def build_market_review_payload(
         self,

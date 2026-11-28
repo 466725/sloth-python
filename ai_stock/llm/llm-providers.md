@@ -33,7 +33,12 @@ to use.
 Channels are the recommended option for most users and can be managed in the
 Web app's **AI Model Configuration** settings. Use **Quick Add Channel** to
 select a provider, enter its API key, optionally fetch models, select the
-primary/Agent/fallback/vision models, save, and test the connection.
+primary/Agent/vision models, save, and test the connection.
+
+DSA does not switch models when a request fails. It reports the selected
+model's error instead. Existing `LITELLM_FALLBACK_MODELS`,
+`GEMINI_MODEL_FALLBACK`, and `VISION_PROVIDER_PRIORITY` values are ignored
+and may be removed from `.env`.
 
 Runtime capability checks for JSON output, tools, streaming, or vision are
 separate from the basic connection test. They must be explicitly triggered,
@@ -134,7 +139,8 @@ For custom aliases, YAML `model_name` is the alias selected by
 provider. See the [YAML example](litellm_config.example.yaml) for a minimal
 configuration. DSA parses the `model_list` from the YAML and creates its own
 LiteLLM Router; LiteLLM Proxy server settings such as `router_settings` are not
-read from the file.
+read from the file. If an alias names different models, only its first model
+is used; configure distinct aliases to select different models explicitly.
 
 ## Troubleshooting
 
@@ -159,9 +165,9 @@ concluding the cause. For the current implementation, see
 ## Roll back configuration changes
 
 - In Web settings, disable or remove the changed channel and restore the previous
-  primary, Agent, fallback, or vision model.
+  primary, Agent, or vision model.
 - In `.env`, restore the previous `LLM_*`, `LITELLM_MODEL`,
-  `AGENT_LITELLM_MODEL`, `VISION_MODEL`, and `LITELLM_FALLBACK_MODELS` values.
+  `AGENT_LITELLM_MODEL`, and `VISION_MODEL` values.
 - To return from YAML to Channels or legacy configuration, unset
   `LITELLM_CONFIG` and restart the backend. To return from Channels to legacy
   settings, unset `LLM_CHANNELS`.

@@ -415,7 +415,7 @@ def run_agent_loop(
         messages: The initial message list (system + user + optional history).
                   **Mutated in-place** — tool results are appended.
         tool_registry: Registry of callable tools.
-        llm_adapter: LLM backend (handles multi-provider fallback).
+        llm_adapter: LLM backend for the selected model.
         max_steps: Maximum number of LLM round-trips.
         progress_callback: Optional callback receiving progress dicts.
         thinking_labels: Override map of tool_name → friendly label.

@@ -63,6 +63,7 @@ from ai_stock.schemas.decision_action import build_action_fields
 from ai_stock.schemas.report_schema import AnalysisReportSchema
 from ai_stock.market_context import detect_market, get_market_role, get_market_guidelines
 from ai_stock.services.daily_market_context import format_daily_market_context_prompt_section
+from ai_stock.services.run_diagnostics import sanitize_diagnostic_text
 from ai_stock.market_phase_prompt import format_market_phase_prompt_section
 
 logger = logging.getLogger(__name__)
@@ -239,34 +240,6 @@ class _LiteLLMStreamError(RuntimeError):
     def __init__(self, message: str, *, partial_received: bool = False):
         super().__init__(message)
         self.partial_received = partial_received
-
-
-class _AllModelsFailedError(Exception):
-    """Raised when every model in the fallback chain fails.
-
-    This includes both LLM call errors and JSON parse errors (when a
-    ``response_validator`` is provided to :meth:`GeminiAnalyzer._call_litellm`).
-
-    The ``last_response_text`` attribute holds the raw text from the last model
-    that *did* return a response (but whose JSON could not be validated), so
-    callers can still attempt a best-effort text fallback.
-
-    ``last_model`` and ``last_usage`` record the model name and token usage
-    from the last attempt so callers can persist usage even on fallback.
-    """
-
-    def __init__(
-        self,
-        message: str,
-        *,
-        last_response_text: Optional[str] = None,
-        last_model: Optional[str] = None,
-        last_usage: Optional[Dict[str, Any]] = None,
-    ):
-        super().__init__(message)
-        self.last_response_text = last_response_text
-        self.last_model = last_model
-        self.last_usage = last_usage or {}
 
 
 def check_content_integrity(
@@ -2446,21 +2419,13 @@ class GeminiAnalyzer:
         response_validator: Optional[Callable[[str], None]] = None,
         audit_context: Optional[Dict[str, Any]] = None,
     ) -> Tuple[str, str, Dict[str, Any]]:
-        """Call LLM via litellm with fallback across configured models.
-
-        When channels/YAML are configured, every model goes through the Router
-        (which handles per-model key selection, load balancing, and retries).
-        In legacy mode, the primary model may use the Router while fallback
-        models fall back to direct litellm.completion().
+        """Call the configured model via LiteLLM.
 
         Args:
             prompt: User prompt text.
             generation_config: Dict with optional keys: temperature, max_output_tokens, max_tokens.
             response_validator: Optional callable that accepts the raw response text and raises
-                an exception if the response is unacceptable (e.g. not valid JSON).  When it
-                raises, the current model is treated as failed and the next fallback model is
-                tried.  If all models fail validation, :class:`_AllModelsFailedError` is raised
-                with ``last_response_text`` set to the last raw response received.
+                an exception if the response is unacceptable (e.g. not valid JSON).
 
         Returns:
             Tuple of (response text, model_used, usage). On success model_used is the full model
@@ -2474,182 +2439,132 @@ class GeminiAnalyzer:
         )
         requested_temperature = generation_config.get('temperature', 0.7)
 
-        models_to_try = [
-            model
-            for model in [config.litellm_model, *(config.litellm_fallback_models or [])]
-            if model
-        ]
+        if not config.litellm_model:
+            raise RuntimeError("No LLM model configured. Set LITELLM_MODEL in settings.")
 
         use_channel_router = self._has_channel_config(config)
 
-        last_error = None
-        last_response_text: Optional[str] = None
-        last_model: Optional[str] = None
-        last_usage: Dict[str, Any] = {}
         effective_system_prompt = system_prompt or self.TEXT_SYSTEM_PROMPT
         router_model_names = set(get_configured_llm_models(config.llm_model_list))
-        for model in models_to_try:
-            recovery_model_list = config.llm_model_list
-            usage_model, usage_provider = resolved_model_provider_identity(model, recovery_model_list)
+        model = config.litellm_model
+        recovery_model_list = config.llm_model_list
+        usage_model, usage_provider = resolved_model_provider_identity(model, recovery_model_list)
 
-            try:
-                def _attach_usage_audit(
-                    usage: Dict[str, Any],
-                    messages: List[Dict[str, Any]],
-                ) -> Dict[str, Any]:
-                    if audit_context is None:
-                        return attach_message_hmacs(usage, messages)
-                    effective_audit_context = dict(audit_context)
-                    effective_audit_context["provider"] = usage_provider
-                    effective_audit_context["transport"] = (
-                        effective_audit_context.get("transport") or "litellm"
+        def _attach_usage_audit(
+            usage: Dict[str, Any],
+            messages: List[Dict[str, Any]],
+        ) -> Dict[str, Any]:
+            if audit_context is None:
+                return attach_message_hmacs(usage, messages)
+            effective_audit_context = dict(audit_context)
+            effective_audit_context["provider"] = usage_provider
+            effective_audit_context["transport"] = effective_audit_context.get("transport") or "litellm"
+            return attach_legacy_message_stability_audit(usage, messages, effective_audit_context)
+
+        try:
+            model_short = model.split("/")[-1] if "/" in model else model
+            extra = get_thinking_extra_body(model_short)
+            call_kwargs: Dict[str, Any] = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": effective_system_prompt},
+                    {"role": "user", "content": prompt},
+                ],
+                "max_tokens": max_tokens,
+            }
+            if extra:
+                call_kwargs["extra_body"] = extra
+            uses_router = bool(use_channel_router and self._router and model in router_model_names)
+            if not uses_router:
+                try:
+                    keys = get_api_keys_for_model(model, config)
+                except AttributeError:
+                    keys = []
+                if keys:
+                    call_kwargs["api_key"] = keys[0]
+                try:
+                    call_kwargs.update(extra_litellm_params(model, config))
+                except AttributeError:
+                    pass
+            call_kwargs = apply_litellm_generation_params(
+                call_kwargs, model, requested_temperature, model_list=recovery_model_list,
+            )
+
+            stream_text: Optional[str] = None
+            stream_usage: Dict[str, Any] = {}
+            if stream:
+                try:
+                    stream_response = call_litellm_with_param_recovery(
+                        lambda kwargs: self._dispatch_litellm_completion(
+                            model, kwargs, config=config, use_channel_router=use_channel_router,
+                            router_model_names=router_model_names,
+                        ),
+                        model=model,
+                        call_kwargs={**call_kwargs, "stream": True},
+                        model_list=recovery_model_list,
+                        cache_recovery=False,
+                        logger=logger,
                     )
-                    return attach_legacy_message_stability_audit(
-                        usage,
-                        messages,
-                        effective_audit_context,
+                    stream_text, stream_usage = self._consume_litellm_stream(
+                        stream_response, model=model, usage_model=usage_model,
+                        provider=usage_provider, progress_callback=stream_progress_callback,
                     )
-
-                model_short = model.split("/")[-1] if "/" in model else model
-                extra = get_thinking_extra_body(model_short)
-                call_kwargs: Dict[str, Any] = {
-                    "model": model,
-                    "messages": [
-                        {"role": "system", "content": effective_system_prompt},
-                        {"role": "user", "content": prompt},
-                    ],
-                    "max_tokens": max_tokens,
-                }
-                if extra:
-                    call_kwargs["extra_body"] = extra
-                uses_router = (
-                    (use_channel_router and self._router and model in router_model_names)
-                )
-                if not uses_router:
-                    try:
-                        keys = get_api_keys_for_model(model, config)
-                    except AttributeError:
-                        keys = []
-                    if keys:
-                        call_kwargs["api_key"] = keys[0]
-                    try:
-                        call_kwargs.update(extra_litellm_params(model, config))
-                    except AttributeError:
-                        pass
-                call_kwargs = apply_litellm_generation_params(
-                    call_kwargs,
-                    model,
-                    requested_temperature,
-                    model_list=recovery_model_list,
-                )
-
-                _stream_text: Optional[str] = None
-                _stream_usage: Dict[str, Any] = {}
-
-                if stream:
-                    try:
-                        stream_response = call_litellm_with_param_recovery(
-                            lambda kwargs: self._dispatch_litellm_completion(
-                                model,
-                                kwargs,
-                                config=config,
-                                use_channel_router=use_channel_router,
-                                router_model_names=router_model_names,
-                            ),
-                            model=model,
-                            call_kwargs={**call_kwargs, "stream": True},
-                            model_list=recovery_model_list,
-                            cache_recovery=False,
-                            logger=logger,
-                        )
-                        _stream_text, _stream_usage = self._consume_litellm_stream(
-                            stream_response,
-                            model=model,
-                            usage_model=usage_model,
-                            provider=usage_provider,
-                            progress_callback=stream_progress_callback,
-                        )
-                    except _LiteLLMStreamError as exc:
-                        if exc.partial_received:
-                            logger.warning(
-                                "[LiteLLM] %s stream failed after partial output, retrying non-stream for same model: %s",
-                                model,
-                                exc,
-                            )
-                        else:
-                            logger.warning(
-                                "[LiteLLM] %s stream unavailable before first chunk, falling back to non-stream: %s",
-                                model,
-                                exc,
-                            )
-                        last_error = exc
-                    except Exception as exc:
+                except _LiteLLMStreamError as exc:
+                    if exc.partial_received:
                         logger.warning(
-                            "[LiteLLM] %s stream request failed before first chunk, falling back to non-stream: %s",
-                            model,
-                            exc,
+                            "[LiteLLM] %s stream failed after partial output, retrying non-stream for same model: %s",
+                            model, exc,
                         )
-
-                if _stream_text is not None:
-                    last_response_text = _stream_text
-                    last_model = model
-                    _stream_usage = _attach_usage_audit(_stream_usage, call_kwargs["messages"])
-                    last_usage = _stream_usage
-                    if response_validator is not None:
-                        response_validator(_stream_text)
-                    return _stream_text, model, _stream_usage
-
-                response = call_litellm_with_param_recovery(
-                    lambda kwargs: self._dispatch_litellm_completion(
-                        model,
-                        kwargs,
-                        config=config,
-                        use_channel_router=use_channel_router,
-                        router_model_names=router_model_names,
-                    ),
-                    model=model,
-                    call_kwargs=call_kwargs,
-                    model_list=recovery_model_list,
-                    logger=logger,
-                )
-
-                content = self._extract_completion_text(response)
-                if content:
-                    usage_messages = None if audit_context is not None else call_kwargs["messages"]
-                    usage = self._normalize_usage(
-                        extract_usage_payload(response),
-                        model=usage_model or model,
-                        provider=usage_provider,
-                        messages=usage_messages,
+                    else:
+                        logger.warning(
+                            "[LiteLLM] %s stream unavailable before first chunk, falling back to non-stream: %s",
+                            model, exc,
+                        )
+                except Exception as exc:
+                    logger.warning(
+                        "[LiteLLM] %s stream request failed before first chunk, falling back to non-stream: %s",
+                        model, exc,
                     )
-                    if audit_context is not None:
-                        usage = _attach_usage_audit(usage, call_kwargs["messages"])
-                    last_response_text = content
-                    last_model = model
-                    last_usage = usage
-                    if response_validator is not None:
-                        response_validator(content)
-                    return (content, model, usage)
+
+            if stream_text is not None:
+                stream_usage = _attach_usage_audit(stream_usage, call_kwargs["messages"])
+                if response_validator is not None:
+                    response_validator(stream_text)
+                return stream_text, model, stream_usage
+
+            response = call_litellm_with_param_recovery(
+                lambda kwargs: self._dispatch_litellm_completion(
+                    model, kwargs, config=config, use_channel_router=use_channel_router,
+                    router_model_names=router_model_names,
+                ),
+                model=model, call_kwargs=call_kwargs, model_list=recovery_model_list, logger=logger,
+            )
+            content = self._extract_completion_text(response)
+            if not content:
                 raise ValueError("LLM returned empty response")
-
-            except Exception as e:
-                logger.warning(f"[LiteLLM] {model} failed: {e}")
-                last_error = e
-                continue
-
-        raise _AllModelsFailedError(
-            f"All LLM models failed (tried {len(models_to_try)} model(s)). Last error: {last_error}",
-            last_response_text=last_response_text,
-            last_model=last_model,
-            last_usage=last_usage,
-        )
+            usage_messages = None if audit_context is not None else call_kwargs["messages"]
+            usage = self._normalize_usage(
+                extract_usage_payload(response),
+                model=usage_model or model,
+                provider=usage_provider,
+                messages=usage_messages,
+            )
+            if audit_context is not None:
+                usage = _attach_usage_audit(usage, call_kwargs["messages"])
+            if response_validator is not None:
+                response_validator(content)
+            return content, model, usage
+        except Exception as e:
+            error_detail = sanitize_diagnostic_text(e) or type(e).__name__
+            logger.warning("[LiteLLM] %s failed: %s", model, error_detail)
+            raise RuntimeError(f"LLM model {model} failed: {error_detail}") from e
 
     def generate_text(
         self,
         prompt: str,
         max_tokens: int = 2048,
         temperature: float = 0.7,
-    ) -> Optional[str]:
+    ) -> str:
         """Public entry point for free-form text generation.
 
         External callers (e.g. MarketAnalyzer) must use this method instead of
@@ -2662,7 +2577,7 @@ class GeminiAnalyzer:
             temperature: Sampling temperature (default 0.7).
 
         Returns:
-            Response text, or None if the LLM call fails (error is logged).
+            Response text. Model errors are propagated to the caller.
         """
         try:
             result = self._call_litellm(
@@ -2676,7 +2591,7 @@ class GeminiAnalyzer:
             return result
         except Exception as exc:
             logger.error("[generate_text] LLM call failed: %s", exc)
-            return None
+            raise
 
     def analyze(
         self, 
@@ -2691,7 +2606,7 @@ class GeminiAnalyzer:
         
         流程：
         1. 格式化输入数据（技术面 + 新闻）
-        2. 调用 Gemini API（带重试和模型切换）
+        2. 调用配置的模型（支持同一模型重试）
         3. 解析 JSON 响应
         4. 返回结构化结果
         
@@ -2808,28 +2723,15 @@ class GeminiAnalyzer:
 
             while True:
                 start_time = time.time()
-                try:
-                    response_text, model_used, llm_usage = self._call_litellm(
-                        current_prompt,
-                        generation_config,
-                        system_prompt=system_prompt,
-                        stream=True,
-                        stream_progress_callback=stream_progress_callback,
-                        response_validator=self._validate_json_response,
-                        audit_context=legacy_audit_context,
-                    )
-                except _AllModelsFailedError as exc:
-                    if exc.last_response_text is not None:
-                        logger.warning(
-                            "[LLM JSON] %s(%s): all models returned invalid JSON, using text fallback",
-                            name,
-                            code,
-                        )
-                        response_text = exc.last_response_text
-                        model_used = exc.last_model
-                        llm_usage = exc.last_usage
-                    else:
-                        raise
+                response_text, model_used, llm_usage = self._call_litellm(
+                    current_prompt,
+                    generation_config,
+                    system_prompt=system_prompt,
+                    stream=True,
+                    stream_progress_callback=stream_progress_callback,
+                    response_validator=self._validate_json_response,
+                    audit_context=legacy_audit_context,
+                )
                 elapsed = time.time() - start_time
 
                 # 记录响应信息

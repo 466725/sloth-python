@@ -101,7 +101,6 @@ class _LLMEnvironmentConfig:
     """Resolved LLM settings assembled from YAML, channels, and legacy keys."""
 
     litellm_model: str
-    litellm_fallback_models: list[str]
     litellm_config_path: Optional[str]
     llm_models_source: str
     llm_channels: list[dict[str, Any]]
@@ -510,12 +509,22 @@ def _llm_endpoint_identity(params: Dict[str, Any]) -> Tuple[str, str]:
 
 
 def _single_key_deployments(model_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Keep the first credential for each provider and endpoint."""
+    """Keep one credential per endpoint and one model per routing alias."""
     first_keys: Dict[Tuple[str, str], Any] = {}
+    alias_models: Dict[str, str] = {}
+    selected: List[Dict[str, Any]] = []
     for entry in model_list:
         params = entry.get("litellm_params")
         if not isinstance(params, dict):
+            selected.append(entry)
             continue
+        alias = str(entry.get("model_name") or "").strip()
+        model = str(params.get("model") or "").strip()
+        if alias in alias_models and alias_models[alias] != model:
+            logger.warning("Multiple models configured for LLM alias %s; only the first will be used", alias)
+            continue
+        alias_models[alias] = model
+        selected.append(entry)
         identity = _llm_endpoint_identity(params)
         api_key = params.get("api_key")
         if identity not in first_keys:
@@ -526,7 +535,7 @@ def _single_key_deployments(model_list: List[Dict[str, Any]]) -> List[Dict[str, 
                 params.pop("api_key", None)
             else:
                 params["api_key"] = first_keys[identity]
-    return model_list
+    return selected
 
 
 def _uses_direct_env_provider(model: str) -> bool:
@@ -565,30 +574,6 @@ def get_effective_agent_primary_model(config: "Config") -> str:
     if configured_agent_model:
         return configured_agent_model
     return (getattr(config, "litellm_model", "") or "").strip()
-
-
-def get_effective_agent_models_to_try(config: "Config") -> List[str]:
-    """Return Agent model try-order: primary + global fallbacks (deduped)."""
-    model_list = getattr(config, "llm_model_list", []) or []
-    configured_router_models = set(get_configured_llm_models(model_list))
-    raw_models = [get_effective_agent_primary_model(config)] + (
-        getattr(config, "litellm_fallback_models", []) or []
-    )
-    seen = set()
-    ordered_models: List[str] = []
-    for model in raw_models:
-        normalized_model = (model or "").strip()
-        if not normalized_model:
-            continue
-        dedupe_key = normalize_agent_litellm_model(
-            normalized_model,
-            configured_models=configured_router_models,
-        )
-        if dedupe_key in seen:
-            continue
-        seen.add(dedupe_key)
-        ordered_models.append(normalized_model)
-    return ordered_models
 
 
 def setup_env(override: bool = False):
@@ -639,7 +624,6 @@ class Config:
     # === AI 分析配置 ===
     # LiteLLM unified model config (provider/model format, e.g. gemini/gemini-3.1-pro-preview)
     litellm_model: str = ""  # Primary model; must include provider prefix when set explicitly
-    litellm_fallback_models: List[str] = field(default_factory=list)  # Cross-model fallback list
 
     # Unified temperature for all LLM calls (LLM_TEMPERATURE); legacy per-provider temps are fallback only
     llm_temperature: float = 0.7
@@ -664,7 +648,6 @@ class Config:
     # Legacy single-key fields (kept for backward compatibility; gemini_api_keys[0] when set)
     gemini_api_key: Optional[str] = None
     gemini_model: str = "gemini-3.1-pro-preview"  # 主模型
-    gemini_model_fallback: str = "gemini-3-flash-preview"  # 备选模型
     gemini_temperature: float = 0.7  # 温度参数（0.0-2.0，控制输出随机性，默认0.7）
 
     # Gemini API 请求配置（防止 429 限流）
@@ -681,10 +664,8 @@ class Config:
 
     # === Vision 配置 ===
     # VISION_MODEL: litellm model string used for image understanding calls.
-    # Fallback chain: VISION_MODEL → OPENAI_VISION_MODEL → gemini/gemini-2.0-flash
+    # OPENAI_VISION_MODEL remains an alias for older configurations.
     vision_model: str = ""
-    # VISION_PROVIDER_PRIORITY: comma-separated provider order for Vision fallback.
-    vision_provider_priority: str = "gemini,openai"
 
     # === 搜索引擎配置（支持多 Key 负载均衡）===
     anspire_api_keys: List[str] = field(default_factory=list)  # Anspire Search API Keys
@@ -1091,7 +1072,6 @@ class Config:
                 default=True,
             ),
             litellm_model=llm_environment.litellm_model,
-            litellm_fallback_models=llm_environment.litellm_fallback_models,
             llm_temperature=resolve_unified_llm_temperature(llm_environment.litellm_model),
             litellm_config_path=llm_environment.litellm_config_path,
             llm_models_source=llm_environment.llm_models_source,
@@ -1103,7 +1083,6 @@ class Config:
             deepseek_api_keys=llm_environment.deepseek_api_keys,
             gemini_api_key=os.getenv('GEMINI_API_KEY'),
             gemini_model=os.getenv('GEMINI_MODEL', 'gemini-3.1-pro-preview'),
-            gemini_model_fallback=os.getenv('GEMINI_MODEL_FALLBACK', 'gemini-3-flash-preview'),
             gemini_temperature=parse_env_float(os.getenv('GEMINI_TEMPERATURE'), 0.7, field_name='GEMINI_TEMPERATURE'),
             gemini_request_delay=parse_env_float(os.getenv('GEMINI_REQUEST_DELAY'), 2.0, field_name='GEMINI_REQUEST_DELAY', minimum=0.0),
             gemini_max_retries=parse_env_int(os.getenv('GEMINI_MAX_RETRIES'), 5, field_name='GEMINI_MAX_RETRIES', minimum=0),
@@ -1116,7 +1095,6 @@ class Config:
             openai_temperature=parse_env_float(os.getenv('OPENAI_TEMPERATURE'), 0.7, field_name='OPENAI_TEMPERATURE'),
             # Vision model: VISION_MODEL > OPENAI_VISION_MODEL (alias) > default
             vision_model=llm_environment.vision_model,
-            vision_provider_priority=os.getenv('VISION_PROVIDER_PRIORITY', 'gemini,openai'),
             anspire_api_keys=llm_environment.anspire_api_keys,
             bocha_api_keys=bocha_api_keys,
             tavily_api_keys=tavily_api_keys,
@@ -1478,28 +1456,6 @@ class Config:
                     openai_model if '/' in openai_model else f'openai/{openai_model}'
                 )
 
-        fallback_models_raw = os.getenv('LITELLM_FALLBACK_MODELS', '')
-        if fallback_models_raw.strip():
-            litellm_fallback_models = [
-                model.strip()
-                for model in fallback_models_raw.split(',')
-                if model.strip()
-            ]
-        else:
-            gemini_fallback = os.getenv(
-                'GEMINI_MODEL_FALLBACK',
-                'gemini-3-flash-preview',
-            ).strip()
-            if litellm_model.startswith('gemini/') and gemini_fallback:
-                fallback_model = (
-                    gemini_fallback
-                    if '/' in gemini_fallback
-                    else f'gemini/{gemini_fallback}'
-                )
-                litellm_fallback_models = [fallback_model]
-            else:
-                litellm_fallback_models = []
-
         litellm_config_path = os.getenv('LITELLM_CONFIG', '').strip() or None
         llm_models_source = "legacy_env"
         llm_channels: list[dict[str, Any]] = []
@@ -1550,17 +1506,6 @@ class Config:
                     litellm_model = channel['models'][0]
                     break
 
-        if not litellm_fallback_models and llm_channels and litellm_model:
-            channel_models: list[str] = []
-            for channel in llm_channels:
-                channel_models.extend(channel.get('models', []))
-            seen_models = {litellm_model}
-            litellm_fallback_models = [
-                model
-                for model in channel_models
-                if model not in seen_models and not seen_models.add(model)
-            ]
-
         agent_litellm_model = normalize_agent_litellm_model(
             os.getenv('AGENT_LITELLM_MODEL', ''),
             configured_models=set(get_configured_llm_models(llm_model_list)),
@@ -1587,7 +1532,6 @@ class Config:
 
         return _LLMEnvironmentConfig(
             litellm_model=litellm_model,
-            litellm_fallback_models=litellm_fallback_models,
             litellm_config_path=litellm_config_path,
             llm_models_source=llm_models_source,
             llm_channels=llm_channels,
@@ -1801,8 +1745,7 @@ class Config:
 
         Returns one deployment per provider, keyed by placeholder model_name
         tokens. The analyzer
-        resolves actual model_names at call time from LITELLM_MODEL /
-        LITELLM_FALLBACK_MODELS.
+        resolves the actual model_name at call time from LITELLM_MODEL.
 
         Compatibility note:
         - LiteLLM OpenAI-compatible 约定: https://docs.litellm.ai/docs/providers/openai_compatible
@@ -2330,21 +2273,6 @@ class Config:
                     field="AGENT_LITELLM_MODEL",
                 ))
 
-            invalid_fallbacks = [
-                model for model in (self.litellm_fallback_models or [])
-                if model and model not in available_router_model_set
-                and not _uses_direct_env_provider(model)
-            ]
-            if invalid_fallbacks:
-                issues.append(ConfigIssue(
-                    severity="warning",
-                    message=(
-                        "备选模型中包含未在当前渠道或高级模型路由配置中声明的模型："
-                        f"{', '.join(invalid_fallbacks[:3])}"
-                    ),
-                    field="LITELLM_FALLBACK_MODELS",
-                ))
-
             if (
                 self.vision_model
                 and not _uses_direct_env_provider(self.vision_model)
@@ -2472,34 +2400,21 @@ class Config:
                 "openai": self.openai_api_keys,
                 "deepseek": self.deepseek_api_keys,
             }
-            # Derive the primary model's provider prefix so that its key is also
-            # checked even when the provider is absent from VISION_PROVIDER_PRIORITY.
             _primary_prefix = (
                 self.vision_model.split("/")[0]
                 if "/" in self.vision_model
                 else "openai"
             )
-            _priority_providers = [
-                p.strip().lower()
-                for p in self.vision_provider_priority.split(",")
-                if p.strip()
-            ]
-            # Union: fallback providers + primary model's own provider
-            _all_providers = {_primary_prefix} | set(_priority_providers)
-
             # Treat very short keys as invalid for configuration validation.
             _has_any_key = any(
-                any(k and len(k) >= 8 for k in (_VISION_KEY_MAP.get(p) or []))
-                for p in _all_providers
-                if p in _VISION_KEY_MAP
+                k and len(k) >= 8 for k in (_VISION_KEY_MAP.get(_primary_prefix) or [])
             )
-            if not _has_any_key:
-                _checked = sorted(_all_providers & _VISION_KEY_MAP.keys())
+            if _primary_prefix in _VISION_KEY_MAP and not _has_any_key:
                 issues.append(ConfigIssue(
                     severity="warning",
                     message=(
                         "VISION_MODEL 已配置，但未找到可用的 Vision API Key "
-                        f"（已检查：{', '.join(_checked)}）。"
+                        f"（已检查：{_primary_prefix}）。"
                         "图片股票代码提取功能将不可用，请配置对应的 API Key。"
                     ),
                     field="VISION_MODEL",

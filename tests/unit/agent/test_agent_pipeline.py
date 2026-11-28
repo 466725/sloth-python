@@ -105,9 +105,9 @@ class TestAgentConfig(unittest.TestCase):
         self.assertEqual(config.agent_litellm_model, 'openai/gpt-4o-mini')
         self.assertTrue(config.is_agent_available())
 
-    def test_agent_models_to_try_inherit_legacy_provider_models(self):
-        """Legacy provider key/model envs should still produce a non-empty Agent model try list."""
-        from ai_stock.config import Config, get_effective_agent_models_to_try
+    def test_agent_inherits_legacy_provider_model(self):
+        """Legacy provider configuration still selects the Agent model."""
+        from ai_stock.config import Config, get_effective_agent_primary_model
 
         test_cases = [
             (
@@ -116,7 +116,7 @@ class TestAgentConfig(unittest.TestCase):
                     "GEMINI_MODEL": "gemini-2.5-flash",
                     "AGENT_LITELLM_MODEL": "",
                 },
-                ["gemini/gemini-2.5-flash", "gemini/gemini-3-flash-preview"],
+                "gemini/gemini-2.5-flash",
             ),
             (
                 {
@@ -124,14 +124,14 @@ class TestAgentConfig(unittest.TestCase):
                     "OPENAI_MODEL": "gpt-4o-mini",
                     "AGENT_LITELLM_MODEL": "",
                 },
-                ["openai/gpt-4o-mini"],
+                "openai/gpt-4o-mini",
             ),
             (
                 {
                     "DEEPSEEK_API_KEY": "deepseek-test-key",
                     "AGENT_LITELLM_MODEL": "",
                 },
-                ["deepseek/deepseek-chat"],
+                "deepseek/deepseek-chat",
             ),
         ]
 
@@ -140,7 +140,7 @@ class TestAgentConfig(unittest.TestCase):
                 with self.subTest(expected_models=expected_models), patch.dict(os.environ, env, clear=True):
                     Config._instance = None
                     config = Config._load_from_env()
-                    self.assertEqual(get_effective_agent_models_to_try(config), expected_models)
+                    self.assertEqual(get_effective_agent_primary_model(config), expected_models)
 
         Config._instance = None
 
@@ -1774,8 +1774,8 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertIsNotNone(executor.llm_adapter)
 
     @patch("ai_stock.agent.llm_adapter.Router")
-    def test_llm_adapter_call_completion_uses_effective_agent_models_order(self, _mock_router):
-        """call_completion should use Agent effective model chain in order."""
+    def test_llm_adapter_reports_primary_failure_without_switching_models(self, _mock_router):
+        """An Agent model failure is reported without trying another model."""
         mock_cfg = MagicMock()
         mock_cfg.agent_litellm_model = "gpt-4o-mini"
         mock_cfg.litellm_model = "gemini/gemini-2.5-flash"
@@ -1796,15 +1796,17 @@ class TestAgentConstructionChain(unittest.TestCase):
         def fake_call(_messages, _tools, model, **_kwargs):
             calls.append(model)
             if model == "openai/gpt-4o-mini":
-                raise RuntimeError("primary failed")
+                raise RuntimeError("primary failed, api_key=test-secret")
             return MagicMock(content="ok")
 
         adapter._call_litellm_model = MagicMock(side_effect=fake_call)
 
         result = adapter.call_completion(messages=[{"role": "user", "content": "hi"}], tools=[])
 
-        self.assertEqual(calls, ["openai/gpt-4o-mini", "anthropic/claude-3-5-sonnet-20241022"])
-        self.assertEqual(result.content, "ok")
+        self.assertEqual(calls, ["openai/gpt-4o-mini"])
+        self.assertEqual(result.provider, "error")
+        self.assertIn("primary failed", result.content)
+        self.assertNotIn("test-secret", result.content)
 
     @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_omits_temperature_for_gpt5_family(self, _mock_router):
@@ -1985,126 +1987,6 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertEqual(strict_router.completion.call_args_list[0].kwargs["temperature"], 0.2)
         self.assertNotIn("temperature", strict_router.completion.call_args_list[1].kwargs)
         self.assertEqual(flex_router.completion.call_args.kwargs["temperature"], 0.2)
-
-    @patch("ai_stock.agent.llm_adapter.Router")
-    def test_llm_adapter_recomputes_timeout_for_each_fallback_attempt(self, _mock_router):
-        """Each fallback model attempt should receive only the remaining timeout budget."""
-        mock_cfg = MagicMock()
-        mock_cfg.agent_litellm_model = "gpt-4o-mini"
-        mock_cfg.litellm_model = None
-        mock_cfg.litellm_fallback_models = ["anthropic/claude-3-5-sonnet-20241022"]
-        mock_cfg.llm_model_list = []
-        mock_cfg.llm_temperature = 0.7
-        mock_cfg.gemini_api_keys = []
-        mock_cfg.anthropic_api_keys = []
-        mock_cfg.openai_api_keys = []
-        mock_cfg.deepseek_api_keys = []
-        mock_cfg.openai_base_url = None
-
-        from ai_stock.agent.llm_adapter import LLMToolAdapter
-        adapter = LLMToolAdapter(config=mock_cfg)
-
-        timeouts = []
-
-        def fake_call(_messages, _tools, model, **kwargs):
-            timeouts.append((model, kwargs.get("timeout")))
-            if model == "openai/gpt-4o-mini":
-                raise RuntimeError("primary failed")
-            return MagicMock(content="ok")
-
-        adapter._call_litellm_model = MagicMock(side_effect=fake_call)
-
-        with patch("ai_stock.agent.llm_adapter.time.time", side_effect=[0.0, 0.0, 7.0, 7.0]):
-            result = adapter.call_completion(
-                messages=[{"role": "user", "content": "hi"}],
-                tools=[],
-                timeout=10.0,
-            )
-
-        self.assertEqual(result.content, "ok")
-        self.assertEqual(timeouts[0], ("openai/gpt-4o-mini", 10.0))
-        self.assertEqual(timeouts[1], ("anthropic/claude-3-5-sonnet-20241022", 3.0))
-
-    @patch("ai_stock.agent.llm_adapter.Router")
-    def test_llm_adapter_context_window_error_skips_sleep(self, _mock_router):
-        """Context-window errors should continue fallback immediately without backoff."""
-        mock_cfg = MagicMock()
-        mock_cfg.agent_litellm_model = "gpt-4o-mini"
-        mock_cfg.litellm_model = None
-        mock_cfg.litellm_fallback_models = ["anthropic/claude-3-5-sonnet-20241022"]
-        mock_cfg.llm_model_list = []
-        mock_cfg.llm_temperature = 0.7
-        mock_cfg.gemini_api_keys = []
-        mock_cfg.anthropic_api_keys = []
-        mock_cfg.openai_api_keys = []
-        mock_cfg.deepseek_api_keys = []
-        mock_cfg.openai_base_url = None
-
-        from ai_stock.agent.llm_adapter import LLMToolAdapter
-        adapter = LLMToolAdapter(config=mock_cfg)
-
-        class FakeContextWindowExceededError(Exception):
-            pass
-
-        def fake_call(_messages, _tools, model, **_kwargs):
-            if model == "openai/gpt-4o-mini":
-                raise FakeContextWindowExceededError("window exceeded")
-            return MagicMock(content="ok")
-
-        adapter._call_litellm_model = MagicMock(side_effect=fake_call)
-
-        with patch(
-            "ai_stock.agent.llm_adapter.litellm.ContextWindowExceededError",
-            FakeContextWindowExceededError,
-        ), patch("ai_stock.agent.llm_adapter.time.sleep") as mock_sleep:
-            result = adapter.call_completion(messages=[{"role": "user", "content": "hi"}], tools=[])
-
-        self.assertEqual(result.content, "ok")
-        mock_sleep.assert_not_called()
-
-    @patch("ai_stock.agent.llm_adapter.Router")
-    def test_llm_adapter_reports_rate_limit_suffix_when_any_fallback_hit_limit(self, _mock_router):
-        """Final error should note earlier rate limiting even if the last error differs."""
-        mock_cfg = MagicMock()
-        mock_cfg.agent_litellm_model = "gpt-4o-mini"
-        mock_cfg.litellm_model = None
-        mock_cfg.litellm_fallback_models = ["anthropic/claude-3-5-sonnet-20241022"]
-        mock_cfg.llm_model_list = []
-        mock_cfg.llm_temperature = 0.7
-        mock_cfg.gemini_api_keys = []
-        mock_cfg.anthropic_api_keys = []
-        mock_cfg.openai_api_keys = []
-        mock_cfg.deepseek_api_keys = []
-        mock_cfg.openai_base_url = None
-
-        from ai_stock.agent.llm_adapter import LLMToolAdapter
-        adapter = LLMToolAdapter(config=mock_cfg)
-
-        class FakeRateLimitError(Exception):
-            pass
-
-        class FakeContextWindowExceededError(Exception):
-            pass
-
-        def fake_call(_messages, _tools, model, **_kwargs):
-            if model == "openai/gpt-4o-mini":
-                raise FakeRateLimitError("rate limited")
-            raise FakeContextWindowExceededError("window exceeded")
-
-        adapter._call_litellm_model = MagicMock(side_effect=fake_call)
-
-        with patch("ai_stock.agent.llm_adapter.litellm.RateLimitError", FakeRateLimitError), \
-             patch(
-                 "ai_stock.agent.llm_adapter.litellm.ContextWindowExceededError",
-                 FakeContextWindowExceededError,
-             ), \
-             patch("ai_stock.agent.llm_adapter.time.sleep") as mock_sleep:
-            result = adapter.call_completion(messages=[{"role": "user", "content": "hi"}], tools=[])
-
-        self.assertEqual(result.provider, "error")
-        self.assertIn("All LLM models failed (rate-limit encountered during fallback).", result.content)
-        self.assertIn("window exceeded", result.content)
-        mock_sleep.assert_not_called()
 
     @patch("ai_stock.agent.llm_adapter.Router")
     def test_llm_adapter_reports_missing_configuration_without_generic_none_error(self, _mock_router):

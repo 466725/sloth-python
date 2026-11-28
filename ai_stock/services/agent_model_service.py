@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from ai_stock.config import get_effective_agent_models_to_try, get_effective_agent_primary_model
+from ai_stock.config import get_effective_agent_primary_model
 
 
 _PLACEHOLDER_TO_PROVIDER = {
@@ -34,7 +34,6 @@ def _get_model_provider(model_name: str) -> str:
 def _build_non_legacy_deployments(config) -> List[Dict[str, Any]]:
     source = _get_models_source(config)
     primary_model = get_effective_agent_primary_model(config)
-    fallback_models = set(get_effective_agent_models_to_try(config)[1:])
     deployments: List[Dict[str, Any]] = []
 
     for index, entry in enumerate(getattr(config, "llm_model_list", []) or []):
@@ -54,7 +53,7 @@ def _build_non_legacy_deployments(config) -> List[Dict[str, Any]]:
                 "api_base": str(api_base).strip() if api_base else None,
                 "deployment_name": str(deployment_name).strip() if deployment_name else None,
                 "is_primary": model_name == primary_model,
-                "is_fallback": model_name in fallback_models,
+                "is_fallback": False,
             }
         )
 
@@ -63,8 +62,7 @@ def _build_non_legacy_deployments(config) -> List[Dict[str, Any]]:
 
 def _build_legacy_deployments(config) -> List[Dict[str, Any]]:
     primary_model = get_effective_agent_primary_model(config)
-    ordered_models = get_effective_agent_models_to_try(config)
-    if not ordered_models:
+    if not primary_model:
         return []
 
     placeholder_counts = {provider: 0 for provider in _PLACEHOLDER_TO_PROVIDER.values()}
@@ -73,48 +71,27 @@ def _build_legacy_deployments(config) -> List[Dict[str, Any]]:
         if provider:
             placeholder_counts[provider] += 1
 
-    deployments: List[Dict[str, Any]] = []
-    seen_models = set()
-    fallback_set = set(ordered_models[1:])
-    for model_name in ordered_models:
-        if model_name in seen_models:
-            continue
-        seen_models.add(model_name)
+    provider = _get_model_provider(primary_model)
+    deployment_count = placeholder_counts.get(provider, 0)
+    if deployment_count <= 0:
+        if provider in _MANAGED_LEGACY_PROVIDERS:
+            return []
+        deployment_count = 1
 
-        provider = _get_model_provider(model_name)
-        deployment_count = placeholder_counts.get(provider, 0)
-        if deployment_count <= 0:
-            # Legacy runtime still supports direct litellm calls for providers
-            # whose credentials/base are resolved from environment variables
-            # instead of managed placeholder deployments.
-            if provider in _MANAGED_LEGACY_PROVIDERS:
-                continue
-            deployment_count = 1
-
-        api_base = getattr(config, "openai_base_url", None) if provider == "openai" else None
-        # Legacy runtime only load-balances the primary model via Router.
-        # Fallback models call litellm directly with the first configured key,
-        # so they expose at most one reachable deployment per model.
-        if model_name == primary_model:
-            deployment_indexes = range(deployment_count)
-        else:
-            deployment_indexes = range(1)
-
-        for index in deployment_indexes:
-            deployments.append(
-                {
-                    "deployment_id": f"legacy:{provider}:{index}:{model_name}",
-                    "model": model_name,
-                    "provider": provider,
-                    "source": "legacy_env",
-                    "api_base": api_base,
-                    "deployment_name": f"legacy_{provider}_{index + 1}",
-                    "is_primary": model_name == primary_model,
-                    "is_fallback": model_name in fallback_set,
-                }
-            )
-
-    return deployments
+    api_base = getattr(config, "openai_base_url", None) if provider == "openai" else None
+    return [
+        {
+            "deployment_id": f"legacy:{provider}:{index}:{primary_model}",
+            "model": primary_model,
+            "provider": provider,
+            "source": "legacy_env",
+            "api_base": api_base,
+            "deployment_name": f"legacy_{provider}_{index + 1}",
+            "is_primary": True,
+            "is_fallback": False,
+        }
+        for index in range(deployment_count)
+    ]
 
 
 def list_agent_model_deployments(config) -> List[Dict[str, Any]]:
@@ -127,7 +104,6 @@ def list_agent_model_deployments(config) -> List[Dict[str, Any]]:
         deployments,
         key=lambda item: (
             not item["is_primary"],
-            not item["is_fallback"],
             item["source"],
             item["model"],
             item["api_base"] or "",

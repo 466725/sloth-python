@@ -265,7 +265,7 @@ describe('LLMChannelEditor', () => {
     );
 
     expect(screen.getByText(/检测到已配置高级模型路由 YAML/i)).toBeInTheDocument();
-    expect(screen.getByText(/运行时主模型 \/ 备选模型 \/ Vision \/ Temperature 仍由下方通用字段决定/i)).toBeInTheDocument();
+    expect(screen.getByText(/运行时主模型 \/ Vision \/ Temperature 仍由下方通用字段决定/i)).toBeInTheDocument();
     expect(screen.queryByText(/LiteLLM/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/LITELLM_CONFIG/i)).not.toBeInTheDocument();
   });
@@ -655,7 +655,6 @@ describe('LLMChannelEditor', () => {
       expect.arrayContaining([
         expect.objectContaining({ key: 'LITELLM_MODEL', value: '' }),
         expect.objectContaining({ key: 'AGENT_LITELLM_MODEL', value: '' }),
-        expect.objectContaining({ key: 'LITELLM_FALLBACK_MODELS', value: 'deepseek/deepseek-v4-pro,cohere/command-r-plus' }),
         expect.objectContaining({ key: 'VISION_MODEL', value: '' }),
         expect.objectContaining({ key: 'LLM_DEEPSEEK_MODELS', value: 'deepseek-v4-flash,deepseek-v4-pro' }),
       ]),
@@ -708,7 +707,6 @@ describe('LLMChannelEditor', () => {
       expect.arrayContaining([
         expect.objectContaining({ key: 'LITELLM_MODEL', value: '' }),
         expect.objectContaining({ key: 'AGENT_LITELLM_MODEL', value: '' }),
-        expect.objectContaining({ key: 'LITELLM_FALLBACK_MODELS', value: '' }),
         expect.objectContaining({ key: 'VISION_MODEL', value: '' }),
       ]),
     );
@@ -760,7 +758,6 @@ describe('LLMChannelEditor', () => {
     expect(updatePayload.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ key: 'LITELLM_MODEL', value: 'openai/gpt-4o-mini' }),
-        expect.objectContaining({ key: 'LITELLM_FALLBACK_MODELS', value: 'openai/gpt-4o' }),
       ]),
     );
   });
@@ -915,7 +912,7 @@ describe('LLMChannelEditor', () => {
     });
   });
 
-  it('keeps stale runtime fallback model available when user restores it in channel models', async () => {
+  it('does not expose or save legacy fallback model settings', async () => {
     update.mockResolvedValue({
       success: true,
       configVersion: 'v2',
@@ -951,7 +948,7 @@ describe('LLMChannelEditor', () => {
       target: { value: 'deepseek-chat,deepseek-old' },
     });
 
-    expect(await screen.findByLabelText('deepseek/deepseek-old')).toBeChecked();
+    expect(screen.queryByText('备选模型')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: '保存 AI 配置' }));
     await waitFor(() => {
@@ -959,10 +956,8 @@ describe('LLMChannelEditor', () => {
     });
 
     const updatePayload = update.mock.calls[0][0];
-    expect(updatePayload.items).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ key: 'LITELLM_FALLBACK_MODELS', value: 'deepseek/deepseek-old' }),
-      ]),
+    expect(updatePayload.items).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ key: 'LITELLM_FALLBACK_MODELS' })]),
     );
   });
 
@@ -1011,7 +1006,6 @@ describe('LLMChannelEditor', () => {
       expect(primaryModelSelect).toHaveValue('deepseek/deepseek-chat');
       expect(agentModelSelect).toHaveValue('deepseek/deepseek-reasoner');
       expect(visionModelSelect).toHaveValue('deepseek/deepseek-reasoner');
-      expect(screen.getByLabelText('deepseek/deepseek-v4-pro')).toBeChecked();
     });
   });
 
@@ -1061,7 +1055,6 @@ describe('LLMChannelEditor', () => {
       expect.arrayContaining([
         expect.objectContaining({ key: 'LITELLM_MODEL', value: 'cohere/command-r-plus' }),
         expect.objectContaining({ key: 'AGENT_LITELLM_MODEL', value: 'google/gemini-2.5-flash' }),
-        expect.objectContaining({ key: 'LITELLM_FALLBACK_MODELS', value: 'cohere/command-r-plus,google/gemini-2.5-flash,xai/grok-beta' }),
         expect.objectContaining({ key: 'VISION_MODEL', value: 'xai/grok-vision-beta' }),
       ]),
     );

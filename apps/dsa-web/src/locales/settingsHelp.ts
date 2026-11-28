@@ -31,7 +31,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
   },
   'settings.ai_model.LLM_CHANNELS': {
     title: 'LLM 渠道列表',
-    summary: '声明多个模型渠道，用于多 provider、备用模型和可视化渠道管理。',
+    summary: '声明多个模型渠道，用于多 provider 和可视化渠道管理。',
     usage: '填写逗号分隔的渠道名，例如 deepseek,anspire；每个渠道再配置 LLM_<NAME>_BASE_URL、LLM_<NAME>_API_KEY(S)、LLM_<NAME>_MODELS 等字段。',
     valueNotes: [
       '启用渠道模式后，同层运行时优先读取渠道配置。',
@@ -39,7 +39,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
       '渠道编辑器保存时只更新本次提交的 key，不会静默迁移整个旧配置。',
     ],
     impact: [
-      '影响主模型、Agent 模型、fallback 模型和 Vision 模型的可选来源。',
+      '影响主模型、Agent 模型和 Vision 模型的可选来源。',
     ],
     notes: [
       '不要把极简 legacy key 和 Channels 混用后期待两边同时生效。',
@@ -57,17 +57,6 @@ const settingsHelpZhCN: SettingsHelpMap = {
     impact: ['影响 Agent 问答、策略选择和相关工具调用的模型选择。'],
     notes: ['请确认该模型存在于已启用渠道、YAML 路由或 legacy provider key 可达范围内。'],
   },
-  'settings.ai_model.LITELLM_FALLBACK_MODELS': {
-    title: '备用模型',
-    summary: '主模型失败时按顺序尝试的备用模型列表。',
-    usage: '多个模型使用英文逗号分隔，推荐仍使用 provider/model 格式。',
-    valueNotes: [
-      '备用模型只在主模型失败、超时或响应不可用时使用。',
-      '渠道编辑器保存时会清理已不可达的托管 provider 模型引用。',
-    ],
-    impact: ['提升 LLM 调用失败时的可用性，但可能增加跨 provider 成本和响应差异。'],
-    notes: ['不要把主模型重复加入备用模型列表。'],
-  },
   'settings.ai_model.LITELLM_CONFIG': {
     title: '高级模型路由 YAML',
     summary: '指定 LiteLLM 原生 YAML 路由文件，适合复杂路由、限流和专家配置。',
@@ -76,7 +65,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
       '可解析且包含 model_list 时，优先级高于 LLM_CHANNELS 和 legacy provider keys。',
       'Web 渠道编辑器不会修改 YAML 文件本身。',
     ],
-    impact: ['影响模型选择、路由、fallback 和可用模型声明。'],
+    impact: ['影响模型选择、路由和可用模型声明。'],
     notes: ['如果 YAML 配置失效，系统会回退到渠道或 legacy 配置路径。'],
   },
   'settings.ai_model.LLM_TEMPERATURE': {
@@ -134,7 +123,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
   'settings.ai_model.legacy_provider_params': {
     title: 'Legacy Provider 参数',
     summary: '为旧版 provider 专用配置路径设置模型名、温度或 token 上限。',
-    usage: '这些字段用于兼容历史配置；新配置优先使用 LITELLM_MODEL、LITELLM_FALLBACK_MODELS、VISION_MODEL、LLM_TEMPERATURE 或 LLM Channels。',
+    usage: '这些字段用于兼容历史配置；新配置优先使用 LITELLM_MODEL、VISION_MODEL、LLM_TEMPERATURE 或 LLM Channels。',
     valueNotes: [
       '启用 LLM Channels 后，相关 legacy 字段通常会从通用表单隐藏。',
       '字段只影响对应 provider 的 legacy 路径，不会自动迁移到渠道配置。',
@@ -409,7 +398,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
     title: '渠道模型列表',
     summary: '声明该渠道可供运行时选择的模型。',
     usage: '可点击“获取模型”从支持 /models 的渠道拉取，也可手动填写逗号分隔列表。',
-    valueNotes: ['保存时运行时主模型、Agent 模型、Vision 模型和 fallback 会引用这里的模型。'],
+    valueNotes: ['保存时运行时主模型、Agent 模型和 Vision 模型会引用这里的模型。'],
     impact: ['影响可选择模型、保存前失效模型清理和运行时模型路由。'],
     notes: ['模型是否真正可用仍取决于服务商权限和运行时连接测试。'],
   },
@@ -444,14 +433,6 @@ const settingsHelpZhCN: SettingsHelpMap = {
     valueNotes: ['保存后写入 AGENT_LITELLM_MODEL。'],
     impact: ['影响问股、策略 Agent 和相关工具调用。'],
     notes: ['Agent 模型可比普通分析模型更强，但成本和延迟也可能更高。'],
-  },
-  'settings.llm_channel.fallback_models': {
-    title: '备选模型',
-    summary: '主模型失败时使用的备用模型集合。',
-    usage: '勾选一个或多个模型；主模型不会重复加入备选模型。',
-    valueNotes: ['保存后写入 LITELLM_FALLBACK_MODELS。'],
-    impact: ['影响 LLM 失败时的降级成功率和跨 provider 行为差异。'],
-    notes: ['备用模型应先经过连接测试或实际调用验证。'],
   },
   'settings.llm_channel.vision_model': {
     title: 'Vision 模型',
@@ -859,14 +840,14 @@ const settingsHelpEnUS: SettingsHelpMap = {
   },
   'settings.ai_model.LLM_CHANNELS': {
     title: 'LLM Channels',
-    summary: 'Declares model channels for multiple providers, fallbacks, and visual channel management.',
+    summary: 'Declares model channels for multiple providers and visual channel management.',
     usage: 'Use comma-separated names such as deepseek,anspire; then configure LLM_<NAME>_BASE_URL, LLM_<NAME>_API_KEY(S), and LLM_<NAME>_MODELS for each channel.',
     valueNotes: [
       'Once channel mode is active, runtime selection reads channel configuration first.',
       'Environment variables injected by Docker or GitHub Actions can override values saved from the Web settings page.',
       'Saving in the channel editor updates submitted keys only and does not silently migrate all old config.',
     ],
-    impact: ['Affects available sources for primary, Agent, fallback, and Vision models.'],
+    impact: ['Affects available sources for primary, Agent, and Vision models.'],
     notes: [
       'Do not expect legacy keys and Channels to be active at the same time.',
       'Custom channel names in GitHub Actions usually need explicit workflow env mappings.',
@@ -880,20 +861,12 @@ const settingsHelpEnUS: SettingsHelpMap = {
     impact: ['Affects Agent chat, strategy selection, and Agent tool calls.'],
     notes: ['Make sure the model is reachable through enabled channels, YAML routing, or legacy provider keys.'],
   },
-  'settings.ai_model.LITELLM_FALLBACK_MODELS': {
-    title: 'Fallback Models',
-    summary: 'Models tried in order when the primary model fails.',
-    usage: 'Use comma-separated provider/model values.',
-    valueNotes: ['Fallbacks run only after primary model failures.', 'The channel editor removes unreachable managed-provider references on save.'],
-    impact: ['Improves LLM availability, but can change cost, latency, and provider behavior.'],
-    notes: ['Do not duplicate the primary model in the fallback list.'],
-  },
   'settings.ai_model.LITELLM_CONFIG': {
     title: 'Advanced Routing YAML',
     summary: 'Points to a native LiteLLM YAML routing file for expert routing setups.',
     usage: 'Use a path reachable by the running process, such as ./litellm_config.yaml.',
     valueNotes: ['A valid model_list has higher priority than channels and legacy keys.', 'The Web channel editor does not edit the YAML file.'],
-    impact: ['Affects model routing, fallbacks, and available model declarations.'],
+    impact: ['Affects model routing and available model declarations.'],
     notes: ['If the YAML cannot be parsed, the system falls back to channels or legacy configuration.'],
   },
   'settings.ai_model.LLM_TEMPERATURE': {
@@ -945,7 +918,7 @@ const settingsHelpEnUS: SettingsHelpMap = {
   'settings.ai_model.legacy_provider_params': {
     title: 'Legacy Provider Parameters',
     summary: 'Configures model names, temperature, or token limits for legacy provider-specific paths.',
-    usage: 'These fields preserve older configurations. Prefer LITELLM_MODEL, LITELLM_FALLBACK_MODELS, VISION_MODEL, LLM_TEMPERATURE, or LLM Channels for new setups.',
+    usage: 'These fields preserve older configurations. Prefer LITELLM_MODEL, VISION_MODEL, LLM_TEMPERATURE, or LLM Channels for new setups.',
     valueNotes: [
       'When LLM Channels are active, related legacy fields are often hidden from the generic form.',
       'These fields affect only the matching legacy provider path and are not automatically migrated into channels.',
@@ -1203,7 +1176,7 @@ const settingsHelpEnUS: SettingsHelpMap = {
     title: 'Channel Models',
     summary: 'Declares models available for runtime selection.',
     usage: 'Use model discovery when /models is supported, or manually enter comma-separated model names.',
-    valueNotes: ['Runtime primary, Agent, Vision, and fallback choices reference this list.'],
+    valueNotes: ['Runtime primary, Agent, and Vision choices reference this list.'],
     impact: ['Affects selectable models, stale-model cleanup, and routing.'],
     notes: ['Actual availability still depends on provider permissions and runtime tests.'],
   },
@@ -1238,14 +1211,6 @@ const settingsHelpEnUS: SettingsHelpMap = {
     valueNotes: ['Saving writes AGENT_LITELLM_MODEL.'],
     impact: ['Affects Agent chat, strategy workflows, and tool calls.'],
     notes: ['A stronger Agent model can also increase cost and latency.'],
-  },
-  'settings.llm_channel.fallback_models': {
-    title: 'Fallback Models',
-    summary: 'Backup models used when the primary model fails.',
-    usage: 'Check one or more models. The primary model is not duplicated into fallbacks.',
-    valueNotes: ['Saving writes LITELLM_FALLBACK_MODELS.'],
-    impact: ['Affects LLM failure recovery and cross-provider behavior.'],
-    notes: ['Validate fallback models with connection tests or real calls first.'],
   },
   'settings.llm_channel.vision_model': {
     title: 'Vision Model',

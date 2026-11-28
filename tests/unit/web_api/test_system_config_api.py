@@ -101,6 +101,17 @@ class SystemConfigApiTestCase(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertIn("multiple_api_keys", {issue["code"] for issue in result["issues"]})
 
+    def test_removed_model_fallback_settings_are_hidden_without_rewriting_env(self) -> None:
+        self._rewrite_env(
+            "GEMINI_MODEL_FALLBACK=gemini-backup",
+            "LITELLM_FALLBACK_MODELS=openai/backup",
+        )
+        for include_schema in (True, False):
+            items = {item["key"] for item in self.service.get_config(include_schema=include_schema)["items"]}
+            self.assertNotIn("GEMINI_MODEL_FALLBACK", items)
+            self.assertNotIn("LITELLM_FALLBACK_MODELS", items)
+        self.assertIn("GEMINI_MODEL_FALLBACK=gemini-backup", self.env_path.read_text(encoding="utf-8"))
+
     def test_get_config_masks_llm_usage_hmac_secret(self) -> None:
         self._rewrite_env(
             "STOCK_LIST=600519,000001",

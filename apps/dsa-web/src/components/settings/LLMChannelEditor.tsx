@@ -97,7 +97,6 @@ interface ChannelCapabilityState {
 interface RuntimeConfig {
   primaryModel: string;
   agentPrimaryModel: string;
-  fallbackModels: string[];
   visionModel: string;
   temperature: string;
 }
@@ -1103,13 +1102,11 @@ function sanitizeRuntimeConfigForSave(
   const visionModel = runtimeConfig.visionModel && !isRuntimeModelAvailable(runtimeConfig.visionModel, availableModels, itemMap)
     ? ''
     : runtimeConfig.visionModel;
-  const fallbackModels = runtimeConfig.fallbackModels.filter((model) => isRuntimeModelAvailable(model, availableModels, itemMap));
 
   return {
     ...runtimeConfig,
     primaryModel,
     agentPrimaryModel,
-    fallbackModels,
     visionModel,
   };
 }
@@ -1118,8 +1115,7 @@ function runtimeConfigsAreEqual(left: RuntimeConfig, right: RuntimeConfig): bool
   return left.primaryModel === right.primaryModel
     && left.agentPrimaryModel === right.agentPrimaryModel
     && left.visionModel === right.visionModel
-    && left.temperature === right.temperature
-    && left.fallbackModels.join(',') === right.fallbackModels.join(',');
+    && left.temperature === right.temperature;
 }
 
 function runtimeConfigChangedKeys(left: RuntimeConfig, right: RuntimeConfig): Set<string> {
@@ -1129,9 +1125,6 @@ function runtimeConfigChangedKeys(left: RuntimeConfig, right: RuntimeConfig): Se
   }
   if (left.agentPrimaryModel !== right.agentPrimaryModel) {
     changed.add('AGENT_LITELLM_MODEL');
-  }
-  if (left.fallbackModels.join(',') !== right.fallbackModels.join(',')) {
-    changed.add('LITELLM_FALLBACK_MODELS');
   }
   if (left.temperature !== right.temperature) {
     changed.add('LLM_TEMPERATURE');
@@ -1184,7 +1177,6 @@ function parseRuntimeConfigFromItems(items: Array<{ key: string; value: string }
   return {
     primaryModel: itemMap.get('LITELLM_MODEL') || '',
     agentPrimaryModel: normalizeAgentPrimaryModel(itemMap.get('AGENT_LITELLM_MODEL') || ''),
-    fallbackModels: splitModels(itemMap.get('LITELLM_FALLBACK_MODELS') || ''),
     visionModel: itemMap.get('VISION_MODEL') || '',
     temperature: resolveTemperatureFromItems(itemMap),
   };
@@ -1231,7 +1223,6 @@ function channelsToUpdateItems(
   if (includeRuntimeConfig) {
     updates.push({ key: 'LITELLM_MODEL', value: runtimeConfig.primaryModel });
     updates.push({ key: 'AGENT_LITELLM_MODEL', value: runtimeConfig.agentPrimaryModel });
-    updates.push({ key: 'LITELLM_FALLBACK_MODELS', value: runtimeConfig.fallbackModels.join(',') });
     updates.push({ key: 'VISION_MODEL', value: runtimeConfig.visionModel });
     updates.push({ key: 'LLM_TEMPERATURE', value: runtimeConfig.temperature });
   }
@@ -1406,7 +1397,6 @@ export const LLMChannelEditor: React.FC<LLMChannelEditorProps> = ({
       || runtimeConfig.agentPrimaryModel !== initialRuntimeConfig.agentPrimaryModel
       || runtimeConfig.visionModel !== initialRuntimeConfig.visionModel
       || runtimeConfig.temperature !== initialRuntimeConfig.temperature
-      || runtimeConfig.fallbackModels.join(',') !== initialRuntimeConfig.fallbackModels.join(',')
     );
 
     if (runtimeChanged || channels.length !== initialChannels.length) {
@@ -1577,14 +1567,6 @@ export const LLMChannelEditor: React.FC<LLMChannelEditorProps> = ({
         && !isRuntimeModelAvailable(runtimeConfigForSave.agentPrimaryModel, availableModels, savedItemMap);
       if (invalidAgentPrimaryModel) {
         setSaveMessage({ type: 'local-error', text: (language) => LLM_CHANNEL_TEXT[language].invalidAgent });
-        return;
-      }
-
-      const invalidFallbackModel = runtimeConfigForSave.fallbackModels.some(
-        (model) => !isRuntimeModelAvailable(model, availableModels, savedItemMap),
-      );
-      if (invalidFallbackModel) {
-        setSaveMessage({ type: 'local-error', text: (language) => LLM_CHANNEL_TEXT[language].invalidFallback });
         return;
       }
 
@@ -1847,20 +1829,7 @@ export const LLMChannelEditor: React.FC<LLMChannelEditorProps> = ({
     setRuntimeConfig((previous) => ({
       ...previous,
       primaryModel: value,
-      fallbackModels: previous.fallbackModels.filter((model) => model !== value),
     }));
-  };
-
-  const toggleFallbackModel = (model: string) => {
-    setRuntimeConfig((previous) => {
-      const alreadySelected = previous.fallbackModels.includes(model);
-      return {
-        ...previous,
-        fallbackModels: alreadySelected
-          ? previous.fallbackModels.filter((item) => item !== model)
-          : [...previous.fallbackModels, model],
-      };
-    });
   };
 
   return (
@@ -2026,33 +1995,6 @@ export const LLMChannelEditor: React.FC<LLMChannelEditorProps> = ({
                       disabled={busy}
                       placeholder=""
                     />
-                  </div>
-
-                  <div>
-                    <HelpLabel
-                      label={text.fallbackModels}
-                      fieldKey="LITELLM_FALLBACK_MODELS"
-                      helpKey="settings.llm_channel.fallback_models"
-                      examples={['LITELLM_FALLBACK_MODELS=deepseek/deepseek-v4-pro,gemini/gemini-3-flash-preview']}
-                      compact
-                    />
-                    <div className="space-y-2 rounded-xl border settings-border-strong settings-surface-overlay-soft p-3">
-                      {availableModels.map((model) => (
-                        <label key={model} className="flex items-center gap-2 text-sm text-secondary-text">
-                          <input
-                            type="checkbox"
-                            checked={runtimeConfig.fallbackModels.includes(model)}
-                            disabled={busy || model === runtimeConfig.primaryModel}
-                            onChange={() => toggleFallbackModel(model)}
-                            className="settings-input-checkbox h-4 w-4 rounded border-border/70 bg-base"
-                          />
-                          <span>{model}</span>
-                        </label>
-                      ))}
-                    </div>
-                    <p className="mt-1 text-[11px] text-secondary-text">
-                      {text.fallbackHint}
-                    </p>
                   </div>
 
                   <div>
