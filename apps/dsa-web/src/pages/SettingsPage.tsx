@@ -404,6 +404,13 @@ const SettingsPage: React.FC = () => {
       : activeCategory === "agent"
         ? rawActiveItems.filter((item) => !AGENT_HIDDEN_KEYS.has(item.key))
         : rawActiveItems;
+  const aiModelGroups = [
+    { title: t("settings.aiModelCurrentGroup"), prefix: null },
+    { title: "Anspire", prefix: "ANSPIRE_" },
+    { title: "DeepSeek", prefix: "DEEPSEEK_" },
+    { title: "Gemini", prefix: "GEMINI_" },
+    { title: "OpenAI", prefix: "OPENAI_" },
+  ];
   const isEnvBackupAllowed = isDesktopRuntime;
   const envBackupActionDisabled =
     isLoading ||
@@ -592,7 +599,28 @@ const SettingsPage: React.FC = () => {
         ) || t("settings.activePanelDescription")
       }
     >
-      {activeItems.map((item) => (
+      {activeCategory === "ai_model" ? aiModelGroups.map((group) => {
+        const items = activeItems.filter((item) =>
+          group.prefix
+            ? item.key.startsWith(group.prefix)
+            : !aiModelGroups.some((provider) => provider.prefix && item.key.startsWith(provider.prefix)),
+        );
+        return items.length ? (
+          <section key={group.title} className="space-y-4">
+            <h3 className="text-sm font-semibold text-foreground">{group.title}</h3>
+            {items.map((item) => (
+              <SettingsField
+                key={item.key}
+                item={item}
+                value={item.value}
+                disabled={isSaving}
+                onChange={setDraftValue}
+                issues={issueByKey[item.key] || []}
+              />
+            ))}
+          </section>
+        ) : null;
+      }) : activeItems.map((item) => (
         <SettingsField
           key={item.key}
           item={item}

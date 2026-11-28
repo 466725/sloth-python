@@ -1,7 +1,9 @@
 import type React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { UiLanguageProvider } from '../../contexts/UiLanguageContext';
 import { resolveWebBuildInfo } from '../../utils/constants';
+import { UI_LANGUAGE_STORAGE_KEY } from '../../utils/uiLanguage';
 import SettingsPage from '../SettingsPage';
 
 const {
@@ -334,6 +336,10 @@ function buildSystemConfigState(overrides: ConfigOverride = {}) {
 }
 
 describe('SettingsPage', () => {
+  afterEach(() => {
+    localStorage.removeItem(UI_LANGUAGE_STORAGE_KEY);
+  });
+
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.clearAllMocks();
@@ -702,6 +708,45 @@ describe('SettingsPage', () => {
 
     expect(refreshAfterExternalSave).toHaveBeenCalledWith(['LLM_CHANNELS']);
     expect(load).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['en', 'Current'],
+    ['zh', '当前设置'],
+  ])('groups AI settings by provider in %s without dropping shared fields', (language, currentTitle) => {
+    localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, language);
+    const keys = [
+      'ANSPIRE_LLM_ENABLED', 'DEEPSEEK_API_KEY', 'LLM_USAGE_HMAC_SECRET',
+      'ANSPIRE_LLM_MODEL', 'GEMINI_API_KEY', 'OPENAI_MODEL',
+      'LITELLM_MODEL', 'LLM_USAGE_HMAC_KEY_VERSION', 'FUTURE_SETTING',
+    ];
+    useSystemConfigMock.mockReturnValue(buildSystemConfigState({
+      activeCategory: 'ai_model',
+      itemsByCategory: {
+        ...buildSystemConfigState().itemsByCategory,
+        ai_model: keys.map((key) => ({ key, value: '' })),
+      },
+    }));
+
+    render(<UiLanguageProvider><SettingsPage /></UiLanguageProvider>);
+
+    const expectedGroups: Array<[string, string[]]> = [
+      [currentTitle, ['LLM_USAGE_HMAC_SECRET', 'LITELLM_MODEL', 'LLM_USAGE_HMAC_KEY_VERSION', 'FUTURE_SETTING']],
+      ['Anspire', ['ANSPIRE_LLM_ENABLED', 'ANSPIRE_LLM_MODEL']],
+      ['DeepSeek', ['DEEPSEEK_API_KEY']],
+      ['Gemini', ['GEMINI_API_KEY']],
+      ['OpenAI', ['OPENAI_MODEL']],
+    ];
+    expect(screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent))
+      .toEqual(expectedGroups.map(([title]) => title));
+    for (const [title, groupKeys] of expectedGroups) {
+      const section = screen.getByRole('heading', { level: 3, name: title }).closest('section');
+      expect(section).not.toBeNull();
+      for (const key of groupKeys) {
+        expect(within(section!).getByTestId(`settings-field-${key}`)).toBeInTheDocument();
+        expect(screen.getAllByTestId(`settings-field-${key}`)).toHaveLength(1);
+      }
+    }
   });
 
   it('saves generic settings without feature-specific side effects', async () => {
