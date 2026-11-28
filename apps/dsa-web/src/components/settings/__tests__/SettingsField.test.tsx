@@ -6,6 +6,69 @@ import { UI_LANGUAGE_STORAGE_KEY } from '../../../utils/uiLanguage';
 import { SettingsField } from '../SettingsField';
 
 describe('SettingsField', () => {
+  it.each([
+    ['en', 'Gemini Model', 'Model', 'View Gemini Model configuration help'],
+    ['zh', 'Gemini 模型', '模型', '查看 Gemini 模型 配置说明'],
+  ])('renders compact provider fields accessibly in %s', (language, title, shortTitle, helpLabel) => {
+    const previousLanguage = localStorage.getItem(UI_LANGUAGE_STORAGE_KEY);
+    localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, language);
+    const onChange = vi.fn();
+
+    try {
+      render(
+        <UiLanguageProvider>
+          <SettingsField
+            item={{
+              key: 'GEMINI_MODEL',
+              value: 'gemini/example',
+              rawValueExists: true,
+              isMasked: false,
+              schema: {
+                key: 'GEMINI_MODEL',
+                title: 'Gemini Model',
+                description: 'Gemini model description',
+                category: 'ai_model',
+                dataType: 'string',
+                uiControl: 'text',
+                isSensitive: false,
+                isRequired: false,
+                isEditable: true,
+                options: [],
+                validation: {},
+                displayOrder: 1,
+                helpKey: 'settings.ai_model.legacy_provider_params',
+              },
+            }}
+            value="gemini/example"
+            onChange={onChange}
+            compact
+            labelPrefix="Gemini"
+            issues={[{ key: 'GEMINI_MODEL', code: 'invalid', message: 'Invalid model', severity: 'error' }]}
+          />
+        </UiLanguageProvider>,
+      );
+
+      const input = screen.getByLabelText(title);
+      const label = input.ownerDocument.querySelector(`label[for="${input.id}"]`);
+      expect(input.parentElement?.parentElement).not.toHaveClass('border');
+      expect(label).toHaveTextContent(title);
+      expect(label?.querySelector('.sr-only')).toHaveTextContent('Gemini');
+      expect(label?.lastChild?.textContent).toBe(shortTitle);
+      expect(screen.queryByText('Gemini model description')).not.toBeInTheDocument();
+      expect(screen.getByText('Invalid model')).toBeInTheDocument();
+      fireEvent.change(input, { target: { value: 'gemini/updated' } });
+      expect(onChange).toHaveBeenCalledWith('GEMINI_MODEL', 'gemini/updated');
+      fireEvent.click(screen.getByRole('button', { name: helpLabel }));
+      expect(screen.getByRole('dialog')).toHaveTextContent('GEMINI_MODEL');
+    } finally {
+      if (previousLanguage === null) {
+        localStorage.removeItem(UI_LANGUAGE_STORAGE_KEY);
+      } else {
+        localStorage.setItem(UI_LANGUAGE_STORAGE_KEY, previousLanguage);
+      }
+    }
+  });
+
   it('prefers localized Chinese field titles over backend schema titles', () => {
     render(
       <SettingsField

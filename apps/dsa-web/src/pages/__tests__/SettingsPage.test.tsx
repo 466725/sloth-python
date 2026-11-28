@@ -141,6 +141,8 @@ vi.mock('../../components/settings', () => ({
   ),
   SettingsField: ({
     item,
+    compact,
+    labelPrefix,
   }: {
     item: {
       key: string;
@@ -149,8 +151,10 @@ vi.mock('../../components/settings', () => ({
         options?: Array<string | { label: string; value: string }>;
       };
     };
+    compact?: boolean;
+    labelPrefix?: string;
   }) => (
-    <div data-testid={`settings-field-${item.key}`}>
+    <div data-testid={`settings-field-${item.key}`} data-compact={compact || undefined} data-prefix={labelPrefix}>
       <div>{item.key}</div>
       {item.schema?.description ? <p>{item.schema.description}</p> : null}
       {item.schema?.options?.map((option) => {
@@ -740,10 +744,14 @@ describe('SettingsPage', () => {
     expect(screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent))
       .toEqual(expectedGroups.map(([title]) => title));
     for (const [title, groupKeys] of expectedGroups) {
-      const section = screen.getByRole('heading', { level: 3, name: title }).closest('section');
-      expect(section).not.toBeNull();
+      const section = screen.getByRole('region', { name: title });
+      expect(section).toHaveClass('border');
       for (const key of groupKeys) {
-        expect(within(section!).getByTestId(`settings-field-${key}`)).toBeInTheDocument();
+        const field = within(section).getByTestId(`settings-field-${key}`);
+        expect(field).toHaveAttribute('data-compact', 'true');
+        if (title !== currentTitle) {
+          expect(field).toHaveAttribute('data-prefix', title);
+        }
         expect(screen.getAllByTestId(`settings-field-${key}`)).toHaveLength(1);
       }
     }

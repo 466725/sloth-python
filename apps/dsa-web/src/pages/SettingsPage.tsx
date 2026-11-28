@@ -604,8 +604,14 @@ const SettingsPage: React.FC = () => {
             : !aiModelGroups.some((provider) => provider.prefix && item.key.startsWith(provider.prefix)),
         );
         return items.length ? (
-          <section key={group.title} className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">{group.title}</h3>
+          <section
+            key={group.title}
+            aria-labelledby={`ai-settings-${group.prefix || "current"}`}
+            className="space-y-4 rounded-[1.15rem] border border-[var(--settings-border)] bg-[var(--settings-surface)] p-4 shadow-soft-card"
+          >
+            <h3 id={`ai-settings-${group.prefix || "current"}`} className="text-sm font-semibold text-foreground">
+              {group.title}
+            </h3>
             {items.map((item) => (
               <SettingsField
                 key={item.key}
@@ -614,6 +620,8 @@ const SettingsPage: React.FC = () => {
                 disabled={isSaving}
                 onChange={setDraftValue}
                 issues={issueByKey[item.key] || []}
+                compact
+                labelPrefix={group.prefix ? group.title : undefined}
               />
             ))}
           </section>

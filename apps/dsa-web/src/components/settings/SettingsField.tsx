@@ -50,6 +50,8 @@ interface SettingsFieldProps {
   disabled?: boolean;
   onChange: (key: string, value: string) => void;
   issues?: ConfigValidationIssue[];
+  compact?: boolean;
+  labelPrefix?: string;
 }
 
 function renderFieldControl(
@@ -203,6 +205,8 @@ export const SettingsField: React.FC<SettingsFieldProps> = ({
   disabled = false,
   onChange,
   issues = [],
+  compact = false,
+  labelPrefix,
 }) => {
   const { language, t } = useUiLanguage();
   const schema = item.schema;
@@ -210,6 +214,9 @@ export const SettingsField: React.FC<SettingsFieldProps> = ({
   const helpContent = getSettingsHelpContent(schema?.helpKey, schema?.description, language);
   const fallbackTitle = schema?.title ?? item.key;
   const title = language === 'zh' ? getFieldTitleZh(item.key, fallbackTitle) : fallbackTitle;
+  const redundantPrefix = labelPrefix && title.startsWith(`${labelPrefix} `)
+    ? `${labelPrefix} `
+    : '';
   const description = language === 'en'
     ? helpContent?.summary ?? schema?.description ?? ''
     : getFieldDescriptionZh(item.key, schema?.description);
@@ -220,14 +227,17 @@ export const SettingsField: React.FC<SettingsFieldProps> = ({
   return (
     <div
       className={cn(
-        'rounded-[1.15rem] border bg-[var(--settings-surface)] p-4 shadow-soft-card transition-[background-color,border-color,box-shadow] duration-200',
-        hasError ? 'border-danger/40 hover:border-danger/55' : 'border-[var(--settings-border)] hover:border-[var(--settings-border-strong)]',
-        'hover:bg-[var(--settings-surface-hover)]',
+        !compact && [
+          'rounded-[1.15rem] border bg-[var(--settings-surface)] p-4 shadow-soft-card transition-[background-color,border-color,box-shadow] duration-200',
+          hasError ? 'border-danger/40 hover:border-danger/55' : 'border-[var(--settings-border)] hover:border-[var(--settings-border-strong)]',
+          'hover:bg-[var(--settings-surface-hover)]',
+        ],
       )}
     >
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <label className="text-sm font-semibold text-foreground" htmlFor={controlId}>
-          {title}
+          {redundantPrefix ? <span className="sr-only">{redundantPrefix}</span> : null}
+          {title.slice(redundantPrefix.length)}
         </label>
         <SettingsHelpButton
           fieldKey={item.key}
@@ -247,7 +257,7 @@ export const SettingsField: React.FC<SettingsFieldProps> = ({
         ) : null}
       </div>
 
-      {description ? (
+      {!compact && description ? (
         <p className="mb-3 max-w-full text-xs leading-5 text-muted-text">
           {description}
         </p>
@@ -267,7 +277,7 @@ export const SettingsField: React.FC<SettingsFieldProps> = ({
         )}
       </div>
 
-      {schema?.isSensitive ? (
+      {!compact && schema?.isSensitive ? (
         <p className="mt-3 text-[11px] leading-5 text-secondary-text">
           {t('settings.fieldSensitiveHint')}
           {isMultiValue ? t('settings.fieldSensitiveMultiHint') : ''}
