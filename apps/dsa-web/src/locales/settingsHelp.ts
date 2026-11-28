@@ -31,7 +31,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
   },
   'settings.ai_model.LLM_CHANNELS': {
     title: 'LLM 渠道列表',
-    summary: '声明多个模型渠道，用于多 provider、多 Key、备用模型和可视化渠道管理。',
+    summary: '声明多个模型渠道，用于多 provider、备用模型和可视化渠道管理。',
     usage: '填写逗号分隔的渠道名，例如 deepseek,anspire；每个渠道再配置 LLM_<NAME>_BASE_URL、LLM_<NAME>_API_KEY(S)、LLM_<NAME>_MODELS 等字段。',
     valueNotes: [
       '启用渠道模式后，同层运行时优先读取渠道配置。',
@@ -112,7 +112,7 @@ const settingsHelpZhCN: SettingsHelpMap = {
   'settings.ai_model.provider_keys': {
     title: '模型服务 API Key',
     summary: '配置模型服务商或聚合网关的访问密钥。',
-    usage: '在对应服务商控制台创建 API Key 后填入；如需轮换或负载均衡，对应的多 Key 变体字段使用英文逗号分隔。',
+    usage: '在对应服务商控制台创建一个 API Key 后填入。',
     valueNotes: [
       '密钥字段会在 Web 设置页以密码控件展示，保存后通常只显示掩码。',
       '渠道模式优先读取 LLM_<NAME>_API_KEY(S)，legacy key 主要用于兼容旧配置。',
@@ -400,9 +400,9 @@ const settingsHelpZhCN: SettingsHelpMap = {
   'settings.llm_channel.api_key': {
     title: 'API Key',
     summary: '该渠道调用模型服务所需的访问密钥。',
-    usage: '单个 Key 直接填写；多个 Key 使用英文逗号分隔。',
+    usage: '填写一个 API Key。',
     valueNotes: ['无需鉴权的本地兼容服务可留空。'],
-    impact: ['影响连接测试、模型发现、运行时调用和 Key 轮换。'],
+    impact: ['影响连接测试、模型发现和运行时调用。'],
     notes: ['不要在截图、日志或 issue 中暴露真实 Key。'],
   },
   'settings.llm_channel.models': {
@@ -859,7 +859,7 @@ const settingsHelpEnUS: SettingsHelpMap = {
   },
   'settings.ai_model.LLM_CHANNELS': {
     title: 'LLM Channels',
-    summary: 'Declares model channels for multiple providers, keys, fallbacks, and visual channel management.',
+    summary: 'Declares model channels for multiple providers, fallbacks, and visual channel management.',
     usage: 'Use comma-separated names such as deepseek,anspire; then configure LLM_<NAME>_BASE_URL, LLM_<NAME>_API_KEY(S), and LLM_<NAME>_MODELS for each channel.',
     valueNotes: [
       'Once channel mode is active, runtime selection reads channel configuration first.',
@@ -926,7 +926,7 @@ const settingsHelpEnUS: SettingsHelpMap = {
   'settings.ai_model.provider_keys': {
     title: 'Provider API Key',
     summary: 'Configures credentials for model providers or gateways.',
-    usage: 'Create a key in the provider console. Related multi-key variants use English commas for rotation or load balancing.',
+    usage: 'Create one key in the provider console and enter it here.',
     valueNotes: ['Secret fields are masked in the Web settings page.', 'Channel mode reads LLM_<NAME>_API_KEY(S) first.'],
     impact: ['Affects model calls, connection tests, and model discovery for the provider.'],
     notes: ['Do not expose real keys in issues, logs, or screenshots.'],
@@ -1194,9 +1194,9 @@ const settingsHelpEnUS: SettingsHelpMap = {
   'settings.llm_channel.api_key': {
     title: 'API Key',
     summary: 'Credential used by this channel.',
-    usage: 'Use one key directly, or multiple keys separated by English commas.',
+    usage: 'Enter one API key.',
     valueNotes: ['Unauthenticated local compatible services can leave it empty.'],
-    impact: ['Affects connection tests, discovery, runtime calls, and key rotation.'],
+    impact: ['Affects connection tests, discovery, and runtime calls.'],
     notes: ['Do not expose real keys in screenshots, logs, or issues.'],
   },
   'settings.llm_channel.models': {

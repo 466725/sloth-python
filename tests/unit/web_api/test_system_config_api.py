@@ -80,6 +80,27 @@ class SystemConfigApiTestCase(unittest.TestCase):
         self.assertEqual(item_map["GEMINI_API_KEY"]["value"], "secret-key-value")
         self.assertFalse(item_map["GEMINI_API_KEY"]["is_masked"])
 
+    def test_existing_multi_key_is_displayed_and_replaced_by_single_key(self) -> None:
+        self._rewrite_env("OPENAI_API_KEYS=first-test-key,second-test-key", "OPENAI_API_KEY=older-test-key")
+        with patch.dict(os.environ, {}, clear=True):
+            payload = self.service.get_config(include_schema=True)
+            items = {item["key"]: item for item in payload["items"]}
+            self.assertNotIn("OPENAI_API_KEYS", items)
+            self.assertEqual(items["OPENAI_API_KEY"]["value"], "first-test-key")
+            self.service.update(
+                config_version=payload["config_version"],
+                items=[{"key": "OPENAI_API_KEY", "value": "replacement-test-key"}],
+                reload_now=False,
+            )
+            config = self.manager.read_config_map()
+            self.assertEqual(config["OPENAI_API_KEY"], "replacement-test-key")
+            self.assertEqual(config["OPENAI_API_KEYS"], "")
+
+    def test_single_ai_key_rejects_multiple_values(self) -> None:
+        result = self.service.validate([{"key": "GEMINI_API_KEY", "value": "first-key,second-key"}])
+        self.assertFalse(result["valid"])
+        self.assertIn("multiple_api_keys", {issue["code"] for issue in result["issues"]})
+
     def test_get_config_masks_llm_usage_hmac_secret(self) -> None:
         self._rewrite_env(
             "STOCK_LIST=600519,000001",

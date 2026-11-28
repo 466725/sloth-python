@@ -54,7 +54,7 @@ export const LLM_PROVIDER_TEMPLATES: LLMProviderTemplate[] = [
     placeholderModels: 'Doubao-Seed-2.0-lite,Doubao-Seed-2.0-pro,qwen3.5-flash',
     capabilities: ['openai-compatible'],
     configHint:
-      '同一 ANSPIRE_API_KEYS 可复用到搜索与 LLM 渠道。以下模型与网关为配置示例，实际可用性请以账号权限和控制台为准；建议先点“测试连接”确认。',
+      'ANSPIRE_API_KEYS 的第一个密钥可用于 LLM 渠道；搜索仍可使用多个密钥。以下模型与网关为配置示例，实际可用性请以账号权限和控制台为准；建议先点“测试连接”确认。',
     officialSources: [
       { label: 'Anspire Open', url: 'https://open.anspire.cn/?share_code=QFBC0FYC' },
       {
@@ -106,7 +106,7 @@ export const LLM_PROVIDER_TEMPLATE_BY_ID: Record<string, LLMProviderTemplate> = 
 );
 
 const EN_PROVIDER_TEXT: Record<string, { label: string; configHint?: string }> = {
-  anspire: { label: 'Anspire Open (models + search)', configHint: 'The same ANSPIRE_API_KEYS can be used for search and LLM channels. Models and gateways are examples; availability depends on account permissions and the console. Test the connection first.' },
+  anspire: { label: 'Anspire Open (models + search)', configHint: 'The first ANSPIRE_API_KEYS key can be used for LLM channels; search can still use multiple keys. Models and gateways are examples; availability depends on account permissions and the console. Test the connection first.' },
   deepseek: { label: 'DeepSeek Official' },
   gemini: { label: 'Gemini Official' },
   openai: { label: 'OpenAI Official' },

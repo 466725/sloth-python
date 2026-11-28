@@ -91,13 +91,13 @@ describe('SettingsField', () => {
     render(
       <SettingsField
         item={{
-          key: 'OPENAI_API_KEYS',
+          key: 'ANSPIRE_API_KEYS',
           value: 'secret-a,secret-b',
           rawValueExists: true,
           isMasked: false,
           schema: {
-            key: 'OPENAI_API_KEYS',
-            category: 'ai_model',
+            key: 'ANSPIRE_API_KEYS',
+            category: 'data_source',
             dataType: 'string',
             uiControl: 'password',
             isSensitive: true,

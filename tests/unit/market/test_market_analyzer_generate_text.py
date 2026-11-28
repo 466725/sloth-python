@@ -293,7 +293,7 @@ class TestAnalyzerGenerateText:
         assert [marker["marker_name"] for marker in markers] == ["stock_code", "quote"]
         assert "600519" not in usage["known_dynamic_marker_positions"]
 
-    def test_call_litellm_legacy_path_uses_legacy_model_list_for_param_recovery(self):
+    def test_call_litellm_legacy_path_uses_single_key(self):
         with patch("ai_stock.analyzer.get_config") as mock_cfg:
             cfg = MagicMock()
             cfg.litellm_model = "openai/gpt-4o-mini"
@@ -301,8 +301,8 @@ class TestAnalyzerGenerateText:
             cfg.gemini_api_keys = []
             cfg.anthropic_api_keys = []
             cfg.deepseek_api_keys = []
-            cfg.openai_api_keys = ["sk-openai-legacy-a", "sk-openai-legacy-b"]
-            cfg.openai_base_url = None
+            cfg.openai_api_keys = ["sk-openai-legacy-a"]
+            cfg.openai_base_url = "https://legacy-a.example/v1"
             cfg.llm_model_list = [
                 {
                     "model_name": "__legacy_openai__",
@@ -311,15 +311,6 @@ class TestAnalyzerGenerateText:
                         "api_key": "sk-openai-legacy-a",
                         "api_base": "https://legacy-a.example/v1",
                         "extra_headers": {"x-tenant": "legacy-a"},
-                    },
-                },
-                {
-                    "model_name": "__legacy_openai__",
-                    "litellm_params": {
-                        "model": "__legacy_openai__",
-                        "api_key": "sk-openai-legacy-b",
-                        "api_base": "https://legacy-b.example/v1",
-                        "extra_headers": {"x-tenant": "legacy-b"},
                     },
                 },
             ]
@@ -335,6 +326,7 @@ class TestAnalyzerGenerateText:
 
         def _fake_call_litellm_with_param_recovery(call, **kwargs):
             captured["model_list"] = kwargs.get("model_list")
+            captured["call_kwargs"] = kwargs.get("call_kwargs")
             return SimpleNamespace(
                 choices=[SimpleNamespace(message=SimpleNamespace(content="ok"))],
                 usage=None,
@@ -346,16 +338,9 @@ class TestAnalyzerGenerateText:
         assert text == "ok"
         passed_model_list = captured.get("model_list")
         assert passed_model_list is not None
-        assert len(passed_model_list) == 2
-        assert all(item["litellm_params"].get("model") == "openai/gpt-4o-mini" for item in passed_model_list)
-        assert [item["litellm_params"]["api_base"] for item in passed_model_list] == [
-            "https://legacy-a.example/v1",
-            "https://legacy-b.example/v1",
-        ]
-        assert [item["litellm_params"]["extra_headers"] for item in passed_model_list] == [
-            {"x-tenant": "legacy-a"},
-            {"x-tenant": "legacy-b"},
-        ]
+        assert len(passed_model_list) == 1
+        assert captured["call_kwargs"]["api_key"] == "sk-openai-legacy-a"
+        assert captured["call_kwargs"]["api_base"] == "https://legacy-a.example/v1"
 
     def test_call_litellm_stream_falls_back_to_non_stream_before_first_chunk(self):
         analyzer = self._make_analyzer()

@@ -92,6 +92,11 @@ class SystemConfigService:
     _WEB_SETTINGS_LLM_CHANNEL_SUPPORT_KEY_RE = re.compile(
         r"^LLM_([A-Z0-9_]+)_(PROTOCOL|BASE_URL|API_KEY|API_KEYS|MODELS|EXTRA_HEADERS|ENABLED)$"
     )
+    _LEGACY_LLM_MULTI_KEYS = {
+        "GEMINI_API_KEY": "GEMINI_API_KEYS",
+        "DEEPSEEK_API_KEY": "DEEPSEEK_API_KEYS",
+        "OPENAI_API_KEY": "OPENAI_API_KEYS",
+    }
     _LLM_CAPABILITY_PROBE_IMAGE = (
         "data:image/png;base64,"
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII="
@@ -277,6 +282,7 @@ class SystemConfigService:
             llm_channel_match = cls._WEB_SETTINGS_LLM_CHANNEL_SUPPORT_KEY_RE.match(key)
             if (
                 key in registered_keys
+                or key in cls._LEGACY_LLM_MULTI_KEYS.values()
                 or key == "STOCK_LIST"
                 or (llm_channel_match and llm_channel_match.group(1) in channel_names)
             ):
@@ -292,6 +298,10 @@ class SystemConfigService:
             **runtime_config_map,
             **saved_config_map,
         }
+        for single_key, legacy_key in self._LEGACY_LLM_MULTI_KEYS.items():
+            legacy_values = self._split_csv(config_map.get(legacy_key, ""))
+            if legacy_values:
+                config_map[single_key] = legacy_values[0]
         registered_keys = set(get_registered_field_keys())
         all_keys = set(config_map.keys()) | registered_keys
         if include_schema:
@@ -1362,6 +1372,14 @@ class SystemConfigService:
             if bool(field_schema.get("is_sensitive", False)):
                 sensitive_keys.add(key)
 
+        for single_key, legacy_key in self._LEGACY_LLM_MULTI_KEYS.items():
+            if single_key in submitted_keys and legacy_key not in submitted_keys:
+                single_value = next(value for key, value in updates if key == single_key)
+                legacy_value = previous_map.get(legacy_key, os.getenv(legacy_key, ""))
+                if single_value != mask_token and legacy_value.strip():
+                    updates.append((legacy_key, ""))
+                    sensitive_keys.add(legacy_key)
+
         updated_keys, skipped_masked_keys, new_version = self._manager.apply_updates(
             updates=updates,
             sensitive_keys=sensitive_keys,
@@ -1620,6 +1638,19 @@ class SystemConfigService:
             is_sensitive = bool(field_schema.get("is_sensitive", False))
 
             if is_sensitive and value == mask_token and saved_config_map.get(key):
+                continue
+
+            channel_match = self._WEB_SETTINGS_LLM_CHANNEL_SUPPORT_KEY_RE.match(key)
+            if (
+                key in self._LEGACY_LLM_MULTI_KEYS
+                or (channel_match and channel_match.group(2) == "API_KEY")
+            ) and "," in value:
+                issues.append({
+                    "key": key,
+                    "code": "multiple_api_keys",
+                    "message": "Only one AI API key is supported",
+                    "severity": "error",
+                })
                 continue
 
             updated_map[key] = value
@@ -3208,12 +3239,11 @@ class SystemConfigService:
                     effective_map.get("ANSPIRE_LLM_BASE_URL")
                     or ANSPIRE_LLM_BASE_URL_DEFAULT
                 ).strip()
-            api_key_value = (
-                (effective_map.get(f"{prefix}_API_KEYS") or "").strip()
-                or (effective_map.get(f"{prefix}_API_KEY") or "").strip()
-            )
+            legacy_keys = SystemConfigService._split_csv(effective_map.get(f"{prefix}_API_KEYS") or "")
+            api_key_value = legacy_keys[0] if legacy_keys else (effective_map.get(f"{prefix}_API_KEY") or "").strip()
             if name.lower() == "anspire" and not api_key_value:
-                api_key_value = (effective_map.get("ANSPIRE_API_KEYS") or "").strip()
+                anspire_keys = SystemConfigService._split_csv(effective_map.get("ANSPIRE_API_KEYS") or "")
+                api_key_value = anspire_keys[0] if anspire_keys else ""
             models_value = [
                 model.strip()
                 for model in (effective_map.get(f"{prefix}_MODELS") or "").split(",")
@@ -3695,4 +3725,11 @@ class SystemConfigService:
                     "actual": api_key_value,
                 }
             )
+        elif "," in api_key_value:
+            issues.append({
+                "key": api_key_key,
+                "code": "multiple_api_keys",
+                "message": "Only one AI API key is supported",
+                "severity": "error",
+            })
         return issues, resolved_protocol

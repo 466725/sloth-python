@@ -2103,7 +2103,6 @@ class GeminiAnalyzer:
         self._use_legacy_default_prompt_override = use_legacy_default_prompt
         self._resolved_prompt_state: Optional[Dict[str, Any]] = None
         self._router = None
-        self._legacy_router_model_list: List[Dict[str, Any]] = []
         self._litellm_available = False
         self._init_litellm()
         if not self._litellm_available:
@@ -2202,47 +2201,6 @@ class GeminiAnalyzer:
             e.get('model_name', '').startswith('__legacy_') for e in config.llm_model_list
         )
 
-    @staticmethod
-    def _legacy_router_provider_alias(model: str) -> str:
-        provider = model.split("/", 1)[0] if "/" in model else "openai"
-        return f"__legacy_{provider}__"
-
-    @staticmethod
-    def _build_legacy_router_model_list_from_config(
-        model: str,
-        model_list: List[Dict[str, Any]],
-    ) -> List[Dict[str, Any]]:
-        """Build legacy-router candidates from configured legacy llm_model_list entries."""
-        if not model:
-            return []
-        target_model = model
-        target_legacy_alias = GeminiAnalyzer._legacy_router_provider_alias(model)
-        legacy_entries: List[Dict[str, Any]] = []
-        for entry in model_list or []:
-            if not isinstance(entry, dict):
-                continue
-            model_name = str(entry.get("model_name") or "").strip()
-            if model_name != target_legacy_alias:
-                continue
-
-            params = entry.get("litellm_params")
-            if not isinstance(params, dict):
-                continue
-
-            api_key = str(params.get("api_key") or "").strip()
-            if not api_key or len(api_key) < 8:
-                continue
-
-            deployed_params = dict(params)
-            deployed_params["model"] = target_model
-            deployed_params["api_key"] = api_key
-            legacy_entries.append({
-                "model_name": target_model,
-                "litellm_params": deployed_params,
-            })
-
-        return legacy_entries
-
     def _init_litellm(self) -> None:
         """Initialize litellm Router from channels / YAML / legacy keys."""
         config = self._get_runtime_config()
@@ -2275,48 +2233,8 @@ class GeminiAnalyzer:
                 )
                 return
 
-        # --- Legacy path: build Router for multi-key, or use single key ---
+        # --- Legacy path: use the provider's single key ---
         keys = get_api_keys_for_model(litellm_model, config)
-        legacy_model_list = self._build_legacy_router_model_list_from_config(
-            litellm_model,
-            config.llm_model_list,
-        )
-        if len(legacy_model_list) <= 1 and keys:
-            extra_params = extra_litellm_params(litellm_model, config)
-            configured_model_list = [
-                {
-                    "model_name": litellm_model,
-                    "litellm_params": {
-                        "model": litellm_model,
-                        "api_key": k,
-                        **extra_params,
-                    },
-                }
-                for k in keys
-            ]
-            if not legacy_model_list:
-                legacy_model_list = configured_model_list
-            elif len(legacy_model_list) < len(configured_model_list):
-                legacy_model_list = configured_model_list
-
-        if len(legacy_model_list) > 1:
-            self._legacy_router_model_list = legacy_model_list
-            try:
-                self._router = Router(
-                    model_list=legacy_model_list,
-                    routing_strategy="simple-shuffle",
-                    num_retries=2,
-                )
-            except TypeError:
-                logger.debug("Analyzer LLM: Legacy Router constructor signature not compatible; using legacy model_list fallback")
-                self._router = None
-            else:
-                logger.info(
-                    f"Analyzer LLM: Legacy Router initialized with {len(legacy_model_list)} keys "
-                    f"for {litellm_model}"
-                )
-                return
-
         if keys:
             logger.info(f"Analyzer LLM: litellm initialized (model={litellm_model})")
         else:
@@ -2344,9 +2262,6 @@ class GeminiAnalyzer:
         effective_kwargs = dict(call_kwargs)
         if use_channel_router and self._router and model in router_model_names:
             return self._router.completion(**effective_kwargs)
-        if self._router and model == config.litellm_model and not use_channel_router:
-            return self._router.completion(**effective_kwargs)
-
         keys = get_api_keys_for_model(model, config)
         if keys:
             effective_kwargs["api_key"] = keys[0]
@@ -2575,9 +2490,6 @@ class GeminiAnalyzer:
         router_model_names = set(get_configured_llm_models(config.llm_model_list))
         for model in models_to_try:
             recovery_model_list = config.llm_model_list
-            legacy_router_model_list = getattr(self, "_legacy_router_model_list", None) or []
-            if legacy_router_model_list and model == config.litellm_model and not use_channel_router:
-                recovery_model_list = legacy_router_model_list
             usage_model, usage_provider = resolved_model_provider_identity(model, recovery_model_list)
 
             try:
@@ -2612,7 +2524,6 @@ class GeminiAnalyzer:
                     call_kwargs["extra_body"] = extra
                 uses_router = (
                     (use_channel_router and self._router and model in router_model_names)
-                    or (self._router and model == config.litellm_model and not use_channel_router)
                 )
                 if not uses_router:
                     try:

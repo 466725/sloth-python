@@ -17,7 +17,7 @@ than upgrading either package independently.
 | Method | Best for | Main settings |
 | --- | --- | --- |
 | Legacy provider variables | A simple single-provider setup | `LITELLM_MODEL` and the provider's existing API key |
-| Channels | Multiple providers, multiple keys, or Web-based configuration | `LLM_CHANNELS` and `LLM_<CHANNEL>_*` |
+| Channels | Multiple providers or Web-based configuration | `LLM_CHANNELS` and `LLM_<CHANNEL>_*` |
 | LiteLLM YAML | Advanced routing aliases or custom deployments | `LITELLM_CONFIG` and `LITELLM_MODEL` |
 
 Configuration precedence is **YAML → Channels → legacy provider settings**.
@@ -43,8 +43,8 @@ block saving the configuration.
 
 ## Configure Channels
 
-Each channel has a name and may define a protocol, base URL, one or more API
-keys, one or more model IDs, optional extra headers, and an enabled flag. The
+Each channel has a name and may define a protocol, base URL, one API
+key, one or more model IDs, optional extra headers, and an enabled flag. The
 `LLM_CHANNELS` value is a comma-separated list of channel names. For example:
 
 ```dotenv
@@ -56,7 +56,7 @@ LLM_DEEPSEEK_API_KEY=replace-with-a-secret
 LLM_DEEPSEEK_MODELS=deepseek-v4-flash,deepseek-v4-pro
 
 LLM_GEMINI_PROTOCOL=gemini
-LLM_GEMINI_API_KEYS=key-one,key-two
+LLM_GEMINI_API_KEY=replace-with-a-secret
 LLM_GEMINI_MODELS=gemini-3.1-pro-preview
 
 LITELLM_MODEL=deepseek/deepseek-v4-flash
@@ -76,8 +76,16 @@ LITELLM_MODEL=openai/model-a
 ```
 
 Keep API keys and headers containing credentials in a private `.env` file or
-secret store; do not commit real values. A channel may use `LLM_<CHANNEL>_API_KEY`
-or `LLM_<CHANNEL>_API_KEYS`. Set `LLM_<CHANNEL>_ENABLED=false` to skip a channel.
+secret store; do not commit real values. Set `LLM_<CHANNEL>_ENABLED=false`
+to skip a channel.
+
+Existing plural AI key settings continue to use their first nonempty key; other
+keys are ignored for AI requests. To replace it, save a single key in the
+provider or channel editor. The shared `ANSPIRE_API_KEYS` list remains available
+for news search, but only its first key is used for AI. In channel and YAML
+configurations, deployments with the same provider protocol and base URL use
+the first key for that endpoint; separate endpoints keep separate keys. A
+warning is logged when different keys are configured for the same endpoint.
 Enabled channels require at least one API key. The host running DSA must be able
 to reach any configured custom endpoint.
 

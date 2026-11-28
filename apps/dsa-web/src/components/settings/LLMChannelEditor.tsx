@@ -242,13 +242,13 @@ function resolveInitialChannelApiKeyValue(
   const apiKeyValue = (itemValueByKey.get(apiKeyKey) || '').trim();
 
   if (apiKeysValue && itemSourceByKey.has(apiKeysKey)) {
-    return apiKeysValue;
+    return apiKeysValue.split(',').map((key) => key.trim()).find(Boolean) || '';
   }
   if (apiKeyValue && itemSourceByKey.has(apiKeyKey)) {
     return apiKeyValue;
   }
   if (apiKeysValue) {
-    return apiKeysValue;
+    return apiKeysValue.split(',').map((key) => key.trim()).find(Boolean) || '';
   }
   if (apiKeyValue) {
     return apiKeyValue;
@@ -374,7 +374,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
     (model) => !discoveredModels.some((discoveredModel) => areModelsEquivalent(model, discoveredModel, channel.protocol)),
   );
   const modelCount = selectedModels.length;
-  const hasKey = channel.apiKey.split(',').some((key) => key.trim());
+  const hasKey = Boolean(channel.apiKey.trim());
   const statusVariant = testState?.status === 'success'
     ? 'success'
     : testState?.status === 'error'
@@ -584,7 +584,7 @@ const ChannelRow: React.FC<ChannelRowProps> = ({
               label="API Key"
               fieldKey="LLM_CHANNEL_API_KEY"
               helpKey="settings.llm_channel.api_key"
-              examples={['LLM_DEEPSEEK_API_KEY=sk-xxxx', 'LLM_OPENAI_API_KEYS=sk-key-1,sk-key-2']}
+              examples={['LLM_DEEPSEEK_API_KEY=sk-xxxx', 'LLM_OPENAI_API_KEY=sk-xxxx']}
             />
           <Input
             id={apiKeyInputId}
@@ -1238,12 +1238,11 @@ function channelsToUpdateItems(
 
   for (const channel of channels) {
     const prefix = `LLM_${channel.name.toUpperCase()}`;
-    const isMultiKey = channel.apiKey.includes(',');
     updates.push({ key: `${prefix}_PROTOCOL`, value: channel.protocol });
     updates.push({ key: `${prefix}_BASE_URL`, value: channel.baseUrl });
     updates.push({ key: `${prefix}_ENABLED`, value: channel.enabled ? 'true' : 'false' });
-    updates.push({ key: `${prefix}_API_KEY${isMultiKey ? 'S' : ''}`, value: channel.apiKey });
-    updates.push({ key: `${prefix}_API_KEY${isMultiKey ? '' : 'S'}`, value: '' });
+    updates.push({ key: `${prefix}_API_KEY`, value: channel.apiKey });
+    updates.push({ key: `${prefix}_API_KEYS`, value: '' });
     updates.push({ key: `${prefix}_MODELS`, value: channel.models });
   }
 
@@ -1554,6 +1553,10 @@ export const LLMChannelEditor: React.FC<LLMChannelEditorProps> = ({
       setSaveMessage({ type: 'local-error', text: (language) => LLM_CHANNEL_TEXT[language].invalidName });
       return;
     }
+    if (channels.some((channel) => channel.apiKey.includes(','))) {
+      setSaveMessage({ type: 'local-error', text: (language) => LLM_CHANNEL_TEXT[language].invalidKey });
+      return;
+    }
 
     const runtimeConfigForSave = managesRuntimeConfig
       ? sanitizeRuntimeConfigForSave(runtimeConfig, availableModels, savedItemMap)
@@ -1621,10 +1624,10 @@ export const LLMChannelEditor: React.FC<LLMChannelEditorProps> = ({
         (item) => {
           const itemKey = item.key.toUpperCase();
           const initialItemSource = initialItemSourceByKey.get(itemKey);
-          if (initialItemSource === false) {
+          if (isChannelSecretFieldKey(itemKey)) {
             return changedKeys.has(itemKey);
           }
-          if (isChannelSecretFieldKey(itemKey) && initialItemSource === undefined) {
+          if (initialItemSource === false) {
             return changedKeys.has(itemKey);
           }
           return true;

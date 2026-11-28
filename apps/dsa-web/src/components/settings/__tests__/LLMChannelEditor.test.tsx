@@ -417,6 +417,33 @@ describe('LLMChannelEditor', () => {
     expect(updateItemMap.has('LLM_MY_PROXY_API_KEYS')).toBe(false);
   });
 
+  it('keeps the first existing channel key without clearing it when editing other fields', async () => {
+    update.mockResolvedValue({ success: true, warnings: [] });
+    const items = localizedChannelItems
+      .filter((item) => item.key !== 'LLM_OPENAI_API_KEY')
+      .concat([{ key: 'LLM_OPENAI_API_KEYS', value: 'first-key,second-key' }]);
+    render(<LLMChannelEditor items={items} configVersion="v1" maskToken="******" onSaved={() => {}} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /OpenAI 官方/i }));
+    expect(screen.getByLabelText('API Key')).toHaveValue('first-key');
+    fireEvent.change(screen.getByLabelText('模型（逗号分隔）'), { target: { value: 'gpt-4o-mini,gpt-4o' } });
+    fireEvent.click(screen.getByRole('button', { name: '保存 AI 配置' }));
+
+    await waitFor(() => expect(update).toHaveBeenCalled());
+    const keys = update.mock.calls[0][0].items.map((item: { key: string }) => item.key);
+    expect(keys).not.toContain('LLM_OPENAI_API_KEY');
+    expect(keys).not.toContain('LLM_OPENAI_API_KEYS');
+  });
+
+  it('rejects multiple keys entered into a channel', () => {
+    render(<LLMChannelEditor items={localizedChannelItems} configVersion="v1" maskToken="******" onSaved={() => {}} />);
+    fireEvent.click(screen.getByRole('button', { name: /OpenAI 官方/i }));
+    fireEvent.change(screen.getByLabelText('API Key'), { target: { value: 'first-key,second-key' } });
+    fireEvent.click(screen.getByRole('button', { name: '保存 AI 配置' }));
+    expect(screen.getByText('每个渠道只能填写一个 API Key。')).toBeInTheDocument();
+    expect(update).not.toHaveBeenCalled();
+  });
+
   it('renames a mixed raw/runtime channel and clears persisted API key field', async () => {
     update.mockResolvedValue({
       success: true,

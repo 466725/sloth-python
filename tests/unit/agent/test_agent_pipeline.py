@@ -1899,8 +1899,8 @@ class TestAgentConstructionChain(unittest.TestCase):
         self.assertNotIn("temperature", mock_completion.call_args_list[1].kwargs)
 
     @patch("ai_stock.agent.llm_adapter.Router")
-    def test_llm_adapter_legacy_router_recovery_cache_is_scoped_to_endpoint(self, mock_router):
-        """Legacy multi-key Router recoveries should not leak across base URLs."""
+    def test_llm_adapter_channel_router_recovery_cache_is_scoped_to_endpoint(self, mock_router):
+        """Channel Router recoveries should not leak across base URLs."""
         from ai_stock.llm.generation_params import clear_litellm_generation_param_recovery_cache
 
         clear_litellm_generation_param_recovery_cache()
@@ -1928,11 +1928,18 @@ class TestAgentConstructionChain(unittest.TestCase):
             agent_litellm_model="",
             litellm_model="openai/shared-model",
             litellm_fallback_models=[],
-            llm_model_list=[],
+            llm_model_list=[{
+                "model_name": "openai/shared-model",
+                "litellm_params": {
+                    "model": "openai/shared-model",
+                    "api_base": "https://strict.example/v1",
+                    "api_key": "sk-strict-key",
+                },
+            }],
             llm_temperature=0.2,
             gemini_api_keys=[],
             anthropic_api_keys=[],
-            openai_api_keys=["sk-strict-key-1", "sk-strict-key-2"],
+            openai_api_keys=[],
             deepseek_api_keys=[],
             openai_base_url="https://strict.example/v1",
         )
@@ -1940,11 +1947,18 @@ class TestAgentConstructionChain(unittest.TestCase):
             agent_litellm_model="",
             litellm_model="openai/shared-model",
             litellm_fallback_models=[],
-            llm_model_list=[],
+            llm_model_list=[{
+                "model_name": "openai/shared-model",
+                "litellm_params": {
+                    "model": "openai/shared-model",
+                    "api_base": "https://flex.example/v1",
+                    "api_key": "sk-flex-key",
+                },
+            }],
             llm_temperature=0.2,
             gemini_api_keys=[],
             anthropic_api_keys=[],
-            openai_api_keys=["sk-flex-key-1", "sk-flex-key-2"],
+            openai_api_keys=[],
             deepseek_api_keys=[],
             openai_base_url="https://flex.example/v1",
         )

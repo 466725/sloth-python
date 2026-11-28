@@ -85,7 +85,6 @@ class LiteLLMFallbackPricingTestCase(unittest.TestCase):
                 }
             ],
         )
-        adapter._legacy_router_model_list = []
 
         events = []
 
@@ -123,7 +122,6 @@ class LiteLLMFallbackPricingTestCase(unittest.TestCase):
                 },
             ],
         )
-        adapter._legacy_router_model_list = []
 
         events = []
 

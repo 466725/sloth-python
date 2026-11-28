@@ -2,7 +2,9 @@
 """Tests for env-based LLM channel parsing."""
 
 import os
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 from tests.unit.llm.litellm_stub import ensure_litellm_stub
@@ -13,6 +15,7 @@ from ai_stock.config import (
     ANSPIRE_LLM_BASE_URL_DEFAULT,
     ANSPIRE_LLM_MODEL_DEFAULT,
     Config,
+    get_api_keys_for_model,
     get_effective_agent_models_to_try,
     get_effective_agent_primary_model,
     normalize_litellm_temperature,
@@ -25,6 +28,132 @@ from ai_stock.services.system_config_service import SystemConfigService
 
 
 class LLMChannelConfigTestCase(unittest.TestCase):
+    @patch("ai_stock.config.setup_env")
+    def test_existing_multi_keys_use_first_for_ai_but_preserve_anspire_search(self, _mock_setup_env) -> None:
+        env = {
+            "ANSPIRE_API_KEYS": "anspire-first,anspire-second",
+            "GEMINI_API_KEYS": "gemini-first,gemini-second",
+            "DEEPSEEK_API_KEYS": "deepseek-first,deepseek-second",
+            "OPENAI_API_KEYS": "openai-first,openai-second",
+            "LITELLM_MODEL": "openai/test",
+        }
+        with patch.dict(os.environ, env, clear=True), self.assertLogs("ai_stock.config", level="WARNING"):
+            config = Config._load_from_env()
+
+        self.assertEqual(config.gemini_api_keys, ["gemini-first"])
+        self.assertEqual(config.deepseek_api_keys, ["deepseek-first"])
+        self.assertEqual(config.openai_api_keys, ["openai-first"])
+        self.assertEqual(config.anspire_api_keys, ["anspire-first", "anspire-second"])
+
+    @patch("ai_stock.config.setup_env")
+    def test_short_first_key_does_not_fall_back_to_another_key(self, _mock_setup_env) -> None:
+        env = {
+            "OPENAI_API_KEYS": "short,second-key",
+            "OPENAI_API_KEY": "single-key",
+            "LITELLM_MODEL": "openai/test",
+        }
+        with patch.dict(os.environ, env, clear=True), self.assertLogs("ai_stock.config", level="WARNING"):
+            config = Config._load_from_env()
+            self.assertEqual(get_api_keys_for_model("openai/test", config), ["short"])
+
+    @patch("ai_stock.config.setup_env")
+    def test_channels_limit_key_per_endpoint(self, _mock_setup_env) -> None:
+        env = {
+            "LLM_CHANNELS": "first,second,other",
+            "LLM_FIRST_PROTOCOL": "openai",
+            "LLM_FIRST_BASE_URL": "https://first.example/v1",
+            "LLM_FIRST_API_KEYS": "first-key,extra-key",
+            "LLM_FIRST_MODELS": "model-a",
+            "LLM_SECOND_PROTOCOL": "openai",
+            "LLM_SECOND_BASE_URL": "https://first.example/v1",
+            "LLM_SECOND_API_KEY": "second-key",
+            "LLM_SECOND_MODELS": "model-b",
+            "LLM_OTHER_PROTOCOL": "openai",
+            "LLM_OTHER_BASE_URL": "https://other.example/v1",
+            "LLM_OTHER_API_KEY": "other-key",
+            "LLM_OTHER_MODELS": "model-c",
+        }
+        with patch.dict(os.environ, env, clear=True), self.assertLogs("ai_stock.config", level="WARNING"):
+            config = Config._load_from_env()
+
+        self.assertEqual(
+            [entry["litellm_params"]["api_key"] for entry in config.llm_model_list],
+            ["first-key", "first-key", "other-key"],
+        )
+
+    @patch("ai_stock.config.setup_env")
+    def test_direct_fallback_reuses_channel_key_for_same_endpoint(self, _mock_setup_env) -> None:
+        env = {
+            "LLM_CHANNELS": "primary",
+            "LLM_PRIMARY_PROTOCOL": "openai",
+            "LLM_PRIMARY_BASE_URL": "https://first.example/v1",
+            "LLM_PRIMARY_API_KEY": "channel-key",
+            "LLM_PRIMARY_MODELS": "model-a",
+            "OPENAI_BASE_URL": "https://first.example/v1",
+            "OPENAI_API_KEY": "legacy-key",
+        }
+        with patch.dict(os.environ, env, clear=True):
+            config = Config._load_from_env()
+
+        self.assertEqual(get_api_keys_for_model("openai/fallback", config), ["channel-key"])
+        config.openai_base_url = "https://other.example/v1"
+        self.assertEqual(get_api_keys_for_model("openai/fallback", config), ["legacy-key"])
+
+    @patch("ai_stock.config.setup_env")
+    def test_explicit_openai_default_matches_implicit_fallback_endpoint(self, _mock_setup_env) -> None:
+        env = {
+            "LLM_CHANNELS": "primary",
+            "LLM_PRIMARY_PROTOCOL": "openai",
+            "LLM_PRIMARY_BASE_URL": "https://api.openai.com/v1",
+            "LLM_PRIMARY_API_KEY": "channel-key",
+            "LLM_PRIMARY_MODELS": "model-a",
+            "OPENAI_API_KEY": "legacy-key",
+        }
+        with patch.dict(os.environ, env, clear=True):
+            config = Config._load_from_env()
+            self.assertEqual(get_api_keys_for_model("openai/fallback", config), ["channel-key"])
+
+    @patch("ai_stock.config.setup_env")
+    @patch.object(Config, "_parse_litellm_yaml")
+    def test_yaml_uses_one_key_per_provider_endpoint(self, parse_yaml, _mock_setup_env) -> None:
+        parse_yaml.return_value = [
+            {"model_name": "a", "litellm_params": {"model": "openai/a", "api_base": "https://a.example", "api_key": "first-key"}},
+            {"model_name": "b", "litellm_params": {"model": "openai/b", "api_base": "https://a.example", "api_key": "second-key"}},
+            {"model_name": "c", "litellm_params": {"model": "openai/c", "api_base": "https://b.example", "api_key": "other-key"}},
+        ]
+        with patch.dict(os.environ, {"LITELLM_CONFIG": "test.yaml"}, clear=True), self.assertLogs("ai_stock.config", level="WARNING"):
+            config = Config._load_from_env()
+
+        self.assertEqual(
+            [entry["litellm_params"]["api_key"] for entry in config.llm_model_list],
+            ["first-key", "first-key", "other-key"],
+        )
+
+    @patch("ai_stock.config.setup_env")
+    def test_yaml_resolves_environment_keys_before_enforcing_limit(self, _mock_setup_env) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "models.yaml"
+            path.write_text(
+                "model_list:\n"
+                "  - model_name: a\n"
+                "    litellm_params:\n"
+                "      model: openai/a\n"
+                "      api_key: os.environ/FIRST_TEST_KEY\n"
+                "  - model_name: b\n"
+                "    litellm_params:\n"
+                "      model: openai/b\n"
+                "      api_key: os.environ/SECOND_TEST_KEY\n",
+                encoding="utf-8",
+            )
+            env = {"LITELLM_CONFIG": str(path), "FIRST_TEST_KEY": "first-key", "SECOND_TEST_KEY": "second-key"}
+            with patch.dict(os.environ, env, clear=True), self.assertLogs("ai_stock.config", level="WARNING"):
+                config = Config._load_from_env()
+
+        self.assertEqual(
+            [entry["litellm_params"]["api_key"] for entry in config.llm_model_list],
+            ["first-key", "first-key"],
+        )
+
     @patch("ai_stock.config.setup_env")
     @patch.object(Config, "_parse_litellm_yaml", return_value=[])
     def test_anspire_key_enables_openai_compatible_legacy_model(self, _mock_parse_yaml, _mock_setup_env) -> None:

@@ -269,15 +269,13 @@ class LLMToolAdapter:
     """Unified adapter for tool-calling via LiteLLM.
 
     Supports providers (Gemini, OpenAI, DeepSeek, etc.) through
-    a single litellm.completion() interface with optional Router for multi-key
-    load balancing.
+    a single litellm.completion() interface with optional channel routing.
     """
 
     def __init__(self, config=None):
         config = config or get_config()
         self._config = config
-        self._router = None          # litellm Router (multi-key primary model)
-        self._legacy_router_model_list: List[Dict[str, Any]] = []
+        self._router = None
         self._litellm_available = False
         self._init_litellm()
     def _has_channel_config(self) -> bool:
@@ -289,7 +287,6 @@ class LLMToolAdapter:
     def _init_litellm(self) -> None:
         """Initialize litellm Router from channels / YAML / legacy keys."""
         config = self._config
-        self._legacy_router_model_list = []
         litellm_model = get_effective_agent_primary_model(config)
         if not litellm_model:
             logger.warning("Agent LLM: no effective primary model configured")
@@ -323,31 +320,7 @@ class LLMToolAdapter:
             )
             return
 
-        if len(keys) > 1:
-            ep = extra_litellm_params(litellm_model, config)
-            legacy_model_list = [
-                {
-                    "model_name": litellm_model,
-                    "litellm_params": {
-                        "model": litellm_model,
-                        "api_key": k,
-                        **ep,
-                    },
-                }
-                for k in keys
-            ]
-            self._legacy_router_model_list = legacy_model_list
-            self._router = Router(
-                model_list=legacy_model_list,
-                routing_strategy="simple-shuffle",
-                num_retries=2,
-            )
-            logger.info(
-                f"Agent LLM: Legacy Router initialized with {len(keys)} keys "
-                f"for {litellm_model}"
-            )
-        else:
-            logger.info(f"Agent LLM: litellm initialized (model={litellm_model})")
+        logger.info(f"Agent LLM: litellm initialized (model={litellm_model})")
 
     @property
     def is_available(self) -> bool:
@@ -521,17 +494,11 @@ class LLMToolAdapter:
         if tools:
             call_kwargs["tools"] = tools
 
-        # Use Router for primary model (multi-key), direct litellm for others
+        # Use the channel Router where configured, direct litellm for other models.
         use_channel_router = self._has_channel_config()
         _router_model_names = set(get_configured_llm_models(self._config.llm_model_list))
-        agent_primary_model = get_effective_agent_primary_model(self._config)
-        uses_router = (
-            bool(use_channel_router and self._router and model in _router_model_names)
-            or bool(self._router and model == agent_primary_model and not use_channel_router)
-        )
+        uses_router = bool(use_channel_router and self._router and model in _router_model_names)
         recovery_model_list = self._config.llm_model_list
-        if self._router and model == agent_primary_model and not use_channel_router:
-            recovery_model_list = self._legacy_router_model_list or self._config.llm_model_list
         if not uses_router:
             keys = get_api_keys_for_model(model, self._config)
             if keys:
@@ -548,15 +515,6 @@ class LLMToolAdapter:
         )
         if use_channel_router and self._router and model in _router_model_names:
             # Channel / YAML path: Router manages all models in its model_list
-            response = call_litellm_with_param_recovery(
-                lambda kwargs: self._router.completion(**kwargs),
-                model=model,
-                call_kwargs=call_kwargs,
-                model_list=recovery_model_list,
-                logger=logger,
-            )
-        elif self._router and model == agent_primary_model and not use_channel_router:
-            # Legacy path: Router for primary model multi-key
             response = call_litellm_with_param_recovery(
                 lambda kwargs: self._router.completion(**kwargs),
                 model=model,

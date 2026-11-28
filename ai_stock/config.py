@@ -67,6 +67,13 @@ ANSPIRE_LLM_BASE_URL_DEFAULT = "https://open-gateway.anspire.cn/v6"
 ANSPIRE_LLM_MODEL_DEFAULT = "Doubao-Seed-2.0-lite"
 
 
+def _first_llm_key(value: str, setting: str) -> str:
+    keys = [key.strip() for key in value.split(",") if key.strip()]
+    if len(keys) > 1:
+        logger.warning("%s contains multiple AI keys; only the first will be used", setting)
+    return keys[0] if keys else ""
+
+
 AGENT_MAX_STEPS_DEFAULT = 10
 FUNDAMENTAL_STAGE_TIMEOUT_SECONDS_DEFAULT = 8.0
 NEWS_STRATEGY_WINDOWS: Dict[str, int] = {
@@ -490,6 +497,38 @@ def _get_litellm_provider(model: str) -> str:
     return "openai"
 
 
+def _llm_endpoint_identity(params: Dict[str, Any]) -> Tuple[str, str]:
+    model = str(params.get("model") or "")
+    provider = str(params.get("custom_llm_provider") or _get_litellm_provider(model)).lower()
+    endpoint = str(params.get("api_base") or "").strip()
+    if not endpoint and provider == "openai":
+        endpoint = os.getenv("OPENAI_BASE_URL") or os.getenv("OPENAI_API_BASE") or "https://api.openai.com/v1"
+    elif not endpoint and provider == "deepseek":
+        endpoint = "https://api.deepseek.com"
+    endpoint = endpoint.rstrip("/")
+    return provider, endpoint
+
+
+def _single_key_deployments(model_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Keep the first credential for each provider and endpoint."""
+    first_keys: Dict[Tuple[str, str], Any] = {}
+    for entry in model_list:
+        params = entry.get("litellm_params")
+        if not isinstance(params, dict):
+            continue
+        identity = _llm_endpoint_identity(params)
+        api_key = params.get("api_key")
+        if identity not in first_keys:
+            first_keys[identity] = api_key
+        elif api_key != first_keys[identity]:
+            logger.warning("Multiple AI keys configured for a provider endpoint; only the first will be used")
+            if first_keys[identity] is None:
+                params.pop("api_key", None)
+            else:
+                params["api_key"] = first_keys[identity]
+    return model_list
+
+
 def _uses_direct_env_provider(model: str) -> bool:
     """Whether runtime handles the model via direct litellm env/provider resolution."""
     provider = _get_litellm_provider(model)
@@ -617,7 +656,7 @@ class Config:
     llm_channel_names: List[str] = field(default_factory=list)
     # Pre-built LiteLLM Router model_list (populated from channels, YAML, or legacy keys)
     llm_model_list: List[Dict[str, Any]] = field(default_factory=list)
-    # Multi-key support: each list is parsed from *_API_KEYS (comma-separated) with single-key fallback
+    # Legacy plural fields contain at most one LLM key.
     gemini_api_keys: List[str] = field(default_factory=list)
     openai_api_keys: List[str] = field(default_factory=list)
     deepseek_api_keys: List[str] = field(default_factory=list)
@@ -1364,33 +1403,24 @@ class Config:
     def _load_llm_environment_config(cls) -> _LLMEnvironmentConfig:
         """Resolve LLM keys, channels, model selection, and Agent settings."""
         # Multi-key values take precedence over their legacy single-key aliases.
-        gemini_api_keys = [
-            key.strip()
-            for key in os.getenv('GEMINI_API_KEYS', '').split(',')
-            if key.strip()
-        ]
-        single_gemini_key = os.getenv('GEMINI_API_KEY', '').strip()
+        gemini_key = _first_llm_key(os.getenv('GEMINI_API_KEYS', ''), 'GEMINI_API_KEYS')
+        gemini_api_keys = [gemini_key] if gemini_key else []
+        single_gemini_key = _first_llm_key(os.getenv('GEMINI_API_KEY', ''), 'GEMINI_API_KEY')
         if not gemini_api_keys and single_gemini_key:
             gemini_api_keys = [single_gemini_key]
 
-        openai_api_keys = [
-            key.strip()
-            for key in os.getenv('OPENAI_API_KEYS', '').split(',')
-            if key.strip()
-        ]
+        openai_key = _first_llm_key(os.getenv('OPENAI_API_KEYS', ''), 'OPENAI_API_KEYS')
+        openai_api_keys = [openai_key] if openai_key else []
         if not openai_api_keys:
-            single_openai_key = os.getenv('OPENAI_API_KEY', '').strip()
+            single_openai_key = _first_llm_key(os.getenv('OPENAI_API_KEY', ''), 'OPENAI_API_KEY')
             if single_openai_key:
                 openai_api_keys = [single_openai_key]
         openai_base_url = os.getenv('OPENAI_BASE_URL') or None
 
-        deepseek_api_keys = [
-            key.strip()
-            for key in os.getenv('DEEPSEEK_API_KEYS', '').split(',')
-            if key.strip()
-        ]
+        deepseek_key = _first_llm_key(os.getenv('DEEPSEEK_API_KEYS', ''), 'DEEPSEEK_API_KEYS')
+        deepseek_api_keys = [deepseek_key] if deepseek_key else []
         if not deepseek_api_keys:
-            single_deepseek_key = os.getenv('DEEPSEEK_API_KEY', '').strip()
+            single_deepseek_key = _first_llm_key(os.getenv('DEEPSEEK_API_KEY', ''), 'DEEPSEEK_API_KEY')
             if single_deepseek_key:
                 deepseek_api_keys = [single_deepseek_key]
 
@@ -1422,7 +1452,9 @@ class Config:
             and not openai_api_keys
         )
         if use_legacy_anspire:
-            openai_api_keys = list(anspire_api_keys)
+            if len(anspire_api_keys) > 1:
+                logger.warning("ANSPIRE_API_KEYS contains multiple keys; only the first will be used for AI")
+            openai_api_keys = anspire_api_keys[:1]
             openai_base_url = anspire_llm_base_url
 
         litellm_model = os.getenv('LITELLM_MODEL', '').strip()
@@ -1474,7 +1506,7 @@ class Config:
         llm_channel_names: list[str] = []
         llm_model_list: list[dict[str, Any]] = []
         if litellm_config_path:
-            llm_model_list = cls._parse_litellm_yaml(litellm_config_path)
+            llm_model_list = _single_key_deployments(cls._parse_litellm_yaml(litellm_config_path))
             if llm_model_list:
                 llm_models_source = "litellm_config"
 
@@ -1487,7 +1519,7 @@ class Config:
                     if name.strip()
                 ]
                 llm_channels = cls._parse_llm_channels(channels_raw)
-                llm_model_list = cls._channels_to_model_list(llm_channels)
+                llm_model_list = _single_key_deployments(cls._channels_to_model_list(llm_channels))
                 if llm_model_list:
                     llm_models_source = "llm_channels"
 
@@ -1635,7 +1667,7 @@ class Config:
             LLM_CHANNELS=anspire,deepseek,gemini
             LLM_ANSPIRE_PROTOCOL=openai
             LLM_ANSPIRE_BASE_URL=https://open-gateway.anspire.cn/v6
-            LLM_ANSPIRE_API_KEY=sk-xxx            (or LLM_ANSPIRE_API_KEYS=k1,k2)
+            LLM_ANSPIRE_API_KEY=sk-xxx
             LLM_ANSPIRE_MODELS=Doubao-Seed-2.0-lite
             LLM_ANSPIRE_ENABLED=true
         """
@@ -1663,16 +1695,18 @@ class Config:
                 enabled_raw = os.getenv('ANSPIRE_LLM_ENABLED')
             enabled = parse_env_bool(enabled_raw, default=True)
 
-            # API keys: LLM_{NAME}_API_KEYS (multi) > LLM_{NAME}_API_KEY (single)
+            # Existing plural settings retain their first key for compatibility.
             api_keys_raw = os.getenv(f'LLM_{ch_upper}_API_KEYS', '')
-            api_keys = [k.strip() for k in api_keys_raw.split(',') if k.strip()]
+            api_key = _first_llm_key(api_keys_raw, f'LLM_{ch_upper}_API_KEYS')
+            api_keys = [api_key] if api_key else []
             if not api_keys:
-                single_key = os.getenv(f'LLM_{ch_upper}_API_KEY', '').strip()
+                single_key = _first_llm_key(os.getenv(f'LLM_{ch_upper}_API_KEY', ''), f'LLM_{ch_upper}_API_KEY')
                 if single_key:
                     api_keys = [single_key]
             if not api_keys and ch_lower == "anspire":
                 anspire_keys_raw = os.getenv('ANSPIRE_API_KEYS', '')
-                api_keys = [k.strip() for k in anspire_keys_raw.split(',') if k.strip()]
+                api_key = _first_llm_key(anspire_keys_raw, 'ANSPIRE_API_KEYS')
+                api_keys = [api_key] if api_key else []
 
             # Models
             models_raw = os.getenv(f'LLM_{ch_upper}_MODELS', '')
@@ -1738,7 +1772,7 @@ class Config:
         model_list: List[Dict[str, Any]] = []
         for ch in channels:
             for model_name in ch['models']:
-                for api_key in ch['api_keys']:
+                for api_key in ch['api_keys'][:1]:
                     litellm_params: Dict[str, Any] = {
                         'model': model_name,
                         'api_key': api_key,
@@ -1765,8 +1799,8 @@ class Config:
     ) -> List[Dict[str, Any]]:
         """Build Router model_list from legacy per-provider keys (backward compat).
 
-        Returns a model_list where each provider's keys are expanded into
-        deployments, keyed by placeholder model_name tokens.  The analyzer
+        Returns one deployment per provider, keyed by placeholder model_name
+        tokens. The analyzer
         resolves actual model_names at call time from LITELLM_MODEL /
         LITELLM_FALLBACK_MODELS.
 
@@ -1778,7 +1812,7 @@ class Config:
         model_list: List[Dict[str, Any]] = []
 
         # Gemini keys
-        for k in gemini_keys:
+        for k in gemini_keys[:1]:
             if k and len(k) >= 8:
                 model_list.append({
                     'model_name': '__legacy_gemini__',
@@ -1786,7 +1820,7 @@ class Config:
                 })
 
         # OpenAI-compatible keys
-        for k in openai_keys:
+        for k in openai_keys[:1]:
             if k and len(k) >= 8:
                 params: Dict[str, Any] = {'model': '__legacy_openai__', 'api_key': k}
                 if openai_base_url:
@@ -1797,7 +1831,7 @@ class Config:
                 })
 
         # DeepSeek keys (native litellm provider — auto-resolves api_base)
-        for k in (deepseek_keys or []):
+        for k in (deepseek_keys or [])[:1]:
             if k and len(k) >= 8:
                 model_list.append({
                     'model_name': '__legacy_deepseek__',
@@ -2453,7 +2487,7 @@ class Config:
             # Union: fallback providers + primary model's own provider
             _all_providers = {_primary_prefix} | set(_priority_providers)
 
-            # Align with get_api_keys_for_model: keys must be non-empty and len >= 8
+            # Treat very short keys as invalid for configuration validation.
             _has_any_key = any(
                 any(k and len(k) >= 8 for k in (_VISION_KEY_MAP.get(p) or []))
                 for p in _all_providers
@@ -2506,19 +2540,26 @@ def get_config() -> Config:
 # ============================================================
 
 def get_api_keys_for_model(model: str, config: Config) -> List[str]:
-    """Return explicitly managed API keys for a litellm model (legacy path only).
-
-    When llm_model_list is populated (channels / YAML), the Router handles key
-    selection, so this function is not needed.  Kept for backward compat when
-    no Router is built and a direct litellm.completion() call is needed.
-    """
+    """Return at most one key for a direct call, matching configured endpoints."""
     provider = _get_litellm_provider(model)
+    target_params = {
+        "model": model,
+        "api_base": getattr(config, "openai_base_url", None) if provider == "openai" else None,
+    }
+    target_endpoint = _llm_endpoint_identity(target_params)
+    for entry in getattr(config, "llm_model_list", []):
+        if str(entry.get("model_name", "")).startswith("__legacy_"):
+            continue
+        params = entry.get("litellm_params")
+        if isinstance(params, dict) and _llm_endpoint_identity(params) == target_endpoint:
+            key = params.get("api_key")
+            return [key] if isinstance(key, str) and key else []
     if provider in {"gemini", "vertex_ai"}:
-        return [k for k in config.gemini_api_keys if k and len(k) >= 8]
+        return [k for k in config.gemini_api_keys[:1] if k]
     if provider == "deepseek":
-        return [k for k in config.deepseek_api_keys if k and len(k) >= 8]
+        return [k for k in config.deepseek_api_keys[:1] if k]
     if provider == "openai":
-        return [k for k in config.openai_api_keys if k and len(k) >= 8]
+        return [k for k in config.openai_api_keys[:1] if k]
     # Other LiteLLM-native providers – API key resolved from env vars
     return []
 

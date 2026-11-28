@@ -368,7 +368,7 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
     },
     "ANSPIRE_LLM_ENABLED": {
         "title": "Anspire LLM Enabled",
-        "description": "Use ANSPIRE_API_KEYS as an OpenAI-compatible Anspire LLM key when no higher-priority LLM channel or OpenAI-compatible key is configured.",
+        "description": "Use the first ANSPIRE_API_KEYS key for the OpenAI-compatible Anspire LLM gateway when no higher-priority LLM channel or OpenAI-compatible key is configured.",
         "category": "ai_model",
         "data_type": "boolean",
         "ui_control": "switch",
@@ -440,20 +440,6 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
         ],
         "warning_codes": ["secret_value"],
-    },
-    "DEEPSEEK_API_KEYS": {
-        "title": "DeepSeek API Keys (Multi)",
-        "description": "Comma-separated DeepSeek API keys for load balancing. Takes priority over DEEPSEEK_API_KEY.",
-        "category": "ai_model",
-        "data_type": "string",
-        "ui_control": "password",
-        "is_sensitive": True,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": None,
-        "options": [],
-        "validation": {"multi_value": True, "delimiter": ","},
-        "display_order": 7,
     },
     "TICKFLOW_API_KEY": {
         "title": "TickFlow API Key",
@@ -874,20 +860,6 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         ],
         "warning_codes": ["secret_value"],
     },
-    "GEMINI_API_KEYS": {
-        "title": "Gemini API Keys (Multi)",
-        "description": "Comma-separated Gemini API keys for load balancing. Takes priority over GEMINI_API_KEY.",
-        "category": "ai_model",
-        "data_type": "string",
-        "ui_control": "password",
-        "is_sensitive": True,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": None,
-        "options": [],
-        "validation": {"multi_value": True, "delimiter": ","},
-        "display_order": 11,
-    },
     "GEMINI_MODEL": {
         "title": "Gemini Model",
         "description": "Gemini model name.",
@@ -960,20 +932,6 @@ _FIELD_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             },
         ],
         "warning_codes": ["secret_value"],
-    },
-    "OPENAI_API_KEYS": {
-        "title": "OpenAI API Keys (Multi)",
-        "description": "Comma-separated OpenAI-compatible API keys for load balancing. Takes priority over OPENAI_API_KEY.",
-        "category": "ai_model",
-        "data_type": "string",
-        "ui_control": "password",
-        "is_sensitive": True,
-        "is_required": False,
-        "is_editable": True,
-        "default_value": None,
-        "options": [],
-        "validation": {"multi_value": True, "delimiter": ","},
-        "display_order": 41,
     },
     "OPENAI_BASE_URL": {
         "title": "OpenAI Base URL",
@@ -3031,24 +2989,6 @@ _FIELD_HELP_METADATA: Dict[str, Dict[str, Any]] = {
         "docs": _DOC_LLM_CONFIG,
         "warning_codes": [],
     },
-    "DEEPSEEK_API_KEYS": {
-        "help_key": "settings.ai_model.provider_keys",
-        "examples": [
-            "DEEPSEEK_API_KEYS=sk-xxxx,sk-yyyy",
-            "LITELLM_MODEL=deepseek/deepseek-v4-flash",
-        ],
-        "docs": _DOC_LLM_CONFIG,
-        "warning_codes": ["secret_value", "comma_separated_keys"],
-    },
-    "GEMINI_API_KEYS": {
-        "help_key": "settings.ai_model.provider_keys",
-        "examples": [
-            "GEMINI_API_KEYS=your_gemini_key_1,your_gemini_key_2",
-            "LITELLM_MODEL=gemini/gemini-3.1-pro-preview",
-        ],
-        "docs": _DOC_LLM_CONFIG,
-        "warning_codes": ["secret_value", "comma_separated_keys"],
-    },
     "GEMINI_MODEL": {
         "help_key": "settings.ai_model.legacy_provider_params",
         "examples": [
@@ -3075,15 +3015,6 @@ _FIELD_HELP_METADATA: Dict[str, Dict[str, Any]] = {
         ],
         "docs": _DOC_LLM_CONFIG,
         "warning_codes": ["legacy_provider_setting"],
-    },
-    "OPENAI_API_KEYS": {
-        "help_key": "settings.ai_model.provider_keys",
-        "examples": [
-            "OPENAI_API_KEYS=sk-xxxx,sk-yyyy",
-            "OPENAI_BASE_URL=https://api.example.com/v1",
-        ],
-        "docs": _DOC_LLM_CONFIG,
-        "warning_codes": ["secret_value", "comma_separated_keys"],
     },
     "OPENAI_MODEL": {
         "help_key": "settings.ai_model.legacy_provider_params",
